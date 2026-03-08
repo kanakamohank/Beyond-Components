@@ -10,18 +10,6 @@ Pipeline:
   Stage 1 → Train toy model to >99% accuracy
   Stage 2 → Find helix via activation patching + SVD + causal validation
   Stage 3 → Find carry circuit via MLP Jacobian-SVD
-
-All known bugs from prior iterations are fixed here:
-  [FIX-1]  loss = 0 scalar → proper tensor accumulation
-  [FIX-2]  Token positions are fixed/known (no index-tracking ambiguity)
-  [FIX-3]  Hook targets attn.hook_v (head-specific), not hook_resid_pre
-  [FIX-4]  np.unwrap safety check for small periods (T < 4)
-  [FIX-5]  valid_ns tracked separately from np.arange(100)
-  [FIX-6]  U-side (output) helix validation, not just V-side (input)
-  [FIX-7]  Carry/no-carry stratification in causal test
-  [FIX-8]  Multiple-testing context reported alongside BULLSEYE hits
-  [FIX-9]  W_OV = W_V @ W_O (correct TransformerLens row-vector convention)
-  [FIX-10] Jacobian computed over carry-specific inputs only (not full dataset)
 """
 
 # ─────────────────────────────────────────────────────────────
@@ -79,6 +67,32 @@ POS_EQ     = 5
 TOK_PLUS   = 10
 TOK_EQ     = 11
 VOCAB_SIZE = 12
+context = 10
+dim_mlp = 512
+dim_head = 32
+numof_heads = 4
+dim_model = 128
+nof_layers = 2
+activation_fn = "relu"
+
+# ─────────────────────────────────────────────────────────────
+# DEVICE CONFIGURATION
+# ─────────────────────────────────────────────────────────────
+def get_device():
+    """
+    Automatically detect and return the best available device.
+    Priority: MPS (Mac) > CUDA (NVIDIA) > CPU
+    """
+    if torch.backends.mps.is_available():
+        return torch.device("mps")
+    elif torch.cuda.is_available():
+        return torch.device("cuda")
+    else:
+        return torch.device("cpu")
+
+# Global device variable
+DEVICE = get_device()
+print(f"Using device: {DEVICE}")
 
 
 # ═════════════════════════════════════════════════════════════
@@ -93,7 +107,7 @@ def to_digits_msf(x: int, n: int) -> List[int]:
 
 
 def generate_addition_data(n_samples: int = 60000,
-                           seed: int = 42) -> Tuple[torch.Tensor, torch.Tensor]:
+                            seed: int = 42) -> Tuple[torch.Tensor, torch.Tensor]:
     """
     Generates 2-digit + 2-digit standard integer addition.
 
@@ -119,25 +133,30 @@ def generate_addition_data(n_samples: int = 60000,
             torch.tensor(targets, dtype=torch.long))    # [N, 3]
 
 
-def build_model(seed: int = 0) -> HookedTransformer:
+def build_model(seed: int = 0, device: torch.device = None) -> HookedTransformer:
     """
     Builds the minimal transformer for 2-digit addition.
     2 layers, 4 heads, d_model=128.
     No LayerNorm — cleaner for mechanistic analysis.
+    Moves model to specified device (defaults to DEVICE global).
     """
+    if device is None:
+        device = DEVICE
+
     torch.manual_seed(seed)
     cfg = HookedTransformerConfig(
-        n_layers=2,
-        d_model=128,
-        n_heads=4,
-        d_head=32,
-        d_mlp=512,
-        n_ctx=10,           # 6 input + 3 answer + 1 buffer
+        n_layers=nof_layers,
+        d_model=dim_model,
+        n_heads=numof_heads,
+        d_head=dim_head,
+        d_mlp=dim_mlp,
+        n_ctx=context,           # 6 input + 3 answer + 1 buffer
         d_vocab=VOCAB_SIZE,
-        act_fn="relu",
+        act_fn=activation_fn,
         normalization_type=None,  # No LayerNorm: simpler circuits
     )
-    return HookedTransformer(cfg)
+    model = HookedTransformer(cfg)
+    return model.to(device)
 
 
 def train_step(model: HookedTransformer,
@@ -184,6 +203,9 @@ def evaluate(model: HookedTransformer,
     Also breaks down accuracy by carry/no-carry cases.
     """
     model.eval()
+    # Get model's device
+    device = next(model.parameters()).device
+
     digit_correct  = [0, 0, 0]
     digit_total    = [0, 0, 0]
     exact_correct  = 0
@@ -191,6 +213,9 @@ def evaluate(model: HookedTransformer,
     nocarry_correct= 0;  nocarry_total= 0
 
     for X_batch, Y_batch in loader:
+        # Move data to model's device
+        X_batch = X_batch.to(device)
+        Y_batch = Y_batch.to(device)
         preds = []
         for digit_pos in range(Y_batch.shape[1]):
             if digit_pos == 0:
@@ -228,30 +253,36 @@ def evaluate(model: HookedTransformer,
 
 
 def train_to_threshold(model: HookedTransformer,
-                       train_data: TensorDataset,
-                       test_data:  TensorDataset,
-                       target_acc: float = 0.999,
-                       max_epochs: int   = 2000,
-                       batch_size: int   = 512,
-                       lr:         float = 1e-3,
-                       wd:         float = 1e-4,
-                       save_path:  str   = "toy_addition_model.pt") -> bool:
+                        train_data: TensorDataset,
+                        test_data:  TensorDataset,
+                        target_acc: float = 0.999,
+                        max_epochs: int   = 2000,
+                        batch_size: int   = 512,
+                        lr:         float = 1e-3,
+                        wd:         float = 1e-4,
+                        save_path:  str   = "toy_addition_model.pt") -> bool:
     """
     Trains until exact-match accuracy on the test set exceeds target_acc.
     Returns True if target was reached, False if max_epochs hit.
     """
     optimizer = torch.optim.Adam(model.parameters(), lr=lr,
-                                 weight_decay=wd)
+                                  weight_decay=wd)
     loss_fn   = nn.CrossEntropyLoss()
     train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
     test_loader  = DataLoader(test_data,  batch_size=512, shuffle=False)
 
     best_acc = 0.0
 
+    # Get model's device
+    device = next(model.parameters()).device
+
     for epoch in range(max_epochs):
         # ── one training epoch ──
         epoch_loss = 0.0
         for X_batch, Y_batch in train_loader:
+            # Move data to model's device
+            X_batch = X_batch.to(device)
+            Y_batch = Y_batch.to(device)
             epoch_loss += train_step(model, X_batch, Y_batch,
                                      optimizer, loss_fn)
 
@@ -281,11 +312,14 @@ def train_to_threshold(model: HookedTransformer,
 # STAGE 2A: ACTIVATION PATCHING → FIND CLOCK HEADS
 # ═════════════════════════════════════════════════════════════
 
-def _encode_pair(a: int, b: int) -> torch.Tensor:
+def _encode_pair(a: int, b: int, device: torch.device = None) -> torch.Tensor:
     """Encodes a single (a, b) addition prompt as a [1, 6] token tensor."""
+    if device is None:
+        device = DEVICE
     return torch.tensor(
         [to_digits_msf(a, 2) + [TOK_PLUS] + to_digits_msf(b, 2) + [TOK_EQ]],
-        dtype=torch.long
+        dtype=torch.long,
+        device=device
     )
 
 
@@ -308,6 +342,7 @@ def find_clock_heads(model:     HookedTransformer,
     random.seed(seed)
     n_layers = model.cfg.n_layers
     n_heads  = model.cfg.n_heads
+    device = next(model.parameters()).device
 
     tie_accumulator = torch.zeros(n_layers, n_heads)
     valid_pairs     = 0
@@ -317,8 +352,8 @@ def find_clock_heads(model:     HookedTransformer,
         b = random.randint(10, 48)     # b+1 ≤ 99
 
         # Tokens
-        clean_tokens = _encode_pair(a, b)
-        corr_tokens  = _encode_pair(a, b + 1)
+        clean_tokens = _encode_pair(a, b, device=device)
+        corr_tokens  = _encode_pair(a, b + 1, device=device)
 
         # Answer token we want to recover = first non-zero digit of a+b
         correct_sum  = a + b
@@ -399,11 +434,11 @@ def find_clock_heads(model:     HookedTransformer,
 # ═════════════════════════════════════════════════════════════
 
 def collect_digit_activations(model:           HookedTransformer,
-                              layer:          int,
-                              digit_position: int  = POS_A_ONES,
-                              fixed_b:        int  = 5,
-                              digit_range:    range = range(10)
-                              ) -> Tuple[torch.Tensor, List[int]]:
+                               layer:          int,
+                               digit_position: int  = POS_A_ONES,
+                               fixed_b:        int  = 5,
+                               digit_range:    range = range(10)
+                               ) -> Tuple[torch.Tensor, List[int]]:
     """
     Collects residual stream activations at `digit_position` for
     digit values 0..9 (the ones or tens digit of A).
@@ -423,6 +458,7 @@ def collect_digit_activations(model:           HookedTransformer,
     """
     acts     = []
     valid_ds = []
+    device = next(model.parameters()).device
 
     with torch.no_grad():
         for d in digit_range:
@@ -434,7 +470,7 @@ def collect_digit_activations(model:           HookedTransformer,
             else:
                 raise ValueError(f"Unexpected digit_position={digit_position}")
 
-            inp = _encode_pair(a, fixed_b)
+            inp = _encode_pair(a, fixed_b, device=device)
             _, cache = model.run_with_cache(inp)
 
             resid_pre = cache[f"blocks.{layer}.hook_resid_pre"]  # [1, seq, d]
@@ -477,8 +513,8 @@ def fit_helix(acts_matrix: np.ndarray,
 
 
 def stage2b_helix_fit(model:       HookedTransformer,
-                      clock_heads: List[Tuple[int,int]],
-                      layer_range: Optional[range] = None
+                       clock_heads: List[Tuple[int,int]],
+                       layer_range: Optional[range] = None
                       ) -> Dict[Tuple[int,int], float]:
     """
     Runs the helix fit for all clock heads (and optionally extra layers).
@@ -506,7 +542,7 @@ def stage2b_helix_fit(model:       HookedTransformer,
 
             label = ("✓ Strong helix" if r_sq > 0.70
                      else "~ Moderate"  if r_sq > 0.40
-            else "✗ Weak/none")
+                     else "✗ Weak/none")
             print(f"  Layer {layer}, Head {head}: R² = {r_sq:.4f}  {label}")
             results[(layer, head)] = r_sq
 
@@ -545,7 +581,7 @@ def get_OV_circuit(model: HookedTransformer,
 
 
 def _safe_angle_linearity(angles: np.ndarray,
-                          valid_ds: List[int]) -> float:
+                           valid_ds: List[int]) -> float:
     """
     [FIX-4] np.unwrap fails when consecutive angle differences exceed π,
     which happens whenever the helix period T < ~4 steps.
@@ -565,10 +601,10 @@ def _safe_angle_linearity(angles: np.ndarray,
 
 
 def stage2c_geometric_test(model:       HookedTransformer,
-                           clock_heads: List[Tuple[int,int]],
-                           top_k:       int   = 10,
-                           cv_thresh:   float = 0.25,
-                           lin_thresh:  float = 0.85,
+                            clock_heads: List[Tuple[int,int]],
+                            top_k:       int   = 10,
+                            cv_thresh:   float = 0.25,
+                            lin_thresh:  float = 0.85,
                            ) -> Dict[Tuple[int,int], List[Tuple]]:
     """
     Tests all C(top_k, 2) = 45 pairs of top-k OV singular vectors
@@ -654,12 +690,12 @@ def stage2c_geometric_test(model:       HookedTransformer,
 # ═════════════════════════════════════════════════════════════
 
 def stage2d_output_helix(model:     HookedTransformer,
-                         layer:    int,
-                         head:     int,
-                         k1:       int,
-                         k2:       int,
-                         fixed_a:  int   = 13,
-                         b_range:  range = range(5, 85)
+                          layer:    int,
+                          head:     int,
+                          k1:       int,
+                          k2:       int,
+                          fixed_a:  int   = 13,
+                          b_range:  range = range(5, 85)
                          ) -> Tuple[float, float]:
     """
     [FIX-6] Tests whether the OUTPUT (U) side of the OV circuit also
@@ -682,18 +718,22 @@ def stage2d_output_helix(model:     HookedTransformer,
 
     sum_coords = []
     valid_sums = []
+    device = next(model.parameters()).device
 
     with torch.no_grad():
         for b in b_range:
             target_sum = fixed_a + b
             if target_sum > 198:
                 continue
-            inp = _encode_pair(fixed_a, b)
+            inp = _encode_pair(fixed_a, b, device=device)
             _, cache = model.run_with_cache(inp)
 
-            # Residual stream AFTER this layer, at LAST (answer) token
+            # Residual stream AFTER this layer at the '=' position (pos 5).
+            # This is the last question token — where the model assembles
+            # the answer representation before autoregressive generation.
+            # NOT an "answer token" (those are generated later).
             resid_post = cache[f"blocks.{layer}.hook_resid_post"]
-            ans_act    = resid_post[0, -1, :].cpu()   # last seq position
+            ans_act    = resid_post[0, POS_EQ, :].cpu()   # '=' position
 
             sum_coords.append(torch.stack([ans_act @ u1,
                                            ans_act @ u2]))
@@ -705,12 +745,20 @@ def stage2d_output_helix(model:     HookedTransformer,
 
     radius_mean = radii.mean().item()
     radius_cv   = (radii.std() / max(radius_mean, 1e-8)).item()
-    angle_lin   = _safe_angle_linearity(angles, valid_sums)
+
+    # [BUG-2 FIX] Correlate against ONES digit of sum, not the full sum.
+    # The period-10 helix can only encode (sum % 10). Correlating angles
+    # against full sum values (18..98) would give artificially high linearity
+    # because np.unwrap unrolls a multi-cycle signal and the correlation with
+    # a monotonically increasing x-axis is trivially high. We test the
+    # scientifically meaningful claim: angle ∝ (sum mod 10).
+    ones_of_sums = [s % 10 for s in valid_sums]
+    angle_lin    = _safe_angle_linearity(angles, ones_of_sums)
 
     print(f"\n  [Output/U-side] Layer {layer}, Head {head}, "
           f"Plane ({k1},{k2}):")
-    print(f"    Radius CV  : {radius_cv:.3f}   (want < 0.25)")
-    print(f"    Angle Lin  : {angle_lin:.3f}   (want |·| > 0.85)")
+    print(f"    Radius CV            : {radius_cv:.3f}   (want < 0.25)")
+    print(f"    Angle Lin (vs sum%10): {angle_lin:.3f}   (want |·| > 0.85)")
 
     if radius_cv < 0.25 and abs(angle_lin) > 0.85:
         print("    ✓ Output side is helical w.r.t. SUM value.")
@@ -750,13 +798,13 @@ def _rotate_in_plane(h:     torch.Tensor,
 
 
 def stage2d_causal_test(model:      HookedTransformer,
-                        layer:     int,
-                        head:      int,
-                        Vt:        torch.Tensor,
-                        k1:        int,
-                        k2:        int,
-                        n_tests:   int = 30,
-                        seed:      int = 99
+                         layer:     int,
+                         head:      int,
+                         Vt:        torch.Tensor,
+                         k1:        int,
+                         k2:        int,
+                         n_tests:   int = 30,
+                         seed:      int = 99
                         ) -> Dict[str, float]:
     """
     Causal phase-shift intervention: rotate the ones-digit of A by +delta
@@ -774,8 +822,10 @@ def stage2d_causal_test(model:      HookedTransformer,
     corresponds to angle θ = 2π·delta/10.
     """
     random.seed(seed)
-    v1 = Vt[k1].cpu()
-    v2 = Vt[k2].cpu()
+    device = next(model.parameters()).device
+    # Keep v1, v2 on device for efficient operations
+    v1 = Vt[k1].to(device)
+    v2 = Vt[k2].to(device)
 
     # Build test cases: (a, b, delta) where delta ∈ {1,2,3}
     no_carry_cases, carry_cases = [], []
@@ -805,20 +855,21 @@ def stage2d_causal_test(model:      HookedTransformer,
 
     summary = {}
     for case_type, cases in [("no_carry", no_carry_cases),
-                             ("carry",    carry_cases)]:
+                              ("carry",    carry_cases)]:
         successes = 0
         details   = []
 
         for a, b, delta in cases:
             theta = 2.0 * math.pi * delta / 10.0
 
-            inp = _encode_pair(a, b)
+            inp = _encode_pair(a, b, device=device)
 
             with torch.no_grad():
                 _, cache = model.run_with_cache(inp)
 
             # Get residual stream BEFORE this layer at ones digit of A
-            resid_pre = cache[f"blocks.{layer}.hook_resid_pre"].cpu()
+            # Keep on device for efficient operations
+            resid_pre = cache[f"blocks.{layer}.hook_resid_pre"]
             h_orig    = resid_pre[0, POS_A_ONES, :]    # [d_model]
 
             h_rotated = _rotate_in_plane(h_orig, v1, v2, theta)
@@ -826,31 +877,46 @@ def stage2d_causal_test(model:      HookedTransformer,
             # [FIX-3] Hook targets only this head's VALUE vectors,
             # NOT the full residual stream.
             # attn.hook_v shape: [batch, seq, n_heads, d_head]
-            W_V_head = model.W_V[layer, head].cpu()    # [d_model, d_head]
+            W_V_head = model.W_V[layer, head]    # [d_model, d_head] - keep on device
 
             def make_value_hook(h_rot, h_idx, pos, W_V):
                 def hook(val, hook_obj):
                     # Project rotated residual into this head's value space
-                    new_v = (h_rot.to(val.device) @ W_V.to(val.device))
+                    # All tensors already on same device - no transfer needed
+                    new_v = h_rot @ W_V
                     val[0, pos, h_idx, :] = new_v
                     return val
                 return hook
 
-            with torch.no_grad():
-                patched_logits = model.run_with_hooks(
-                    inp,
-                    fwd_hooks=[(
-                        f"blocks.{layer}.attn.hook_v",
-                        make_value_hook(h_rotated, head,
-                                        POS_A_ONES, W_V_head)
-                    )]
-                )
+            # [BUG-1 FIX] Must predict autoregressively to reach the ones digit.
+            # Feeding only the question (length 6) predicts the HUNDREDS digit,
+            # not the ones digit. We need three forward passes:
+            #   pass 1: question           → predict hundreds
+            #   pass 2: question+hundreds  → predict tens
+            #   pass 3: question+h+t       → predict ones  ← what we check
 
-            # Predict the ones digit of the answer
-            # (last answer digit = ones of C; we predict it
-            # by feeding in question + first two predicted answer digits)
-            # For simplicity we check just the final prediction pass
-            predicted_ones = patched_logits[0, -1, :].argmax().item()
+            hook_spec = (f"blocks.{layer}.attn.hook_v",
+                         make_value_hook(h_rotated, head,
+                                         POS_A_ONES, W_V_head))
+
+            with torch.no_grad():
+                # Pass 1: predict hundreds digit
+                logits_h      = model.run_with_hooks(inp, fwd_hooks=[hook_spec])
+                pred_hundreds = logits_h[0, -1, :].argmax().item()
+
+                # Pass 2: predict tens digit
+                inp_t    = torch.cat([inp,
+                                      torch.tensor([[pred_hundreds]], device=device)], dim=1)
+                logits_t = model.run_with_hooks(inp_t, fwd_hooks=[hook_spec])
+                pred_tens = logits_t[0, -1, :].argmax().item()
+
+                # Pass 3: predict ones digit  ← the digit we actually care about
+                inp_o    = torch.cat([inp,
+                                      torch.tensor([[pred_hundreds,
+                                                     pred_tens]], device=device)], dim=1)
+                logits_o = model.run_with_hooks(inp_o, fwd_hooks=[hook_spec])
+
+            predicted_ones = logits_o[0, -1, :].argmax().item()
             expected_ones  = (a + b + delta) % 10
 
             success = (predicted_ones == expected_ones)
@@ -887,8 +953,8 @@ def stage2d_causal_test(model:      HookedTransformer,
 # ═════════════════════════════════════════════════════════════
 
 def _compute_mlp_jacobian(model: HookedTransformer,
-                          layer: int,
-                          inp:   torch.Tensor) -> torch.Tensor:
+                           layer: int,
+                           inp:   torch.Tensor) -> torch.Tensor:
     """
     Computes the Jacobian of MLP_{layer} output w.r.t. its input
     at the final token position.
@@ -909,7 +975,7 @@ def _compute_mlp_jacobian(model: HookedTransformer,
     mlp_out = mlp(mlp_in.unsqueeze(0).unsqueeze(0)).squeeze()  # [d_model]
 
     d_model = mlp_in.shape[0]
-    J       = torch.zeros(d_model, d_model)
+    J       = torch.zeros(d_model, d_model, device=mlp_in.device)
 
     for i in range(d_model):
         grad = torch.autograd.grad(
@@ -923,9 +989,9 @@ def _compute_mlp_jacobian(model: HookedTransformer,
 
 
 def stage3_carry_circuit(model:       HookedTransformer,
-                         layer:      int,
-                         n_per_class: int = 40,
-                         seed:       int  = 42
+                          layer:      int,
+                          n_per_class: int = 40,
+                          seed:       int  = 42
                          ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     """
     [FIX-10] Computes the DIFFERENCE of average MLP Jacobians:
@@ -943,6 +1009,7 @@ def stage3_carry_circuit(model:       HookedTransformer,
           f"{n_per_class} no-carry inputs at Layer {layer}...")
 
     random.seed(seed)
+    device = next(model.parameters()).device
 
     carry_Js    = []
     no_carry_Js = []
@@ -959,7 +1026,7 @@ def stage3_carry_circuit(model:       HookedTransformer,
         has_carry = ((a % 10) + (b % 10)) >= 10
 
         if has_carry and len(carry_Js) < n_per_class:
-            inp = _encode_pair(a, b)
+            inp = _encode_pair(a, b, device=device)
             try:
                 J = _compute_mlp_jacobian(model, layer, inp)
                 carry_Js.append(J)
@@ -967,7 +1034,7 @@ def stage3_carry_circuit(model:       HookedTransformer,
                 print(f"    Warning: Jacobian failed for ({a},{b}): {e}")
 
         elif not has_carry and len(no_carry_Js) < n_per_class:
-            inp = _encode_pair(a, b)
+            inp = _encode_pair(a, b, device=device)
             try:
                 J = _compute_mlp_jacobian(model, layer, inp)
                 no_carry_Js.append(J)
@@ -1008,7 +1075,7 @@ def stage3_carry_circuit(model:       HookedTransformer,
 
         with torch.no_grad():
             for a, b in probe_pool:
-                inp = _encode_pair(a, b)
+                inp = _encode_pair(a, b, device=device)
                 _, cache = model.run_with_cache(inp)
                 mlp_in = cache[f"blocks.{layer}.hook_mlp_in"][0, -1, :].cpu()
                 score  = (mlp_in @ v).item()
@@ -1025,13 +1092,17 @@ def stage3_carry_circuit(model:       HookedTransformer,
         pooled_std = np.std(all_scores) + 1e-8
         separation = (np.mean(carry_proj) - np.mean(no_carry_proj)) / pooled_std
 
-        separation_scores.append(separation)
+        separation_scores.append((k, separation, carry_proj, no_carry_proj))
         marker = "★" if abs(separation) > 1.5 else " "
         print(f"  {marker} Direction {k}: separation = {separation:+.2f} σ  "
               f"(carry mean={np.mean(carry_proj):.3f}, "
               f"no-carry mean={np.mean(no_carry_proj):.3f})")
 
-    strong_dirs = [(k, s) for k, s in enumerate(separation_scores)
+        # Emit separation histogram for every direction
+        plot_carry_separation(carry_proj, no_carry_proj,
+                              direction_k=k, layer=layer)
+
+    strong_dirs = [(k, s) for k, s, _, _ in separation_scores
                    if abs(s) > 1.5]
     if strong_dirs:
         print(f"\n  ✓ Carry circuit found: directions {[k for k,_ in strong_dirs]}")
@@ -1044,8 +1115,199 @@ def stage3_carry_circuit(model:       HookedTransformer,
 
 
 # ═════════════════════════════════════════════════════════════
-# FULL PIPELINE — run_experiment()
+# VISUALIZATION HELPERS
 # ═════════════════════════════════════════════════════════════
+
+def plot_tie_heatmap(tie_matrix: torch.Tensor,
+                     save_path: str = "tie_heatmap.png"):
+    """
+    Heatmap of TIE scores from activation patching.
+    Clock heads visually stand out as bright green cells.
+    """
+    try:
+        import matplotlib.pyplot as plt
+        fig, ax = plt.subplots(figsize=(max(4, tie_matrix.shape[1]), 3))
+        im = ax.imshow(tie_matrix.numpy(), cmap='RdYlGn',
+                       aspect='auto', vmin=-0.05, vmax=0.15)
+        ax.set_xlabel("Head Index")
+        ax.set_ylabel("Layer")
+        ax.set_title("Activation Patching — TIE Scores\n"
+                     "(bright green = clock head)")
+        ax.set_xticks(range(tie_matrix.shape[1]))
+        ax.set_yticks(range(tie_matrix.shape[0]))
+        for l in range(tie_matrix.shape[0]):
+            for h in range(tie_matrix.shape[1]):
+                ax.text(h, l, f"{tie_matrix[l,h]:.2f}",
+                        ha='center', va='center', fontsize=8)
+        plt.colorbar(im, ax=ax, label='TIE')
+        plt.tight_layout()
+        plt.savefig(save_path, dpi=150)
+        plt.close()
+        print(f"  Plot saved: {save_path}")
+    except Exception as e:
+        print(f"  [plot_tie_heatmap] Skipped: {e}")
+
+
+def plot_helix_circle(coords:   torch.Tensor,
+                      valid_ds: List[int],
+                      title:    str = "Helix_Plane",
+                      save_path: Optional[str] = None):
+    """
+    Plots the 2D projection onto a singular-vector pair.
+    If the helix is present, this produces a circle with digits
+    arranged in order around the circumference.
+
+    This is the single most important visual in the whole pipeline:
+    a clean circle = helix confirmed; noise = helix absent.
+    """
+    try:
+        import matplotlib.pyplot as plt
+        x = coords[:, 0].numpy()
+        y = coords[:, 1].numpy()
+
+        fig, ax = plt.subplots(figsize=(6, 6))
+        scatter = ax.scatter(x, y, c=valid_ds, cmap='hsv',
+                             s=100, zorder=3)
+        for i, d in enumerate(valid_ds):
+            ax.annotate(str(d), (x[i], y[i]),
+                        textcoords="offset points", xytext=(4, 4),
+                        fontsize=9)
+
+        # Draw unit-radius reference circle
+        theta_ref = np.linspace(0, 2 * np.pi, 200)
+        r_mean    = np.sqrt(x**2 + y**2).mean()
+        ax.plot(r_mean * np.cos(theta_ref),
+                r_mean * np.sin(theta_ref),
+                'k--', alpha=0.3, linewidth=1)
+
+        ax.set_aspect('equal')
+        ax.axhline(0, color='k', linewidth=0.5, alpha=0.3)
+        ax.axvline(0, color='k', linewidth=0.5, alpha=0.3)
+        ax.set_title(title)
+        plt.colorbar(scatter, ax=ax, label='Digit value')
+        plt.tight_layout()
+
+        out = save_path or f"{title.replace(' ', '_')}.png"
+        plt.savefig(out, dpi=150)
+        plt.close()
+        print(f"  Plot saved: {out}")
+    except Exception as e:
+        print(f"  [plot_helix_circle] Skipped: {e}")
+
+
+def plot_r2_bars(r2_results: Dict[Tuple[int,int], float],
+                 save_path:  str = "helix_r2.png"):
+    """Bar chart of helix R² per (layer, head)."""
+    try:
+        import matplotlib.pyplot as plt
+        labels = [f"L{l}H{h}" for l, h in r2_results]
+        values = list(r2_results.values())
+        colors = ['green' if v > 0.7 else 'orange' if v > 0.4
+                  else 'red' for v in values]
+
+        fig, ax = plt.subplots(figsize=(max(5, len(labels)), 4))
+        ax.bar(labels, values, color=colors)
+        ax.axhline(0.7, color='green', linestyle='--',
+                   linewidth=1, label='Strong threshold (0.7)')
+        ax.axhline(0.4, color='orange', linestyle='--',
+                   linewidth=1, label='Moderate threshold (0.4)')
+        ax.set_ylim(0, 1.05)
+        ax.set_ylabel("Helix R²")
+        ax.set_title("Helix Fit Quality per Clock Head")
+        ax.legend()
+        plt.tight_layout()
+        plt.savefig(save_path, dpi=150)
+        plt.close()
+        print(f"  Plot saved: {save_path}")
+    except Exception as e:
+        print(f"  [plot_r2_bars] Skipped: {e}")
+
+
+def plot_carry_separation(carry_scores:    List[float],
+                          no_carry_scores: List[float],
+                          direction_k:     int,
+                          layer:           int,
+                          save_path:       Optional[str] = None):
+    """
+    Histogram showing separation of carry vs. no-carry projections
+    onto the k-th Jacobian singular direction.
+    Clear separation = this direction is the carry circuit.
+    """
+    try:
+        import matplotlib.pyplot as plt
+        fig, ax = plt.subplots(figsize=(7, 4))
+        bins = np.linspace(
+            min(carry_scores + no_carry_scores),
+            max(carry_scores + no_carry_scores),
+            30
+        )
+        ax.hist(carry_scores,    bins=bins, alpha=0.6,
+                color='red',  label='Carry inputs')
+        ax.hist(no_carry_scores, bins=bins, alpha=0.6,
+                color='blue', label='No-carry inputs')
+        ax.set_xlabel("Projection onto Jacobian direction")
+        ax.set_ylabel("Count")
+        ax.set_title(f"Layer {layer} MLP — Jacobian direction {direction_k}\n"
+                     "Separation = carry circuit signature")
+        ax.legend()
+        plt.tight_layout()
+        out = save_path or f"carry_separation_L{layer}_dir{direction_k}.png"
+        plt.savefig(out, dpi=150)
+        plt.close()
+        print(f"  Plot saved: {out}")
+    except Exception as e:
+        print(f"  [plot_carry_separation] Skipped: {e}")
+
+
+def fft_sanity_check(acts_tensor: torch.Tensor,
+                     Vt:          torch.Tensor,
+                     valid_ds:    List[int],
+                     layer:       int,
+                     head:        int,
+                     top_k:       int = 6):
+    """
+    FFT sanity check on top-k singular direction projections.
+    Complements the helix R² fit by showing which periods are active.
+    Looks for spikes at T = 2, 5, 10 (expected for digit-wise addition).
+
+    Deliberately omitted from the main R² test but retained here as an
+    optional diagnostic — call it after stage2b for extra evidence.
+    """
+    print(f"\n  [FFT Sanity Check] Layer {layer}, Head {head}:")
+    found_any = False
+
+    for k in range(min(top_k, Vt.shape[0])):
+        v      = Vt[k].cpu()
+        signal = (acts_tensor @ v).numpy()
+        signal = signal - signal.mean()          # remove DC
+
+        N        = len(signal)
+        fft_vals = np.abs(np.fft.fft(signal))
+        freqs    = np.fft.fftfreq(N, d=1)
+
+        pos_mask = freqs[1:N//2] > 0
+        pos_freq = freqs[1:N//2][pos_mask]
+        pos_fft  = fft_vals[1:N//2][pos_mask]
+        total_power = pos_fft.sum() + 1e-8
+
+        hits = []
+        for target_T in [2, 5, 10]:
+            target_f  = 1.0 / target_T
+            nearest   = np.argmin(np.abs(pos_freq - target_f))
+            pct       = pos_fft[nearest] / total_power
+            if pct > 0.12:
+                hits.append(f"T={target_T}({pct:.0%})")
+
+        if hits:
+            print(f"    Dir {k}: spikes at {', '.join(hits)}")
+            found_any = True
+
+    if not found_any:
+        print("    No dominant arithmetic frequency spikes found "
+              "(T∈{2,5,10}).")
+
+
+
 
 def run_experiment(model_path: Optional[str] = None,
                    skip_training: bool = False):
@@ -1077,11 +1339,12 @@ def run_experiment(model_path: Optional[str] = None,
     test_data   = TensorDataset(X[split:], Y[split:])
     print(f"  Train: {len(train_data)} samples | Test: {len(test_data)} samples")
 
-    model = build_model(seed=0)
+    model = build_model(seed=0, device=DEVICE)
 
     if skip_training and model_path is not None:
         print(f"  Loading pre-trained model from '{model_path}'")
-        model.load_state_dict(torch.load(model_path, map_location="cpu"))
+        model.load_state_dict(torch.load(model_path, map_location=DEVICE))
+        model = model.to(DEVICE)
     else:
         save_path = model_path or "toy_addition_model.pt"
         success   = train_to_threshold(
@@ -1108,6 +1371,7 @@ def run_experiment(model_path: Optional[str] = None,
 
     # 2A: Find clock heads
     clock_heads, tie_matrix = find_clock_heads(model, n_pairs=300)
+    plot_tie_heatmap(tie_matrix)           # → tie_heatmap.png
 
     if not clock_heads:
         print("\n  No clock heads found. Skipping Stage 2B/2C/2D.")
@@ -1116,6 +1380,7 @@ def run_experiment(model_path: Optional[str] = None,
     else:
         # 2B: Helix fit
         r2_results = stage2b_helix_fit(model, clock_heads)
+        plot_r2_bars(r2_results)           # → helix_r2.png
 
         # Pick best head for geometric/causal tests
         best_head = max(r2_results, key=r2_results.get,
@@ -1135,6 +1400,25 @@ def run_experiment(model_path: Optional[str] = None,
             print(f"\n  No plane found in 2C for {best_head}. "
                   f"Using directions (0,1) as fallback.")
             k1, k2 = 0, 1
+
+        # ── Visual: circle plot for the best plane ──
+        W_OV_vis   = get_OV_circuit(model, best_layer, best_h)
+        _, _, Vt_vis = torch.linalg.svd(W_OV_vis)
+        acts_vis, valid_ds_vis = collect_digit_activations(
+            model, best_layer, digit_position=POS_A_ONES
+        )
+        coords_vis = torch.stack([
+            acts_vis @ Vt_vis[k1].cpu(),
+            acts_vis @ Vt_vis[k2].cpu()
+        ], dim=1).float()
+        plot_helix_circle(
+            coords_vis, valid_ds_vis,
+            title=f"Helix Plane L{best_layer}H{best_h} dirs({k1},{k2})"
+        )
+
+        # ── FFT sanity check on best head ──
+        fft_sanity_check(acts_vis, Vt_vis, valid_ds_vis,
+                         best_layer, best_h)
 
         # 2D-i: Output (U-side) helix validation
         W_OV   = get_OV_circuit(model, best_layer, best_h)
