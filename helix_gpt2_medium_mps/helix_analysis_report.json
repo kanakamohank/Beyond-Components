@@ -1,0 +1,27 @@
+{
+  "model_info": {
+    "model_name": "gpt2-medium",
+    "n_layers": 24,
+    "n_heads": 16,
+    "d_model": 1024
+  },
+  "helix_summary": {
+    "total_heads_tested": 384,
+    "helix_heads_found": 1,
+    "helix_heads_by_layer": {
+      "18": [
+        {
+          "head": 15,
+          "task": "counting",
+          "quality_metrics": {
+            "radius_cv": 0.04854007810354233,
+            "angle_linearity": 0.9343208474605174,
+            "period": 55.402787298605986
+          }
+        }
+      ]
+    }
+  },
+  "comparison_metrics": {},
+  "key_findings": []
+}

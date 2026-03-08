@@ -25,9 +25,15 @@ import torch
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-import plotly.graph_objects as go
-import plotly.express as px
-from plotly.subplots import make_subplots
+try:
+    import plotly.graph_objects as go
+    import plotly.express as px
+    from plotly.subplots import make_subplots
+    HAS_PLOTLY = True
+except ImportError:
+    print("Warning: Plotly not found. 3D visualizations will be disabled.")
+    print("Install with: pip install plotly")
+    HAS_PLOTLY = False
 import seaborn as sns
 import itertools
 from typing import Dict, List, Tuple, Optional, Any, Union
