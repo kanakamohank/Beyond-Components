@@ -10,7 +10,7 @@ import numpy as np
 import random
 import os
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("mps" if torch.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu")
 
 
 def set_seed(seed):

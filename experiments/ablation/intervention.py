@@ -76,7 +76,7 @@ DIRECTION_RANGES = {
 
 def load_model_and_circuit(model_path, config):
     """Load the model and circuit with trained masks"""
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("mps" if torch.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu")
 
     model = HookedTransformer.from_pretrained(
             config['model']['name'],

@@ -63,7 +63,7 @@ Thumbs.db
 # Keep checkpoints directory tracked
 !checkpoints/
 !checkpoints/**/*.pt
-data/data_main/train_100k_ioi.csv
+src/data/data_main/train_100k_ioi.csv
 
 # Checkpoints (too large for GitHub)
 checkpoints/

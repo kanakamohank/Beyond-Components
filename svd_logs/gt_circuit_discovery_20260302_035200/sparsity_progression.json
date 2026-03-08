@@ -1,0 +1,14 @@
+[
+  {
+    "step": 0,
+    "epoch": 0,
+    "batch": 0,
+    "train_loss": 7.142313480377197,
+    "train_kl": 0.0011673684930428863,
+    "train_accuracy": 0.0,
+    "l1_penalty": 36621.26171875,
+    "relative_sparsity": 0.0,
+    "full_sparsity": 84.56033231569991,
+    "num_active_components": 37020
+  }
+]

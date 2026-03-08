@@ -17,6 +17,8 @@ import wandb
 import logging
 import sys
 import os
+import json
+import datetime
 
 # Add project root to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -26,6 +28,7 @@ from src.utils.utils import get_data_column_names, get_indirect_objects_and_subj
 from collections import deque
 import pandas as pd
 import seaborn as sns
+import numpy as np
 
 # Set style for aesthetic plots
 sns.set_style("whitegrid")
@@ -1078,7 +1081,7 @@ def train_circuit(config, logger):
     torch.manual_seed(config['seed'])
 
     # Set device
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("mps" if torch.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu")
     logger.info(f"Using device: {device}")
 
     # Create run-specific directory structure

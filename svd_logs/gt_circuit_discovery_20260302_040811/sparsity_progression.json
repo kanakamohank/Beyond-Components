@@ -1,0 +1,86 @@
+[
+  {
+    "step": 0,
+    "epoch": 0,
+    "batch": 0,
+    "train_loss": 7.142313480377197,
+    "train_kl": 0.0011673684930428863,
+    "train_accuracy": 0.0,
+    "l1_penalty": 36621.26171875,
+    "relative_sparsity": 0.0,
+    "full_sparsity": 84.56033231569991,
+    "num_active_components": 37020
+  },
+  {
+    "step": 10,
+    "epoch": 0,
+    "batch": 10,
+    "train_loss": 6.844789505004883,
+    "train_kl": 0.030775081366300583,
+    "train_accuracy": 0.0,
+    "l1_penalty": 34943.6640625,
+    "relative_sparsity": 0.0,
+    "full_sparsity": 84.56033231569991,
+    "num_active_components": 37020
+  },
+  {
+    "step": 20,
+    "epoch": 0,
+    "batch": 20,
+    "train_loss": 5.6790266036987305,
+    "train_kl": 0.05456938222050667,
+    "train_accuracy": 0.0,
+    "l1_penalty": 28843.37109375,
+    "relative_sparsity": 0.0,
+    "full_sparsity": 84.56033231569991,
+    "num_active_components": 37020
+  },
+  {
+    "step": 30,
+    "epoch": 0,
+    "batch": 30,
+    "train_loss": 4.4841790199279785,
+    "train_kl": 0.12433260679244995,
+    "train_accuracy": 0.0,
+    "l1_penalty": 22358.1875,
+    "relative_sparsity": 0.0,
+    "full_sparsity": 84.56033231569991,
+    "num_active_components": 37020
+  },
+  {
+    "step": 40,
+    "epoch": 1,
+    "batch": 8,
+    "train_loss": 8.91916275024414,
+    "train_kl": 4.855711460113525,
+    "train_accuracy": 0.0,
+    "l1_penalty": 20838.21484375,
+    "relative_sparsity": 0.010804970286326654,
+    "full_sparsity": 84.5620005672055,
+    "num_active_components": 37016
+  },
+  {
+    "step": 50,
+    "epoch": 1,
+    "batch": 18,
+    "train_loss": 12.45332145690918,
+    "train_kl": 8.404399871826172,
+    "train_accuracy": 0.0,
+    "l1_penalty": 20763.703125,
+    "relative_sparsity": 0.15667206915180865,
+    "full_sparsity": 84.58452196253107,
+    "num_active_components": 36962
+  },
+  {
+    "step": 60,
+    "epoch": 1,
+    "batch": 28,
+    "train_loss": 10.484699249267578,
+    "train_kl": 6.456452369689941,
+    "train_accuracy": 0.0,
+    "l1_penalty": 20657.673828125,
+    "relative_sparsity": 0.4997298757428381,
+    "full_sparsity": 84.63748894783377,
+    "num_active_components": 36835
+  }
+]
