@@ -1,8 +1,204 @@
-# Helix-Based Arithmetic Circuit Discovery
+# Helix-Based Arithmetic Circuit Discovery: Complete Methodology Guide
 
-This guide explains how to use the helix approach for discovering arithmetic circuits in transformer models, implementing the methodology from Neel and Tegmark/Kattamaneni's research on trigonometric number representations in language models.
+This comprehensive guide covers both the experimental methodology and practical usage for helix-based arithmetic circuit discovery in transformer models, implementing the methodology from Neel and Tegmark/Kattamaneni's research on trigonometric number representations in language models.
 
-## Overview
+## Table of Contents
+
+1. [Experimental Methodology Design](#experimental-methodology-design)
+2. [Practical Usage Guide](#practical-usage-guide)
+3. [Analysis Framework](#analysis-framework)
+4. [Validation Protocols](#validation-protocols)
+
+---
+
+# Part I: Experimental Methodology Design
+
+## 1. Research Framework and Objectives
+
+### 1.1 Primary Research Questions
+- **RQ1**: Which transformer architectures exhibit helical arithmetic encoding?
+- **RQ2**: How do helix parameters correlate with arithmetic performance?
+- **RQ3**: What is the relationship between model scale and geometric encoding emergence?
+- **RQ4**: How do different training objectives affect helical circuit formation?
+
+### 1.2 Experimental Hypotheses
+1. **Architectural Hypothesis**: Specific transformer designs predispose models to helical encoding
+2. **Scale Hypothesis**: Helix structures emerge above critical parameter thresholds
+3. **Depth Hypothesis**: Arithmetic circuits form consistently at ~75% model depth
+4. **Task Specificity Hypothesis**: Different arithmetic tasks activate distinct helix patterns
+
+## 2. Multi-Factor Experimental Design
+
+### 2.1 Experimental Matrix
+
+| Factor | Levels | Sample Models | Rationale |
+|--------|--------|---------------|-----------|
+| **Architecture** | GPT-2, GPT-Neo, GPT-J, T5 | gpt2, gpt-neo-2.7B, gpt-j-6B | Test architectural influence |
+| **Scale** | Small (<1B), Medium (1-5B), Large (>5B) | 117M, 2.7B, 6B | Investigate scale effects |
+| **Task Type** | Counting, Addition, Modular | See task templates | Task specificity analysis |
+| **Number Range** | 0-20, 0-50, 0-100 | Various ranges | Range dependency testing |
+| **Prompt Format** | Natural, Symbolic, CoT | Multiple templates | Input format effects |
+
+### 2.2 Controlled Variables
+- **Hardware**: Consistent GPU/memory configuration (Apple M-series MPS)
+- **Precision**: FP32 for numerical stability
+- **Random Seed**: Fixed for reproducibility (seed=42)
+- **Tokenization**: Model-specific standard tokenizers
+
+## 3. Statistical Analysis Framework
+
+### 3.1 Primary Statistical Tests
+```python
+STATISTICAL_ANALYSIS_PLAN = {
+    'descriptive_statistics': ['mean', 'std', 'median', 'iqr', 'confidence_intervals'],
+    'hypothesis_tests': {
+        'architecture_effect': 'one_way_anova',
+        'scale_correlation': 'pearson_correlation',
+        'depth_consistency': 'chi_square_goodness_of_fit'
+    },
+    'effect_size_measures': ['cohens_d', 'eta_squared', 'correlation_coefficient'],
+    'multiple_comparison_correction': 'bonferroni',
+    'significance_level': 0.05
+}
+```
+
+### 3.2 Quality Metrics Framework
+```python
+HELIX_QUALITY_METRICS = {
+    'radius_cv': {
+        'definition': 'Coefficient of variation of radii',
+        'threshold': '< 0.2 for helix classification',
+        'interpretation': 'Lower = more circular/consistent'
+    },
+    'angle_linearity': {
+        'definition': 'Correlation between angles and numbers',
+        'threshold': '> 0.85 for helix classification',
+        'interpretation': 'Higher = more predictable progression'
+    },
+    'period_estimation': {
+        'definition': '2π / angular_rate_of_change',
+        'validation': 'Must be finite and reasonable (2-1000)',
+        'interpretation': 'Indicates mathematical period of encoding'
+    }
+}
+```
+
+## 4. Validation and Reproducibility Protocol
+
+### 4.1 Multi-Stage Validation
+```python
+VALIDATION_STAGES = {
+    'internal_validation': {
+        'cross_validation': 'k-fold within dataset (k=5)',
+        'bootstrap_validation': 'Bootstrap resampling (n=1000)',
+        'robustness_testing': 'Noise injection and subset analysis'
+    },
+    'external_validation': {
+        'cross_hardware': 'GPU vs CPU vs MPS validation',
+        'cross_implementation': 'Independent algorithm implementation',
+        'literature_reproduction': 'Reproduce known results (GPT-2 Medium)'
+    },
+    'control_experiments': {
+        'negative_controls': 'Random activations, shuffled numbers',
+        'positive_controls': 'Synthetic helix data, known helix models',
+        'methodology_validation': 'Inter-rater reliability testing'
+    }
+}
+```
+
+### 4.2 Reproducibility Requirements
+- **Environment Documentation**: Complete package versions, hardware specs
+- **Code Version Control**: Git commits for all analysis code
+- **Random State Management**: All seeds documented and controllable
+- **Data Provenance**: Complete audit trail of data collection/processing
+- **Parameter Logging**: All hyperparameters saved with results
+
+## 5. Quality Assurance Framework
+
+### 5.1 Quality Control Checklist
+- [ ] **Statistical Power Analysis**: Adequate sample sizes for planned tests
+- [ ] **Multiple Comparisons**: Bonferroni correction applied where appropriate
+- [ ] **Effect Size Reporting**: Practical significance assessed alongside statistical
+- [ ] **Confidence Intervals**: 95% CIs reported for all estimates
+- [ ] **Assumption Testing**: Statistical test assumptions verified
+- [ ] **Outlier Analysis**: Systematic outlier detection and handling
+- [ ] **Missing Data Protocol**: Explicit handling of missing/failed analyses
+
+### 5.2 Risk Mitigation Strategies
+```python
+RISK_MITIGATION = {
+    'computational_risks': {
+        'memory_overflow': 'Progressive analysis with checkpointing',
+        'hardware_failure': 'Cloud backup and distributed computing',
+        'numerical_instability': 'Regularized SVD with condition monitoring'
+    },
+    'methodological_risks': {
+        'false_discovery_rate': 'FDR correction and replication requirements',
+        'selection_bias': 'Pre-registered analysis plans',
+        'overfitting': 'Strict holdout validation',
+        'confounding_variables': 'Randomized experimental design'
+    }
+}
+```
+
+## 6. Task Design and Data Collection Protocol
+
+### 6.1 Arithmetic Task Battery
+```python
+EXPERIMENTAL_TASK_BATTERY = {
+    'basic_counting': {
+        'template': 'The number {n}',
+        'range': range(0, 50),
+        'expected_pattern': 'linear_angle_progression',
+        'validation_metric': 'angle_linearity > 0.85'
+    },
+    'sequential_addition': {
+        'template': '{n} + 1 =',
+        'range': range(10, 40),
+        'expected_pattern': 'phase_shift_by_one',
+        'validation_metric': 'phase_shift ≈ 2π/period'
+    },
+    'modular_arithmetic': {
+        'template': '{n} mod 10 =',
+        'range': range(0, 100),
+        'expected_pattern': 'periodic_wrapping',
+        'validation_metric': 'period ≈ 10'
+    },
+    'multiplication_tables': {
+        'template': '{n} × 2 =',
+        'range': range(1, 21),
+        'expected_pattern': 'scaled_rotation',
+        'validation_metric': 'angle_scaling_factor ≈ 2'
+    }
+}
+```
+
+### 6.2 Data Collection Standards
+- **Sample Size**: Minimum 30 numbers per task for statistical power
+- **Activation Position**: Last token position for consistency
+- **Model State**: Inference mode (no gradients) for memory efficiency
+- **Quality Control**: Automatic outlier detection and removal
+- **Missing Data**: Explicit protocol for handling failed extractions
+
+### 6.3 Experimental Controls
+```python
+CONTROL_CONDITIONS = {
+    'negative_controls': {
+        'random_gaussian': 'Random Gaussian activations (μ=0, σ=1)',
+        'shuffled_numbers': 'Randomly permuted number sequences',
+        'non_arithmetic': 'Color names, animal names (no numerical content)'
+    },
+    'positive_controls': {
+        'synthetic_helix': 'Artificially generated perfect helix data',
+        'known_models': 'GPT-2 Medium L18H15 (confirmed helix)',
+        'mathematical_functions': 'Exact trigonometric functions'
+    }
+}
+```
+
+---
+
+# Part II: Practical Usage Guide
 
 The helix approach discovers that language models encode numbers as points on helical structures in high-dimensional space, and perform arithmetic operations through trigonometric transformations. This provides a geometric interpretation of mathematical reasoning that complements traditional SVD-based circuit discovery.
 
