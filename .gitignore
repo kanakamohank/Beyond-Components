@@ -44,7 +44,6 @@ svd_cache/
 logs/
 *.log
 wandb/
-visualizations/
 
 # Data (keep README)
 data/*.csv
