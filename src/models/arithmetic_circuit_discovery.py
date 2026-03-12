@@ -260,7 +260,7 @@ def train_to_threshold(model: HookedTransformer,
                         batch_size: int   = 512,
                         lr:         float = 1e-3,
                         wd:         float = 1e-4,
-                        save_path:  str   = "toy_addition_model.pt") -> bool:
+                        save_path:  str   = "toy_addition_model_acd.pt") -> bool:
     """
     Trains until exact-match accuracy on the test set exceeds target_acc.
     Returns True if target was reached, False if max_epochs hit.
@@ -375,13 +375,13 @@ def find_clock_heads(model:     HookedTransformer,
 
         for layer in range(n_layers):
             for head in range(n_heads):
-                # Extract clean head output: [1, seq, n_heads, d_model]
+                # Extract clean head output: [1, seq, n_heads, d_head]
                 clean_result = clean_cache[
-                    f"blocks.{layer}.attn.hook_result"
-                ][0, :, head, :].clone()                # [seq, d_model]
+                    f"blocks.{layer}.attn.hook_z"
+                ][0, :, head, :].clone()                # [seq, d_head]
 
                 def make_patch_hook(c_result, h_idx):
-                    def hook(value, hook_obj):
+                    def hook(value, hook=None):
                         value[0, :, h_idx, :] = c_result
                         return value
                     return hook
@@ -389,7 +389,7 @@ def find_clock_heads(model:     HookedTransformer,
                 patched_logits = model.run_with_hooks(
                     corr_tokens,
                     fwd_hooks=[(
-                        f"blocks.{layer}.attn.hook_result",
+                        f"blocks.{layer}.attn.hook_z",
                         make_patch_hook(clean_result, head)
                     )]
                 )
@@ -514,11 +514,15 @@ def fit_helix(acts_matrix: np.ndarray,
 
 def stage2b_helix_fit(model:       HookedTransformer,
                        clock_heads: List[Tuple[int,int]],
-                       layer_range: Optional[range] = None
+                       layer_range: Optional[range] = None,
+                       check_all_layers: bool = False
                       ) -> Dict[Tuple[int,int], float]:
     """
     Runs the helix fit for all clock heads (and optionally extra layers).
     Reports R² per head. Returns dict {(layer,head): r_squared}.
+
+    If check_all_layers=True, checks residual stream at all layers regardless
+    of clock_heads (to detect helix representations even when attention doesn't use them).
     """
     if layer_range is None:
         layer_range = range(model.cfg.n_layers)
@@ -527,32 +531,41 @@ def stage2b_helix_fit(model:       HookedTransformer,
     print("STAGE 2B: Helix Fit (R² over digit representations)")
     print("═"*55)
 
+    if check_all_layers:
+        print("  Checking ALL layers for helix (independent of attention usage)")
+
     results = {}
     for layer in layer_range:
-        for head in range(model.cfg.n_heads):
-            if (layer, head) not in clock_heads:
-                continue
+        # Note: collect_digit_activations gets residual stream at layer input
+        # This is the same for all heads, so we only need to compute once per layer
+        acts_tensor, valid_ds = collect_digit_activations(
+            model, layer, digit_position=POS_A_ONES
+        )
+        acts_np = acts_tensor.numpy()
+        r_sq, _ = fit_helix(acts_np, valid_ds, periods=[2.0, 5.0, 10.0])
 
-            # Fit helix to ones-digit activations at this layer
-            acts_tensor, valid_ds = collect_digit_activations(
-                model, layer, digit_position=POS_A_ONES
-            )
-            acts_np = acts_tensor.numpy()
-            r_sq, _ = fit_helix(acts_np, valid_ds, periods=[2.0, 5.0, 10.0])
+        label = ("✓ Strong helix" if r_sq > 0.70
+                 else "~ Moderate"  if r_sq > 0.40
+                 else "✗ Weak/none")
+        print(f"  Layer {layer} (residual stream): R² = {r_sq:.4f}  {label}")
 
-            label = ("✓ Strong helix" if r_sq > 0.70
-                     else "~ Moderate"  if r_sq > 0.40
-                     else "✗ Weak/none")
-            print(f"  Layer {layer}, Head {head}: R² = {r_sq:.4f}  {label}")
-            results[(layer, head)] = r_sq
+        # Store result for each head at this layer (though it's the same value)
+        # This maintains compatibility with downstream code expecting (layer, head) keys
+        if check_all_layers:
+            for head in range(model.cfg.n_heads):
+                results[(layer, head)] = r_sq
+        else:
+            for head in range(model.cfg.n_heads):
+                if (layer, head) in clock_heads:
+                    results[(layer, head)] = r_sq
 
     strong = [(lh, r2) for lh, r2 in results.items() if r2 > 0.70]
     if strong:
-        print(f"\n  Best helix head: {max(strong, key=lambda x: x[1])}")
+        print(f"\n  ✓ Helix found! Best: Layer {strong[0][0]}, R²={strong[0][1]:.4f}")
     else:
-        print("\n  ⚠  No head with R² > 0.70 found.")
-        print("     → MLP may be doing more work. Still run Stage 2C/2D,")
-        print("       then proceed to Stage 3 regardless.")
+        print("\n  ⚠  No layer with R² > 0.70 found.")
+        print("     → Digits may not form helix in residual stream.")
+        print("     → MLP may use different representation.")
 
     return results
 
@@ -966,7 +979,36 @@ def _compute_mlp_jacobian(model: HookedTransformer,
     mlp = model.blocks[layer].mlp
 
     _, cache  = model.run_with_cache(inp)
-    mlp_in_np = cache[f"blocks.{layer}.hook_mlp_in"][0, -1, :]
+
+    # Try multiple possible MLP input hook names for compatibility
+    # NOTE: We need the residual stream BEFORE the MLP (shape: d_model),
+    #       NOT the MLP's internal hidden state (shape: d_mlp)
+    mlp_hook_names = [
+        f"blocks.{layer}.hook_mlp_in",       # Ideal hook name (if it exists)
+        f"blocks.{layer}.hook_resid_mid",    # Residual stream after attention, before MLP
+    ]
+
+    mlp_in_np = None
+    for hook_name in mlp_hook_names:
+        if hook_name in cache:
+            mlp_in_np = cache[hook_name][0, -1, :]
+            # Validate shape: should be d_model, not d_mlp
+            if mlp_in_np.shape[0] == model.cfg.d_model:
+                break
+            else:
+                # Wrong hook - this is probably the MLP hidden layer
+                mlp_in_np = None
+
+    if mlp_in_np is None:
+        # Diagnostic: show available hooks with shapes
+        available_hooks = [(k, cache[k].shape) for k in cache.keys()
+                          if f'blocks.{layer}' in k and ('mlp' in k.lower() or 'resid' in k.lower())]
+        raise KeyError(
+            f"Could not find MLP input hook for layer {layer}.\n"
+            f"Tried: {mlp_hook_names}\n"
+            f"Need shape [batch, seq, {model.cfg.d_model}] (d_model), NOT [{model.cfg.d_mlp}] (d_mlp).\n"
+            f"Available hooks: {available_hooks}"
+        )
 
     # Detach and re-attach requires_grad
     mlp_in = mlp_in_np.detach().clone().float().requires_grad_(True)
@@ -1056,7 +1098,7 @@ def stage3_carry_circuit(model:       HookedTransformer,
     U, S, Vt = torch.linalg.svd(J_diff)
 
     print(f"\n  Top-10 singular values of J_diff:")
-    print(f"  {S[:10].numpy().round(4)}")
+    print(f"  {S[:10].cpu().numpy().round(4)}")
 
     # ── Probe: do discovered directions separate carry from no-carry? ──
     print(f"\n  Carry-separability of top Jacobian directions:")
@@ -1065,7 +1107,7 @@ def stage3_carry_circuit(model:       HookedTransformer,
     separation_scores = []
 
     for k in range(min(5, len(S))):
-        v = Vt[k].cpu()
+        v = Vt[k]  # Keep on same device as model for projection
 
         carry_proj    = []
         no_carry_proj = []
@@ -1077,7 +1119,22 @@ def stage3_carry_circuit(model:       HookedTransformer,
             for a, b in probe_pool:
                 inp = _encode_pair(a, b, device=device)
                 _, cache = model.run_with_cache(inp)
-                mlp_in = cache[f"blocks.{layer}.hook_mlp_in"][0, -1, :].cpu()
+
+                # Try multiple possible MLP input hook names for compatibility
+                # NOTE: We need d_model [128], not d_mlp [512]
+                mlp_in = None
+                for hook_name in [f"blocks.{layer}.hook_mlp_in",
+                                  f"blocks.{layer}.hook_resid_mid"]:
+                    if hook_name in cache:
+                        candidate = cache[hook_name][0, -1, :]  # Keep on device (MPS/CUDA/CPU)
+                        # Validate shape: should be d_model, not d_mlp
+                        if candidate.shape[0] == model.cfg.d_model:
+                            mlp_in = candidate
+                            break
+
+                if mlp_in is None:
+                    raise KeyError(f"Could not find MLP input hook for layer {layer} with shape [{model.cfg.d_model}]")
+
                 score  = (mlp_in @ v).item()
 
                 if ((a % 10) + (b % 10)) >= 10:
@@ -1373,15 +1430,35 @@ def run_experiment(model_path: Optional[str] = None,
     clock_heads, tie_matrix = find_clock_heads(model, n_pairs=300)
     plot_tie_heatmap(tie_matrix)           # → tie_heatmap.png
 
+    # ──────────────────────────────────────────
+    # STAGE 2B: Always check for helix in residual stream
+    # (independent of whether attention uses it!)
+    # ──────────────────────────────────────────
+    print("\n  Checking residual stream for helix representations...")
+    r2_results = stage2b_helix_fit(model, clock_heads, check_all_layers=True)
+    plot_r2_bars(r2_results)           # → helix_r2.png
+
+    # Find if any layer has strong helix
+    strong_helix_layers = [(layer, r2) for (layer, head), r2 in r2_results.items()
+                           if r2 > 0.70 and head == 0]  # Only check once per layer
+
+    if strong_helix_layers:
+        best_helix_layer = max(strong_helix_layers, key=lambda x: x[1])[0]
+        print(f"\n  ✓ Helix representation found in residual stream at layer(s): "
+              f"{[l for l, _ in strong_helix_layers]}")
+    else:
+        print("\n  ✗ No strong helix found in residual stream (all R² < 0.70)")
+        print("     → Model may use non-helical digit representation")
+
+    # ──────────────────────────────────────────
+    # STAGE 2C/2D: Run only if we have clock heads
+    # ──────────────────────────────────────────
     if not clock_heads:
-        print("\n  No clock heads found. Skipping Stage 2B/2C/2D.")
-        print("  Proceeding directly to Stage 3 on all layers.\n")
+        print("\n  No clock heads found (TIE ≈ 0). Skipping Stage 2C/2D.")
+        print("  → Attention is not performing arithmetic (MLP-dominated)")
+        print("  Proceeding directly to Stage 3 (MLP analysis).\n")
         best_layer = 1   # default: analyse last layer MLP
     else:
-        # 2B: Helix fit
-        r2_results = stage2b_helix_fit(model, clock_heads)
-        plot_r2_bars(r2_results)           # → helix_r2.png
-
         # Pick best head for geometric/causal tests
         best_head = max(r2_results, key=r2_results.get,
                         default=clock_heads[0])

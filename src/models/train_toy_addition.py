@@ -4,6 +4,21 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
 
 # ─────────────────────────────────────────
+# Device Configuration (MPS/CUDA/CPU)
+# ─────────────────────────────────────────
+def get_device():
+    """Automatically detect best available device."""
+    if torch.backends.mps.is_available():
+        return torch.device("mps")
+    elif torch.cuda.is_available():
+        return torch.device("cuda")
+    else:
+        return torch.device("cpu")
+
+DEVICE = get_device()
+print(f"Using device: {DEVICE}")
+
+# ─────────────────────────────────────────
 # 1. Generate Data
 # ─────────────────────────────────────────
 def generate_addition_data(n_digits=2, n_samples=50000):
@@ -64,6 +79,8 @@ cfg = HookedTransformerConfig(
     normalization_type=None,  # No layernorm: cleaner for analysis
 )
 toy_model = HookedTransformer(cfg)
+toy_model = toy_model.to(DEVICE)
+print(f"Model moved to device: {next(toy_model.parameters()).device}")
 
 # ─────────────────────────────────────────
 # 3. Train to >99% Accuracy
@@ -76,6 +93,10 @@ def train_epoch(model, loader, optimizer):
     model.train()
     total_correct = 0
     for X_batch, Y_batch in loader:
+        # Move batch data to device
+        X_batch = X_batch.to(DEVICE)
+        Y_batch = Y_batch.to(DEVICE)
+
         # Predict each answer digit autoregressively
         loss = 0
         for digit_pos in range(Y_batch.shape[1]):
@@ -104,6 +125,10 @@ for epoch in range(500):
         toy_model.eval()
         with torch.no_grad():
             for X_batch, Y_batch in DataLoader(test_data, batch_size=512):
+                # Move batch data to device
+                X_batch = X_batch.to(DEVICE)
+                Y_batch = Y_batch.to(DEVICE)
+
                 for digit_pos in range(Y_batch.shape[1]):
                     if digit_pos == 0:
                         inp = X_batch
