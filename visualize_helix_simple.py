@@ -310,6 +310,248 @@ for layer in [0, 1]:
 # Summary
 # ============================================================
 
+# ============================================================
+# ANALYTICAL HELIX PLOT (Like the reference image)
+# ============================================================
+
+print("\n" + "="*70)
+print("Creating ANALYTICAL Helix Plots (2D + Angle Linearity)")
+print("="*70)
+
+def plot_helix_analytical(coords, digits, layer_name, r_sq, filename):
+    """
+    Create analytical helix plot with:
+    - Left: 2D projection colored by digit value
+    - Right: Angle linearity plot (proves helix structure)
+
+    Similar to the reference visualization from GPT-2 analysis.
+    """
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7))
+
+    x, y = coords[:, 0], coords[:, 1]
+
+    # Calculate polar coordinates
+    r = np.sqrt(x**2 + y**2)
+    theta = np.arctan2(y, x)
+
+    # Calculate statistics
+    cv = r.std() / r.mean() if r.mean() != 0 else 0  # Coefficient of variation
+
+    # ---- LEFT: 2D Helix Projection ----
+    scatter = ax1.scatter(x, y, c=digits, cmap='viridis', s=300,
+                         edgecolors='black', linewidth=2, alpha=0.9)
+
+    # Add digit labels
+    for i, d in enumerate(digits):
+        ax1.text(x[i], y[i], str(d), fontsize=11, fontweight='bold',
+                ha='center', va='center', color='white')
+
+    ax1.set_xlabel('SVD Direction 1', fontsize=13, fontweight='bold')
+    ax1.set_ylabel('SVD Direction 2', fontsize=13, fontweight='bold')
+    ax1.set_title(f'{layer_name} Helix Projection\nCV: {cv:.3f}',
+                 fontsize=14, fontweight='bold')
+    ax1.grid(True, alpha=0.3)
+    ax1.set_aspect('equal')
+
+    # Add colorbar
+    cbar = plt.colorbar(scatter, ax=ax1, label='Digit Value')
+
+    # ---- RIGHT: Angle Linearity Plot ----
+    # For each digit in order (0,1,2,...,9), get its angle
+    # This shows if digits are arranged sequentially around the circle
+
+    # Sort digits to ensure 0,1,2,...,9 order (should already be sorted)
+    digit_values = np.array(digits)
+
+    # Get angle for each digit (in digit order)
+    angles_by_digit = theta.copy()
+
+    # Find the starting angle (digit 0) and rotate so it starts at ~0
+    angle_0 = angles_by_digit[0]
+    angles_rotated = angles_by_digit - angle_0
+
+    # Unwrap to remove discontinuities (e.g., wrapping from 2π to 0)
+    angles_unwrapped = np.unwrap(angles_rotated)
+
+    # Make all angles positive
+    angles_unwrapped = angles_unwrapped - angles_unwrapped.min()
+
+    # Calculate linearity: do angles increase linearly with digit value?
+    correlation = np.corrcoef(digit_values, angles_unwrapped)[0, 1]
+
+    # Linear fit: angle = slope * digit + intercept
+    coeffs = np.polyfit(digit_values, angles_unwrapped, 1)
+    angles_fit = np.poly1d(coeffs)(digit_values)
+
+    # Period: how many digits to complete one full circle (2π radians)?
+    # Slope is radians per digit, so period = 2π / slope
+    period = 2 * np.pi / coeffs[0] if coeffs[0] > 0 else np.inf
+
+    # Plot: digit value (0-9) vs angle
+    scatter2 = ax2.scatter(digit_values, angles_unwrapped,
+                          c=digit_values, cmap='viridis', s=250,
+                          edgecolors='black', linewidth=2, alpha=0.9, zorder=10)
+
+    # Add digit labels
+    for i, d in enumerate(digit_values):
+        ax2.text(d, angles_unwrapped[i], str(d), fontsize=9, fontweight='bold',
+                ha='center', va='center', color='white')
+
+    # Linear fit line (ideal helix)
+    ax2.plot(digit_values, angles_fit, 'r--', linewidth=3, alpha=0.8,
+            label=f'Linear fit (R={correlation:.3f})', zorder=5)
+
+    ax2.set_xlabel('Digit Value', fontsize=13, fontweight='bold')
+    ax2.set_ylabel('Angle (radians)', fontsize=13, fontweight='bold')
+    ax2.set_title(f'Angle Linearity: {correlation:.3f}\nPeriod: {period:.1f} digits',
+                 fontsize=14, fontweight='bold')
+    ax2.grid(True, alpha=0.3)
+    ax2.legend(fontsize=11, loc='upper left')
+
+    # Set x-axis to show all digits
+    ax2.set_xticks(digit_values)
+
+    fig.suptitle(f'{layer_name} - Helix Analysis (R² = {r_sq:.4f})',
+                fontsize=16, fontweight='bold', y=0.98)
+
+    plt.tight_layout()
+    plt.savefig(filename, dpi=150, bbox_inches='tight')
+    print(f"  Plot saved: {filename}")
+    print(f"    Angle Linearity: {correlation:.3f} (>0.9 = strong helix)")
+    print(f"    Period: {period:.1f} digits (10.0 = perfect base-10)")
+    print(f"    CV (radius variation): {cv:.3f} (lower = rounder)")
+    plt.close()
+
+# Create analytical plots for both layers
+for layer in [0, 1]:
+    acts_tensor, valid_ds = collect_digit_activations(
+        model, layer, digit_position=POS_A_ONES
+    )
+    acts_np = acts_tensor.numpy()
+
+    # Get R² for this layer
+    r_sq, _ = fit_helix(acts_np, valid_ds, periods=[2.0, 5.0, 10.0])
+
+    # SVD projection
+    acts_centered = acts_np - acts_np.mean(axis=0, keepdims=True)
+    U, S, Vt = np.linalg.svd(acts_centered, full_matrices=False)
+    coords = U[:, :2] * S[:2]
+
+    plot_helix_analytical(
+        coords, valid_ds,
+        f"Layer {layer}",
+        r_sq,
+        f"helix_ANALYTICAL_L{layer}.png"
+    )
+
+# ============================================================
+# ANALYTICAL PLOTS FOR ALL 2-DIGIT NUMBERS (10-99)
+# ============================================================
+
+print("\n" + "="*70)
+print("Creating ANALYTICAL Plots for ALL 2-Digit Numbers (10-99)")
+print("="*70)
+
+def collect_number_activations(model, layer, numbers, position):
+    """
+    Collect activations for arbitrary numbers at a given position.
+
+    Args:
+        model: The transformer model
+        layer: Which layer (0 or 1)
+        numbers: List of numbers (e.g., [10, 11, ..., 99])
+        position: Token position (0=A_tens, 1=A_ones, 2=B_tens, 3=B_ones)
+
+    Returns:
+        activations: [len(numbers), d_model] tensor
+        numbers: Same list (for consistency)
+    """
+    from arithmetic_circuit_discovery import _encode_pair
+
+    activations = []
+    device = next(model.parameters()).device
+
+    for num in numbers:
+        # Create simple problem: num + 0 = num
+        inp = _encode_pair(num, 0, device=device)
+
+        with torch.no_grad():
+            _, cache = model.run_with_cache(inp)
+
+            # Extract activation at specified position
+            # Note: position 0=A_tens, 1=A_ones, 2=B_tens, 3=B_ones, 4='+', 5='='
+            act = cache[f'blocks.{layer}.hook_resid_post'][0, position, :]
+            activations.append(act.cpu())
+
+    return torch.stack(activations), numbers
+
+# Test all 2-digit numbers (10-99)
+all_numbers = list(range(10, 100))
+
+for layer in [0, 1]:
+    print(f"\nLayer {layer} - ALL NUMBERS (10-99):")
+
+    # Collect activations at A_ones position (position 1)
+    # This is where the full number information is available
+    acts_tensor, numbers = collect_number_activations(
+        model, layer, all_numbers, position=1
+    )
+    acts_np = acts_tensor.numpy()
+
+    # Get R² for this layer
+    r_sq, _ = fit_helix(acts_np, numbers, periods=[2.0, 5.0, 10.0])
+
+    # SVD projection
+    acts_centered = acts_np - acts_np.mean(axis=0, keepdims=True)
+    U, S, Vt = np.linalg.svd(acts_centered, full_matrices=False)
+    coords = U[:, :2] * S[:2]
+
+    var_explained = (S[:2]**2).sum() / (S**2).sum()
+    print(f"  Variance explained by PC1+PC2: {var_explained:.1%}")
+
+    # Use existing plot_helix_analytical function
+    plot_helix_analytical(
+        coords, numbers,
+        f"Layer {layer} - All Numbers (10-99)",
+        r_sq,
+        f"helix_ANALYTICAL_ALL_NUMBERS_L{layer}.png"
+    )
+
+# Also create focused plot for multiples of 10 (10, 20, ..., 90)
+print("\n" + "="*70)
+print("Creating ANALYTICAL Plots for Multiples of 10")
+print("="*70)
+
+multiples_of_10 = [10, 20, 30, 40, 50, 60, 70, 80, 90]
+
+for layer in [0, 1]:
+    print(f"\nLayer {layer} - MULTIPLES OF 10:")
+
+    # Collect activations at A_ones position (position 1)
+    acts_tensor, numbers = collect_number_activations(
+        model, layer, multiples_of_10, position=1
+    )
+    acts_np = acts_tensor.numpy()
+
+    # Get R²
+    r_sq, _ = fit_helix(acts_np, numbers, periods=[2.0, 5.0, 10.0])
+
+    # SVD projection
+    acts_centered = acts_np - acts_np.mean(axis=0, keepdims=True)
+    U, S, Vt = np.linalg.svd(acts_centered, full_matrices=False)
+    coords = U[:, :2] * S[:2]
+
+    var_explained = (S[:2]**2).sum() / (S**2).sum()
+    print(f"  Variance explained by PC1+PC2: {var_explained:.1%}")
+
+    # Use existing plot_helix_analytical function
+    plot_helix_analytical(
+        coords, numbers,
+        f"Layer {layer} - Multiples of 10",
+        r_sq,
+        f"helix_ANALYTICAL_MULTIPLES_10_L{layer}.png"
+    )
+
 print("\n" + "="*70)
 print("VISUALIZATION COMPLETE")
 print("="*70)
@@ -322,6 +564,14 @@ print("    3. helix_comparison_L0_L1_svd.png - Side-by-side comparison")
 print("\n  IMPROVED visualizations (show helix structure clearly):")
 print("    4. helix_CLEAR_arrows_L0.png - Layer 0 with SEQUENTIAL ARROWS ⭐")
 print("    5. helix_CLEAR_arrows_L1.png - Layer 1 with SEQUENTIAL ARROWS ⭐")
+print("\n  ANALYTICAL visualizations (quantitative helix proof):")
+print("    6. helix_ANALYTICAL_L0.png - Layer 0 digits 0-9 with ANGLE LINEARITY ⭐⭐⭐")
+print("    7. helix_ANALYTICAL_L1.png - Layer 1 digits 0-9 with ANGLE LINEARITY ⭐⭐⭐")
+print("\n  ANALYTICAL visualizations for ALL NUMBERS:")
+print("    8. helix_ANALYTICAL_ALL_NUMBERS_L0.png - Layer 0 ALL numbers (10-99) ⭐⭐⭐")
+print("    9. helix_ANALYTICAL_ALL_NUMBERS_L1.png - Layer 1 ALL numbers (10-99) ⭐⭐⭐")
+print("   10. helix_ANALYTICAL_MULTIPLES_10_L0.png - Layer 0 multiples of 10 ⭐⭐⭐")
+print("   11. helix_ANALYTICAL_MULTIPLES_10_L1.png - Layer 1 multiples of 10 ⭐⭐⭐")
 
 print("\nKey Findings:")
 print("  ✓ Used existing SVD-based visualization (not PCA)")

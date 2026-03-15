@@ -1,5 +1,13 @@
 # Beyond Components: Singular Vector-Based Interpretability of Transformer Circuits
 
+"I'm continuing from a previous analysis session. Please read the context file at:
+/Users/mkanaka/Documents/GitHub/Beyond-Components/SESSION_CONTEXT_GROKKING_ANALYSIS.md
+
+This contains the full context of our grokking vs 2-digit addition model analysis.
+
+[Then tell me what you want to do next]"
+
+
 
 This repository contains the official release of the following paper:
 > **Beyond Components: Singular Vector-Based Interpretability of Transformer Circuits**<br>
