@@ -38,8 +38,8 @@ env/
 
 # Model cache
 cache_dir/
-svd_cache/
-
+svd_cache/*
+.sfdx/*
 # Logs and outputs
 logs/
 *.log

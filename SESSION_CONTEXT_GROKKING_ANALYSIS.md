@@ -562,8 +562,75 @@ The AI will understand:
 
 ---
 
+## Session Continuation: Research Roadmap Development
+
+**Date**: 2026-03-17
+**Session Type**: Research roadmap development and professor feedback analysis
+
+### Phase 6: Research Roadmap Creation
+
+Following the comprehensive grokking analysis, the session transitioned to creating a research roadmap for publication:
+
+#### Key Developments:
+
+**1. Roadmap Evolution**:
+- Started with `RESEARCH_ROADMAP.md` (original with carry analysis)
+- Updated to `RESEARCH_ROADMAP_UPDATED.md` (6-phase geometric SVD framework)
+- Strategic decision: **Excluded carry mechanism analysis** for focus and precision
+
+**2. 6-Phase Geometric SVD Framework Created**:
+```
+Phase 1: Component Localization via Total Indirect Effect (TIE)
+Phase 2: OV Circuit Extraction and SVD
+Phase 3: Input Plane Geometric Testing
+Phase 4: Output Plane Computation Testing
+Phase 5: MLP Interaction Pipeline Analysis (made CORE, not optional)
+Phase 6: Causal Verification via Phase-Shift Intervention
+```
+
+**3. Target Models & Locations Confirmed**:
+- **GPT-2 Small (117M)**: Layer 9, Head 9 (75% depth, Period ≈ 74.2)
+- **GPT-2 Medium (355M)**: Layer 18, Head 15 (75% depth, Period ≈ 55.4)
+
+#### Critical Professor Feedback (March 17, 2026):
+
+**Major Issues Identified**:
+
+1. **Document Version Mismatch**:
+   - Professor references "Experiment 9 (Pretrained Replication)" - **NOT in current roadmap**
+   - Professor mentions "carry boundary breaks helix" - **EXCLUDED from current roadmap**
+   - Professor references `fit_helix` pseudocode - **NOT in current document**
+
+2. **"Toy Model Fatigue" Concern**:
+   - Professor strongly recommends moving pretrained replication to **REQUIRED**
+   - Warns: "If you only show carry boundary in custom-trained model, reviewers will dismiss it"
+   - Must prove findings scale to GPT-2/GPT-J
+
+3. **Technical Implementation**:
+   - `fit_helix` function must enforce strict geometric diagnostics:
+     - Radius CV < 0.2
+     - Angle Linearity > 0.9
+   - Standard R² not sufficient - must be geometric helix R²
+
+#### Action Items Pending:
+
+1. **Clarify Version**: Determine which roadmap document professor reviewed
+2. **Carry Analysis Decision**: Reconsider exclusion based on "toy model fatigue" feedback
+3. **Experiment Numbering**: Reconcile missing "Experiment 9"
+4. **Technical Specs**: Update `fit_helix` implementation requirements
+
+#### Files Status:
+- ✅ `RESEARCH_ROADMAP_UPDATED.md` - Current 6-phase framework (may need revision)
+- ⚠️ Professor feedback suggests different/older version reviewed
+- 📋 Need to restore carry mechanism analysis per strong professor recommendation
+
+#### Key Decision Point:
+**Should carry mechanism analysis be restored?** Professor feedback strongly suggests YES for publication viability, contradicting earlier decision to exclude for focus.
+
+---
+
 **End of Context Document**
 
-*Generated: 2026-03-15*
-*Session Duration: March 13-15, 2026*
-*Status: Analysis Complete ✅*
+*Generated: 2026-03-17*
+*Session Duration: March 13-17, 2026*
+*Status: Research roadmap development phase, pending professor feedback resolution ⚠️*
