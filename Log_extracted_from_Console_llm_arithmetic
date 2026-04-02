@@ -1,0 +1,3125 @@
+(.venv) mkanaka@mkanaka-ltme769 Beyond-Components % .venv/bin/python src/models/online_svd_scanner.py
+Loading google/gemma-7b...
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards: 100%|█████████████| 4/4 [00:00<00:00,  7.76it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model google/gemma-7b into HookedTransformer
+
+Collecting operand-position activations at Layer 14
+
+  Direct PCA — operand pos, L14
+  Best PC pair      : (10, 11)
+  Radius CV         : 0.4681   (target < 0.20)
+  Phase Match (ones): 0.0094   (target > 0.90)
+  Lin (raw n)       : 0.9755   (comparison)
+  Period T          : 9.88   (target ~10.0)
+  ❌ NO CLEAN HELIX at this position/layer.
+
+Collecting final-token activations at Layer 14
+
+  Direct PCA — final pos, L14
+  Best PC pair      : (9, 10)
+  Radius CV         : 0.5866   (target < 0.20)
+  Phase Match (ones): 0.0984   (target > 0.90)
+  Lin (raw n)       : 0.9186   (comparison)
+  Period T          : 17.21   (target ~10.0)
+  🔶 WRONG PERIOD: Angular structure exists but T=17.2 ≠ 10.
+
+  SVD Reading-Direction Analysis: Layer 14, Head 2
+
+  SVD-Reading-PCA L14H2
+  Best PC pair      : (5, 9)
+  Radius CV         : 0.5497   (target < 0.20)
+  Phase Match (ones): -0.0829   (target > 0.90)
+  Lin (raw n)       : 0.9611   (comparison)
+  Period T          : 18.29   (target ~10.0)
+  🔶 WRONG PERIOD: Angular structure exists but T=18.3 ≠ 10.
+
+============================================================
+LAYER SWEEP: Finding Cleanest Helix Layer
+============================================================
+
+  Layer   Position      CV  Phase(ones)    Period  Verdict
+  -------------------------------------------------------------------
+      8    operand   0.461        0.288     89.71  ❌ None
+      8      final   0.467        0.057     57.82  ❌ None
+      9    operand   0.398        0.362   1150.57  ❌ None
+      9      final   0.454        0.070     59.46  ❌ None
+     10    operand   0.509        0.288   1321.54  ❌ None
+     10      final   0.514        0.180    202.76  ❌ None
+     11    operand   0.457        0.287     25.66  ❌ None
+     11      final   0.538        0.192     73.01  ❌ None
+     12    operand   0.478        0.329     47.58  ❌ None
+     12      final   0.466        0.121     91.26  ❌ None
+     13    operand   0.501        0.479   1318.27  ❌ None
+     13      final   0.388        0.013    269.33  ❌ None
+     14    operand   0.514        0.283     22.12  ❌ None
+     14      final   0.393        0.022  17012.88  ❌ None
+     15    operand   0.443        0.297     27.18  ❌ None
+     15      final   0.390        0.031     90.56  ❌ None
+     16    operand   0.502        0.338     36.74  ❌ None
+     16      final   0.358        0.048     90.00  ❌ None
+     17    operand   0.511        0.404     15.68  ❌ None
+     17      final   0.367       -0.047    381.02  ❌ None
+     18    operand   0.477        0.380     63.09  ❌ None
+     18      final   0.374        0.029     94.57  ❌ None
+     19    operand   0.493        0.524     41.73  ❌ None
+     19      final   0.558        0.210     50.94  ❌ None
+     20    operand   0.423        0.467     84.04  ❌ None
+     20      final   0.501        0.010    154.44  ❌ None
+     21    operand   0.424        0.526     16.10  ❌ None
+     21      final   0.511        0.079    160.04  ❌ None
+     22    operand   0.445        0.496     16.05  ❌ None
+     22      final   0.521        0.087    138.84  ❌ None
+     23    operand   0.546        0.260    725.09  ❌ None
+     23      final   0.507       -0.004     45.66  ❌ None
+     24    operand   0.514        0.104     45.21  ❌ None
+     24      final   0.479        0.005    126.21  ❌ None
+     25    operand   0.694        0.369     48.54  ❌ None
+     25      final   0.480        0.079     27.88  ❌ None
+
+  Best: Layer 21, position='operand'  CV=0.424, Phase=0.526, T=16.1
+
+════════════════════════════════════════════════════════════
+SUMMARY
+════════════════════════════════════════════════════════════
+  Direct PCA operand  L14: CV=0.468, Phase=0.009, T=9.9
+  Direct PCA final    L14: CV=0.587, Phase=0.098, T=17.2
+  SVD-Reading L14H2:  CV=0.550, Phase=-0.083, T=18.3
+  Best layer overall: Layer 21, position='operand'
+Loading microsoft/Phi-3-mini-4k-instruct...
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct requires setting trust_remote_code=True
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct state dict requires setting trust_remote_code=True
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:`flash-attention` package not found, consider installing for better performance: No module named 'flash_attn'.
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:Current `flash-attention` does not support `window_size`. Either upgrade or use `attn_implementation='eager'`.
+Loading checkpoint shards: 100%|█████████████| 2/2 [00:00<00:00, 60.14it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model microsoft/Phi-3-mini-4k-instruct into HookedTransformer
+
+Collecting operand-position activations at Layer 24
+
+  Direct PCA — operand pos, L24
+  Best PC pair      : (3, 4)
+  Radius CV         : 0.4479   (target < 0.20)
+  Phase Match (ones): 0.6518   (target > 0.90)
+  Lin (raw n)       : 0.9908   (comparison)
+  Period T          : 12.69   (target ~10.0)
+  🔶 WRONG PERIOD: Angular structure exists but T=12.7 ≠ 10.
+
+Collecting final-token activations at Layer 24
+
+  Direct PCA — final pos, L24
+  Best PC pair      : (6, 11)
+  Radius CV         : 0.5680   (target < 0.20)
+  Phase Match (ones): -0.0486   (target > 0.90)
+  Lin (raw n)       : 0.9372   (comparison)
+  Period T          : 25.09   (target ~10.0)
+  🔶 WRONG PERIOD: Angular structure exists but T=25.1 ≠ 10.
+
+  SVD Reading-Direction Analysis: Layer 24, Head 28
+
+  SVD-Reading-PCA L24H28
+  Best PC pair      : (1, 8)
+  Radius CV         : 0.6093   (target < 0.20)
+  Phase Match (ones): -0.0016   (target > 0.90)
+  Lin (raw n)       : 0.9515   (comparison)
+  Period T          : 13.07   (target ~10.0)
+  🔶 WRONG PERIOD: Angular structure exists but T=13.1 ≠ 10.
+
+============================================================
+LAYER SWEEP: Finding Cleanest Helix Layer
+============================================================
+
+  Layer   Position      CV  Phase(ones)    Period  Verdict
+  -------------------------------------------------------------------
+      8    operand   0.389        0.114     84.44  ❌ None
+      8      final   0.484        0.030    100.71  ❌ None
+      9    operand   0.459        0.291     99.44  ❌ None
+      9      final   0.582        0.153     90.55  ❌ None
+     10    operand   0.402        0.193     27.37  ❌ None
+     10      final   0.569        0.102     90.03  ❌ None
+     11    operand   0.382        0.258    107.91  ❌ None
+     11      final   0.534        0.091    383.72  ❌ None
+     12    operand   0.618        0.268     17.74  ❌ None
+     12      final   0.581        0.256     59.50  ❌ None
+     13    operand   0.430        0.063     25.95  ❌ None
+     13      final   0.553        0.081    142.36  ❌ None
+     14    operand   0.506        0.378    106.41  ❌ None
+     14      final   0.470        0.117    119.08  ❌ None
+     15    operand   0.450        0.428     24.96  ❌ None
+     15      final   0.550        0.167     75.15  ❌ None
+     16    operand   0.466        0.106     19.80  ❌ None
+     16      final   0.496        0.119    195.96  ❌ None
+     17    operand   0.413        0.207     25.35  ❌ None
+     17      final   0.537        0.171     35.34  ❌ None
+     18    operand   0.454        0.355     15.61  ❌ None
+     18      final   0.543        0.075    128.02  ❌ None
+     19    operand   0.427        0.036     96.36  ❌ None
+     19      final   0.457        0.115     85.26  ❌ None
+     20    operand   0.463        0.035    144.38  ❌ None
+     20      final   0.446        0.061     94.90  ❌ None
+     21    operand   0.408       -0.005    220.60  ❌ None
+     21      final   0.568        0.113    263.58  ❌ None
+     22    operand   0.461        0.258     80.36  ❌ None
+     22      final   0.546        0.156    207.44  ❌ None
+     23    operand   0.433        0.403     55.31  ❌ None
+     23      final   0.517        0.130    145.71  ❌ None
+     24    operand   0.448        0.652     12.69  🔶 T=12.7≠10
+     24      final   0.520        0.041    152.42  ❌ None
+     25    operand   0.381        0.322     39.76  ❌ None
+     25      final   0.538        0.066    829.05  ❌ None
+
+  Best: Layer 24, position='operand'  CV=0.448, Phase=0.652, T=12.7
+
+════════════════════════════════════════════════════════════
+SUMMARY
+════════════════════════════════════════════════════════════
+  Direct PCA operand  L24: CV=0.448, Phase=0.652, T=12.7
+  Direct PCA final    L24: CV=0.568, Phase=-0.049, T=25.1
+  SVD-Reading L24H28:  CV=0.609, Phase=-0.002, T=13.1
+  Best layer overall: Layer 24, position='operand'
+(.venv) mkanaka@mkanaka-ltme769 Beyond-Components % .venv/bin/python src/models/online_svd_scanner.py
+🚀 Initializing On-The-Fly Scanner for meta-llama/Llama-3.2-3B...
+config.json: 100%|████████████████████████| 844/844 [00:00<00:00, 2.60MB/s]
+`torch_dtype` is deprecated! Use `dtype` instead!
+model.safetensors.index.json: 20.9kB [00:00, 7.37MB/s]
+model-00001-of-00002.safetensors: 100%|█| 4.97G/4.97G [10:48<00:00, 7.65MB/
+model-00002-of-00002.safetensors: 100%|█| 1.46G/1.46G [12:21<00:00, 1.97MB/
+Fetching 2 files: 100%|█████████████████████| 2/2 [12:22<00:00, 371.07s/it]
+Loading checkpoint shards: 100%|█████████████| 2/2 [00:00<00:00,  7.21it/s]
+generation_config.json: 100%|█████████████| 185/185 [00:00<00:00, 3.04MB/s]
+tokenizer_config.json: 50.5kB [00:00, 11.6MB/s]
+tokenizer.json: 9.09MB [00:01, 6.59MB/s]
+special_tokens_map.json: 100%|████████████| 301/301 [00:00<00:00, 5.37MB/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model meta-llama/Llama-3.2-3B into HookedTransformer
+🧠 Extracting contextualized number embeddings...
+📊 Scanning 28 layers and 24 heads (672 total matrices)...
+
+📏 Testing the Singular Value Hypothesis for Dims 2 & 6:
+   - Sigma 2: 0.0919
+   - Sigma 6: 0.0732
+   - Ratio (closer to 1.0 is better): 1.2555
+🔍 New Best Candidate: Layer 1, Head 17 (Dims 2,6) | CV: 0.312, Lin: 0.934
+
+==================================================
+🏆 Best Geometric Representation Found:
+Layer 1, Head 17 (Dims 2,6) | CV: 0.312, Lin: 0.934
+📊 Generating visualizations and running FFT...
+
+🔍 Mapping SVD Dimensions to Fourier Frequencies (Top 10 Dims):
+   - Dim  0: Dominant Period =  99.0 | Signal Strength =  9.9%
+   - Dim  1: Dominant Period =  99.0 | Signal Strength =  9.3%
+   - Dim  2: Dominant Period =  99.0 | Signal Strength =  7.9%
+   - Dim  3: Dominant Period =  99.0 | Signal Strength = 14.3%
+   - Dim  4: Dominant Period =   2.0 | Signal Strength = 10.6%
+   - Dim  5: Dominant Period =   2.0 | Signal Strength = 11.9%
+   - Dim  6: Dominant Period =   2.0 | Signal Strength = 23.6%
+   - Dim  7: Dominant Period =   2.0 | Signal Strength = 11.1%
+   - Dim  8: Dominant Period =   2.0 | Signal Strength =  9.7%
+   - Dim  9: Dominant Period =  99.0 | Signal Strength =  5.8%
+✅ 3D Geometry Plot saved successfully to ./geometry_meta-llama_Llama-3.2-3B_L1H17_OV.png!
+✅ FFT Spectrum saved to ./fft_spectrum_meta-llama_Llama-3.2-3B_L1H17.png
+✅ Sine/Cosine unpacking plot saved to ./meta-llama_Llama-3.2-3B_L1H17_OV_sine_cosine_unpacking_L_H_dims_2_6.png
+==================================================
+(.venv) mkanaka@mkanaka-ltme769 Beyond-Components % .venv/bin/python src/models/online_svd_scanner.py
+
+=================================================================
+Phase-Corrected Helix Analysis: google/gemma-7b
+=================================================================
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards: 100%|█████████████| 4/4 [00:00<00:00, 77.70it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model google/gemma-7b into HookedTransformer
+
+  ── gemma-7b L14 operand ──
+  Best PC pair       : (3, 4)
+  Radius CV          : 0.4890   (target < 0.20)
+  Lin (raw n)        : 0.9937   (monotone order)
+  Phase ORIGINAL     : -0.2977   (BUGGY — for reference)
+  Phase CORRECTED    : 0.6274   (target > 0.85)  ← KEY
+  Phase offset found : 118.5°
+  Period T           : 11.26   (target ~10.0)
+
+  🔷 MONOTONE HELIX (not modular): Lin(raw n)=0.994
+     → This is the 'Vector Translation' mechanism.
+
+  ── gemma-7b L14 final ──
+  Best PC pair       : (9, 10)
+  Radius CV          : 0.5867   (target < 0.20)
+  Lin (raw n)        : 0.9187   (monotone order)
+  Phase ORIGINAL     : 0.0986   (BUGGY — for reference)
+  Phase CORRECTED    : 0.0998   (target > 0.85)  ← KEY
+  Phase offset found : 351.5°
+  Period T           : 17.21   (target ~10.0)
+
+  🔷 MONOTONE HELIX (not modular): Lin(raw n)=0.919
+     → This is the 'Vector Translation' mechanism.
+
+=================================================================
+LAYER SWEEP (Corrected Phase Metric)
+=================================================================
+
+    L      Pos      CV  Phase_corr  Phase_orig        T  Verdict
+  ------------------------------------------------------------------------
+    8  operand   0.488       0.632       0.308    12.51  🔶 T=12.5
+    8    final   0.597       0.370      -0.064    91.07  ❌ (Linear Translation)
+    9  operand   0.461       0.769       0.296    19.52  🔶 T=19.5
+    9    final   0.653       0.491      -0.271    24.14  ❌ (Linear Translation)
+   10  operand   0.440       0.612      -0.533    14.71  🔶 T=14.7
+   10    final   0.513       0.298       0.030    31.45  ❌ (Linear Translation)
+   11  operand   0.363       0.655      -0.294    11.12  🔶 T=11.1
+   11    final   0.627       0.351       0.156   121.16  ❌ (Linear Translation)
+   12  operand   0.418       0.677      -0.338    10.85  🔶 T=10.9
+   12    final   0.527       0.274      -0.107    58.64  ❌ (Linear Translation)
+   13  operand   0.514       0.710       0.093    64.02  🔶 T=64.0
+   13    final   0.569       0.319      -0.178    34.36  ❌ (Linear Translation)
+   14  operand   0.446       0.612      -0.423    34.86  🔶 T=34.9
+   14    final   0.412       0.099      -0.095   112.47  ❌ (Linear Translation)
+   15  operand   0.499       0.708      -0.303    10.07  🔶 T=10.1
+   15    final   0.438       0.089      -0.085   164.97  ❌ (Linear Translation)
+   16  operand   0.548       0.637       0.009   298.01  🔶 T=298.0
+   16    final   0.358       0.049       0.048    90.00  ❌ (Linear Translation)
+   17  operand   0.539       0.650       0.013    28.06  🔶 T=28.1
+   17    final   0.367       0.047      -0.047   381.02  ❌ (Linear Translation)
+   18  operand   0.493       0.851       0.086    13.64  🔶 T=13.6
+   18    final   0.522       0.206       0.074    96.24  ❌ (Linear Translation)
+   19  operand   0.465       0.872       0.088    11.64  🔶 T=11.6
+   19    final   0.558       0.223       0.209    50.95  ❌ (Linear Translation)
+   20  operand   0.450       0.761       0.148    16.03  🔶 T=16.0
+   20    final   0.554       0.151      -0.137   178.88  ❌ (Linear Translation)
+   21  operand   0.392       0.885       0.215    10.00  🔶 T=10.0
+   21    final   0.543       0.272      -0.071   196.96  ❌ (Linear Translation)
+   22  operand   0.398       0.627       0.174    21.20  🔶 T=21.2
+   22    final   0.576       0.177      -0.136    39.53  ❌ (Linear Translation)
+   23  operand   0.425       0.851      -0.294    11.84  🔶 T=11.8
+   23    final   0.545       0.222      -0.213    29.26  ❌ (Linear Translation)
+   24  operand   0.581       0.839      -0.268    12.74  🔶 T=12.7
+   24    final   0.505       0.083      -0.016    38.73  ❌ (Linear Translation)
+   25  operand   0.530       0.603      -0.280    72.39  🔶 T=72.4
+   25    final   0.508       0.196       0.016    52.71  ❌ (Linear Translation)
+
+  Best: L21 operand  Phase_corr=0.885  CV=0.392  T=10.00
+
+=================================================================
+Phase-Corrected Helix Analysis: microsoft/Phi-3-mini-4k-instruct
+=================================================================
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct requires setting trust_remote_code=True
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct state dict requires setting trust_remote_code=True
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:`flash-attention` package not found, consider installing for better performance: No module named 'flash_attn'.
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:Current `flash-attention` does not support `window_size`. Either upgrade or use `attn_implementation='eager'`.
+Loading checkpoint shards: 100%|█████████████| 2/2 [00:00<00:00, 62.13it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model microsoft/Phi-3-mini-4k-instruct into HookedTransformer
+
+  ── Phi-3-mini-4k-instruct L24 operand ──
+  Best PC pair       : (4, 5)
+  Radius CV          : 0.4474   (target < 0.20)
+  Lin (raw n)        : 0.9792   (monotone order)
+  Phase ORIGINAL     : 0.1429   (BUGGY — for reference)
+  Phase CORRECTED    : 0.7648   (target > 0.85)  ← KEY
+  Phase offset found : 281.0°
+  Period T           : 14.36   (target ~10.0)
+
+  🔷 MONOTONE HELIX (not modular): Lin(raw n)=0.979
+     → This is the 'Vector Translation' mechanism.
+
+  ── Phi-3-mini-4k-instruct L24 final ──
+  Best PC pair       : (6, 11)
+  Radius CV          : 0.5679   (target < 0.20)
+  Lin (raw n)        : 0.9372   (monotone order)
+  Phase ORIGINAL     : -0.0484   (BUGGY — for reference)
+  Phase CORRECTED    : 0.1239   (target > 0.85)  ← KEY
+  Phase offset found : 247.0°
+  Period T           : 25.09   (target ~10.0)
+
+  🔷 MONOTONE HELIX (not modular): Lin(raw n)=0.937
+     → This is the 'Vector Translation' mechanism.
+
+=================================================================
+LAYER SWEEP (Corrected Phase Metric)
+=================================================================
+
+    L      Pos      CV  Phase_corr  Phase_orig        T  Verdict
+  ------------------------------------------------------------------------
+    8  operand   0.477       0.467      -0.222    81.17  ❌ (Linear Translation)
+    8    final   0.461       0.028      -0.028   211.42  ❌ (Linear Translation)
+    9  operand   0.392       0.589      -0.107    17.21  ❌ (Linear Translation)
+    9    final   0.583       0.196       0.082    68.86  ❌ (Linear Translation)
+   10  operand   0.419       0.591      -0.569    11.97  ❌ (Linear Translation)
+   10    final   0.569       0.113       0.102    90.03  ❌ (Linear Translation)
+   11  operand   0.487       0.691      -0.300    23.46  🔶 T=23.5
+   11    final   0.581       0.172       0.001    32.96  ❌ (Linear Translation)
+   12  operand   0.589       0.527      -0.198    39.73  ❌ (Linear Translation)
+   12    final   0.581       0.270       0.256    59.50  ❌ (Linear Translation)
+   13  operand   0.545       0.808      -0.140    11.75  🔶 T=11.7
+   13    final   0.499       0.126       0.010   187.84  ❌ (Linear Translation)
+   14  operand   0.519       0.724      -0.058    16.76  🔶 T=16.8
+   14    final   0.462       0.143       0.078   913.71  ❌ (Linear Translation)
+   15  operand   0.449       0.557       0.428    24.96  ❌ (Linear Translation)
+   15    final   0.550       0.236       0.167    75.15  ❌ (Linear Translation)
+   16  operand   0.551       0.707      -0.111    18.61  🔶 T=18.6
+   16    final   0.496       0.135       0.119   195.96  ❌ (Linear Translation)
+   17  operand   0.397       0.340       0.103    19.17  ❌ (Linear Translation)
+   17    final   0.537       0.193       0.171    35.34  ❌ (Linear Translation)
+   18  operand   0.415       0.608       0.043    10.99  🔶 T=11.0
+   18    final   0.518       0.152      -0.049    95.35  ❌ (Linear Translation)
+   19  operand   0.393       0.527      -0.520    16.07  ❌ (Linear Translation)
+   19    final   0.457       0.178       0.115    85.26  ❌ (Linear Translation)
+   20  operand   0.396       0.542      -0.537    15.88  ❌ (Linear Translation)
+   20    final   0.446       0.100       0.061    94.90  ❌ (Linear Translation)
+   21  operand   0.478       0.575      -0.133   217.71  ❌ (Linear Translation)
+   21    final   0.463       0.133      -0.133    57.66  ❌ (Linear Translation)
+   22  operand   0.447       0.689      -0.222    11.73  🔶 T=11.7
+   22    final   0.419       0.152      -0.008    90.66  ❌ (Linear Translation)
+   23  operand   0.442       0.798       0.183    12.17  🔶 T=12.2
+   23    final   0.411       0.116      -0.104    91.09  ❌ (Linear Translation)
+   24  operand   0.447       0.765       0.142    14.36  🔶 T=14.4
+   24    final   0.408       0.156      -0.130   115.06  ❌ (Linear Translation)
+   25  operand   0.432       0.822       0.221    11.74  🔶 T=11.7
+   25    final   0.395       0.141      -0.106    42.80  ❌ (Linear Translation)
+
+  Best: L25 operand  Phase_corr=0.822  CV=0.432  T=11.74
+
+=================================================================
+Phase-Corrected Helix Analysis: meta-llama/Llama-3.2-3B
+=================================================================
+Loading checkpoint shards: 100%|█████████████| 2/2 [00:00<00:00, 45.28it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model meta-llama/Llama-3.2-3B into HookedTransformer
+
+  ── Llama-3.2-3B L1 operand ──
+  Best PC pair       : (4, 9)
+  Radius CV          : 0.5603   (target < 0.20)
+  Lin (raw n)        : 0.9868   (monotone order)
+  Phase ORIGINAL     : 0.1566   (BUGGY — for reference)
+  Phase CORRECTED    : 0.1922   (target > 0.85)  ← KEY
+  Phase offset found : 324.5°
+  Period T           : 10.68   (target ~10.0)
+
+  🔷 MONOTONE HELIX (not modular): Lin(raw n)=0.987
+     → This is the 'Vector Translation' mechanism.
+
+  ── Llama-3.2-3B L1 final ──
+  Best PC pair       : (8, 10)
+  Radius CV          : 0.6306   (target < 0.20)
+  Lin (raw n)        : 0.8590   (monotone order)
+  Phase ORIGINAL     : -0.0087   (BUGGY — for reference)
+  Phase CORRECTED    : 0.1275   (target > 0.85)  ← KEY
+  Phase offset found : 94.0°
+  Period T           : 26.71   (target ~10.0)
+
+  ❌ NO CLEAN HELIX at this position/layer.
+
+=================================================================
+LAYER SWEEP (Corrected Phase Metric)
+=================================================================
+
+    L      Pos      CV  Phase_corr  Phase_orig        T  Verdict
+  ------------------------------------------------------------------------
+    8  operand   0.377       0.179       0.177   180.26  ❌ (Linear Translation)
+    8    final   0.652       0.400       0.354  1396.56  ❌ (Linear Translation)
+    9  operand   0.411       0.159       0.128   201.68  ❌ (Linear Translation)
+    9    final   0.489       0.146      -0.036    97.78  ❌ (Linear Translation)
+   10  operand   0.397       0.141      -0.048   169.48  ❌ (Linear Translation)
+   10    final   0.685       0.373       0.373    48.48  ❌ (Linear Translation)
+   11  operand   0.504       0.331      -0.331   105.64  ❌ (Linear Translation)
+   11    final   0.662       0.344       0.343    36.53  ❌ (Linear Translation)
+   12  operand   0.441       0.567       0.374    26.60  ❌ (Linear Translation)
+   12    final   0.535       0.170      -0.015   224.19  ❌ (Linear Translation)
+   13  operand   0.352       0.522       0.105   150.01  ❌ (Linear Translation)
+   13    final   0.523       0.186      -0.045   220.80  ❌ (Linear Translation)
+   14  operand   0.498       0.453      -0.082   160.75  ❌ (Linear Translation)
+   14    final   0.550       0.153      -0.118   115.80  ❌ (Linear Translation)
+   15  operand   0.448       0.438      -0.188    43.90  ❌ (Linear Translation)
+   15    final   0.616       0.198      -0.017    18.98  ❌ (Linear Translation)
+   16  operand   0.452       0.524      -0.195    14.00  ❌ (Linear Translation)
+   16    final   0.637       0.215       0.168    85.56  ❌ (Linear Translation)
+   17  operand   0.482       0.476      -0.237    24.24  ❌ (Linear Translation)
+   17    final   0.568       0.160       0.016   212.16  ❌ (Linear Translation)
+   18  operand   0.557       0.518       0.239    51.88  ❌ (Linear Translation)
+   18    final   0.619       0.275      -0.215    35.03  ❌ (Linear Translation)
+   19  operand   0.527       0.421       0.125    61.87  ❌ (Linear Translation)
+   19    final   0.584       0.253      -0.215    28.80  ❌ (Linear Translation)
+   20  operand   0.463       0.325      -0.190  11642.15  ❌ (Linear Translation)
+   20    final   0.656       0.253      -0.151    27.92  ❌ (Linear Translation)
+   21  operand   0.405       0.244      -0.085    71.85  ❌ (Linear Translation)
+   21    final   0.623       0.206       0.042    25.44  ❌ (Linear Translation)
+   22  operand   0.380       0.208      -0.062  1122.08  ❌ (Linear Translation)
+   22    final   0.624       0.210       0.046    25.44  ❌ (Linear Translation)
+   23  operand   0.581       0.348      -0.342   197.43  ❌ (Linear Translation)
+   23    final   0.534       0.166      -0.160   447.24  ❌ (Linear Translation)
+   24  operand   0.584       0.303      -0.075   100.69  ❌ (Linear Translation)
+   24    final   0.558       0.141      -0.085   266.70  ❌ (Linear Translation)
+   25  operand   0.515       0.321      -0.094   114.82  ❌ (Linear Translation)
+   25    final   0.557       0.154      -0.105    57.18  ❌ (Linear Translation)
+
+  Best: L13 operand  Phase_corr=0.522  CV=0.352  T=150.01
+(.venv) mkanaka@mkanaka-ltme769 Beyond-Components % .venv/bin/python src/models/online_svd_scanner.py
+
+=================================================================
+FINAL PIPELINE: google/gemma-7b
+Target: L21, Head: 2, T: 10.0
+=================================================================
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards: 100%|█████████████| 4/4 [00:00<00:00, 80.08it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model google/gemma-7b into HookedTransformer
+
+  Step 1: Fourier-isolating T=10.0 component...
+  T=10.0 component explains 9.2% of total variance
+
+  Step 2: Circle test on isolated component...
+
+  gemma-7b_L21 — AFTER FOURIER ISOLATION:
+  CV            : 0.4432   (⚠️ still high)
+  Phase_corr    : 0.6472   ()
+  Period T      : 11.09
+  ❌ CV unchanged. High CV is intrinsic, not a superposition artifact.
+
+  Step 3: Causal phase-shift at L21 H2...
+
+  Causal Phase-Shift Test: Layer 21, Head 2
+Traceback (most recent call last):
+  File "/Users/mkanaka/github/Beyond-Components/src/models/online_svd_scanner.py", line 2689, in <module>
+    run_final_pipeline("google/gemma-7b", layer=14, head=2, period=10.0, best_layer=21)
+  File "/Users/mkanaka/github/Beyond-Components/src/models/online_svd_scanner.py", line 2603, in run_final_pipeline
+    causal = causal_phase_shift_test(model, best_layer, head, valid_ns=valid_ns, period=period, n_tests=20)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/src/models/online_svd_scanner.py", line 2538, in causal_phase_shift_test
+    out_tokens = model.generate(tokens, max_new_tokens=4, prepend_bos=False, fwd_hooks=[(hook_name, hook)], verbose=False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+TypeError: HookedTransformer.generate() got an unexpected keyword argument 'fwd_hooks'
+(.venv) mkanaka@mkanaka-ltme769 Beyond-Components % .venv/bin/python src/models/online_svd_scanner.py
+
+=================================================================
+FINAL PIPELINE: google/gemma-7b
+Target: L21, Head: 2, T: 10.0
+=================================================================
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards: 100%|█████████████| 4/4 [00:00<00:00,  9.40it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model google/gemma-7b into HookedTransformer
+
+  Step 1: Fourier-isolating T=10.0 component...
+  T=10.0 component explains 9.2% of total variance
+
+  Step 2: Circle test on isolated component...
+
+  gemma-7b_L21 — AFTER FOURIER ISOLATION:
+  CV            : 0.4432   (⚠️ still high)
+  Phase_corr    : 0.6472   ()
+  Period T      : 11.30
+  ❌ CV unchanged. High CV is intrinsic, not a superposition artifact.
+
+  Step 3: Causal phase-shift at L21 H2...
+
+  Causal Phase-Shift Test: Layer 21, Head 2
+Traceback (most recent call last):
+  File "/Users/mkanaka/github/Beyond-Components/src/models/online_svd_scanner.py", line 2691, in <module>
+    run_final_pipeline("google/gemma-7b", layer=14, head=2, period=10.0, best_layer=21)
+  File "/Users/mkanaka/github/Beyond-Components/src/models/online_svd_scanner.py", line 2605, in run_final_pipeline
+    causal = causal_phase_shift_test(model, best_layer, head, valid_ns=valid_ns, period=period, n_tests=20)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/src/models/online_svd_scanner.py", line 2540, in causal_phase_shift_test
+    out_tokens = model.generate(tokens, max_new_tokens=4, prepend_bos=False, verbose=False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/transformer_lens/HookedTransformer.py", line 2278, in generate
+    logits = self.forward(
+             ^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/transformer_lens/HookedTransformer.py", line 620, in forward
+    residual = block(
+               ^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1787, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/transformer_lens/components/transformer_block.py", line 119, in forward
+    resid_pre = self.hook_resid_pre(resid_pre)  # [batch, pos, d_model]
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1882, in _call_impl
+    return inner()
+           ^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1843, in inner
+    hook_result = hook(self, args, result)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/transformer_lens/hook_points.py", line 100, in full_hook
+    return hook(module_output, hook=self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: causal_phase_shift_test.<locals>.hook() got an unexpected keyword argument 'hook'
+(.venv) mkanaka@mkanaka-ltme769 Beyond-Components % .venv/bin/python src/models/online_svd_scanner.py
+
+=================================================================
+FINAL PIPELINE: google/gemma-7b
+Target: L21, Head: 2, T: 10.0
+=================================================================
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards: 100%|█████████████| 4/4 [00:00<00:00,  8.64it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model google/gemma-7b into HookedTransformer
+
+  Step 1: Fourier-isolating T=10.0 component...
+  T=10.0 component explains 9.2% of total variance
+
+  Step 2: Circle test on isolated component...
+
+  gemma-7b_L21 — AFTER FOURIER ISOLATION:
+  CV            : 0.4432   (⚠️ still high)
+  Phase_corr    : 0.6472   ()
+  Period T      : 1333.21
+  ❌ CV unchanged. High CV is intrinsic, not a superposition artifact.
+
+  Step 3: Causal phase-shift at L21 H2...
+
+  Causal Phase-Shift Test: Layer 21, Head 2
+
+  [NO_CARRY]
+    45+12 rot+1: pred=7, exp=8 ✗ (Raw Out: '57')
+    22+20 rot+1: pred=2, exp=3 ✗ (Raw Out: '42')
+    13+11 rot+1: pred=2, exp=5 ✗ (Raw Out: '12')
+    42+32 rot+1: pred=4, exp=5 ✗ (Raw Out: '74')
+    6+10 rot+1: pred=6, exp=7 ✗ (Raw Out: '16.')
+    40+17 rot+2: pred=7, exp=9 ✗ (Raw Out: '57')
+    26+22 rot+1: pred=8, exp=9 ✗ (Raw Out: '48')
+    10+29 rot+1: pred=9, exp=0 ✗ (Raw Out: '39')
+    ... (12 more)
+  Success: 0/20 = 0.0%
+
+  [CARRY]
+    5+15 rot+2: pred=0, exp=2 ✗ (Raw Out: '20')
+    18+26 rot+1: pred=4, exp=5 ✗ (Raw Out: '44')
+    27+27 rot+2: pred=4, exp=6 ✗ (Raw Out: '54')
+    7+34 rot+1: pred=1, exp=2 ✗ (Raw Out: '41')
+    7+19 rot+2: pred=6, exp=8 ✗ (Raw Out: '<strong>26')
+    45+28 rot+1: pred=3, exp=4 ✗ (Raw Out: '73')
+    28+27 rot+1: pred=5, exp=6 ✗ (Raw Out: '55')
+    22+9 rot+1: pred=1, exp=2 ✗ (Raw Out: '31')
+    ... (12 more)
+  Success: 0/20 = 0.0%
+
+=================================================================
+FINAL RESULTS SUMMARY
+=================================================================
+  T=10.0 explains 9.2% of activation variance
+  CV after isolation   : 0.443
+  Phase after isolation: 0.647
+  Causal no-carry      : 0.0%
+
+=================================================================
+FINAL PIPELINE: microsoft/Phi-3-mini-4k-instruct
+Target: L25, Head: 28, T: 11.74
+=================================================================
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct requires setting trust_remote_code=True
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct state dict requires setting trust_remote_code=True
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:`flash-attention` package not found, consider installing for better performance: No module named 'flash_attn'.
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:Current `flash-attention` does not support `window_size`. Either upgrade or use `attn_implementation='eager'`.
+Loading checkpoint shards: 100%|█████████████| 2/2 [00:00<00:00, 53.00it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model microsoft/Phi-3-mini-4k-instruct into HookedTransformer
+
+  Step 1: Fourier-isolating T=11.7 component...
+  T=11.7 component explains 1.5% of total variance
+
+  Step 2: Circle test on isolated component...
+
+  Phi-3-mini-4k-instruct_L25 — AFTER FOURIER ISOLATION:
+  CV            : 0.1022   (✅ <0.20)
+  Phase_corr    : 0.9403   (✅ >0.85)
+  Period T      : 11.74
+  ✅ CLEAN CLOCK FACE after isolation. Superposition resolved.
+
+  Step 3: Causal phase-shift at L25 H28...
+
+  Causal Phase-Shift Test: Layer 25, Head 28
+
+  [NO_CARRY]
+    45+12 rot+1: pred=7, exp=8 ✗ (Raw Out: '57')
+    22+20 rot+1: pred=2, exp=3 ✗ (Raw Out: '42')
+    13+11 rot+1: pred=4, exp=5 ✗ (Raw Out: '24')
+    42+32 rot+1: pred=4, exp=5 ✗ (Raw Out: '74')
+    6+10 rot+1: pred=6, exp=7 ✗ (Raw Out: '16')
+    40+17 rot+2: pred=7, exp=9 ✗ (Raw Out: '57')
+    26+22 rot+1: pred=8, exp=9 ✗ (Raw Out: '48')
+    10+29 rot+1: pred=9, exp=0 ✗ (Raw Out: '39')
+    ... (12 more)
+  Success: 0/20 = 0.0%
+
+  [CARRY]
+    5+15 rot+2: pred=0, exp=2 ✗ (Raw Out: '20')
+    18+26 rot+1: pred=4, exp=5 ✗ (Raw Out: '44')
+    27+27 rot+2: pred=4, exp=6 ✗ (Raw Out: '54')
+    7+34 rot+1: pred=1, exp=2 ✗ (Raw Out: '41')
+    7+19 rot+2: pred=6, exp=8 ✗ (Raw Out: '26')
+    45+28 rot+1: pred=3, exp=4 ✗ (Raw Out: '73')
+    28+27 rot+1: pred=5, exp=6 ✗ (Raw Out: '55')
+    22+9 rot+1: pred=1, exp=2 ✗ (Raw Out: '31')
+    ... (12 more)
+  Success: 0/20 = 0.0%
+
+=================================================================
+FINAL RESULTS SUMMARY
+=================================================================
+  T=11.7 explains 1.5% of activation variance
+  CV after isolation   : 0.102
+  Phase after isolation: 0.940
+  Causal no-carry      : 0.0%
+(.venv) mkanaka@mkanaka-ltme769 Beyond-Components % .venv/bin/python src/models/online_svd_scanner.py
+
+============================================================
+ARITHMETIC NEURON ANALYSIS: google/gemma-7b
+============================================================
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards: 100%|█████████████| 4/4 [00:00<00:00, 77.87it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model google/gemma-7b into HookedTransformer
+
+  Generating 200 test prompts...
+
+  Analyzing Layer 19...
+Traceback (most recent call last):
+  File "/Users/mkanaka/github/Beyond-Components/src/models/online_svd_scanner.py", line 2848, in <module>
+    run_neuron_analysis("google/gemma-7b", layer_range=range(19, 26), n_pairs=200)
+  File "/Users/mkanaka/github/Beyond-Components/src/models/online_svd_scanner.py", line 2765, in run_neuron_analysis
+    neuron_effects, pairs = find_arithmetic_neurons_optimized(model, layer_range, n_pairs=n_pairs, n_candidates=500)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/src/models/online_svd_scanner.py", line 2668, in find_arithmetic_neurons_optimized
+    mlp_acts = cache[hook_name][:, -1, :] # [batch, d_mlp]
+               ~~~~~^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/transformer_lens/ActivationCache.py", line 170, in __getitem__
+    return self.cache_dict[utils.get_act_name(key)]
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'blocks.19.hook_mlp_post'
+(.venv) mkanaka@mkanaka-ltme769 Beyond-Components % .venv/bin/python src/models/online_svd_scanner.py
+
+============================================================
+ARITHMETIC NEURON ANALYSIS: google/gemma-7b
+============================================================
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards: 100%|█████████████| 4/4 [00:00<00:00,  8.56it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model google/gemma-7b into HookedTransformer
+
+  Generating 200 test prompts...
+
+  Analyzing Layer 19...
+    Pre-filtered top 500 active neurons. Running ablations...
+Traceback (most recent call last):
+  File "/Users/mkanaka/github/Beyond-Components/src/models/online_svd_scanner.py", line 2848, in <module>
+    run_neuron_analysis("google/gemma-7b", layer_range=range(19, 26), n_pairs=200)
+  File "/Users/mkanaka/github/Beyond-Components/src/models/online_svd_scanner.py", line 2765, in run_neuron_analysis
+    neuron_effects, pairs = find_arithmetic_neurons_optimized(model, layer_range, n_pairs=n_pairs, n_candidates=500)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/src/models/online_svd_scanner.py", line 2689, in find_arithmetic_neurons_optimized
+    ablated_logits = model.run_with_hooks(
+                     ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/transformer_lens/hook_points.py", line 447, in run_with_hooks
+    return hooked_model.forward(*model_args, **model_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/transformer_lens/HookedTransformer.py", line 620, in forward
+    residual = block(
+               ^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1787, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/transformer_lens/components/transformer_block.py", line 186, in forward
+    mlp_out = self.apply_mlp(normalized_resid_mid)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/transformer_lens/components/transformer_block.py", line 210, in apply_mlp
+    mlp_out = self.mlp(normalized_resid)  # [batch, pos, d_model]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1787, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/transformer_lens/components/mlps/gated_mlp.py", line 72, in forward
+    post_act = self.hook_post(
+               ^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1882, in _call_impl
+    return inner()
+           ^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1843, in inner
+    hook_result = hook(self, args, result)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/transformer_lens/hook_points.py", line 100, in full_hook
+    return hook(module_output, hook=self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: find_arithmetic_neurons_optimized.<locals>.make_ablation_hook.<locals>.hook() got an unexpected keyword argument 'hook'
+(.venv) mkanaka@mkanaka-ltme769 Beyond-Components % .venv/bin/python src/models/online_svd_scanner.py
+
+============================================================
+ARITHMETIC NEURON ANALYSIS: google/gemma-7b
+============================================================
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards: 100%|█████████████| 4/4 [00:00<00:00,  8.69it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model google/gemma-7b into HookedTransformer
+
+  Generating 200 test prompts...
+
+  Analyzing Layer 19...
+    Pre-filtered top 500 active neurons. Running ablations...
+        
+
+
+^CTraceback (most recent call last):
+  File "/Users/mkanaka/github/Beyond-Components/src/models/online_svd_scanner.py", line 2848, in <module>
+    run_neuron_analysis("google/gemma-7b", layer_range=range(19, 26), n_pairs=200)
+  File "/Users/mkanaka/github/Beyond-Components/src/models/online_svd_scanner.py", line 2765, in run_neuron_analysis
+    neuron_effects, pairs = find_arithmetic_neurons_optimized(model, layer_range, n_pairs=n_pairs, n_candidates=500)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/src/models/online_svd_scanner.py", line 2689, in find_arithmetic_neurons_optimized
+    ablated_logits = model.run_with_hooks(
+                     ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/transformer_lens/hook_points.py", line 447, in run_with_hooks
+    return hooked_model.forward(*model_args, **model_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/transformer_lens/HookedTransformer.py", line 620, in forward
+    residual = block(
+               ^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1787, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/transformer_lens/components/transformer_block.py", line 161, in forward
+    query_input=self.ln1(query_input)
+                ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1787, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mkanaka/github/Beyond-Components/.venv/lib/python3.11/site-packages/transformer_lens/components/rms_norm_pre.py", line 31, in forward
+    x = x.to(torch.float32)
+        ^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+
+(.venv) mkanaka@mkanaka-ltme769 Beyond-Components % .venv/bin/python src/models/online_svd_scanner.py
+
+============================================================
+ARITHMETIC NEURON ANALYSIS: microsoft/Phi-3-mini-4k-instruct
+============================================================
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct requires setting trust_remote_code=True
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct state dict requires setting trust_remote_code=True
+`torch_dtype` is deprecated! Use `dtype` instead!
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:`flash-attention` package not found, consider installing for better performance: No module named 'flash_attn'.
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:Current `flash-attention` does not support `window_size`. Either upgrade or use `attn_implementation='eager'`.
+Loading checkpoint shards: 100%|█████████████| 2/2 [00:00<00:00, 57.88it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model microsoft/Phi-3-mini-4k-instruct into HookedTransformer
+
+  Generating 50 test prompts...
+
+  Analyzing Layer 22...
+    Pre-filtered top 50 active neurons. Running ablations...
+    ...ablated 25/50 neurons
+    [Layer 22 completed in 241.4s]
+    Top 5 Causal Neurons: [5726, 7866, 5961, 2977, 4925]
+    Probability Drops:   [0.0, 0.0, 0.0, 0.0, 0.0]
+
+  Analyzing Layer 23...
+    Pre-filtered top 50 active neurons. Running ablations...
+    ...ablated 25/50 neurons
+    [Layer 23 completed in 258.0s]
+    Top 5 Causal Neurons: [4184, 1376, 5875, 6227, 2314]
+    Probability Drops:   [0.0, 0.0, 0.0, 0.0, 0.0]
+
+  Analyzing Layer 24...
+    Pre-filtered top 50 active neurons. Running ablations...
+    ...ablated 25/50 neurons
+    [Layer 24 completed in 253.9s]
+    Top 5 Causal Neurons: [6257, 7759, 2371, 4674, 1698]
+    Probability Drops:   [0.0, 0.0, 0.0, 0.0, 0.0]
+
+  Analyzing Layer 25...
+    Pre-filtered top 50 active neurons. Running ablations...
+    ...ablated 25/50 neurons
+    [Layer 25 completed in 247.8s]
+    Top 5 Causal Neurons: [6496, 1128, 5064, 5701, 2914]
+    Probability Drops:   [0.0, 0.0, 0.0, 0.0, 0.0]
+
+============================================================
+ARITHMETIC NEURON CHARACTERIZATION
+============================================================
+
+Layer 22 — Top 5 Causal Neurons:
+
+Layer 23 — Top 5 Causal Neurons:
+
+Layer 24 — Top 5 Causal Neurons:
+
+Layer 25 — Top 5 Causal Neurons:
+
+============================================================
+ARITHMETIC NEURON ANALYSIS: google/gemma-7b
+============================================================
+Loading checkpoint shards: 100%|█████████████| 4/4 [00:00<00:00, 83.56it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model google/gemma-7b into HookedTransformer
+
+  Generating 20 test prompts...
+
+  Analyzing Layer 19...
+    Pre-filtered top 50 active neurons. Running ablations...
+    ...ablated 25/50 neurons
+    [Layer 19 completed in 211.5s]
+    Top 5 Causal Neurons: [3695, 18403, 2736, 24370, 8515]
+    Probability Drops:   [0.0035000001080334187, 0.002199999988079071, 0.0015999999595806003, 0.00139999995008111, 0.00139999995008111]
+
+  Analyzing Layer 20...
+    Pre-filtered top 50 active neurons. Running ablations...
+    ...ablated 25/50 neurons
+    [Layer 20 completed in 237.0s]
+    Top 5 Causal Neurons: [7367, 2188, 6399, 14794, 1784]
+    Probability Drops:   [0.003100000089034438, 0.002199999988079071, 0.0017999999690800905, 0.0015999999595806003, 0.00139999995008111]
+
+  Analyzing Layer 21...
+    Pre-filtered top 50 active neurons. Running ablations...
+    ...ablated 25/50 neurons
+    [Layer 21 completed in 236.2s]
+    Top 5 Causal Neurons: [126, 23813, 13128, 12279, 12962]
+    Probability Drops:   [0.0035000001080334187, 0.002300000051036477, 0.0017999999690800905, 0.00139999995008111, 0.0010000000474974513]
+
+  Analyzing Layer 22...
+    Pre-filtered top 50 active neurons. Running ablations...
+    ...ablated 25/50 neurons
+    [Layer 22 completed in 239.7s]
+    Top 5 Causal Neurons: [8951, 1402, 19184, 13467, 5206]
+    Probability Drops:   [0.002300000051036477, 0.0017999999690800905, 0.0015999999595806003, 0.00139999995008111, 0.00139999995008111]
+
+============================================================
+ARITHMETIC NEURON CHARACTERIZATION
+============================================================
+
+Layer 19 — Top 5 Causal Neurons:
+
+Layer 20 — Top 5 Causal Neurons:
+
+Layer 21 — Top 5 Causal Neurons:
+
+Layer 22 — Top 5 Causal Neurons:
+(.venv) mkanaka@mkanaka-ltme769 Beyond-Components % .venv/bin/python src/models/online_svd_scanner.py
+
+============================================================
+ARITHMETIC NEURON ANALYSIS: microsoft/Phi-3-mini-4k-instruct
+============================================================
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct requires setting trust_remote_code=True
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct state dict requires setting trust_remote_code=True
+`torch_dtype` is deprecated! Use `dtype` instead!
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:`flash-attention` package not found, consider installing for better performance: No module named 'flash_attn'.
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:Current `flash-attention` does not support `window_size`. Either upgrade or use `attn_implementation='eager'`.
+Loading checkpoint shards: 100%|█████████████| 2/2 [00:00<00:00, 56.23it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model microsoft/Phi-3-mini-4k-instruct into HookedTransformer
+
+  Generating 100 test prompts...
+
+  Analyzing Layer 18...
+    Pre-filtered top 100 active neurons. Running ablations...
+    ...ablated 25/100 neurons
+    ...ablated 50/100 neurons
+    ...ablated 75/100 neurons
+    [Layer 18 completed in 918.5s]
+    Top 5 Causal Neurons: [5431, 203, 3771, 1954, 7011]
+    Probability Drops:   [0.0, 0.0, 0.0, 0.0, 0.0]
+
+  Analyzing Layer 19...
+    Pre-filtered top 100 active neurons. Running ablations...
+    ...ablated 25/100 neurons
+    ...ablated 50/100 neurons
+    ...ablated 75/100 neurons
+    [Layer 19 completed in 954.4s]
+    Top 5 Causal Neurons: [5402, 817, 529, 5152, 3108]
+    Probability Drops:   [0.0, 0.0, 0.0, 0.0, 0.0]
+
+  Analyzing Layer 20...
+    Pre-filtered top 100 active neurons. Running ablations...
+    ...ablated 25/100 neurons
+    ...ablated 50/100 neurons
+    ...ablated 75/100 neurons
+    [Layer 20 completed in 924.6s]
+    Top 5 Causal Neurons: [2271, 4087, 1938, 973, 1401]
+    Probability Drops:   [0.0, 0.0, 0.0, 0.0, 0.0]
+
+  Analyzing Layer 21...
+    Pre-filtered top 100 active neurons. Running ablations...
+    ...ablated 25/100 neurons
+    ...ablated 50/100 neurons
+    ...ablated 75/100 neurons
+    [Layer 21 completed in 916.0s]
+    Top 5 Causal Neurons: [4128, 1279, 4699, 1367, 2122]
+    Probability Drops:   [0.0, 0.0, 0.0, 0.0, 0.0]
+
+============================================================
+ARITHMETIC NEURON CHARACTERIZATION
+============================================================
+
+Layer 18 — Top 5 Causal Neurons:
+
+Layer 19 — Top 5 Causal Neurons:
+
+Layer 20 — Top 5 Causal Neurons:
+
+Layer 21 — Top 5 Causal Neurons:
+
+============================================================
+ARITHMETIC NEURON ANALYSIS: google/gemma-7b
+============================================================
+Loading checkpoint shards: 100%|█████████████| 4/4 [00:00<00:00, 14.46it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model google/gemma-7b into HookedTransformer
+
+  Generating 100 test prompts...
+
+  Analyzing Layer 19...
+    Pre-filtered top 100 active neurons. Running ablations...
+    ...ablated 25/100 neurons
+    ...ablated 50/100 neurons
+    ...ablated 75/100 neurons
+    [Layer 19 completed in 2081.6s]
+    Top 5 Causal Neurons: [3695, 18835, 8515, 7326, 19200]
+    Probability Drops:   [0.0027000000700354576, 0.0008999999845400453, 0.000699999975040555, 0.000699999975040555, 0.0006000000284984708]
+
+  Analyzing Layer 20...
+    Pre-filtered top 100 active neurons. Running ablations...
+    ...ablated 25/100 neurons
+    ...ablated 50/100 neurons
+    ...ablated 75/100 neurons
+    [Layer 20 completed in 2234.7s]
+    Top 5 Causal Neurons: [7367, 14794, 16193, 2188, 6399]
+    Probability Drops:   [0.0020000000949949026, 0.0012000000569969416, 0.0010999999940395355, 0.0010999999940395355, 0.0010999999940395355]
+
+  Analyzing Layer 21...
+    Pre-filtered top 100 active neurons. Running ablations...
+    ...ablated 25/100 neurons
+    ...ablated 50/100 neurons
+    ...ablated 75/100 neurons
+    [Layer 21 completed in 2148.1s]
+    Top 5 Causal Neurons: [126, 23813, 6611, 12279, 3440]
+    Probability Drops:   [0.003000000026077032, 0.0017999999690800905, 0.0008999999845400453, 0.0008999999845400453, 0.0007999999797903001]
+
+  Analyzing Layer 22...
+    Pre-filtered top 100 active neurons. Running ablations...
+    ...ablated 25/100 neurons
+    ...ablated 50/100 neurons
+    ...ablated 75/100 neurons
+    [Layer 22 completed in 2200.5s]
+    Top 5 Causal Neurons: [8951, 23233, 13467, 1402, 18529]
+    Probability Drops:   [0.0010999999940395355, 0.0008999999845400453, 0.0008999999845400453, 0.000699999975040555, 0.000699999975040555]
+
+============================================================
+ARITHMETIC NEURON CHARACTERIZATION
+============================================================
+
+Layer 19 — Top 5 Causal Neurons:
+
+Layer 20 — Top 5 Causal Neurons:
+
+Layer 21 — Top 5 Causal Neurons:
+
+Layer 22 — Top 5 Causal Neurons:
+(.venv) mkanaka@mkanaka-ltme769 Beyond-Components % 
+=================================================================
+VECTOR TRANSLATION PROOF: google/gemma-7b
+Target: Layer 25 (causally proven)
+=================================================================
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards: 100%|█████████████| 4/4 [00:00<00:00,  7.49it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model google/gemma-7b into HookedTransformer
+  Extracting d_+1 at causal Layer 25 (answer assembly site)...
+  d_+1 magnitude: 0.3067
+  Step vector consistency (mean cosine sim): -0.0216
+  ⚠️  Inconsistent → VT unlikely at this layer
+
+  Causal Injection Test at Layer 25 (causally proven layer)
+
+  Strategy A: inject at = token only
+
+  Results (A):
+    22+31=53 | +1 | pred=53 exp=54 ❌ (raw: '53')
+    32+21=53 | +2 | pred=53 exp=55 ❌ (raw: '53')
+    40+15=55 | +1 | pred=55 exp=56 ❌ (raw: '55')
+    40+16=56 | +2 | pred=56 exp=58 ❌ (raw: '56')
+    33+21=54 | +1 | pred=54 exp=55 ❌ (raw: '54.')
+  Success: 0/20 = 0.0%
+  ❌ Injection failed even at causally proven layer.
+
+  Strategy B: inject persistently on all steps
+
+  Results (B):
+    20+26=46 | +2 | pred=46 exp=48 ❌ (raw: '46')
+    21+36=57 | +2 | pred=57 exp=59 ❌ (raw: '57')
+    23+35=58 | +1 | pred=60 exp=59 ❌ (raw: '60')
+    22+16=38 | +1 | pred=38 exp=39 ❌ (raw: '38')
+    21+33=54 | +2 | pred=54 exp=56 ❌ (raw: '54')
+    21+35=56 | +2 | pred=56 exp=58 ❌ (raw: '56')
+  Success: 0/20 = 0.0%
+  ❌ Injection failed even at causally proven layer.
+
+=================================================================
+VERDICT: gemma-7b
+=================================================================
+  d_+1 consistency at Layer 25: -0.022
+  Injection success at Layer 25: 0.0%
+
+  ❌ STEP VECTORS ARE INCONSISTENT
+     d_+1 points in different directions for different n.
+     This disproves Vector Translation as a mechanism.
+     The arithmetic manifold is curved, not linear.
+
+=================================================================
+VECTOR TRANSLATION PROOF: microsoft/Phi-3-mini-4k-instruct
+Target: Layer 25 (causally proven)
+=================================================================
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct requires setting trust_remote_code=True
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct state dict requires setting trust_remote_code=True
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:`flash-attention` package not found, consider installing for better performance: No module named 'flash_attn'.
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:Current `flash-attention` does not support `window_size`. Either upgrade or use `attn_implementation='eager'`.
+Loading checkpoint shards: 100%|█████████████| 2/2 [00:00<00:00, 62.70it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model microsoft/Phi-3-mini-4k-instruct into HookedTransformer
+  Extracting d_+1 at causal Layer 25 (answer assembly site)...
+  d_+1 magnitude: 4.4242
+  Step vector consistency (mean cosine sim): -0.0185
+  ⚠️  Inconsistent → VT unlikely at this layer
+
+  Causal Injection Test at Layer 25 (causally proven layer)
+
+  Strategy A: inject at = token only
+
+  Results (A):
+    22+31=53 | +1 | pred=53 exp=54 ❌ (raw: '53')
+    32+21=53 | +2 | pred=53 exp=55 ❌ (raw: '53')
+    40+15=55 | +1 | pred=55 exp=56 ❌ (raw: '55')
+    40+16=56 | +2 | pred=56 exp=58 ❌ (raw: '56')
+    33+21=54 | +1 | pred=54 exp=55 ❌ (raw: '54')
+  Success: 0/20 = 0.0%
+  ❌ Injection failed even at causally proven layer.
+
+  Strategy B: inject persistently on all steps
+
+  Results (B):
+    20+26=46 | +2 | pred=46 exp=48 ❌ (raw: '46')
+    21+36=57 | +2 | pred=57 exp=59 ❌ (raw: '57')
+    23+35=58 | +1 | pred=58 exp=59 ❌ (raw: '58')
+    22+16=38 | +1 | pred=38 exp=39 ❌ (raw: '38')
+    21+33=54 | +2 | pred=54 exp=56 ❌ (raw: '54')
+    21+35=56 | +2 | pred=56 exp=58 ❌ (raw: '56')
+  Success: 0/20 = 0.0%
+  ❌ Injection failed even at causally proven layer.
+
+=================================================================
+VERDICT: Phi-3-mini-4k-instruct
+=================================================================
+  d_+1 consistency at Layer 25: -0.018
+  Injection success at Layer 25: 0.0%
+
+  ❌ STEP VECTORS ARE INCONSISTENT
+     d_+1 points in different directions for different n.
+     This disproves Vector Translation as a mechanism.
+     The arithmetic manifold is curved, not linear.
+
+
+Gemma results 
+
+
+
+Loaded pretrained model google/gemma-7b into HookedTransformer
+
+
+
+  Building 50 single-token-answer pairs...
+
+  Running ablation analysis on 50 pairs...
+
+
+
+  Layer 19...
+
+    ...25/100
+
+    ...50/100
+
+    ...75/100
+
+  Layer 19 done in 1081s
+
+    Top neurons:   [14881, 5480, 21471, 8494, 20624]
+
+    Logit drops:   [8.3125, 8.1875, 4.375, 2.3125, 1.7187999486923218]
+
+    ✅ STRONG signal (>8.3 logit units)
+
+
+
+  Layer 20...
+
+    ...25/100
+
+    ...50/100
+
+    ...75/100
+
+  Layer 20 done in 1114s
+
+    Top neurons:   [23704, 1939, 22702, 8110, 1719]
+
+    Logit drops:   [3.25, 2.2655999660491943, 1.7030999660491943, 1.2422000169754028, 1.2108999490737915]
+
+    ✅ STRONG signal (>3.2 logit units)
+
+
+
+  Layer 21...
+
+    ...25/100
+
+    ...50/100
+
+    ...75/100
+
+  Layer 21 done in 1097s
+
+    Top neurons:   [10330, 21868, 18229, 3171, 17198]
+
+    Logit drops:   [5.5, 3.0311999320983887, 2.4375, 2.4061999320983887, 2.2344000339508057]
+
+    ✅ STRONG signal (>5.5 logit units)
+
+
+
+  Layer 22...
+
+    ...25/100
+
+    ...50/100
+
+    ...75/100
+
+  Layer 22 done in 1094s
+
+    Top neurons:   [429, 2543, 15388, 2596, 2706]
+
+    Logit drops:   [23.75, 12.75, 7.468800067901611, 3.4061999320983887, 3.0625]
+
+    ✅ STRONG signal (>23.8 logit units)
+
+
+
+  Layer 23...
+
+    ...25/100
+
+    ...50/100
+
+    ...75/100
+
+  Layer 23 done in 1089s
+
+    Top neurons:   [21842, 13812, 12190, 12889, 12159]
+
+    Logit drops:   [5.218800067901611, 5.1875, 2.9530999660491943, 2.7344000339508057, 2.2655999660491943]
+
+    ✅ STRONG signal (>5.2 logit units)
+
+
+
+  Layer 24...
+
+    ...25/100
+
+    ...50/100
+
+    ...75/100
+
+  Layer 24 done in 1092s
+
+    Top neurons:   [20892, 12306, 23476, 17186, 18794]
+
+    Logit drops:   [13.75, 3.6561999320983887, 2.0780999660491943, 1.9062000513076782, 1.6016000509262085]
+
+    ✅ STRONG signal (>13.8 logit units)
+
+
+
+============================================================
+
+NEURON CHARACTERIZATION
+
+============================================================
+
+
+
+Layer 19:
+
+
+
+  Neuron 14881  (logit drop = 8.3125)
+
+    Corr w/ carry   : -0.187
+
+    Corr w/ ones_sum: -0.019
+
+    Corr w/ raw_sum : -0.648
+
+    → MAGNITUDE TRACKER: responds to size of sum
+
+    Fires strongest: [(22, 14), (28, 15), (12, 24)]
+
+    Fires weakest:   [(42, 48), (23, 24), (38, 47)]
+
+
+
+  Neuron 5480  (logit drop = 8.1875)
+
+    Corr w/ carry   : -0.237
+
+    Corr w/ ones_sum: +0.091
+
+    Corr w/ raw_sum : -0.826
+
+    → MAGNITUDE TRACKER: responds to size of sum
+
+    Fires strongest: [(17, 11), (27, 10), (37, 12)]
+
+    Fires weakest:   [(33, 46), (23, 46), (28, 49)]
+
+
+
+  Neuron 21471  (logit drop = 4.3750)
+
+    Corr w/ carry   : -0.022
+
+    Corr w/ ones_sum: +0.045
+
+    Corr w/ raw_sum : +0.382
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(11, 45), (23, 46), (15, 47)]
+
+    Fires weakest:   [(37, 12), (26, 12), (24, 12)]
+
+
+
+  Neuron 8494  (logit drop = 2.3125)
+
+    Corr w/ carry   : -0.366
+
+    Corr w/ ones_sum: +0.228
+
+    Corr w/ raw_sum : -0.498
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(27, 10), (24, 12), (26, 12)]
+
+    Fires weakest:   [(34, 27), (34, 27), (39, 19)]
+
+
+
+  Neuron 20624  (logit drop = 1.7188)
+
+    Corr w/ carry   : -0.115
+
+    Corr w/ ones_sum: +0.081
+
+    Corr w/ raw_sum : +0.436
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(36, 24), (39, 19), (31, 27)]
+
+    Fires weakest:   [(23, 24), (31, 16), (24, 18)]
+
+
+
+Layer 20:
+
+
+
+  Neuron 23704  (logit drop = 3.2500)
+
+    Corr w/ carry   : +0.317
+
+    Corr w/ ones_sum: -0.333
+
+    Corr w/ raw_sum : +0.190
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(27, 25), (31, 27), (32, 23)]
+
+    Fires weakest:   [(37, 12), (22, 14), (11, 45)]
+
+
+
+  Neuron 1939  (logit drop = 2.2656)
+
+    Corr w/ carry   : +0.263
+
+    Corr w/ ones_sum: -0.260
+
+    Corr w/ raw_sum : +0.481
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(36, 24), (38, 47), (48, 20)]
+
+    Fires weakest:   [(22, 14), (11, 15), (31, 16)]
+
+
+
+  Neuron 22702  (logit drop = 1.7031)
+
+    Corr w/ carry   : -0.400
+
+    Corr w/ ones_sum: +0.429
+
+    Corr w/ raw_sum : -0.201
+
+    → ONES-SUM ROUTER: tracks ones digit of result
+
+    Fires strongest: [(11, 45), (15, 34), (22, 14)]
+
+    Fires weakest:   [(30, 35), (19, 23), (20, 33)]
+
+
+
+  Neuron 8110  (logit drop = 1.2422)
+
+    Corr w/ carry   : -0.142
+
+    Corr w/ ones_sum: +0.063
+
+    Corr w/ raw_sum : -0.573
+
+    → MAGNITUDE TRACKER: responds to size of sum
+
+    Fires strongest: [(12, 24), (24, 12), (26, 12)]
+
+    Fires weakest:   [(20, 39), (30, 23), (20, 37)]
+
+
+
+  Neuron 1719  (logit drop = 1.2109)
+
+    Corr w/ carry   : -0.129
+
+    Corr w/ ones_sum: -0.018
+
+    Corr w/ raw_sum : -0.697
+
+    → MAGNITUDE TRACKER: responds to size of sum
+
+    Fires strongest: [(27, 10), (17, 11), (27, 14)]
+
+    Fires weakest:   [(11, 45), (33, 46), (39, 33)]
+
+
+
+Layer 21:
+
+
+
+  Neuron 10330  (logit drop = 5.5000)
+
+    Corr w/ carry   : -0.105
+
+    Corr w/ ones_sum: +0.252
+
+    Corr w/ raw_sum : -0.206
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(37, 12), (17, 11), (19, 23)]
+
+    Fires weakest:   [(15, 45), (32, 48), (48, 20)]
+
+
+
+  Neuron 21868  (logit drop = 3.0312)
+
+    Corr w/ carry   : -0.157
+
+    Corr w/ ones_sum: +0.003
+
+    Corr w/ raw_sum : +0.069
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(45, 24), (32, 23), (24, 12)]
+
+    Fires weakest:   [(28, 49), (22, 14), (39, 19)]
+
+
+
+  Neuron 18229  (logit drop = 2.4375)
+
+    Corr w/ carry   : +0.299
+
+    Corr w/ ones_sum: -0.365
+
+    Corr w/ raw_sum : -0.261
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(28, 15), (22, 14), (24, 16)]
+
+    Fires weakest:   [(11, 45), (30, 13), (33, 46)]
+
+
+
+  Neuron 3171  (logit drop = 2.4062)
+
+    Corr w/ carry   : -0.151
+
+    Corr w/ ones_sum: +0.270
+
+    Corr w/ raw_sum : +0.035
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(11, 45), (37, 12), (15, 34)]
+
+    Fires weakest:   [(32, 23), (27, 25), (42, 48)]
+
+
+
+  Neuron 17198  (logit drop = 2.2344)
+
+    Corr w/ carry   : -0.165
+
+    Corr w/ ones_sum: +0.165
+
+    Corr w/ raw_sum : +0.219
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(11, 45), (20, 37), (20, 39)]
+
+    Fires weakest:   [(24, 12), (27, 10), (34, 27)]
+
+
+
+Layer 22:
+
+
+
+  Neuron 429  (logit drop = 23.7500)
+
+    Corr w/ carry   : -0.099
+
+    Corr w/ ones_sum: -0.052
+
+    Corr w/ raw_sum : -0.308
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(27, 10), (24, 12), (17, 11)]
+
+    Fires weakest:   [(15, 34), (28, 49), (15, 47)]
+
+
+
+  Neuron 2543  (logit drop = 12.7500)
+
+    Corr w/ carry   : -0.112
+
+    Corr w/ ones_sum: +0.235
+
+    Corr w/ raw_sum : -0.150
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(15, 34), (17, 34), (22, 14)]
+
+    Fires weakest:   [(15, 45), (36, 24), (32, 48)]
+
+
+
+  Neuron 15388  (logit drop = 7.4688)
+
+    Corr w/ carry   : +0.210
+
+    Corr w/ ones_sum: -0.044
+
+    Corr w/ raw_sum : +0.550
+
+    → MAGNITUDE TRACKER: responds to size of sum
+
+    Fires strongest: [(32, 48), (11, 45), (48, 20)]
+
+    Fires weakest:   [(31, 16), (30, 13), (27, 10)]
+
+
+
+  Neuron 2596  (logit drop = 3.4062)
+
+    Corr w/ carry   : -0.126
+
+    Corr w/ ones_sum: +0.083
+
+    Corr w/ raw_sum : +0.434
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(26, 12), (17, 34), (39, 33)]
+
+    Fires weakest:   [(15, 34), (24, 18), (26, 18)]
+
+
+
+  Neuron 2706  (logit drop = 3.0625)
+
+    Corr w/ carry   : +0.104
+
+    Corr w/ ones_sum: -0.031
+
+    Corr w/ raw_sum : -0.337
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(31, 16), (24, 16), (44, 25)]
+
+    Fires weakest:   [(30, 35), (48, 20), (20, 33)]
+
+
+
+Layer 23:
+
+
+
+  Neuron 21842  (logit drop = 5.2188)
+
+    Corr w/ carry   : -0.095
+
+    Corr w/ ones_sum: -0.049
+
+    Corr w/ raw_sum : -0.069
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(12, 24), (16, 44), (15, 47)]
+
+    Fires weakest:   [(39, 33), (23, 24), (22, 44)]
+
+
+
+  Neuron 13812  (logit drop = 5.1875)
+
+    Corr w/ carry   : +0.289
+
+    Corr w/ ones_sum: -0.347
+
+    Corr w/ raw_sum : -0.004
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(36, 24), (24, 18), (16, 44)]
+
+    Fires weakest:   [(37, 12), (32, 23), (15, 47)]
+
+
+
+  Neuron 12190  (logit drop = 2.9531)
+
+    Corr w/ carry   : +0.267
+
+    Corr w/ ones_sum: -0.219
+
+    Corr w/ raw_sum : +0.647
+
+    → MAGNITUDE TRACKER: responds to size of sum
+
+    Fires strongest: [(42, 48), (22, 44), (15, 45)]
+
+    Fires weakest:   [(17, 11), (11, 15), (31, 27)]
+
+
+
+  Neuron 12889  (logit drop = 2.7344)
+
+    Corr w/ carry   : +0.003
+
+    Corr w/ ones_sum: -0.017
+
+    Corr w/ raw_sum : -0.327
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(31, 16), (22, 14), (24, 16)]
+
+    Fires weakest:   [(12, 24), (28, 49), (45, 24)]
+
+
+
+  Neuron 12159  (logit drop = 2.2656)
+
+    Corr w/ carry   : -0.399
+
+    Corr w/ ones_sum: +0.211
+
+    Corr w/ raw_sum : +0.006
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(30, 35), (36, 24), (20, 39)]
+
+    Fires weakest:   [(38, 47), (17, 34), (26, 18)]
+
+
+
+Layer 24:
+
+
+
+  Neuron 20892  (logit drop = 13.7500)
+
+    Corr w/ carry   : +0.147
+
+    Corr w/ ones_sum: -0.038
+
+    Corr w/ raw_sum : -0.038
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(31, 16), (27, 14), (27, 14)]
+
+    Fires weakest:   [(48, 20), (12, 24), (15, 45)]
+
+
+
+  Neuron 12306  (logit drop = 3.6562)
+
+    Corr w/ carry   : +0.234
+
+    Corr w/ ones_sum: -0.476
+
+    Corr w/ raw_sum : -0.059
+
+    → ONES-SUM ROUTER: tracks ones digit of result
+
+    Fires strongest: [(34, 27), (34, 27), (39, 33)]
+
+    Fires weakest:   [(39, 19), (31, 16), (48, 20)]
+
+
+
+  Neuron 23476  (logit drop = 2.0781)
+
+    Corr w/ carry   : +0.211
+
+    Corr w/ ones_sum: -0.450
+
+    Corr w/ raw_sum : -0.012
+
+    → ONES-SUM ROUTER: tracks ones digit of result
+
+    Fires strongest: [(42, 48), (12, 24), (24, 12)]
+
+    Fires weakest:   [(44, 25), (45, 24), (31, 27)]
+
+
+
+  Neuron 17186  (logit drop = 1.9062)
+
+    Corr w/ carry   : +0.383
+
+    Corr w/ ones_sum: -0.316
+
+    Corr w/ raw_sum : +0.213
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(16, 44), (44, 25), (39, 44)]
+
+    Fires weakest:   [(32, 23), (30, 23), (19, 23)]
+
+
+
+  Neuron 18794  (logit drop = 1.6016)
+
+    Corr w/ carry   : -0.175
+
+    Corr w/ ones_sum: +0.232
+
+    Corr w/ raw_sum : -0.462
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(26, 18), (26, 12), (37, 12)]
+
+    Fires weakest:   [(15, 45), (22, 44), (11, 45)]
+
+=============================
+
+Phi-2 results
+
+=============================
+
+Loaded pretrained model microsoft/Phi-3-mini-4k-instruct into HookedTransformer
+
+
+
+  Building 50 single-token-answer pairs...
+
+  Running ablation analysis on 50 pairs...
+
+
+
+  Layer 20...
+
+    ...25/100
+
+    ...50/100
+
+    ...75/100
+
+  Layer 20 done in 464s
+
+    Top neurons:   [3330, 6522, 3182, 4855, 157]
+
+    Logit drops:   [0.19529999792575836, 0.1177000030875206, 0.03759999945759773, 0.0348999984562397, 0.0348999984562397]
+
+    🔶 WEAK signal (0.195 logit units)
+
+
+
+  Layer 21...
+
+    ...25/100
+
+    ...50/100
+
+    ...75/100
+
+  Layer 21 done in 470s
+
+    Top neurons:   [7336, 5961, 4128, 5671, 1415]
+
+    Logit drops:   [0.17970000207424164, 0.1177000030875206, 0.08500000089406967, 0.0723000019788742, 0.060100000351667404]
+
+    🔶 WEAK signal (0.180 logit units)
+
+
+
+  Layer 22...
+
+    ...25/100
+
+    ...50/100
+
+    ...75/100
+
+  Layer 22 done in 480s
+
+    Top neurons:   [4607, 4105, 7603, 3353, 4590]
+
+    Logit drops:   [0.0649000033736229, 0.05490000173449516, 0.04490000009536743, 0.03759999945759773, 0.0348999984562397]
+
+    🔶 WEAK signal (0.065 logit units)
+
+
+
+  Layer 23...
+
+    ...25/100
+
+    ...50/100
+
+    ...75/100
+
+  Layer 23 done in 477s
+
+    Top neurons:   [6688, 3158, 5855, 241, 1200]
+
+    Logit drops:   [0.1395999938249588, 0.0723000019788742, 0.0575999990105629, 0.04490000009536743, 0.042500000447034836]
+
+    🔶 WEAK signal (0.140 logit units)
+
+
+
+  Layer 24...
+
+    ...25/100
+
+    ...50/100
+
+    ...75/100
+
+  Layer 24 done in 474s
+
+    Top neurons:   [2529, 4715, 6175, 7087, 316]
+
+    Logit drops:   [0.047600001096725464, 0.04490000009536743, 0.042500000447034836, 0.03759999945759773, 0.0348999984562397]
+
+    ❌ NEGLIGIBLE signal (0.0476 logit units)
+
+       → Arithmetic at this layer is highly distributed.
+
+
+
+  Layer 25...
+
+    ...25/100
+
+    ...50/100
+
+    ...75/100
+
+  Layer 25 done in 471s
+
+    Top neurons:   [7987, 4225, 4360, 1128, 7830]
+
+    Logit drops:   [0.10740000009536743, 0.07519999891519547, 0.03759999945759773, 0.03759999945759773, 0.0348999984562397]
+
+    🔶 WEAK signal (0.107 logit units)
+
+
+
+  Layer 26...
+
+    ...25/100
+
+    ...50/100
+
+    ...75/100
+
+  Layer 26 done in 469s
+
+    Top neurons:   [473, 6210, 4467, 5488, 4795]
+
+    Logit drops:   [0.08739999681711197, 0.05000000074505806, 0.05000000074505806, 0.03759999945759773, 0.032499998807907104]
+
+    🔶 WEAK signal (0.087 logit units)
+
+
+
+============================================================
+
+NEURON CHARACTERIZATION
+
+============================================================
+
+
+
+Layer 20:
+
+
+
+  Neuron 3330  (logit drop = 0.1953)
+
+    Corr w/ carry   : -0.275
+
+    Corr w/ ones_sum: +0.155
+
+    Corr w/ raw_sum : -0.356
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(27, 10), (12, 24), (15, 34)]
+
+    Fires weakest:   [(19, 23), (31, 27), (39, 33)]
+
+
+
+  Neuron 6522  (logit drop = 0.1177)
+
+    Corr w/ carry   : +0.386
+
+    Corr w/ ones_sum: -0.113
+
+    Corr w/ raw_sum : -0.249
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(26, 18), (17, 11), (24, 18)]
+
+    Fires weakest:   [(32, 23), (12, 24), (30, 35)]
+
+
+
+  Neuron 3182  (logit drop = 0.0376)
+
+    Corr w/ carry   : +0.126
+
+    Corr w/ ones_sum: +0.110
+
+    Corr w/ raw_sum : +0.029
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(41, 35), (31, 16), (33, 46)]
+
+    Fires weakest:   [(16, 32), (30, 23), (32, 23)]
+
+
+
+  Neuron 4855  (logit drop = 0.0349)
+
+    Corr w/ carry   : +0.272
+
+    Corr w/ ones_sum: -0.072
+
+    Corr w/ raw_sum : +0.518
+
+    → MAGNITUDE TRACKER: responds to size of sum
+
+    Fires strongest: [(39, 44), (17, 34), (38, 47)]
+
+    Fires weakest:   [(27, 10), (24, 12), (12, 24)]
+
+
+
+  Neuron 157  (logit drop = 0.0349)
+
+    Corr w/ carry   : +0.234
+
+    Corr w/ ones_sum: -0.101
+
+    Corr w/ raw_sum : +0.763
+
+    → MAGNITUDE TRACKER: responds to size of sum
+
+    Fires strongest: [(39, 33), (28, 49), (41, 35)]
+
+    Fires weakest:   [(27, 10), (37, 12), (24, 12)]
+
+
+
+Layer 21:
+
+
+
+  Neuron 7336  (logit drop = 0.1797)
+
+    Corr w/ carry   : +0.194
+
+    Corr w/ ones_sum: -0.066
+
+    Corr w/ raw_sum : -0.097
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(17, 11), (11, 15), (31, 27)]
+
+    Fires weakest:   [(30, 23), (32, 23), (23, 24)]
+
+
+
+  Neuron 5961  (logit drop = 0.1177)
+
+    Corr w/ carry   : -0.193
+
+    Corr w/ ones_sum: +0.093
+
+    Corr w/ raw_sum : +0.309
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(32, 23), (31, 27), (41, 35)]
+
+    Fires weakest:   [(39, 19), (24, 16), (30, 13)]
+
+
+
+  Neuron 4128  (logit drop = 0.0850)
+
+    Corr w/ carry   : +0.656
+
+    Corr w/ ones_sum: -0.223
+
+    Corr w/ raw_sum : +0.187
+
+    → CARRY DETECTOR: fires when ones digits sum ≥ 10
+
+    Fires strongest: [(28, 49), (39, 19), (26, 18)]
+
+    Fires weakest:   [(12, 24), (24, 12), (22, 14)]
+
+
+
+  Neuron 5671  (logit drop = 0.0723)
+
+    Corr w/ carry   : -0.360
+
+    Corr w/ ones_sum: +0.299
+
+    Corr w/ raw_sum : -0.095
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(11, 45), (28, 15), (16, 32)]
+
+    Fires weakest:   [(45, 24), (34, 27), (34, 27)]
+
+
+
+  Neuron 1415  (logit drop = 0.0601)
+
+    Corr w/ carry   : +0.122
+
+    Corr w/ ones_sum: -0.131
+
+    Corr w/ raw_sum : +0.276
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(23, 24), (32, 23), (39, 33)]
+
+    Fires weakest:   [(27, 10), (11, 15), (15, 45)]
+
+
+
+Layer 22:
+
+
+
+  Neuron 4607  (logit drop = 0.0649)
+
+    Corr w/ carry   : +0.096
+
+    Corr w/ ones_sum: +0.022
+
+    Corr w/ raw_sum : -0.009
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(31, 16), (31, 27), (34, 27)]
+
+    Fires weakest:   [(32, 23), (22, 14), (30, 23)]
+
+
+
+  Neuron 4105  (logit drop = 0.0549)
+
+    Corr w/ carry   : -0.672
+
+    Corr w/ ones_sum: +0.150
+
+    Corr w/ raw_sum : -0.017
+
+    → NO-CARRY DETECTOR: fires when no carry
+
+    Fires strongest: [(30, 23), (20, 33), (30, 35)]
+
+    Fires weakest:   [(39, 19), (19, 23), (28, 15)]
+
+
+
+  Neuron 7603  (logit drop = 0.0449)
+
+    Corr w/ carry   : +0.321
+
+    Corr w/ ones_sum: -0.241
+
+    Corr w/ raw_sum : +0.136
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(26, 18), (33, 46), (30, 23)]
+
+    Fires weakest:   [(31, 16), (31, 27), (41, 35)]
+
+
+
+  Neuron 3353  (logit drop = 0.0376)
+
+    Corr w/ carry   : -0.367
+
+    Corr w/ ones_sum: +0.346
+
+    Corr w/ raw_sum : -0.347
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(23, 24), (31, 16), (41, 35)]
+
+    Fires weakest:   [(42, 48), (38, 47), (39, 44)]
+
+
+
+  Neuron 4590  (logit drop = 0.0349)
+
+    Corr w/ carry   : -0.538
+
+    Corr w/ ones_sum: +0.134
+
+    Corr w/ raw_sum : -0.180
+
+    → NO-CARRY DETECTOR: fires when no carry
+
+    Fires strongest: [(30, 23), (20, 33), (32, 23)]
+
+    Fires weakest:   [(15, 47), (15, 45), (39, 19)]
+
+
+
+Layer 23:
+
+
+
+  Neuron 6688  (logit drop = 0.1396)
+
+    Corr w/ carry   : -0.213
+
+    Corr w/ ones_sum: +0.004
+
+    Corr w/ raw_sum : +0.049
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(20, 37), (27, 10), (48, 20)]
+
+    Fires weakest:   [(39, 44), (24, 12), (39, 19)]
+
+
+
+  Neuron 3158  (logit drop = 0.0723)
+
+    Corr w/ carry   : -0.416
+
+    Corr w/ ones_sum: +0.158
+
+    Corr w/ raw_sum : -0.606
+
+    → NO-CARRY DETECTOR: fires when no carry
+
+    Fires strongest: [(30, 13), (26, 12), (37, 12)]
+
+    Fires weakest:   [(39, 44), (42, 48), (39, 19)]
+
+
+
+  Neuron 5855  (logit drop = 0.0576)
+
+    Corr w/ carry   : -0.138
+
+    Corr w/ ones_sum: +0.007
+
+    Corr w/ raw_sum : -0.087
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(11, 45), (15, 45), (30, 35)]
+
+    Fires weakest:   [(39, 19), (31, 27), (28, 49)]
+
+
+
+  Neuron 241  (logit drop = 0.0449)
+
+    Corr w/ carry   : -0.029
+
+    Corr w/ ones_sum: -0.143
+
+    Corr w/ raw_sum : -0.116
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(16, 44), (22, 44), (16, 32)]
+
+    Fires weakest:   [(39, 19), (15, 47), (39, 33)]
+
+
+
+  Neuron 1200  (logit drop = 0.0425)
+
+    Corr w/ carry   : +0.035
+
+    Corr w/ ones_sum: -0.120
+
+    Corr w/ raw_sum : -0.116
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(38, 47), (37, 12), (27, 14)]
+
+    Fires weakest:   [(39, 33), (19, 23), (39, 19)]
+
+
+
+Layer 24:
+
+
+
+  Neuron 2529  (logit drop = 0.0476)
+
+    Corr w/ carry   : +0.119
+
+    Corr w/ ones_sum: -0.448
+
+    Corr w/ raw_sum : -0.175
+
+    → ONES-SUM ROUTER: tracks ones digit of result
+
+    Fires strongest: [(27, 14), (27, 14), (27, 25)]
+
+    Fires weakest:   [(39, 19), (48, 20), (28, 49)]
+
+
+
+  Neuron 4715  (logit drop = 0.0449)
+
+    Corr w/ carry   : +0.304
+
+    Corr w/ ones_sum: -0.207
+
+    Corr w/ raw_sum : -0.003
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(38, 47), (27, 10), (27, 14)]
+
+    Fires weakest:   [(16, 32), (23, 46), (16, 44)]
+
+
+
+  Neuron 6175  (logit drop = 0.0425)
+
+    Corr w/ carry   : -0.271
+
+    Corr w/ ones_sum: +0.209
+
+    Corr w/ raw_sum : -0.067
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(33, 46), (26, 12), (11, 15)]
+
+    Fires weakest:   [(17, 34), (27, 25), (31, 27)]
+
+
+
+  Neuron 7087  (logit drop = 0.0376)
+
+    Corr w/ carry   : +0.262
+
+    Corr w/ ones_sum: -0.319
+
+    Corr w/ raw_sum : -0.018
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(36, 24), (24, 16), (16, 44)]
+
+    Fires weakest:   [(11, 45), (11, 15), (41, 35)]
+
+
+
+  Neuron 316  (logit drop = 0.0349)
+
+    Corr w/ carry   : +0.101
+
+    Corr w/ ones_sum: +0.047
+
+    Corr w/ raw_sum : -0.064
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(39, 19), (39, 44), (19, 23)]
+
+    Fires weakest:   [(37, 12), (42, 48), (32, 48)]
+
+
+
+Layer 25:
+
+
+
+  Neuron 7987  (logit drop = 0.1074)
+
+    Corr w/ carry   : -0.151
+
+    Corr w/ ones_sum: +0.111
+
+    Corr w/ raw_sum : +0.103
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(44, 25), (39, 44), (34, 27)]
+
+    Fires weakest:   [(27, 25), (19, 23), (39, 33)]
+
+
+
+  Neuron 4225  (logit drop = 0.0752)
+
+    Corr w/ carry   : -0.479
+
+    Corr w/ ones_sum: +0.363
+
+    Corr w/ raw_sum : -0.172
+
+    → NO-CARRY DETECTOR: fires when no carry
+
+    Fires strongest: [(22, 44), (23, 24), (22, 14)]
+
+    Fires weakest:   [(42, 48), (32, 48), (19, 23)]
+
+
+
+  Neuron 4360  (logit drop = 0.0376)
+
+    Corr w/ carry   : -0.276
+
+    Corr w/ ones_sum: +0.183
+
+    Corr w/ raw_sum : +0.139
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(32, 23), (23, 46), (44, 25)]
+
+    Fires weakest:   [(27, 10), (26, 18), (16, 32)]
+
+
+
+  Neuron 1128  (logit drop = 0.0376)
+
+    Corr w/ carry   : -0.140
+
+    Corr w/ ones_sum: -0.094
+
+    Corr w/ raw_sum : -0.182
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(27, 14), (27, 14), (27, 10)]
+
+    Fires weakest:   [(39, 44), (28, 15), (19, 23)]
+
+
+
+  Neuron 7830  (logit drop = 0.0349)
+
+    Corr w/ carry   : -0.400
+
+    Corr w/ ones_sum: +0.467
+
+    Corr w/ raw_sum : +0.042
+
+    → NO-CARRY DETECTOR: fires when no carry
+
+    Fires strongest: [(37, 12), (31, 16), (33, 46)]
+
+    Fires weakest:   [(19, 23), (24, 18), (39, 33)]
+
+
+
+Layer 26:
+
+
+
+  Neuron 473  (logit drop = 0.0874)
+
+    Corr w/ carry   : -0.192
+
+    Corr w/ ones_sum: +0.331
+
+    Corr w/ raw_sum : +0.029
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(17, 11), (48, 20), (28, 49)]
+
+    Fires weakest:   [(33, 46), (27, 14), (27, 14)]
+
+
+
+  Neuron 6210  (logit drop = 0.0500)
+
+    Corr w/ carry   : -0.340
+
+    Corr w/ ones_sum: +0.320
+
+    Corr w/ raw_sum : -0.472
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(31, 16), (17, 11), (16, 32)]
+
+    Fires weakest:   [(42, 48), (32, 48), (38, 47)]
+
+
+
+  Neuron 4467  (logit drop = 0.0500)
+
+    Corr w/ carry   : +0.221
+
+    Corr w/ ones_sum: +0.004
+
+    Corr w/ raw_sum : +0.237
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(39, 33), (39, 44), (23, 24)]
+
+    Fires weakest:   [(31, 16), (30, 35), (36, 24)]
+
+
+
+  Neuron 5488  (logit drop = 0.0376)
+
+    Corr w/ carry   : -0.205
+
+    Corr w/ ones_sum: +0.084
+
+    Corr w/ raw_sum : -0.118
+
+    → COMPLEX HEURISTIC: no single-variable explanation
+
+    Fires strongest: [(39, 19), (26, 18), (26, 12)]
+
+    Fires weakest:   [(27, 25), (15, 47), (28, 15)]
+
+
+
+  Neuron 4795  (logit drop = 0.0325)
+
+    Corr w/ carry   : -0.306
+
+    Corr w/ ones_sum: +0.533
+
+    Corr w/ raw_sum : +0.081
+
+    → ONES-SUM ROUTER: tracks ones digit of result
+
+    Fires strongest: [(39, 19), (28, 49), (38, 47)]
+
+    Fires weakest:   [(34, 27), (34, 27), (17, 34)]
+
+
+
+    Loaded pretrained model google/gemma-7b into HookedTransformer
+
+Deep characterization: Layer 22, Neuron 429
+Testing all 100 ones-digit combinations (a_ones × b_ones)...
+
+  Activation grid (rows=a_ones, cols=b_ones):
+          0     1     2     3     4     5     6     7     8     9
+     --------------------------------------------------
+  0 |   0.1  -0.1   0.1   0.1   0.2   0.2   0.1  -0.0  -0.2  -0.7
+  1 |  -0.3   0.0   0.1   0.2   0.2   0.2   0.2   0.2   0.0  -0.2
+  2 |  -0.1   0.1   0.2   0.2   0.3   0.2   0.2   0.2   0.2   0.0
+  3 |   0.0   0.1   0.2   0.2   0.2   0.2   0.2   0.3   0.3   0.2
+  4 |  -0.0   0.1   0.2   0.2   0.2   0.2   0.2   0.3   0.3   0.3
+  5 |  -0.0   0.1   0.2   0.2   0.3   0.2   0.3   0.3   0.3   0.3
+  6 |  -0.3  -0.0   0.2   0.2   0.3   0.2   0.3   0.3   0.3   0.2
+  7 |  -0.6  -0.0   0.1   0.2   0.3   0.3   0.3   0.3   0.3   0.3
+  8 |  -0.9  -0.1   0.1   0.2   0.3   0.3   0.3   0.3   0.3   0.1
+  9 |  -1.2  -0.1  -0.0   0.2   0.3   0.3   0.3   0.3   0.2  -0.0
+
+  Mean activation: 0.125
+  Std:             0.245
+  Strong-firing combinations (act > 0.25):
+    a_ones=8, b_ones=7: act=0.35, sum_ones=5, carry=1
+    a_ones=7, b_ones=8: act=0.35, sum_ones=5, carry=1
+    a_ones=7, b_ones=7: act=0.34, sum_ones=4, carry=1
+    a_ones=6, b_ones=7: act=0.33, sum_ones=3, carry=1
+    a_ones=6, b_ones=8: act=0.32, sum_ones=4, carry=1
+    a_ones=8, b_ones=4: act=0.32, sum_ones=2, carry=1
+    a_ones=4, b_ones=8: act=0.31, sum_ones=2, carry=1
+    a_ones=7, b_ones=4: act=0.31, sum_ones=1, carry=1
+    a_ones=5, b_ones=7: act=0.30, sum_ones=2, carry=1
+    a_ones=5, b_ones=8: act=0.30, sum_ones=3, carry=1
+    a_ones=9, b_ones=4: act=0.30, sum_ones=3, carry=1
+    a_ones=8, b_ones=6: act=0.29, sum_ones=4, carry=1
+    a_ones=8, b_ones=8: act=0.29, sum_ones=6, carry=1
+    a_ones=9, b_ones=7: act=0.29, sum_ones=6, carry=1
+    a_ones=7, b_ones=6: act=0.29, sum_ones=3, carry=1
+
+  Hypothesis testing:
+  Mean activation by (a_ones + b_ones) value:
+    sum= 0:   0.07  
+    sum= 1:  -0.19  
+    sum= 2:   0.02  
+    sum= 3:   0.08  
+    sum= 4:   0.13  
+    sum= 5:   0.15  
+    sum= 6:   0.10  
+    sum= 7:   0.05  
+    sum= 8:   0.01  
+    sum= 9:  -0.06  
+    sum=10:   0.13  
+    sum=11:   0.20  
+    sum=12:   0.27  
+    sum=13:   0.29  
+    sum=14:   0.30  
+    sum=15:   0.31  
+    sum=16:   0.29  
+    sum=17:   0.18  
+    sum=18:  -0.01  
+
+  Correlations over full 10x10 grid:
+    With carry flag  : +0.384
+    With ones_sum    : -0.227
+    With raw sum(0-18): +0.310
+
+  What answer token does this neuron PROMOTE?
+  Top promoted tokens:
+    ' skimage' (id=217840): +0.13
+    ' CreateTagHelper' (id=107483): +0.11
+    'solete' (id=50882): +0.11
+    'WriteTagHelper' (id=183225): +0.11
+    ' Ciò' (id=160829): +0.11
+    ' بيها' (id=118047): +0.10
+    'awsze' (id=74162): +0.10
+    ' Queste' (id=208204): +0.10
+    ' heapq' (id=223436): +0.10
+    ' hashlib' (id=121424): +0.10
+
+  Top suppressed tokens:
+    ' elek' (id=27286): -0.24
+    ' spion' (id=221414): -0.24
+    ' solidar' (id=82547): -0.22
+    ' plak' (id=195661): -0.21
+    ' moza' (id=219144): -0.21
+    ' kask' (id=233779): -0.21
+    ' boks' (id=210560): -0.20
+    ' antik' (id=139769): -0.20
+    ' eko' (id=119808): -0.20
+    ' maske' (id=186238): -0.20
+Loading checkpoint shards: 100%|█████████████| 4/4 [00:00<00:00,  7.50it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model google/gemma-7b into HookedTransformer
+
+Deep characterization: Layer 24, Neuron 20892
+Testing all 100 ones-digit combinations (a_ones × b_ones)...
+
+  Activation grid (rows=a_ones, cols=b_ones):
+          0     1     2     3     4     5     6     7     8     9
+     --------------------------------------------------
+  0 |   0.3   0.5   0.4   0.2   0.3   0.3   0.3   0.3   0.3   0.3
+  1 |   0.3   0.3   0.5   0.4   0.4   0.4   0.4   0.4   0.3   0.4
+  2 |   0.3   0.4   0.4   0.3   0.4   0.4   0.3   0.3   0.3   0.3
+  3 |   0.4   0.4   0.4   0.4   0.4   0.4   0.3   0.3   0.3   0.3
+  4 |   0.4   0.4   0.4   0.2   0.4   0.4   0.4   0.3   0.3   0.4
+  5 |   0.4   0.4   0.4   0.3   0.3   0.4   0.3   0.3   0.3   0.4
+  6 |   0.3   0.3   0.3   0.2   0.3   0.3   0.4   0.3   0.3   0.3
+  7 |   0.3   0.4   0.3   0.2   0.3   0.3   0.3   0.3   0.3   0.4
+  8 |   0.3   0.3   0.3   0.2   0.3   0.3   0.3   0.3   0.4   0.4
+  9 |   0.3   0.4   0.3   0.3   0.3   0.3   0.3   0.4   0.3   0.4
+
+  Mean activation: 0.335
+  Std:             0.055
+  Strong-firing combinations (act > 0.36):
+    a_ones=0, b_ones=1: act=0.47, sum_ones=1, carry=0
+    a_ones=1, b_ones=2: act=0.46, sum_ones=3, carry=0
+    a_ones=4, b_ones=1: act=0.45, sum_ones=5, carry=0
+    a_ones=2, b_ones=2: act=0.45, sum_ones=4, carry=0
+    a_ones=5, b_ones=1: act=0.44, sum_ones=6, carry=0
+    a_ones=3, b_ones=1: act=0.42, sum_ones=4, carry=0
+    a_ones=2, b_ones=4: act=0.42, sum_ones=6, carry=0
+    a_ones=4, b_ones=4: act=0.42, sum_ones=8, carry=0
+    a_ones=2, b_ones=5: act=0.41, sum_ones=7, carry=0
+    a_ones=5, b_ones=5: act=0.41, sum_ones=0, carry=1
+    a_ones=2, b_ones=1: act=0.41, sum_ones=3, carry=0
+    a_ones=4, b_ones=2: act=0.41, sum_ones=6, carry=0
+    a_ones=5, b_ones=2: act=0.40, sum_ones=7, carry=0
+    a_ones=3, b_ones=3: act=0.39, sum_ones=6, carry=0
+    a_ones=9, b_ones=9: act=0.39, sum_ones=8, carry=1
+
+  Hypothesis testing:
+  Mean activation by (a_ones + b_ones) value:
+    sum= 0:   0.27  
+    sum= 1:   0.40  
+    sum= 2:   0.32  
+    sum= 3:   0.36  
+    sum= 4:   0.38  
+    sum= 5:   0.36  
+    sum= 6:   0.38  
+    sum= 7:   0.34  
+    sum= 8:   0.33  
+    sum= 9:   0.30  
+    sum=10:   0.33  
+    sum=11:   0.28  
+    sum=12:   0.33  
+    sum=13:   0.33  
+    sum=14:   0.34  
+    sum=15:   0.32  
+    sum=16:   0.37  
+    sum=17:   0.35  
+    sum=18:   0.39  
+
+  Correlations over full 10x10 grid:
+    With carry flag  : -0.170
+    With ones_sum    : +0.074
+    With raw sum(0-18): -0.156
+
+  What answer token does this neuron PROMOTE?
+  Top promoted tokens:
+    ' increa' (id=229711): +0.57
+    ' affor' (id=46164): +0.56
+    ' inconce' (id=154640): +0.56
+    ' guarante' (id=10936): +0.55
+    ' desir' (id=106681): +0.54
+    ' suspic' (id=23527): +0.54
+    ' perfet' (id=164879): +0.54
+    ' emphat' (id=134154): +0.54
+    ' embra' (id=31512): +0.54
+    ' inev' (id=22728): +0.53
+
+  Top suppressed tokens:
+    ' SqlDbType' (id=136401): -0.18
+    ' htons' (id=182649): -0.18
+    ' ${(' (id=194905): -0.17
+    ' ArrayAdapter' (id=171242): -0.17
+' (id=181141): -0.16
+    ' MediaType' (id=159591): -0.16
+    ' _('' (id=166152): -0.16
+    ' ExecuteAsync' (id=204769): -0.16
+    ' FileReader' (id=102482): -0.16
+    ' $__' (id=105203): -0.15
+
+=====Gemma 2 2b ======
+
+Loaded pretrained model google/gemma-2b into HookedTransformer
+
+  Building 100 single-token-answer pairs...
+  Running ablation analysis on 100 pairs...
+
+  Layer 10...
+    ...25/100
+    ...50/100
+    ...75/100
+  Layer 10 done in 635s
+    Top neurons:   [3481, 7521, 1725, 14119, 16131]
+    Logit drops:   [28.5, 5.3125, 4.8125, 3.6875, 2.5938000679016113]
+    ✅ STRONG signal (>28.5 logit units)
+
+  Layer 11...
+    ...25/100
+    ...50/100
+    ...75/100
+  Layer 11 done in 618s
+    Top neurons:   [9767, 9518, 6832, 14672, 8349]
+    Logit drops:   [22.625, 16.75, 7.75, 7.218800067901611, 6.5625]
+    ✅ STRONG signal (>22.6 logit units)
+
+  Layer 12...
+    ...25/100
+    ...50/100
+    ...75/100
+  Layer 12 done in 618s
+    Top neurons:   [9377, 11906, 9575, 11885, 12575]
+    Logit drops:   [19.5, 11.9375, 4.843800067901611, 4.3125, 3.4375]
+    ✅ STRONG signal (>19.5 logit units)
+
+============================================================
+NEURON CHARACTERIZATION
+============================================================
+
+Layer 10:
+
+  Neuron 3481  (logit drop = 28.5000)
+    Corr w/ carry   : +0.055
+    Corr w/ ones_sum: -0.034
+    Corr w/ raw_sum : +0.307
+    → COMPLEX HEURISTIC: no single-variable explanation
+    Fires strongest: [(47, 45), (39, 43), (10, 26)]
+    Fires weakest:   [(43, 10), (41, 15), (42, 16)]
+
+  Neuron 7521  (logit drop = 5.3125)
+    Corr w/ carry   : +0.235
+    Corr w/ ones_sum: -0.223
+    Corr w/ raw_sum : +0.371
+    → COMPLEX HEURISTIC: no single-variable explanation
+    Fires strongest: [(15, 45), (17, 34), (18, 42)]
+    Fires weakest:   [(37, 12), (31, 17), (31, 11)]
+
+  Neuron 1725  (logit drop = 4.8125)
+    Corr w/ carry   : +0.402
+    Corr w/ ones_sum: -0.331
+    Corr w/ raw_sum : +0.835
+    → CARRY DETECTOR: fires when ones digits sum ≥ 10
+    Fires strongest: [(42, 48), (34, 48), (43, 48)]
+    Fires weakest:   [(13, 17), (14, 44), (15, 41)]
+
+  Neuron 14119  (logit drop = 3.6875)
+    Corr w/ carry   : +0.535
+    Corr w/ ones_sum: -0.385
+    Corr w/ raw_sum : +0.619
+    → CARRY DETECTOR: fires when ones digits sum ≥ 10
+    Fires strongest: [(32, 48), (42, 48), (40, 45)]
+    Fires weakest:   [(14, 34), (10, 26), (17, 11)]
+
+  Neuron 16131  (logit drop = 2.5938)
+    Corr w/ carry   : +0.139
+    Corr w/ ones_sum: +0.003
+    Corr w/ raw_sum : +0.178
+    → COMPLEX HEURISTIC: no single-variable explanation
+    Fires strongest: [(29, 35), (39, 43), (30, 35)]
+    Fires weakest:   [(11, 45), (43, 10), (12, 24)]
+
+Layer 11:
+
+  Neuron 9767  (logit drop = 22.6250)
+    Corr w/ carry   : +0.266
+    Corr w/ ones_sum: -0.327
+    Corr w/ raw_sum : +0.440
+    → COMPLEX HEURISTIC: no single-variable explanation
+    Fires strongest: [(15, 45), (34, 48), (48, 22)]
+    Fires weakest:   [(26, 12), (31, 27), (31, 17)]
+
+  Neuron 9518  (logit drop = 16.7500)
+    Corr w/ carry   : +0.343
+    Corr w/ ones_sum: -0.219
+    Corr w/ raw_sum : +0.302
+    → COMPLEX HEURISTIC: no single-variable explanation
+    Fires strongest: [(39, 43), (43, 38), (23, 24)]
+    Fires weakest:   [(27, 10), (48, 20), (10, 17)]
+
+  Neuron 6832  (logit drop = 7.7500)
+    Corr w/ carry   : +0.246
+    Corr w/ ones_sum: -0.368
+    Corr w/ raw_sum : +0.179
+    → COMPLEX HEURISTIC: no single-variable explanation
+    Fires strongest: [(48, 22), (48, 30), (48, 20)]
+    Fires weakest:   [(14, 34), (15, 34), (31, 16)]
+
+  Neuron 14672  (logit drop = 7.2188)
+    Corr w/ carry   : +0.011
+    Corr w/ ones_sum: +0.087
+    Corr w/ raw_sum : -0.367
+    → COMPLEX HEURISTIC: no single-variable explanation
+    Fires strongest: [(18, 18), (26, 12), (24, 14)]
+    Fires weakest:   [(15, 41), (41, 35), (31, 27)]
+
+  Neuron 8349  (logit drop = 6.5625)
+    Corr w/ carry   : +0.144
+    Corr w/ ones_sum: -0.130
+    Corr w/ raw_sum : +0.410
+    → COMPLEX HEURISTIC: no single-variable explanation
+    Fires strongest: [(41, 35), (29, 35), (33, 38)]
+    Fires weakest:   [(11, 45), (14, 44), (14, 34)]
+
+Layer 12:
+
+  Neuron 9377  (logit drop = 19.5000)
+    Corr w/ carry   : -0.140
+    Corr w/ ones_sum: +0.006
+    Corr w/ raw_sum : -0.121
+    → COMPLEX HEURISTIC: no single-variable explanation
+    Fires strongest: [(41, 15), (25, 45), (43, 10)]
+    Fires weakest:   [(15, 47), (28, 37), (17, 34)]
+
+  Neuron 11906  (logit drop = 11.9375)
+    Corr w/ carry   : +0.076
+    Corr w/ ones_sum: -0.142
+    Corr w/ raw_sum : +0.511
+    → MAGNITUDE TRACKER: responds to size of sum
+    Fires strongest: [(25, 45), (15, 45), (48, 30)]
+    Fires weakest:   [(26, 12), (26, 18), (28, 15)]
+
+  Neuron 9575  (logit drop = 4.8438)
+    Corr w/ carry   : -0.096
+    Corr w/ ones_sum: +0.142
+    Corr w/ raw_sum : -0.197
+    → COMPLEX HEURISTIC: no single-variable explanation
+    Fires strongest: [(20, 33), (14, 34), (18, 18)]
+    Fires weakest:   [(40, 45), (11, 15), (44, 27)]
+
+  Neuron 11885  (logit drop = 4.3125)
+    Corr w/ carry   : +0.279
+    Corr w/ ones_sum: -0.200
+    Corr w/ raw_sum : +0.269
+    → COMPLEX HEURISTIC: no single-variable explanation
+    Fires strongest: [(14, 44), (17, 34), (23, 24)]
+    Fires weakest:   [(27, 10), (48, 20), (48, 30)]
+
+  Neuron 12575  (logit drop = 3.4375)
+    Corr w/ carry   : -0.343
+    Corr w/ ones_sum: +0.255
+    Corr w/ raw_sum : -0.469
+    → COMPLEX HEURISTIC: no single-variable explanation
+    Fires strongest: [(18, 18), (10, 26), (12, 24)]
+    Fires weakest:   [(33, 38), (43, 38), (26, 45)]
+(.venv) mkanaka@mkanaka-ltme769 Beyond-Components %
+
+
+Loaded pretrained model google/gemma-2b into HookedTransformer
+  Generating prompts...
+  Built 120 valid single-token arithmetic pairs
+
+──────────────────────────────────────────────────
+TOOL 1: Direct Logit Attribution
+──────────────────────────────────────────────────
+
+  MLP DLA by layer (direct answer logit contribution):
+    Layer  5 MLP: +14.1330  ++++++++++++++++++++++++++++++
+    Layer  6 MLP: +2.5114  +++++++
+    Layer  7 MLP: +3.0776  +++++++++
+    Layer  8 MLP: +2.2259  ++++++
+    Layer  9 MLP: +0.6172  +
+    Layer 10 MLP: +1.2385  +++
+    Layer 11 MLP: +28.1502  ++++++++++++++++++++++++++++++
+    Layer 12 MLP: +26.4982  ++++++++++++++++++++++++++++++
+    Layer 13 MLP: +34.3756  ++++++++++++++++++++++++++++++
+    Layer 14 MLP: +35.5648  ++++++++++++++++++++++++++++++
+    Layer 15 MLP: +66.2417  ++++++++++++++++++++++++++++++
+    Layer 16 MLP: -130.3970  ------------------------------
+    Layer 17 MLP: +18.7131  ++++++++++++++++++++++++++++++
+
+  Top attention heads by DLA:
+    L17H 2: +39.7098  ++++++++++++++++++++++++++++++
+    L17H 1: +29.7460  ++++++++++++++++++++++++++++++
+    L17H 3: +26.8651  ++++++++++++++++++++++++++++++
+    L17H 4: +22.3916  ++++++++++++++++++++++++++++++
+    L17H 5: +21.9400  ++++++++++++++++++++++++++++++
+    L14H 6: +19.4147  ++++++++++++++++++++++++++++++
+    L17H 6: +18.4362  ++++++++++++++++++++++++++++++
+    L16H 3: +18.2584  ++++++++++++++++++++++++++++++
+    L17H 0: +17.5434  ++++++++++++++++++++++++++++++
+    L16H 5: +15.5941  ++++++++++++++++++++++++++++++
+
+──────────────────────────────────────────────────
+TOOL 2: SVD Computational Signal Strength
+──────────────────────────────────────────────────
+
+  SVD Computational Signal Strength per Layer:
+  Layer  5: R²(k=10)=0.000    ❌ Weak
+  Layer  6: R²(k=10)=0.000    ❌ Weak
+  Layer  7: R²(k=10)=0.000    ❌ Weak
+  Layer  8: R²(k=10)=0.000    ❌ Weak
+  Layer  9: R²(k=10)=0.000    ❌ Weak
+  Layer 10: R²(k=10)=0.000    ❌ Weak
+  Layer 11: R²(k=10)=0.000    ❌ Weak
+  Layer 12: R²(k=10)=0.000    ❌ Weak
+  Layer 13: R²(k=10)=0.000    ❌ Weak
+  Layer 14: R²(k=10)=0.000    ❌ Weak
+  Layer 15: R²(k=10)=0.000    ❌ Weak
+  Layer 16: R²(k=10)=0.000    ❌ Weak
+  Layer 17: R²(k=10)=0.000    ❌ Weak
+
+──────────────────────────────────────────────────
+TOOL 3: Backtracking from Causal Layer
+──────────────────────────────────────────────────
+
+  RANKED COMPONENTS by contribution to answer at L17:
+         MLP16:   0.3133  ████
+         L17H4:   0.2417  ███
+         L17H1:   0.2347  ███
+         L17H2:   0.2299  ███
+         L17H0:   0.2276  ███
+         MLP15:   0.2263  ███
+         L17H5:   0.2204  ███
+         L17H3:   0.1932  ██
+         L17H6:   0.1815  ██
+         L16H6:   0.1739  ██
+         MLP14:   0.1736  ██
+         L16H7:   0.1691  ██
+         L16H2:   0.1626  ██
+         L16H1:   0.1573  ██
+         L16H4:   0.1539  ██
+
+Circuit discovery
+
+Loaded pretrained model microsoft/Phi-3-mini-4k-instruct into HookedTransformer
+  Built: 50 full-arith, 50 ones-hint pairs
+
+  [ARITHMETIC] Running forward pass...
+
+  [ARITHMETIC] Layer-by-layer analysis:
+     L     MLP_DLA    Attn_DLA   MLP_Proj  Attn_Proj    R2_CV
+  --------------------------------------------------------------------
+  L0        -0.186      -0.098     -0.053     -0.074    0.000  
+  L1        -0.191       0.053     -0.034     -0.030    0.000  
+  L2         0.060       0.275     -0.025     -0.074    0.000  
+  L3        -0.159       0.185     -0.032     -0.113    0.000  
+  L4         0.057       0.154      0.001     -0.272    0.000  
+  L5        -0.135       0.141      0.036     -0.138    0.000  
+  L6         0.214       0.184      0.070     -0.366    0.000  
+  L7        -0.037       0.466     -0.137     -0.406    0.000  
+  L8        -0.176       1.330      0.085     -0.038    0.000  
+  L9        -0.664       0.438      0.455     -0.629    0.000  
+  L10       -0.267       0.761      0.729     -0.609    0.000  
+  L11       -0.361       1.350     -0.225     -0.616    0.000  
+  L12        2.564       2.151      0.291     -0.226    0.000  
+  L13       -2.193       2.245      0.199     -0.648    0.000  
+  L14       -0.978       1.203      0.313     -0.932    0.000  
+  L15        0.157       1.850     -0.032     -0.878    0.000  
+  L16       -0.782       1.432     -0.085     -0.891    0.124  
+  L17       -0.402       4.516      0.089     -1.055    0.000  
+  L18       -0.144       6.391      0.256     -1.895    0.000  ✅ Active
+  L19        0.962       7.630     -0.637     -0.508    0.000  ✅ Active
+  L20        2.624       3.996     -0.523     -0.521    0.000  ✅ Active
+  L21        4.568       4.825      1.616     -0.809    0.000  ✅ Active
+  L22       -4.803       4.146     -0.281     -0.530    0.000  ✅ Active
+  L23        0.982       5.550      0.196      0.118    0.000  ✅ Active
+  L24        9.449      10.461      4.733     -1.371    0.478  ✅ Active
+  L25       11.634       6.528     -1.470     -1.018    0.525  ✅ Active
+  L26       16.545       3.732     -0.691     -0.597    0.671  🔥 DOMINANT
+  L27       24.617       0.356      1.265     -1.345    0.848  🔥 DOMINANT
+  L28       13.998      27.767     -0.202      8.673    0.848  🔥 DOMINANT
+  L29      -13.873      34.604      5.450     -7.951    0.908  🔥 DOMINANT
+  L30       86.041      49.377     -1.502     -0.525    0.964  🔥 DOMINANT
+  L31      126.461      11.853    -25.290     -6.269    0.947  🔥 DOMINANT
+
+============================================================
+CIRCUIT MAP: Phi-3-mini-4k-instruct
+============================================================
+
+  Zone 1 — REPRESENTATION: Layers 0 – 23
+    R²=0, low DLA. Numbers stored geometrically (helix)
+    but no linearly decodable arithmetic answer yet.
+
+  Zone 2 — COMPUTATION: Layers 24 – 25
+    R² rises from 0 to ~0.9. This is where arithmetic
+    is actually computed and assembled into the residual stream.
+    Key neurons (carry detectors, magnitude trackers) operate here.
+
+  Zone 3 — TRANSLATION: Layers 26+ 
+    DLA spikes. R² ≈ 1. Final MLP layers project the
+    internal arithmetic answer to vocabulary token logits.
+    This is what your earlier massive DLA values showed.
+
+  Key computation layer: L25  (R²=0.525)
+  This is where arithmetic crystallises.
+  Run head-level DLA at this layer to find
+  the specific attention heads doing the work.
+
+======================================================================
+CIRCUIT DISCOVERY: google/gemma-2b
+======================================================================
+Loading checkpoint shards: 100%|█████████████| 2/2 [00:00<00:00, 70.50it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model google/gemma-2b into HookedTransformer
+  Built: 50 full-arith, 50 ones-hint pairs
+
+  [ARITHMETIC] Running forward pass...
+
+  [ARITHMETIC] Layer-by-layer analysis:
+     L     MLP_DLA    Attn_DLA   MLP_Proj  Attn_Proj    R2_CV
+  --------------------------------------------------------------------
+  L0         6.571     545.229     -0.219     -5.103    0.000  🔥 DOMINANT
+  L1         7.411      -7.215     -0.406     -0.358    0.000  ✅ Active
+  L2        13.295      -5.680     -0.331      0.102    0.000  ✅ Active
+  L3        13.267      -3.791     -0.171     -0.414    0.000  ✅ Active
+  L4         8.010     -13.521      0.705     -0.098    0.000  🔥 DOMINANT
+  L5        21.291      -3.443      0.147      0.153    0.000  🔥 DOMINANT
+  L6        10.859     -10.465      0.463      0.256    0.000  🔥 DOMINANT
+  L7         3.523       0.198      0.287     -0.093    0.000  
+  L8        -0.577      -1.714     -0.163     -0.039    0.000  
+  L9         2.180      -2.669      0.094      0.139    0.000  
+  L10        0.511      -5.253      0.276      0.295    0.000  ✅ Active
+  L11       13.646       1.397      0.293      0.069    0.000  ✅ Active
+  L12       13.559     -20.097      0.443     -0.523    0.000  🔥 DOMINANT
+  L13        1.388     -18.501      1.997      0.485    0.000  ✅ Active
+  L14       35.458      15.749      0.999     -2.394    0.000  🔥 DOMINANT
+  L15      102.607       1.420      5.884      1.313    0.821  🔥 DOMINANT
+  L16       -8.848      61.631      3.934      2.848    0.924  🔥 DOMINANT
+  L17     1252.865     122.160      2.638      0.302    0.897  🔥 DOMINANT
+
+============================================================
+CIRCUIT MAP: gemma-2b
+============================================================
+
+  Zone 1 — REPRESENTATION: Layers 0 – 14
+    R²=0, low DLA. Numbers stored geometrically (helix)
+    but no linearly decodable arithmetic answer yet.
+
+(.venv) mkanaka@mkanaka-ltme769 Beyond-Components % .venv/bin/python src/models/online_svd_scanner.py
+
+======================================================================
+CIRCUIT DISCOVERY: google/gemma-7b
+======================================================================
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards: 100%|█████████████| 4/4 [00:00<00:00, 27.28it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model google/gemma-7b into HookedTransformer
+  Built: 50 full-arith, 50 ones-hint pairs
+
+  [ARITHMETIC] Running forward pass...
+
+  [ARITHMETIC] Layer-by-layer analysis:
+     L     MLP_DLA    Attn_DLA   MLP_Proj  Attn_Proj    R2_CV
+  --------------------------------------------------------------------
+  L0       -21.044    -367.900     -1.218      1.008    0.000  🔥 DOMINANT
+  L1        -7.961     -13.830     -0.733     -0.025    0.000  🔥 DOMINANT
+  L2         0.520      -8.332     -0.073     -0.326    0.000  ✅ Active
+  L3        -0.255      -5.142     -0.155     -0.259    0.000  ✅ Active
+  L4        -0.249      -4.639     -0.118     -0.218    0.000  
+  L5         1.078      -2.076      0.012     -0.104    0.000  
+  L6         0.786      -1.238      0.011     -0.035    0.000  
+  L7         0.516      -1.390     -0.037     -0.068    0.000  
+  L8         1.956      -0.885      0.025     -0.002    0.000  
+  L9         0.444      -1.150      0.013     -0.027    0.000  
+  L10        1.131      -1.487     -0.017     -0.012    0.000  
+  L11        0.622      -1.172     -0.001     -0.049    0.000  
+  L12        1.137      -0.322      0.049     -0.026    0.212  
+  L13        1.591      -1.434      0.014     -0.098    0.000  
+  L14        0.866      -1.482      0.058     -0.081    0.000  
+  L15        0.776      -0.955      0.032      0.007    0.000  
+  L16        0.082      -1.281      0.058     -0.064    0.128  
+  L17        1.884      -0.026      0.063      0.023    0.218  
+  L18        1.037      -1.265     -0.025     -0.042    0.263  
+  L19        0.020      -0.199      0.006     -0.037    0.031  
+  L20        1.598       0.535      0.200      0.045    0.000  
+  L21        1.106      -2.959      0.120     -0.121    0.000  
+  L22        2.439      -2.306     -0.001      0.027    0.000  
+  L23        1.976      -0.801      0.139      0.039    0.763  📊 Predictive
+  L24        3.376       0.977      0.070     -0.029    0.876  📊 Predictive
+  L25        3.276      12.159      0.365      0.108    0.966  ✅ Active
+  L26       -3.607     -11.328      0.199     -1.441    0.978  ✅ Active
+  L27      351.417       7.646     -1.113     -0.466    0.953  🔥 DOMINANT
+
+============================================================
+CIRCUIT MAP: gemma-7b
+============================================================
+
+  Zone 1 — REPRESENTATION: Layers 0 – 11
+    R²=0, low DLA. Numbers stored geometrically (helix)
+    but no linearly decodable arithmetic answer yet.
+
+  Key computation layer: L26  (R²=0.978)
+  This is where arithmetic crystallises.
+  Run head-level DLA at this layer to find
+  the specific attention heads doing the work.
+(.venv) mkanaka@mkanaka-ltme769 Beyond-Components % 
+

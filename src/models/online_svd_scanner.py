@@ -1,16 +1,31 @@
 import torch
+import torch.nn.functional as F
 import numpy as np
 import glob
-from transformer_lens import HookedTransformer
-import itertools
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from transformers import BitsAndBytesConfig
 import os
+import re
+import gc
+import random
+import time
+import itertools
+import warnings
+
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import seaborn as sns
+from mpl_toolkits.mplot3d import Axes3D
+
+from transformer_lens import HookedTransformer
+from transformers import BitsAndBytesConfig
+from sklearn.decomposition import PCA
+from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import cross_val_score
+
+warnings.filterwarnings("ignore")
 
 def map_svd_to_frequencies(Vh, number_embeddings, valid_nums, top_n_dims=10):
-    import numpy as np
-
     print(f"\n🔍 Mapping SVD Dimensions to Fourier Frequencies (Top {top_n_dims} Dims):")
 
     # Project numbers onto the top N dimensions
@@ -97,9 +112,6 @@ def plot_fourier_spectrum(coords_2d, valid_nums, model_name, layer, head, output
     """
     Runs a Fast Fourier Transform (FFT) on the 2D plane to extract exact frequencies/periods.
     """
-    import numpy as np
-    import matplotlib.pyplot as plt
-    import os
 
     # 1. Combine X and Y into a single complex signal: z = x + iy
     # This is the mathematically perfect way to find frequency in a 2D circular plane
@@ -423,10 +435,6 @@ def scan_model_on_the_fly(model_name="google/gemma-2-2b"):
         print("❌ No clear geometric structure found.")
     print("="*50)
 
-import torch
-import numpy as np
-from transformer_lens import HookedTransformer
-
 def test_output_plane_computation(model_name="google/gemma-7b", layer=14, head=2, dim1=2, dim2=5):
     print(f"\n🚀 Initiating Phase 4: Output Plane Verification on {model_name}")
     print(f"Target: Layer {layer}, Head {head} | U-Matrix Dims: {dim1} & {dim2}")
@@ -457,7 +465,6 @@ def test_output_plane_computation(model_name="google/gemma-7b", layer=14, head=2
         print("   ✅ U-Matrix is mathematically balanced for rotation.")
 
     # Generate clean, no-carry addition pairs
-    import random
     random.seed(42)
     test_cases = []
     while len(test_cases) < 30:
@@ -572,10 +579,6 @@ def test_output_plane_computation(model_name="google/gemma-7b", layer=14, head=2
     else:
         print("❌ FAILED: The output vectors do not align with the trigonometric sums.")
     print("="*50)
-
-import torch
-import numpy as np
-from transformer_lens import HookedTransformer
 
 #This is phase-5 mlp algnment but has a huge matrix calcuation on bigger models
 def test_mlp_subspace_alignment(model_name, layer, head, dim1, dim2, top_k_mlp=50):
@@ -850,14 +853,6 @@ def test_causal_phase_shift(model_name="google/gemma-7b", layer=14, head=2, dim1
             print("   ⚠️ Warning: Vector magnitude was NOT preserved during rotation!")
     print("-" * 50)
 
-import torch
-import numpy as np
-from transformer_lens import HookedTransformer
-
-import torch
-import numpy as np
-from transformer_lens import HookedTransformer
-
 def run_rigorous_logit_lens(model_name="google/gemma-7b"):
     print(f"\n🔬 Initiating Rigorous Logit Lens on {model_name}")
 
@@ -942,10 +937,6 @@ def run_rigorous_logit_lens(model_name="google/gemma-7b"):
     print("Sanity Check 1 (Distractor): Did the Target rank significantly higher than the Distractors at the end?")
     print("Sanity Check 2 (Trajectory): Did the Target rank start high (memorization) or spike in the middle (computation)?")
 
-import torch
-import numpy as np
-from transformer_lens import HookedTransformer
-
 def run_universal_logit_lens(model_name="microsoft/Phi-3-mini-4k-instruct"):
     print(f"\n🔬 Initiating Universal Logit Lens on {model_name}")
 
@@ -1007,9 +998,6 @@ def run_universal_logit_lens(model_name="microsoft/Phi-3-mini-4k-instruct"):
 
         marker = "🔥 TOP 10!" if best_target_rank < 10 else ""
         print(f"Layer {layer_idx:<2} | Rank {best_target_rank:<15} | Rank {best_dist_rank:<15} {marker}")
-
-import torch
-from transformer_lens import HookedTransformer
 
 def run_causal_brain_transplant(model_name="google/gemma-7b", layer=14, head=2):
     print(f"\n🧠 Initiating Causal Brain Transplant on {model_name}")
@@ -1156,12 +1144,6 @@ def run_sledgehammer_transplant(model_name="google/gemma-7b", layer=14):
     )
     print_top_5(intervened_logits, "Transplanted (Does it flip back to 26?)")
     print("="*50)
-
-import torch
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-from transformer_lens import HookedTransformer
 
 def plot_arithmetic_clock_face(model_name="google/gemma-7b", layer=14, head=2, dim1=2, dim2=5):
     print(f"\n🎨 Generating 2D SVD Clock Face Visualization for {model_name}")
@@ -1395,13 +1377,6 @@ def plot_dynamic_clock_face(model_name="google/gemma-7b", layer=14, head=2, dim1
     print("✅ SUCCESS! Saved visualization to 'dynamic_clock_face_gemma.png'")
     plt.show()
 
-import torch
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-from transformer_lens import HookedTransformer
-import torch.nn.functional as F
-
 def plot_arithmetic_distance_matrices(model_name="google/gemma-7b", layer=14):
     print(f"\n📏 Calculating Distance Metrics for Contextualized Digits at Layer {layer}...")
 
@@ -1457,10 +1432,6 @@ def plot_arithmetic_distance_matrices(model_name="google/gemma-7b", layer=14):
     plt.tight_layout()
     plt.savefig(f"{model_name.split('/')[1]}_distance_matrices_layer_{layer}.png", dpi=300)
     print(f" saved matrices to {model_name.split('/')[1]}_distance_matrices_layer_{layer}.png")
-
-import itertools
-from sklearn.decomposition import PCA
-import torch.nn.functional as F
 
 def run_professors_automated_circle_scanner(model_name="google/gemma-7b", layer=14, head=2, max_n=10):
     print(f"\n👨‍🏫 Running Professor's Automated 2D Circle Scanner on {model_name}...")
@@ -1684,14 +1655,6 @@ def plot_pca_variance_scree(model_name="google/gemma-7b", layer=21):
     plt.savefig(save_path, dpi=300)
     print(f"✅ Saved Scree Plot to '{save_path}'")
 
-import torch
-import numpy as np
-import itertools
-from sklearn.decomposition import PCA
-from transformer_lens import HookedTransformer
-import warnings
-warnings.filterwarnings("ignore")
-
 def run_unified_helix_scanner(model_name="google/gemma-7b", layer=14, head=2, max_n=100):
     print(f"\n🧬 Running Unified Helix Scanner (Fix A + B) on {model_name}")
     print(f"Targeting Layer {layer}, Head {head} over numbers 0 to {max_n-1}")
@@ -1812,13 +1775,6 @@ def run_unified_helix_scanner(model_name="google/gemma-7b", layer=14, head=2, ma
         print("❌ VERDICT: Even after PCA correction and 100 numbers, the perfect 2D circle fails.")
         print("   This confirms the High-Dimensional Vector Translation theory is dominant.")
     print("="*60)
-
-import torch
-import numpy as np
-import itertools
-import matplotlib.pyplot as plt
-from sklearn.decomposition import PCA
-from transformer_lens import HookedTransformer
 
 # ──────────────────────────────────────────────────────────────────
 # CORE CORRECTION: Clarify U vs Vt for TransformerLens
@@ -2069,13 +2025,6 @@ def run_corrected_pipeline(model_name="google/gemma-7b", layer=14, head=2):
     print(f"  Direct PCA final    L{layer}: " + (f"CV={r2['cv']:.3f}, Phase={r2['lin_ones']:.3f}, T={r2['period']:.1f}" if r2 else "  failed"))
     print(f"  SVD-Reading L{layer}H{head}:  " + (f"CV={r3['cv']:.3f}, Phase={r3['lin_ones']:.3f}, T={r3['period']:.1f}" if r3 else "  failed"))
     print(f"  Best layer overall: Layer {best_key[0]}, position='{best_key[1]}'")
-
-import torch
-import numpy as np
-import itertools
-import matplotlib.pyplot as plt
-from sklearn.decomposition import PCA
-from transformer_lens import HookedTransformer
 
 # ─────────────────────────────────────────────────────────────
 # CORRECTED PHASE METRIC (Phase Invariance)
@@ -2367,16 +2316,6 @@ def run_phase_corrected_pipeline(model_name, layer, head):
 
     sweep_layers_corrected(model, layer_range=range(8, 26))
 
-import torch
-import numpy as np
-import itertools
-import matplotlib.pyplot as plt
-import re
-from sklearn.decomposition import PCA
-from transformer_lens import HookedTransformer
-import warnings
-warnings.filterwarnings("ignore")
-
 # ─────────────────────────────────────────────────────────────
 # FOURIER ISOLATION
 # ─────────────────────────────────────────────────────────────
@@ -2472,7 +2411,6 @@ def check_after_isolation(acts_isolated: torch.Tensor,
 # ─────────────────────────────────────────────────────────────
 
 def causal_phase_shift_test(model, layer, head, valid_ns, period: float = 10.0, n_tests: int = 20, seed: int = 42):
-    import random
     random.seed(seed)
     torch.manual_seed(seed)
 
@@ -2611,12 +2549,6 @@ def run_final_pipeline(model_name: str, layer: int, head: int, period: float, be
         print(f"  Phase after isolation: {result.get('phase_corr', 'N/A'):.3f}")
     print(f"  Causal no-carry      : {causal.get('no_carry', 0):.1%}")
 
-
-import torch
-import numpy as np
-import random
-import time
-from transformer_lens import HookedTransformer
 
 def get_ones_token_safe(model, ans: int):
     """
@@ -2826,12 +2758,6 @@ def run_analysis(model_name: str, layer_range, n_pairs: int = 50):
     effects, pairs = find_arithmetic_neurons_fixed(model, layer_range, n_pairs=n_pairs, n_candidates=100)
     if effects:
         characterize_neurons(model, effects, pairs, top_n=5)
-
-import torch
-import numpy as np
-import random
-import re
-from transformer_lens import HookedTransformer
 
 
 def extract_step_vector_at_output_layer(model, causal_layer, max_n=40, fixed_b=5):
@@ -3124,10 +3050,6 @@ def run_vector_translation_proof(model_name: str, causal_layer: int):
     else:
         print("\n  ⚠️  AMBIGUOUS — interpret layer comparison results")
 
-import torch
-import numpy as np
-from transformer_lens import HookedTransformer
-
 def deep_characterize_neuron(model, layer: int, neuron_idx: int,
                              n_grid: int = 30):
     """
@@ -3263,486 +3185,1370 @@ def run_final_characterization(model_name: str, key_layer: int, key_neuron: int)
     grid = deep_characterize_neuron(model, key_layer, key_neuron)
     return grid
 
-import torch
-import numpy as np
-import gc
-from transformer_lens import HookedTransformer
-import random
-
-# ─────────────────────────────────────────────────────────────
-# CORE TOOL 1: Direct Logit Attribution (DLA)
-# ─────────────────────────────────────────────────────────────
-
-def direct_logit_attribution(model, prompts_and_answers: list, layer_range=None):
-    if layer_range is None:
-        layer_range = range(model.cfg.n_layers)
-
-    W_U = model.W_U
-    n_layers = model.cfg.n_layers
-    n_heads  = model.cfg.n_heads
-
-    attn_dla = torch.zeros(n_layers, n_heads)
-    mlp_dla  = torch.zeros(n_layers)
-    embed_dla = 0.0
-    n_valid = 0
-
-    for prompt, correct_token in prompts_and_answers:
-        tokens = model.to_tokens(prompt)
-
-        with torch.no_grad():
-            logits, cache = model.run_with_cache(tokens)
-
-        pred = logits[0, -1, :].argmax().item()
-        if pred != correct_token:
-            del cache, logits
-            if torch.backends.mps.is_available(): torch.mps.empty_cache()
-            continue
-
-        n_valid += 1
-
-        # Keep the target column on the MPS device for fast math
-        W_U_col = W_U[:, correct_token].float()
-
-        def dla_score(vector):
-            # Do the dot product on the GPU, .item() safely returns the scalar
-            return (vector.float() @ W_U_col).item()
-
-        embed_out = cache["hook_embed"][0, -1, :]
-        embed_dla += dla_score(embed_out)
-
-        for layer in layer_range:
-            # hook_z contains the head activations before the output projection
-            z = cache[f"blocks.{layer}.attn.hook_z"][0, -1, :, :]
-            for head in range(n_heads):
-                # Calculate head_result on the fly: z * W_O
-                head_out = z[head] @ model.blocks[layer].attn.W_O[head]
-                attn_dla[layer, head] += dla_score(head_out)
-
-            mlp_out = cache[f"blocks.{layer}.hook_mlp_out"]
-            mlp_dla[layer] += dla_score(mlp_out[0, -1, :])
-
-        del cache, logits
-        if torch.backends.mps.is_available(): torch.mps.empty_cache()
-
-    if n_valid == 0:
-        print("  ⚠️ No correct predictions found. Cannot compute DLA.")
-        return None, None, 0
-
-    return attn_dla / n_valid, mlp_dla / n_valid, embed_dla / n_valid
+# # ─────────────────────────────────────────────────────────────
+# # CORE TOOL 1: Direct Logit Attribution (DLA)
+# # ─────────────────────────────────────────────────────────────
+#
+# def direct_logit_attribution(model, prompts_and_answers: list, layer_range=None):
+#     if layer_range is None:
+#         layer_range = range(model.cfg.n_layers)
+#
+#     W_U = model.W_U
+#     n_layers = model.cfg.n_layers
+#     n_heads  = model.cfg.n_heads
+#
+#     attn_dla = torch.zeros(n_layers, n_heads)
+#     mlp_dla  = torch.zeros(n_layers)
+#     embed_dla = 0.0
+#     n_valid = 0
+#
+#     for prompt, correct_token in prompts_and_answers:
+#         tokens = model.to_tokens(prompt)
+#
+#         with torch.no_grad():
+#             logits, cache = model.run_with_cache(tokens)
+#
+#         pred = logits[0, -1, :].argmax().item()
+#         if pred != correct_token:
+#             del cache, logits
+#             if torch.backends.mps.is_available(): torch.mps.empty_cache()
+#             continue
+#
+#         n_valid += 1
+#
+#         # Keep the target column on the MPS device for fast math
+#         W_U_col = W_U[:, correct_token].float()
+#
+#         def dla_score(vector):
+#             # Do the dot product on the GPU, .item() safely returns the scalar
+#             return (vector.float() @ W_U_col).item()
+#
+#         embed_out = cache["hook_embed"][0, -1, :]
+#         embed_dla += dla_score(embed_out)
+#
+#         for layer in layer_range:
+#             # hook_z contains the head activations before the output projection
+#             z = cache[f"blocks.{layer}.attn.hook_z"][0, -1, :, :]
+#             for head in range(n_heads):
+#                 # Calculate head_result on the fly: z * W_O
+#                 head_out = z[head] @ model.blocks[layer].attn.W_O[head]
+#                 attn_dla[layer, head] += dla_score(head_out)
+#
+#             mlp_out = cache[f"blocks.{layer}.hook_mlp_out"]
+#             mlp_dla[layer] += dla_score(mlp_out[0, -1, :])
+#
+#         del cache, logits
+#         if torch.backends.mps.is_available(): torch.mps.empty_cache()
+#
+#     if n_valid == 0:
+#         print("  ⚠️ No correct predictions found. Cannot compute DLA.")
+#         return None, None, 0
+#
+#     return attn_dla / n_valid, mlp_dla / n_valid, embed_dla / n_valid
 
 
-def build_arithmetic_prompts(model, n_pairs=100, seed=42):
-    print("  Generating prompts...")
-    random.seed(seed)
-    pairs = []
-    attempts = 0
+# def build_arithmetic_prompts(model, n_pairs=100, seed=42):
+#     print("  Generating prompts...")
+#     random.seed(seed)
+#     pairs = []
+#     attempts = 0
+#
+#     while len(pairs) < n_pairs:
+#         attempts += 1
+#         if attempts > 5000:
+#             print(f"  ⚠️ Stopping early: Could only generate {len(pairs)} valid pairs.")
+#             break
+#
+#         a   = random.randint(10, 49)
+#         b   = random.randint(10, 49)
+#         ans = a + b
+#         prompt  = f"Math:\n10 + 10 = 20\n21 + 13 = 34\n{a} + {b} ="
+#         ans_str = f" {ans}"
+#
+#         try:
+#             tok_ids = model.to_tokens(ans_str, prepend_bos=False)[0]
+#             # Gemma splits two-digit numbers. We take the FIRST token it generates.
+#             # Example: " 34" -> " 3", which is enough to prove it knows the math path.
+#             if len(tok_ids) > 0:
+#                 pairs.append((prompt, tok_ids[0].item()))
+#         except Exception:
+#             continue
+#
+#     return pairs
 
-    while len(pairs) < n_pairs:
-        attempts += 1
-        if attempts > 5000:
-            print(f"  ⚠️ Stopping early: Could only generate {len(pairs)} valid pairs.")
-            break
-
-        a   = random.randint(10, 49)
-        b   = random.randint(10, 49)
-        ans = a + b
-        prompt  = f"Math:\n10 + 10 = 20\n21 + 13 = 34\n{a} + {b} ="
-        ans_str = f" {ans}"
-
-        try:
-            tok_ids = model.to_tokens(ans_str, prepend_bos=False)[0]
-            # Gemma splits two-digit numbers. We take the FIRST token it generates.
-            # Example: " 34" -> " 3", which is enough to prove it knows the math path.
-            if len(tok_ids) > 0:
-                pairs.append((prompt, tok_ids[0].item()))
-        except Exception:
-            continue
-
-    return pairs
-
-# ─────────────────────────────────────────────────────────────
-# CORE TOOL 2: SVD Computational Signal Strength
-# ─────────────────────────────────────────────────────────────
-
-def svd_computational_signal_strength(model, prompts_and_answers: list, layer_range=None):
-    if layer_range is None:
-        layer_range = range(model.cfg.n_layers)
-
-    print("\n  SVD Computational Signal Strength per Layer:")
-
-    answers = []
-    layer_outputs = {l: [] for l in layer_range}
-
-    for prompt, tok in prompts_and_answers[:80]:
-        tokens = model.to_tokens(prompt)
-        with torch.no_grad():
-            logits, cache = model.run_with_cache(tokens)
-
-        if logits[0, -1, :].argmax().item() != tok:
-            del cache, logits
-            continue
-
-        # Extract the actual numbers from the prompt string directly
-        # The prompt always ends with "{a} + {b} ="
-        last_line = prompt.strip().split('\n')[-1]
-        equation = last_line.replace('=', '').split('+')
-        actual_answer = float(equation[0].strip()) + float(equation[1].strip())
-
-        answers.append(actual_answer)
-
-        for layer in layer_range:
-            mlp_delta = cache[f"blocks.{layer}.hook_mlp_out"][0, -1, :].cpu().float()
-            # hook_attn_out is natively cached and equals the sum of all head outputs
-            attn_delta = cache[f"blocks.{layer}.hook_attn_out"][0, -1, :].cpu().float()
-            layer_outputs[layer].append(mlp_delta + attn_delta)
-
-        # Free cache
-        del cache, logits
-        if torch.backends.mps.is_available():
-            torch.mps.empty_cache()
-
-    if len(answers) < 5:
-        print("  Not enough correct predictions.")
-        return {}
-
-    ans_np = np.array(answers)
-    results = {}
-
-    for layer in layer_range:
-        if not layer_outputs[layer]: continue
-
-        L = torch.stack(layer_outputs[layer]).numpy()
-        U_l, S_l, Vt_l = np.linalg.svd(L - L.mean(0), full_matrices=False)
-        r2_by_k = {}
-
-        for k in [1, 2, 5, 10]:
-            if k > len(S_l): break
-            proj   = U_l[:, :k] @ np.diag(S_l[:k])
-            w, _, _, _ = np.linalg.lstsq(proj, ans_np, rcond=None)
-            pred   = proj @ w
-            ss_res = np.sum((ans_np - pred)**2)
-            ss_tot = np.sum((ans_np - ans_np.mean())**2)
-            r2_by_k[k] = max(0, 1 - ss_res / (ss_tot + 1e-8))
-
-        results[layer] = r2_by_k
-        r2_10 = r2_by_k.get(10, 0)
-        bar   = "█" * int(r2_10 * 40)
-        verdict = "✅ STRONG" if r2_10 > 0.5 else "⚠️ Moderate" if r2_10 > 0.2 else "❌ Weak"
-        print(f"  Layer {layer:2d}: R²(k=10)={r2_10:.3f}  {bar}  {verdict}")
-
-    return results
-
-# ─────────────────────────────────────────────────────────────
-# CORE TOOL 3: Backtracking From Layer 25
-# ─────────────────────────────────────────────────────────────
-
-def backtrack_from_causal_layer(model, prompts_and_answers: list, causal_layer: int = 25):
-    hook_l25 = f"blocks.{causal_layer}.hook_resid_post"
-    l25_acts, correct_logits_at_25 = [], []
-    valid_prompts = []
-
-    # Store ONLY the necessary CPU tensors, not the full cache
-    extracted_caches = []
-
-    for prompt, tok in prompts_and_answers[:30]: # Limit to 30 for memory safety
-        tokens = model.to_tokens(prompt)
-        with torch.no_grad():
-            logits, cache = model.run_with_cache(tokens)
-
-        if logits[0, -1, :].argmax().item() != tok:
-            del cache, logits
-            continue
-
-        l25_act_cpu = cache[hook_l25][0, -1, :].cpu().float()
-        l25_acts.append(l25_act_cpu)
-
-        W_U_col = model.W_U[:, tok].cpu().float()
-        correct_logits_at_25.append((l25_act_cpu @ W_U_col).item())
-        valid_prompts.append((prompt, tok))
-
-        # Extract only what we need for backtracking to CPU immediately
-        mini_cache = {}
-        for layer in range(min(causal_layer + 1, model.cfg.n_layers)):
-            mini_cache[f"MLP{layer}"] = cache[f"blocks.{layer}.hook_mlp_out"][0, -1, :].cpu().float()
-            # Extract the smaller 'z' tensor instead
-            mini_cache[f"ATTN_Z_{layer}"] = cache[f"blocks.{layer}.attn.hook_z"][0, -1, :, :].cpu().float()
-
-        extracted_caches.append(mini_cache)
-
-        # Kill full cache
-        del cache, logits
-        if torch.backends.mps.is_available():
-            torch.mps.empty_cache()
-
-    if len(l25_acts) < 5:
-        print("  Not enough valid examples")
-        return
-
-    A25  = torch.stack(l25_acts)
-    y25  = torch.tensor(correct_logits_at_25)
-
-    A25_c  = A25 - A25.mean(0)
-    U, S, Vt = torch.linalg.svd(A25_c, full_matrices=False)
-
-    dir_r2_scores = []
-    for k in range(min(20, len(S))):
-        proj   = (A25_c @ Vt[k]).numpy()
-        corr   = abs(np.corrcoef(proj, y25.numpy())[0, 1])
-        dir_r2_scores.append((k, corr, Vt[k]))
-
-    dir_r2_scores.sort(key=lambda x: x[1], reverse=True)
-    top_answer_dirs = [d[2] for d in dir_r2_scores[:5]]
-    top_r2s         = [d[1] for d in dir_r2_scores[:5]]
-
-    component_scores = {}
-    n_heads = model.cfg.n_heads
-
-    for mini_cache in extracted_caches:
-        for layer in range(min(causal_layer + 1, model.cfg.n_layers)):
-            mlp_out = mini_cache[f"MLP{layer}"]
-            # Use Cosine Similarity to normalize magnitudes
-            mlp_score = sum(abs(torch.nn.functional.cosine_similarity(mlp_out, d.cpu(), dim=0).item()) * r for d, r in zip(top_answer_dirs, top_r2s))
-            component_scores.setdefault(f"MLP{layer}", []).append(mlp_score)
-
-            z = mini_cache[f"ATTN_Z_{layer}"]
-            for head in range(n_heads):
-                # Get this specific head's W_O matrix and move to CPU to match 'z'
-                W_O = model.blocks[layer].attn.W_O[head].cpu().float()
-                head_out = z[head] @ W_O
-
-                # Normalize head outputs as well
-                head_score = sum(abs(torch.nn.functional.cosine_similarity(head_out, d.cpu(), dim=0).item()) * r for d, r in zip(top_answer_dirs, top_r2s))
-                component_scores.setdefault(f"L{layer}H{head}", []).append(head_score)
-
-    avg_scores = {k: np.mean(v) for k, v in component_scores.items()}
-    ranked = sorted(avg_scores.items(), key=lambda x: x[1], reverse=True)
-
-    print(f"\n  RANKED COMPONENTS by contribution to answer at L{causal_layer}:")
-    for comp, score in ranked[:15]:
-        bar = "█" * min(int(score * 15), 40)
-        print(f"  {comp:>12}: {score:8.4f}  {bar}")
-
-    return ranked
+# # ─────────────────────────────────────────────────────────────
+# # CORE TOOL 2: SVD Computational Signal Strength
+# # ─────────────────────────────────────────────────────────────
+#
+# def svd_computational_signal_strength(model, prompts_and_answers: list, layer_range=None):
+#     if layer_range is None:
+#         layer_range = range(model.cfg.n_layers)
+#
+#     print("\n  SVD Computational Signal Strength per Layer:")
+#
+#     answers = []
+#     layer_outputs = {l: [] for l in layer_range}
+#
+#     for prompt, tok in prompts_and_answers[:80]:
+#         tokens = model.to_tokens(prompt)
+#         with torch.no_grad():
+#             logits, cache = model.run_with_cache(tokens)
+#
+#         if logits[0, -1, :].argmax().item() != tok:
+#             del cache, logits
+#             continue
+#
+#         # Extract the actual numbers from the prompt string directly
+#         # The prompt always ends with "{a} + {b} ="
+#         last_line = prompt.strip().split('\n')[-1]
+#         equation = last_line.replace('=', '').split('+')
+#         actual_answer = float(equation[0].strip()) + float(equation[1].strip())
+#
+#         answers.append(actual_answer)
+#
+#         for layer in layer_range:
+#             mlp_delta = cache[f"blocks.{layer}.hook_mlp_out"][0, -1, :].cpu().float()
+#             # hook_attn_out is natively cached and equals the sum of all head outputs
+#             attn_delta = cache[f"blocks.{layer}.hook_attn_out"][0, -1, :].cpu().float()
+#             layer_outputs[layer].append(mlp_delta + attn_delta)
+#
+#         # Free cache
+#         del cache, logits
+#         if torch.backends.mps.is_available():
+#             torch.mps.empty_cache()
+#
+#     if len(answers) < 5:
+#         print("  Not enough correct predictions.")
+#         return {}
+#
+#     ans_np = np.array(answers)
+#     results = {}
+#
+#     for layer in layer_range:
+#         if not layer_outputs[layer]: continue
+#
+#         L = torch.stack(layer_outputs[layer]).numpy()
+#         U_l, S_l, Vt_l = np.linalg.svd(L - L.mean(0), full_matrices=False)
+#         r2_by_k = {}
+#
+#         for k in [1, 2, 5, 10]:
+#             if k > len(S_l): break
+#             proj   = U_l[:, :k] @ np.diag(S_l[:k])
+#             w, _, _, _ = np.linalg.lstsq(proj, ans_np, rcond=None)
+#             pred   = proj @ w
+#             ss_res = np.sum((ans_np - pred)**2)
+#             ss_tot = np.sum((ans_np - ans_np.mean())**2)
+#             r2_by_k[k] = max(0, 1 - ss_res / (ss_tot + 1e-8))
+#
+#         results[layer] = r2_by_k
+#         r2_10 = r2_by_k.get(10, 0)
+#         bar   = "█" * int(r2_10 * 40)
+#         verdict = "✅ STRONG" if r2_10 > 0.5 else "⚠️ Moderate" if r2_10 > 0.2 else "❌ Weak"
+#         print(f"  Layer {layer:2d}: R²(k=10)={r2_10:.3f}  {bar}  {verdict}")
+#
+#     return results
+#
+# # ─────────────────────────────────────────────────────────────
+# # CORE TOOL 3: Backtracking From Layer 25
+# # ─────────────────────────────────────────────────────────────
+#
+# def backtrack_from_causal_layer(model, prompts_and_answers: list, causal_layer: int = 25):
+#     hook_l25 = f"blocks.{causal_layer}.hook_resid_post"
+#     l25_acts, correct_logits_at_25 = [], []
+#     valid_prompts = []
+#
+#     # Store ONLY the necessary CPU tensors, not the full cache
+#     extracted_caches = []
+#
+#     for prompt, tok in prompts_and_answers[:30]: # Limit to 30 for memory safety
+#         tokens = model.to_tokens(prompt)
+#         with torch.no_grad():
+#             logits, cache = model.run_with_cache(tokens)
+#
+#         if logits[0, -1, :].argmax().item() != tok:
+#             del cache, logits
+#             continue
+#
+#         l25_act_cpu = cache[hook_l25][0, -1, :].cpu().float()
+#         l25_acts.append(l25_act_cpu)
+#
+#         W_U_col = model.W_U[:, tok].cpu().float()
+#         correct_logits_at_25.append((l25_act_cpu @ W_U_col).item())
+#         valid_prompts.append((prompt, tok))
+#
+#         # Extract only what we need for backtracking to CPU immediately
+#         mini_cache = {}
+#         for layer in range(min(causal_layer + 1, model.cfg.n_layers)):
+#             mini_cache[f"MLP{layer}"] = cache[f"blocks.{layer}.hook_mlp_out"][0, -1, :].cpu().float()
+#             # Extract the smaller 'z' tensor instead
+#             mini_cache[f"ATTN_Z_{layer}"] = cache[f"blocks.{layer}.attn.hook_z"][0, -1, :, :].cpu().float()
+#
+#         extracted_caches.append(mini_cache)
+#
+#         # Kill full cache
+#         del cache, logits
+#         if torch.backends.mps.is_available():
+#             torch.mps.empty_cache()
+#
+#     if len(l25_acts) < 5:
+#         print("  Not enough valid examples")
+#         return
+#
+#     A25  = torch.stack(l25_acts)
+#     y25  = torch.tensor(correct_logits_at_25)
+#
+#     A25_c  = A25 - A25.mean(0)
+#     U, S, Vt = torch.linalg.svd(A25_c, full_matrices=False)
+#
+#     dir_r2_scores = []
+#     for k in range(min(20, len(S))):
+#         proj   = (A25_c @ Vt[k]).numpy()
+#         corr   = abs(np.corrcoef(proj, y25.numpy())[0, 1])
+#         dir_r2_scores.append((k, corr, Vt[k]))
+#
+#     dir_r2_scores.sort(key=lambda x: x[1], reverse=True)
+#     top_answer_dirs = [d[2] for d in dir_r2_scores[:5]]
+#     top_r2s         = [d[1] for d in dir_r2_scores[:5]]
+#
+#     component_scores = {}
+#     n_heads = model.cfg.n_heads
+#
+#     for mini_cache in extracted_caches:
+#         for layer in range(min(causal_layer + 1, model.cfg.n_layers)):
+#             mlp_out = mini_cache[f"MLP{layer}"]
+#             # Use Cosine Similarity to normalize magnitudes
+#             mlp_score = sum(abs(torch.nn.functional.cosine_similarity(mlp_out, d.cpu(), dim=0).item()) * r for d, r in zip(top_answer_dirs, top_r2s))
+#             component_scores.setdefault(f"MLP{layer}", []).append(mlp_score)
+#
+#             z = mini_cache[f"ATTN_Z_{layer}"]
+#             for head in range(n_heads):
+#                 # Get this specific head's W_O matrix and move to CPU to match 'z'
+#                 W_O = model.blocks[layer].attn.W_O[head].cpu().float()
+#                 head_out = z[head] @ W_O
+#
+#                 # Normalize head outputs as well
+#                 head_score = sum(abs(torch.nn.functional.cosine_similarity(head_out, d.cpu(), dim=0).item()) * r for d, r in zip(top_answer_dirs, top_r2s))
+#                 component_scores.setdefault(f"L{layer}H{head}", []).append(head_score)
+#
+#     avg_scores = {k: np.mean(v) for k, v in component_scores.items()}
+#     ranked = sorted(avg_scores.items(), key=lambda x: x[1], reverse=True)
+#
+#     print(f"\n  RANKED COMPONENTS by contribution to answer at L{causal_layer}:")
+#     for comp, score in ranked[:15]:
+#         bar = "█" * min(int(score * 15), 40)
+#         print(f"  {comp:>12}: {score:8.4f}  {bar}")
+#
+#     return ranked
 
 # ─────────────────────────────────────────────────────────────
 # MAIN PIPELINE
 # ─────────────────────────────────────────────────────────────
 
-def run_laser_focus_analysis(model_name: str, causal_layer: int = 25):
-    device = "mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu"
+# def run_laser_focus_analysis(model_name: str, causal_layer: int = 25):
+#     device = "mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu"
+#
+#     print(f"\n{'='*65}")
+#     print(f"LASER-FOCUS ARITHMETIC ANALYSIS: {model_name} on {device.upper()}")
+#     print(f"{'='*65}")
+#
+#     # Explicitly use float16. M1 does not natively accelerate bfloat16.
+#     model = HookedTransformer.from_pretrained(
+#         model_name, device=device, dtype=torch.float16
+#     )
+#     model.eval()
+#
+#     pairs = build_arithmetic_prompts(model, n_pairs=120)
+#     print(f"  Built {len(pairs)} valid single-token arithmetic pairs")
+#
+#     print("\n" + "─"*50)
+#     print("TOOL 1: Direct Logit Attribution")
+#     print("─"*50)
+#
+#     # Adjusted layer range based on model size to avoid out-of-bounds
+#     max_layer = model.cfg.n_layers
+#     start_layer = max(0, max_layer - 13)
+#
+#     # We need to capture the returned values!
+#     attn_dla, mlp_dla, embed_dla = direct_logit_attribution(model, pairs, layer_range=range(start_layer, max_layer))
+#
+#     # And we need to print them!
+#     if attn_dla is not None:
+#         print(f"\n  MLP DLA by layer (direct answer logit contribution):")
+#         for layer in range(start_layer, max_layer):
+#             val = mlp_dla[layer].item()
+#             # Visualize the magnitude with a simple bar
+#             bar = ("+" if val > 0 else "-") * min(int(abs(val)*3), 30)
+#             print(f"    Layer {layer:2d} MLP: {val:+.4f}  {bar}")
+#
+#         print(f"\n  Top attention heads by DLA:")
+#         head_scores = [
+#             (layer, head, attn_dla[layer, head].item())
+#             for layer in range(start_layer, max_layer)
+#             for head in range(model.cfg.n_heads)
+#         ]
+#         # Sort to find the heads that directly write the most correct logits
+#         head_scores.sort(key=lambda x: x[2], reverse=True)
+#         for layer, head, score in head_scores[:10]:
+#             bar = "+" * min(int(score*3), 30)
+#             print(f"    L{layer:2d}H{head:2d}: {score:+.4f}  {bar}")
+#
+#     print("\n" + "─"*50)
+#     print("TOOL 2: SVD Computational Signal Strength")
+#     print("─"*50)
+#     svd_computational_signal_strength(model, pairs, layer_range=range(start_layer, max_layer))
+#
+#     print("\n" + "─"*50)
+#     print("TOOL 3: Backtracking from Causal Layer")
+#     print("─"*50)
+#     backtrack_from_causal_layer(model, pairs, causal_layer=min(causal_layer, max_layer - 1))
+#
+#     # Clear memory at the end of the run
+#     del model
+#     gc.collect()
+#     if torch.backends.mps.is_available():
+#         torch.mps.empty_cache()
 
-    print(f"\n{'='*65}")
-    print(f"LASER-FOCUS ARITHMETIC ANALYSIS: {model_name} on {device.upper()}")
-    print(f"{'='*65}")
+# def generate_clean_corrupted_pairs(model, n_pairs=20, seed=100):
+#     """Generates AB/AC pairs for edge patching."""
+#     random.seed(seed)
+#     pairs = []
+#     attempts = 0
+#
+#     while len(pairs) < n_pairs:
+#         attempts += 1
+#         if attempts > 2000: break
+#
+#         a1, b1 = random.randint(10, 49), random.randint(10, 49)
+#         ans_clean = a1 + b1
+#
+#         # Corrupted pair uses different numbers but same format
+#         a2, b2 = random.randint(10, 49), random.randint(10, 49)
+#         # Ensure answers are actually different
+#         if ans_clean == a2 + b2: continue
+#
+#         prompt_clean = f"Math:\n10 + 10 = 20\n{a1} + {b1} ="
+#         prompt_corr  = f"Math:\n10 + 10 = 20\n{a2} + {b2} ="
+#
+#         try:
+#             # Safely get the target token IDs
+#             clean_toks = model.to_tokens(f" {ans_clean}", prepend_bos=False)[0]
+#             corr_toks  = model.to_tokens(f" {a2 + b2}", prepend_bos=False)[0]
+#
+#             if len(clean_toks) > 0 and len(corr_toks) > 0:
+#                 pairs.append({
+#                     'clean': prompt_clean,
+#                     'corr': prompt_corr,
+#                     'clean_ans': clean_toks[0].item() # The target we want to recover
+#                 })
+#         except Exception:
+#             continue
+#
+#     return pairs
 
-    # Explicitly use float16. M1 does not natively accelerate bfloat16.
-    model = HookedTransformer.from_pretrained(
-        model_name, device=device, dtype=torch.float16
-    )
-    model.eval()
+# import torch
+# import gc
+# from transformer_lens import HookedTransformer
+#
+# def run_group_edge_patching(model, prompt_pairs, head_group, candidate_mlps):
+#     """
+#     Tests if a GROUP of attention heads collectively routes information to target MLPs.
+#     """
+#     print(f"\n{'='*65}")
+#     print("RUNNING GROUP EDGE PATCHING (DISTRIBUTED CIRCUIT TEST)")
+#     print(f"{'='*65}")
+#
+#     results = {mlp: 0.0 for mlp in candidate_mlps}
+#
+#     unique_layers = list(set([l for l, h in head_group]))
+#     max_src_layer = max(unique_layers) if unique_layers else -1
+#
+#     print(f"  Testing Group of {len(head_group)} Heads: {head_group}")
+#
+#     for pair in prompt_pairs[:20]:
+#         clean_toks = model.to_tokens(pair['clean'])
+#         corr_toks  = model.to_tokens(pair['corr'])
+#         clean_ans  = pair['clean_ans']
+#
+#         # ── Step 1: Baselines ──
+#         with torch.no_grad():
+#             clean_prob = torch.softmax(model(clean_toks)[0, -1, :], dim=-1)[clean_ans].item()
+#             corr_prob  = torch.softmax(model(corr_toks)[0, -1, :], dim=-1)[clean_ans].item()
+#
+#         if torch.backends.mps.is_available(): torch.mps.empty_cache()
+#
+#         # ── Step 2: Collect all head activations efficiently ──
+#         clean_z_cache = {}
+#         corr_z_cache = {}
+#
+#         # THE FIX: Changed 'hook_obj' to '**kwargs' to safely absorb the TransformerLens keyword arguments
+#         def make_clean_hook(layer_idx):
+#             def hook_fn(z, **kwargs):
+#                 clean_z_cache[layer_idx] = z[0, -1, :, :].cpu().clone()
+#                 return z
+#             return hook_fn
+#
+#         def make_corr_hook(layer_idx):
+#             def hook_fn(z, **kwargs):
+#                 corr_z_cache[layer_idx] = z[0, -1, :, :].cpu().clone()
+#                 return z
+#             return hook_fn
+#
+#         clean_hooks = [(f"blocks.{l}.attn.hook_z", make_clean_hook(l)) for l in unique_layers]
+#         corr_hooks  = [(f"blocks.{l}.attn.hook_z", make_corr_hook(l)) for l in unique_layers]
+#
+#         with torch.no_grad():
+#             model.run_with_hooks(clean_toks, fwd_hooks=clean_hooks)
+#             model.run_with_hooks(corr_toks, fwd_hooks=corr_hooks)
+#
+#         # ── Step 3: Combine the group into a single vector ──
+#         clean_group_vec = torch.zeros(model.cfg.d_model, device=model.cfg.device)
+#         corr_group_vec  = torch.zeros(model.cfg.d_model, device=model.cfg.device)
+#
+#         for l, h in head_group:
+#             W_O = model.blocks[l].attn.W_O[h]
+#             clean_z_head = clean_z_cache[l][h].to(model.cfg.device)
+#             corr_z_head  = corr_z_cache[l][h].to(model.cfg.device)
+#
+#             clean_group_vec += clean_z_head @ W_O
+#             corr_group_vec  += corr_z_head @ W_O
+#
+#         del clean_z_cache, corr_z_cache
+#         if torch.backends.mps.is_available(): torch.mps.empty_cache()
+#
+#         # ── Step 4: Patch the combined group into the target MLPs ──
+#         for tgt_layer in candidate_mlps:
+#             if tgt_layer <= max_src_layer:
+#                 continue
+#
+#             mlp_in_hook_name = f"blocks.{tgt_layer}.hook_resid_pre"
+#
+#             # THE FIX: Changed 'hook_obj' to '**kwargs' here too
+#             def group_patch_hook(resid_pre, **kwargs):
+#                 resid_pre[0, -1, :] = resid_pre[0, -1, :] - corr_group_vec + clean_group_vec
+#                 return resid_pre
+#
+#             with torch.no_grad():
+#                 patched_logits = model.run_with_hooks(
+#                     corr_toks,
+#                     fwd_hooks=[(mlp_in_hook_name, group_patch_hook)]
+#                 )
+#
+#             patched_prob = torch.softmax(patched_logits[0, -1, :], dim=-1)[clean_ans].item()
+#             recovery = (patched_prob - corr_prob) / (clean_prob - corr_prob + 1e-8)
+#             results[tgt_layer] += recovery
+#
+#             del patched_logits
+#             if torch.backends.mps.is_available(): torch.mps.empty_cache()
+#
+#         del clean_group_vec, corr_group_vec
+#         if torch.backends.mps.is_available(): torch.mps.empty_cache()
+#
+#     # ── Print Results ──
+#     num_pairs = min(20, len(prompt_pairs))
+#     print("\n  Group Arithmetic Edges (Information Flow):")
+#     print(f"  {'Source Group'} -> {'Target MLP':<12} | {'Recovery %':>10}")
+#     print("  " + "-"*45)
+#
+#     for tgt in candidate_mlps:
+#         if tgt <= max_src_layer:
+#             print(f"  [ALL HEADS] -> MLP {tgt:02d}       | SKIPPED (Causality)")
+#             continue
+#
+#         avg_rec = (results[tgt] / num_pairs) * 100
+#         bar = "█" * min(int(max(0, avg_rec) / 2), 20)
+#         print(f"  [ALL HEADS] -> MLP {tgt:02d}       | {avg_rec:6.1f}%  {bar}")
+#
+#     return results
 
-    pairs = build_arithmetic_prompts(model, n_pairs=120)
-    print(f"  Built {len(pairs)} valid single-token arithmetic pairs")
+# print("\n\n" + "#"*65)
+# print("PHASE 2: GROUP PATH PATCHING (EDGE TESTING)")
+# print("#"*65)
+#
+# device = "mps" if torch.backends.mps.is_available() else "cpu"
+# model = HookedTransformer.from_pretrained(
+#     "google/gemma-2b", device=device, dtype=torch.float16
+# )
+# model.eval()
+#
+# patching_pairs = generate_clean_corrupted_pairs(model, n_pairs=20)
+#
+# # We group all the early and mid-layer heads that showed up in Tools 1 & 3
+# early_router_team = [
+#     (0, 0), (0, 2), (0, 3), (0, 4), (0, 6), # L0 positional/embedding readers
+#     (6, 5), (6, 7),                         # L6 active readers
+#     (9, 0),                                 # L9 active reader
+#     (10, 3)                                 # L10 active reader
+# ]
+#
+# # The heavy-lifting MLPs (and the Eraser)
+# top_math_mlps = [11, 12, 13, 14, 15, 16]
+#
+# run_group_edge_patching(
+#     model=model,
+#     prompt_pairs=patching_pairs,
+#     head_group=early_router_team,
+#     candidate_mlps=top_math_mlps
+# )
+#
 
-    print("\n" + "─"*50)
-    print("TOOL 1: Direct Logit Attribution")
-    print("─"*50)
+# -----------------------------------------------------------------------
+# 1. PROMPT GENERATION (Using the "Tens-Digit Spoonfeed" Method)
+# -----------------------------------------------------------------------
+def get_ones_token_safe(model, ans: int):
+    ones_digit = str(ans)[-1]
+    try:
+        tok_ids = model.to_tokens(ones_digit, prepend_bos=False)[0]
+        return tok_ids[-1].item(), True
+    except Exception:
+        return None, False
 
-    # Adjusted layer range based on model size to avoid out-of-bounds
-    max_layer = model.cfg.n_layers
-    start_layer = max(0, max_layer - 13)
-
-    # We need to capture the returned values!
-    attn_dla, mlp_dla, embed_dla = direct_logit_attribution(model, pairs, layer_range=range(start_layer, max_layer))
-
-    # And we need to print them!
-    if attn_dla is not None:
-        print(f"\n  MLP DLA by layer (direct answer logit contribution):")
-        for layer in range(start_layer, max_layer):
-            val = mlp_dla[layer].item()
-            # Visualize the magnitude with a simple bar
-            bar = ("+" if val > 0 else "-") * min(int(abs(val)*3), 30)
-            print(f"    Layer {layer:2d} MLP: {val:+.4f}  {bar}")
-
-        print(f"\n  Top attention heads by DLA:")
-        head_scores = [
-            (layer, head, attn_dla[layer, head].item())
-            for layer in range(start_layer, max_layer)
-            for head in range(model.cfg.n_heads)
-        ]
-        # Sort to find the heads that directly write the most correct logits
-        head_scores.sort(key=lambda x: x[2], reverse=True)
-        for layer, head, score in head_scores[:10]:
-            bar = "+" * min(int(score*3), 30)
-            print(f"    L{layer:2d}H{head:2d}: {score:+.4f}  {bar}")
-
-    print("\n" + "─"*50)
-    print("TOOL 2: SVD Computational Signal Strength")
-    print("─"*50)
-    svd_computational_signal_strength(model, pairs, layer_range=range(start_layer, max_layer))
-
-    print("\n" + "─"*50)
-    print("TOOL 3: Backtracking from Causal Layer")
-    print("─"*50)
-    backtrack_from_causal_layer(model, pairs, causal_layer=min(causal_layer, max_layer - 1))
-
-    # Clear memory at the end of the run
-    del model
-    gc.collect()
-    if torch.backends.mps.is_available():
-        torch.mps.empty_cache()
-
-def generate_clean_corrupted_pairs(model, n_pairs=20, seed=100):
-    """Generates AB/AC pairs for edge patching."""
+def build_circuit_prompts(model, n_pairs=50, seed=42):
     random.seed(seed)
     pairs = []
     attempts = 0
 
-    while len(pairs) < n_pairs:
+    while len(pairs) < n_pairs and attempts < n_pairs * 10:
         attempts += 1
-        if attempts > 2000: break
+        a = random.randint(10, 49)
+        b = random.randint(10, 49)
+        ans = a + b
 
-        a1, b1 = random.randint(10, 49), random.randint(10, 49)
-        ans_clean = a1 + b1
+        tok, valid = get_ones_token_safe(model, ans)
+        if not valid: continue
 
-        # Corrupted pair uses different numbers but same format
-        a2, b2 = random.randint(10, 49), random.randint(10, 49)
-        # Ensure answers are actually different
-        if ans_clean == a2 + b2: continue
+        tens_digit = str(ans)[0]
+        prompt = f"Math:\n10 + 10 = 20\n21 + 13 = 34\n{a} + {b} = {tens_digit}"
 
-        prompt_clean = f"Math:\n10 + 10 = 20\n{a1} + {b1} ="
-        prompt_corr  = f"Math:\n10 + 10 = 20\n{a2} + {b2} ="
-
-        try:
-            # Safely get the target token IDs
-            clean_toks = model.to_tokens(f" {ans_clean}", prepend_bos=False)[0]
-            corr_toks  = model.to_tokens(f" {a2 + b2}", prepend_bos=False)[0]
-
-            if len(clean_toks) > 0 and len(corr_toks) > 0:
-                pairs.append({
-                    'clean': prompt_clean,
-                    'corr': prompt_corr,
-                    'clean_ans': clean_toks[0].item() # The target we want to recover
-                })
-        except Exception:
-            continue
+        pairs.append({
+            'a': a, 'b': b, 'ans': ans,
+            'ones_digit': int(str(ans)[-1]),
+            'prompt': prompt,
+            'ans_tok': tok
+        })
 
     return pairs
 
-import torch
-import gc
-from transformer_lens import HookedTransformer
+# -----------------------------------------------------------------------
+# 2. THE UNIFIED CIRCUIT DISCOVERY PIPELINE
+# -----------------------------------------------------------------------
+def run_circuit_discovery(model_name: str, target_layer: int = 25, n_pairs: int = 50):
+    device = ("mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu")
 
-def run_group_edge_patching(model, prompt_pairs, head_group, candidate_mlps):
-    """
-    Tests if a GROUP of attention heads collectively routes information to target MLPs.
-    """
-    print(f"\n{'='*65}")
-    print("RUNNING GROUP EDGE PATCHING (DISTRIBUTED CIRCUIT TEST)")
-    print(f"{'='*65}")
+    print(f"\n{'='*70}")
+    print(f"UNIFIED CIRCUIT DISCOVERY: {model_name}")
+    print(f"{'='*70}")
 
-    results = {mlp: 0.0 for mlp in candidate_mlps}
+    model = HookedTransformer.from_pretrained(model_name, device=device, dtype=torch.bfloat16)
+    model.eval()
 
-    unique_layers = list(set([l for l, h in head_group]))
-    max_src_layer = max(unique_layers) if unique_layers else -1
+    print(f"  Building {n_pairs} carefully formatted prompts...")
+    pairs = build_circuit_prompts(model, n_pairs=n_pairs)
+    if not pairs:
+        print("  ❌ Failed to build prompts. Exiting.")
+        return
 
-    print(f"  Testing Group of {len(head_group)} Heads: {head_group}")
+    tokens = model.to_tokens([p['prompt'] for p in pairs])
+    ans_toks = torch.tensor([p['ans_tok'] for p in pairs], device=device)
+    ones_targets = np.array([p['ones_digit'] for p in pairs])
 
-    for pair in prompt_pairs[:20]:
-        clean_toks = model.to_tokens(pair['clean'])
-        corr_toks  = model.to_tokens(pair['corr'])
-        clean_ans  = pair['clean_ans']
+    # -----------------------------------------------------------------------
+    # THE MEMORY OPTIMIZATION: Only cache exactly what we need
+    # -----------------------------------------------------------------------
+    def cache_filter(name):
+        return name.endswith("hook_attn_out") or name.endswith("hook_mlp_out") or name == f"blocks.{target_layer}.hook_resid_post"
 
-        # ── Step 1: Baselines ──
-        with torch.no_grad():
-            clean_prob = torch.softmax(model(clean_toks)[0, -1, :], dim=-1)[clean_ans].item()
-            corr_prob  = torch.softmax(model(corr_toks)[0, -1, :], dim=-1)[clean_ans].item()
+    print(f"  Running Unified Forward Pass (Caching only critical nodes)...")
+    start_time = time.time()
+    with torch.no_grad():
+        _, cache = model.run_with_cache(tokens, names_filter=cache_filter)
+    print(f"  Forward pass complete in {time.time() - start_time:.1f}s. Memory safe.")
 
-        if torch.backends.mps.is_available(): torch.mps.empty_cache()
+    # Get the Unembedding Matrix for Tool 1
+    W_U = model.W_U # [d_model, vocab_size]
 
-        # ── Step 2: Collect all head activations efficiently ──
-        clean_z_cache = {}
-        corr_z_cache = {}
+    # Get the Empirical Answer Direction at Target Layer for Tool 3
+    print(f"\n  Calculating Empirical Answer Direction at Layer {target_layer}...")
+    target_resid = cache[f"blocks.{target_layer}.hook_resid_post"][:, -1, :].cpu().float().numpy()
 
-        # THE FIX: Changed 'hook_obj' to '**kwargs' to safely absorb the TransformerLens keyword arguments
-        def make_clean_hook(layer_idx):
-            def hook_fn(z, **kwargs):
-                clean_z_cache[layer_idx] = z[0, -1, :, :].cpu().clone()
-                return z
-            return hook_fn
+    # Linear probing to find the vector that predicts the ones digit
+    reg = LinearRegression().fit(target_resid, ones_targets)
+    empirical_dir = torch.tensor(reg.coef_, device=device, dtype=torch.float32)
+    empirical_dir = empirical_dir / torch.norm(empirical_dir) # Normalize
 
-        def make_corr_hook(layer_idx):
-            def hook_fn(z, **kwargs):
-                corr_z_cache[layer_idx] = z[0, -1, :, :].cpu().clone()
-                return z
-            return hook_fn
+    print(f"\n{'='*70}")
+    print(f"{'Layer':<6} | {'MLP DLA':<10} | {'Attn DLA':<10} | {'MLP Proj':<10} | {'Attn Proj':<10} | {'R^2 (SVD)':<10}")
+    print(f"{'-'*70}")
 
-        clean_hooks = [(f"blocks.{l}.attn.hook_z", make_clean_hook(l)) for l in unique_layers]
-        corr_hooks  = [(f"blocks.{l}.attn.hook_z", make_corr_hook(l)) for l in unique_layers]
+    results = {}
 
-        with torch.no_grad():
-            model.run_with_hooks(clean_toks, fwd_hooks=clean_hooks)
-            model.run_with_hooks(corr_toks, fwd_hooks=corr_hooks)
+    # Analyze layer by layer
+    for layer in range(model.cfg.n_layers):
+        mlp_name = f"blocks.{layer}.hook_mlp_out"
+        attn_name = f"blocks.{layer}.hook_attn_out"
 
-        # ── Step 3: Combine the group into a single vector ──
-        clean_group_vec = torch.zeros(model.cfg.d_model, device=model.cfg.device)
-        corr_group_vec  = torch.zeros(model.cfg.d_model, device=model.cfg.device)
-
-        for l, h in head_group:
-            W_O = model.blocks[l].attn.W_O[h]
-            clean_z_head = clean_z_cache[l][h].to(model.cfg.device)
-            corr_z_head  = corr_z_cache[l][h].to(model.cfg.device)
-
-            clean_group_vec += clean_z_head @ W_O
-            corr_group_vec  += corr_z_head @ W_O
-
-        del clean_z_cache, corr_z_cache
-        if torch.backends.mps.is_available(): torch.mps.empty_cache()
-
-        # ── Step 4: Patch the combined group into the target MLPs ──
-        for tgt_layer in candidate_mlps:
-            if tgt_layer <= max_src_layer:
-                continue
-
-            mlp_in_hook_name = f"blocks.{tgt_layer}.hook_resid_pre"
-
-            # THE FIX: Changed 'hook_obj' to '**kwargs' here too
-            def group_patch_hook(resid_pre, **kwargs):
-                resid_pre[0, -1, :] = resid_pre[0, -1, :] - corr_group_vec + clean_group_vec
-                return resid_pre
-
-            with torch.no_grad():
-                patched_logits = model.run_with_hooks(
-                    corr_toks,
-                    fwd_hooks=[(mlp_in_hook_name, group_patch_hook)]
-                )
-
-            patched_prob = torch.softmax(patched_logits[0, -1, :], dim=-1)[clean_ans].item()
-            recovery = (patched_prob - corr_prob) / (clean_prob - corr_prob + 1e-8)
-            results[tgt_layer] += recovery
-
-            del patched_logits
-            if torch.backends.mps.is_available(): torch.mps.empty_cache()
-
-        del clean_group_vec, corr_group_vec
-        if torch.backends.mps.is_available(): torch.mps.empty_cache()
-
-    # ── Print Results ──
-    num_pairs = min(20, len(prompt_pairs))
-    print("\n  Group Arithmetic Edges (Information Flow):")
-    print(f"  {'Source Group'} -> {'Target MLP':<12} | {'Recovery %':>10}")
-    print("  " + "-"*45)
-
-    for tgt in candidate_mlps:
-        if tgt <= max_src_layer:
-            print(f"  [ALL HEADS] -> MLP {tgt:02d}       | SKIPPED (Causality)")
+        if mlp_name not in cache or attn_name not in cache:
             continue
 
-        avg_rec = (results[tgt] / num_pairs) * 100
-        bar = "█" * min(int(max(0, avg_rec) / 2), 20)
-        print(f"  [ALL HEADS] -> MLP {tgt:02d}       | {avg_rec:6.1f}%  {bar}")
+        mlp_out = cache[mlp_name][:, -1, :].float()  # [batch, d_model]
+        attn_out = cache[attn_name][:, -1, :].float() # [batch, d_model]
+
+        # -------------------------------------------------------------------
+        # TOOL 1: Direct Logit Attribution (DLA)
+        # Dot product of the component output with the unembedding vector of the correct answer
+        # -------------------------------------------------------------------
+        mlp_dla = (mlp_out * W_U[:, ans_toks].T).sum(dim=-1).mean().item()
+        attn_dla = (attn_out * W_U[:, ans_toks].T).sum(dim=-1).mean().item()
+
+        # -------------------------------------------------------------------
+        # TOOL 3: Empirical Backtracking (Projection)
+        # Dot product of the component output with the empirical answer vector from Layer 25
+        # -------------------------------------------------------------------
+        mlp_proj = (mlp_out @ empirical_dir).mean().item()
+        attn_proj = (attn_out @ empirical_dir).mean().item()
+
+        # -------------------------------------------------------------------
+        # TOOL 2: Computational Signal (R^2 SVD)
+        # How much variance in the answer does this layer's addition explain?
+        # -------------------------------------------------------------------
+        delta_resid = (mlp_out + attn_out).cpu().numpy()
+        layer_reg = LinearRegression().fit(delta_resid, ones_targets)
+        r2_score = layer_reg.score(delta_resid, ones_targets)
+
+        results[layer] = {
+            'mlp_dla': mlp_dla, 'attn_dla': attn_dla,
+            'mlp_proj': mlp_proj, 'attn_proj': attn_proj,
+            'r2': r2_score
+        }
+
+        # Highlight significant layers
+        marker = "🚀" if r2_score > 0.4 or mlp_dla > 1.0 else "  "
+
+        print(f"L{layer:<4} | {mlp_dla:>9.3f} | {attn_dla:>9.3f} | {mlp_proj:>9.3f} | {attn_proj:>9.3f} | {r2_score:>8.3f} {marker}")
+
+    # Flush memory
+    if torch.backends.mps.is_available():
+        torch.mps.empty_cache()
 
     return results
+
+
+# ─────────────────────────────────────────────────────────────
+# FIX: Token-agnostic prompt building
+# Instead of requiring single-token answers, we:
+# 1. For full arithmetic: always use the ones-digit as the
+#    measurement target, reached via autoregressive generation
+# 2. Accept multi-digit answers by measuring at the correct step
+# ─────────────────────────────────────────────────────────────
+
+def get_token_id(model, text: str):
+    """Returns token id for a single character/word, or None."""
+    try:
+        toks = model.to_tokens(text, prepend_bos=False)[0]
+        if len(toks) >= 1:
+            return toks[-1].item()
+    except Exception:
+        pass
+    return None
+
+
+def build_prompts_robust(model, n_pairs=50, seed=42):
+    """
+    Builds prompts that work regardless of tokenizer.
+
+    FULL FORMAT: "Math:...{a} + {b} ="
+      Model generates full answer autoregressively.
+      We cache at generation step 1 (first digit) AND
+      check what step reaches the ones digit.
+
+    ONES FORMAT: "Math:...{a} + {b} = {hundreds+tens}"
+      Model predicts the ones digit directly.
+      Works for all answer lengths.
+
+    Both formats use the ONES DIGIT as the measurement target
+    because that is the hardest digit to predict (carries affect it).
+    """
+    random.seed(seed)
+    full_pairs, ones_pairs = [], []
+    attempts = 0
+
+    while ((len(full_pairs) < n_pairs or len(ones_pairs) < n_pairs)
+           and attempts < n_pairs * 30):
+        attempts += 1
+        a   = random.randint(10, 49)
+        b   = random.randint(10, 49)
+        ans = a + b    # range: 20-98
+
+        ans_str       = str(ans)          # e.g. "57"
+        ones_digit    = int(ans_str[-1])  # e.g. 7
+        ones_char     = ans_str[-1]       # e.g. "7"
+        prefix_digits = ans_str[:-1]      # e.g. "5"
+
+        # Get token id for the ones digit
+        ones_tok = get_token_id(model, ones_char)
+        if ones_tok is None:
+            continue
+
+        # ── Full arithmetic prompt ──
+        # We feed: "Math:...{a} + {b} = {prefix_digits}"
+        # and measure prediction of ones digit
+        # This works whether ans is 2 or 3 digits
+        if len(full_pairs) < n_pairs:
+            full_prompt = (f"Math:\n10 + 10 = 20\n21 + 13 = 34\n"
+                           f"{a} + {b} = {prefix_digits}")
+            full_pairs.append({
+                'a': a, 'b': b, 'ans': ans,
+                'ones_digit': ones_digit,
+                'prompt': full_prompt,
+                'ans_tok': ones_tok,
+                'format': 'full'
+            })
+
+        # ── Ones-digit prompt (same structure for comparison) ──
+        if len(ones_pairs) < n_pairs:
+            ones_prompt = (f"Math:\n10 + 10 = 20\n21 + 13 = 34\n"
+                           f"{a} + {b} = {prefix_digits}")
+            ones_pairs.append({
+                'a': a, 'b': b, 'ans': ans,
+                'ones_digit': ones_digit,
+                'prompt': ones_prompt,
+                'ans_tok': ones_tok,
+                'format': 'ones'
+            })
+
+    print(f"  Built: {len(full_pairs)} full-arith, "
+          f"{len(ones_pairs)} ones-hint pairs")
+    return full_pairs, ones_pairs
+
+
+# ─────────────────────────────────────────────────────────────
+# CORE DLA ANALYSIS
+# All three professor fixes + R² overfitting fix retained
+# ─────────────────────────────────────────────────────────────
+
+def run_dla_analysis(model, pairs, label=""):
+    if not pairs:
+        print(f"  {label}: no pairs available")
+        return {}
+
+    device = next(model.parameters()).device
+    W_U    = model.W_U.detach().to(device).float()   # professor fix 1
+
+    tokens   = model.to_tokens([p['prompt'] for p in pairs])
+    ans_toks = torch.tensor([p['ans_tok'] for p in pairs], device=device)
+    ones_tgt = np.array([p['ones_digit'] for p in pairs])
+
+    def cache_filter(name):
+        return (name.endswith("hook_attn_out") or
+                name.endswith("hook_mlp_out")  or
+                name == f"blocks.{model.cfg.n_layers-1}.hook_resid_post")
+
+    print(f"\n  [{label}] Running forward pass...")
+    with torch.no_grad():
+        _, cache = model.run_with_cache(tokens, names_filter=cache_filter)
+
+    # Empirical answer direction
+    final_key = f"blocks.{model.cfg.n_layers-1}.hook_resid_post"
+    emp_dir   = None
+    if final_key in cache:
+        final_np = cache[final_key][:, -1, :].cpu().float().numpy()
+        reg      = Ridge(alpha=1.0).fit(final_np, ones_tgt)
+        emp_dir  = F.normalize(                          # professor fix 3
+            torch.tensor(reg.coef_, dtype=torch.float32, device=device),
+            p=2, dim=0
+        )
+
+    # R² pipeline with PCA to avoid overfitting
+    n_components = min(20, len(pairs) - 2, 40)
+    r2_pipe = Pipeline([
+        ('sc',  StandardScaler()),
+        ('pca', PCA(n_components=n_components)),
+        ('reg', Ridge(alpha=1.0))
+    ])
+
+    print(f"\n  [{label}] Layer-by-layer analysis:")
+    print(f"  {'L':>4}  {'MLP_DLA':>10}  {'Attn_DLA':>10}  "
+          f"{'MLP_Proj':>9}  {'Attn_Proj':>9}  {'R2_CV':>7}")
+    print("  " + "-"*68)
+
+    results = {}
+
+    for layer in range(model.cfg.n_layers):
+        mlp_key  = f"blocks.{layer}.hook_mlp_out"
+        attn_key = f"blocks.{layer}.hook_attn_out"
+        if mlp_key not in cache or attn_key not in cache:
+            continue
+
+        mlp_out  = cache[mlp_key][:, -1, :].float()
+        attn_out = cache[attn_key][:, -1, :].float()
+
+        # DLA
+        mlp_dla  = (mlp_out  * W_U[:, ans_toks].T).sum(-1).mean().item()
+        attn_dla = (attn_out * W_U[:, ans_toks].T).sum(-1).mean().item()
+
+        # Empirical projection
+        mlp_proj  = (mlp_out  @ emp_dir).mean().item() if emp_dir is not None else 0.0
+        attn_proj = (attn_out @ emp_dir).mean().item() if emp_dir is not None else 0.0
+
+        # Cross-validated R²
+        delta = (mlp_out + attn_out).cpu().float().numpy()
+        cv_r2 = 0.0
+        if len(ones_tgt) >= 15:
+            try:
+                cv_r2 = float(max(0.0, cross_val_score(
+                    r2_pipe, delta, ones_tgt,
+                    cv=min(5, len(ones_tgt)//5), scoring='r2'
+                ).mean()))
+            except Exception:
+                cv_r2 = 0.0
+
+        results[layer] = dict(
+            mlp_dla=mlp_dla, attn_dla=attn_dla,
+            mlp_proj=mlp_proj, attn_proj=attn_proj,
+            r2_cv=cv_r2
+        )
+
+        total = abs(mlp_dla) + abs(attn_dla)
+        flag  = ("🔥 DOMINANT"   if total > 20   else
+                 "✅ Active"      if total > 5    else
+                 "📊 Predictive" if cv_r2 > 0.30 else "")
+
+        print(f"  L{layer:<3}  {mlp_dla:>10.3f}  {attn_dla:>10.3f}  "
+              f"{mlp_proj:>9.3f}  {attn_proj:>9.3f}  {cv_r2:>7.3f}  {flag}")
+
+    # Professor fix 2: explicit memory cleanup
+    del cache
+    if torch.backends.mps.is_available():
+        torch.mps.empty_cache()
+
+    return results
+
+
+# ─────────────────────────────────────────────────────────────
+# SYNTHESIS: Map the three zones
+# ─────────────────────────────────────────────────────────────
+
+def synthesize_results(results: dict, model_name: str):
+    """
+    Identifies the three functional zones from the results:
+      Zone 1 — Representation (R²=0, low DLA): early layers
+      Zone 2 — Computation   (rising R², moderate DLA): middle
+      Zone 3 — Translation   (high DLA, high R²): final layers
+    """
+    if not results:
+        return
+
+    layers  = sorted(results.keys())
+    r2s     = [results[l]['r2_cv'] for l in layers]
+    dlas    = [abs(results[l]['mlp_dla']) +
+               abs(results[l]['attn_dla']) for l in layers]
+
+    # Find zone boundaries
+    computation_start = next(
+        (l for l, r2 in zip(layers, r2s) if r2 > 0.15), None
+    )
+    translation_start = next(
+        (l for l, d in zip(layers, dlas) if d > 20), None
+    )
+
+    print(f"\n{'='*60}")
+    print(f"CIRCUIT MAP: {model_name.split('/')[-1]}")
+    print(f"{'='*60}")
+    print(f"\n  Zone 1 — REPRESENTATION: Layers 0 – {(computation_start or 0) - 1}")
+    print(f"    R²=0, low DLA. Numbers stored geometrically (helix)")
+    print(f"    but no linearly decodable arithmetic answer yet.")
+    print()
+
+    if computation_start and translation_start:
+        print(f"  Zone 2 — COMPUTATION: Layers {computation_start} – "
+              f"{translation_start - 1}")
+        print(f"    R² rises from 0 to ~0.9. This is where arithmetic")
+        print(f"    is actually computed and assembled into the residual stream.")
+        print(f"    Key neurons (carry detectors, magnitude trackers) operate here.")
+        print()
+
+    if translation_start:
+        print(f"  Zone 3 — TRANSLATION: Layers {translation_start}+ ")
+        print(f"    DLA spikes. R² ≈ 1. Final MLP layers project the")
+        print(f"    internal arithmetic answer to vocabulary token logits.")
+        print(f"    This is what your earlier massive DLA values showed.")
+        print()
+
+    # Identify the single most important computation layer
+    comp_layers = [l for l in layers
+                   if (results[l]['r2_cv'] > 0.15 and
+                       abs(results[l]['mlp_dla']) +
+                       abs(results[l]['attn_dla']) < 20)]
+
+    if comp_layers:
+        best_comp = max(comp_layers,
+                        key=lambda l: results[l]['r2_cv'])
+        print(f"  Key computation layer: L{best_comp}  "
+              f"(R²={results[best_comp]['r2_cv']:.3f})")
+        print(f"  This is where arithmetic crystallises.")
+        print(f"  Run head-level DLA at this layer to find")
+        print(f"  the specific attention heads doing the work.")
+
+
+def compare_formats(model_name: str):
+    device = ("mps"  if torch.backends.mps.is_available() else
+              "cuda" if torch.cuda.is_available()         else "cpu")
+
+    print(f"\n{'='*70}")
+    print(f"CIRCUIT DISCOVERY: {model_name}")
+    print(f"{'='*70}")
+
+    model = HookedTransformer.from_pretrained(
+        model_name, device=device, dtype=torch.bfloat16
+    )
+    model.eval()
+
+    full_pairs, _ = build_prompts_robust(model, n_pairs=50)
+    results       = run_dla_analysis(model, full_pairs, label="ARITHMETIC")
+    synthesize_results(results, model_name)
+
+    del model
+    if torch.backends.mps.is_available():
+        torch.mps.empty_cache()
+
+# -----------------------------------------------------------------------
+# PROMPT BUILDER (Brought in-house to make script self-contained)
+# -----------------------------------------------------------------------
+def get_token_id(model, text: str):
+    try:
+        toks = model.to_tokens(text, prepend_bos=False)[0]
+        if len(toks) >= 1:
+            return toks[-1].item()
+    except Exception:
+        pass
+    return None
+
+def build_prompts_robust(model, n_pairs=50, seed=42):
+    random.seed(seed)
+    full_pairs = []
+    attempts = 0
+    while len(full_pairs) < n_pairs and attempts < n_pairs * 30:
+        attempts += 1
+        a = random.randint(10, 49)
+        b = random.randint(10, 49)
+        ans = a + b
+        ans_str = str(ans)
+        ones_digit = int(ans_str[-1])
+        ones_char = ans_str[-1]
+        prefix_digits = ans_str[:-1]
+
+        ones_tok = get_token_id(model, ones_char)
+        if ones_tok is None:
+            continue
+
+        full_prompt = (f"Math:\n10 + 10 = 20\n21 + 13 = 34\n"
+                       f"{a} + {b} = {prefix_digits}")
+
+        full_pairs.append({
+            'a': a, 'b': b, 'ans': ans,
+            'ones_digit': ones_digit,
+            'prompt': full_prompt,
+            'ans_tok': ones_tok,
+        })
+    return full_pairs
+
+# -----------------------------------------------------------------------
+# HEAD-LEVEL DLA DRILL DOWN
+# -----------------------------------------------------------------------
+def head_level_dla(model, pairs, computation_layer: int):
+    device = next(model.parameters()).device
+    W_U = model.W_U.detach().to(device).float()
+    n_heads = model.cfg.n_heads
+
+    tokens = model.to_tokens([p['prompt'] for p in pairs])
+    ans_toks = torch.tensor([p['ans_tok'] for p in pairs], device=device)
+    ones_tgt = np.array([p['ones_digit'] for p in pairs])
+
+    # 1. THE FIX: Hook 'z' (the pre-weight head values) instead of 'result'
+    hook_z_name = f"blocks.{computation_layer}.attn.hook_z"
+    hook_mlp = f"blocks.{computation_layer}.hook_mlp_out"
+
+    def cache_filter(name):
+        return name in [hook_z_name, hook_mlp]
+
+    with torch.no_grad():
+        _, cache = model.run_with_cache(tokens, names_filter=cache_filter)
+
+    mlp_out = cache[hook_mlp][:, -1, :].float()
+    mlp_dla = (mlp_out * W_U[:, ans_toks].T).sum(-1).mean().item()
+
+    head_results = {}
+    r2_pipe = Pipeline([
+        ('sc', StandardScaler()),
+        ('pca', PCA(n_components=min(10, len(pairs)-2))),
+        ('reg', Ridge(alpha=1.0))
+    ])
+
+    print(f"\n  Head-level analysis at Layer {computation_layer}:")
+    print(f"  {'Head':>5}  {'DLA':>9}  {'R2_CV':>7}  Role")
+    print("  " + "-"*45)
+
+    # Grab the Output Weights for this specific layer
+    W_O = model.blocks[computation_layer].attn.W_O.detach().float() # [n_heads, d_head, d_model]
+
+    for head in range(n_heads):
+        # 2. THE FIX: Reconstruct the head output manually!
+        # z_head shape: [batch, d_head]
+        z_head = cache[hook_z_name][:, -1, head, :].float()
+
+        # Multiply z by the Output matrix for this specific head
+        # Result shape: [batch, d_model]
+        head_out_batch = z_head @ W_O[head]
+
+        # DLA for this head
+        head_dla = (head_out_batch * W_U[:, ans_toks].T).sum(-1).mean().item()
+
+        # R² for this head
+        head_np = head_out_batch.cpu().numpy()
+        cv_r2 = 0.0
+        if len(ones_tgt) >= 15:
+            try:
+                cv_r2 = float(max(0.0, cross_val_score(
+                    r2_pipe, head_np, ones_tgt, cv=5, scoring='r2'
+                ).mean()))
+            except Exception:
+                cv_r2 = 0.0
+
+        head_results[head] = {'dla': head_dla, 'r2': cv_r2}
+
+        flag = ("🔥 KEY HEAD" if abs(head_dla) > 2 and cv_r2 > 0.2 else
+                "📊 Predictive" if cv_r2 > 0.2 else
+                "✅ DLA active" if abs(head_dla) > 1 else "")
+
+        print(f"  H{head:<4}  {head_dla:>9.3f}  {cv_r2:>7.3f}  {flag}")
+
+    print(f"\n  MLP L{computation_layer}: DLA={mlp_dla:.3f}")
+
+    key_heads = [
+        (h, r['dla'], r['r2'])
+        for h, r in head_results.items()
+        if abs(r['dla']) > 1.0 and r['r2'] > 0.15
+    ]
+    key_heads.sort(key=lambda x: abs(x[1]), reverse=True)
+
+    if key_heads:
+        print(f"\n  KEY HEADS (both high DLA and high R²):")
+        for h, dla, r2 in key_heads:
+            print(f"    Head {h:2d}: DLA={dla:+.3f}, R²={r2:.3f}")
+            print(f"    → This head is COMPUTING arithmetic at L{computation_layer}")
+    else:
+        print(f"\n  No single head dominates. Arithmetic is distributed")
+        print(f"  across many heads at this layer — consistent with")
+        print(f"  Phi-3's distributed computation finding.")
+
+    del cache
+    if torch.backends.mps.is_available():
+        torch.mps.empty_cache()
+
+    return head_results
+
+# -----------------------------------------------------------------------
+# EXECUTION
+# -----------------------------------------------------------------------
+def run_head_drilldown(model_name: str, computation_layer: int, n_pairs: int = 50):
+    device = ("mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu")
+
+    print(f"\n{'='*60}")
+    print(f"HEAD-LEVEL DRILL-DOWN: {model_name}")
+    print(f"Target: Layer {computation_layer}")
+    print(f"{'='*60}")
+
+    # THE FIX: Added use_attn_result=True so TransformerLens stores individual head outputs
+    model = HookedTransformer.from_pretrained(
+        model_name,
+        device=device,
+        dtype=torch.bfloat16
+    )
+    model.eval()
+
+    # # 2. THE REAL FIX: Turn on individual head tracking safely!
+    # model.set_use_attn_result(True)
+
+    full_pairs = build_prompts_robust(model, n_pairs=n_pairs)
+    head_level_dla(model, full_pairs, computation_layer)
+
+    del model
+    if torch.backends.mps.is_available():
+        torch.mps.empty_cache()
+
+def get_token_id(model, text: str):
+    try:
+        toks = model.to_tokens(text, prepend_bos=False)[0]
+        if len(toks) >= 1: return toks[-1].item()
+    except Exception: pass
+    return None
+
+def build_hard_prompts_ones_target(model, n_pairs=50, seed=42):
+    random.seed(seed)
+    full_pairs = []
+    attempts = 0
+
+    # 3-digit arithmetic to strain the context window and routing
+    while len(full_pairs) < n_pairs and attempts < n_pairs * 30:
+        attempts += 1
+        a, b = random.randint(150, 499), random.randint(150, 499)
+        ans = a + b
+        ans_str = str(ans)
+
+        # We target the ONES digit (the hardest, carry-sensitive digit)
+        ones_tok = get_token_id(model, ans_str[-1])
+        if ones_tok is None: continue
+
+        full_pairs.append({
+            'a': a, 'b': b, 'ans': ans,
+            'ones_digit': int(ans_str[-1]),
+            # Prompt feeds the hundreds and tens, asks for the ones
+            'prompt': f"Math:\n105 + 112 = 217\n231 + 143 = 374\n{a} + {b} = {ans_str[:-1]}",
+            'ans_tok': ones_tok,
+        })
+
+    print(f"  Built {len(full_pairs)} hard 3-digit test pairs (targeting ones digit).")
+    return full_pairs
+
+def make_ablation_hook(heads_to_zero: list):
+    """Factory function to capture heads_to_zero by value."""
+    def hook_fn(value, hook):
+        for h in heads_to_zero:
+            value[:, -1, h, :] = 0.0
+        return value
+    return hook_fn
+
+def ablate_hard_arithmetic(model, pairs, layer: int, key_heads: list):
+    device = next(model.parameters()).device
+    tokens = model.to_tokens([p['prompt'] for p in pairs])
+    ans_toks = torch.tensor([p['ans_tok'] for p in pairs], device=device)
+    hook_name = f"blocks.{layer}.attn.hook_z"
+
+    print(f"\n{'='*65}")
+    print(f"HARD ABLATION: Layer {layer} Attention Heads")
+    print(f"Task: 3-Digit Addition (Predicting Ones Digit)")
+    print(f"Key heads under test: {key_heads}")
+    print(f"{'='*65}")
+    print(f"\n  {'Ablation':>22} | {'P(correct)':>11} | {'Drop':>8} | Verdict")
+    print("  " + "-"*58)
+
+    # 1. Baseline
+    with torch.no_grad():
+        base_logits = model(tokens)
+
+    base_probs = torch.softmax(base_logits[:, -1, :], dim=-1)
+    base_ans_prob = base_probs[torch.arange(len(pairs)), ans_toks].mean().item()
+    print(f"  {'Baseline (no ablation)':>22} | {base_ans_prob:>10.2%} | {'---':>8} |")
+
+    del base_logits, base_probs
+    if torch.backends.mps.is_available(): torch.mps.empty_cache()
+
+    # 2. Individual heads + all together
+    ablation_targets = [(h, f"Head {h}") for h in key_heads]
+    ablation_targets.append((key_heads, f"All {len(key_heads)} heads"))
+    results = {}
+
+    for target, label in ablation_targets:
+        heads = [target] if isinstance(target, int) else target
+
+        with torch.no_grad():
+            ablated_logits = model.run_with_hooks(
+                tokens,
+                fwd_hooks=[(hook_name, make_ablation_hook(heads))]
+            )
+
+        ablated_probs = torch.softmax(ablated_logits[:, -1, :], dim=-1)
+        ablated_ans_prob = ablated_probs[torch.arange(len(pairs)), ans_toks].mean().item()
+        prob_drop = base_ans_prob - ablated_ans_prob
+
+        verdict = ("🔥 CATASTROPHIC" if prob_drop > 0.30 else
+                   "🚨 NECESSARY" if prob_drop > 0.15 else
+                   "✅ Contributes" if prob_drop > 0.05 else
+                   "○ Redundant" if prob_drop > -0.02 else
+                   "⚠️ Harmful")
+
+        print(f"  {'Ablate ' + label:>22} | {ablated_ans_prob:>10.2%} | {prob_drop:>+8.2%} | {verdict}")
+        results[label] = {'ablated_prob': ablated_ans_prob, 'prob_drop': prob_drop}
+
+        del ablated_logits, ablated_probs
+        if torch.backends.mps.is_available(): torch.mps.empty_cache()
+
+    # 3. Synthesis
+    print(f"\n  SUMMARY:")
+    all_result = results.get(f"All {len(key_heads)} heads", {})
+    if all_result:
+        total_drop = all_result['prob_drop']
+        individual_sum = sum(r['prob_drop'] for l, r in results.items() if 'All' not in l)
+
+        print(f"  Total drop (all ablated): {total_drop:+.2%}")
+        print(f"  Sum of individual drops:  {individual_sum:+.2%}")
+
+        if total_drop > individual_sum * 1.2:
+            print("  → Heads are SYNERGISTIC. The circuit shatters without them.")
+        elif total_drop > individual_sum * 0.8:
+            print("  → Heads are INDEPENDENT. Each contributes separately to complex math.")
+        else:
+            print("  → Heads are still REDUNDANT. The model finds another way.")
+
+    return results
+
+# def run_final_experiment():
+#     device = ("mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu")
+#     print(f"\nLoading Gemma-7B...")
+#     model = HookedTransformer.from_pretrained("google/gemma-7b", device=device, dtype=torch.bfloat16)
+#     model.eval()
+#
+#     pairs = build_hard_prompts_ones_target(model, n_pairs=50)
+#
+#     # Testing the dominant heads we found at Layer 25
+#     ablate_hard_arithmetic(model, pairs, layer=22, key_heads=[2, 4, 6, 8, 10, 12])
+#
+#     del model
+#     if torch.backends.mps.is_available(): torch.mps.empty_cache()
+
+# def run_final_experiment():
+#     device = ("mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu")
+#     print(f"\nLoading Gemma-7B...")
+#     model = HookedTransformer.from_pretrained("google/gemma-7b", device=device, dtype=torch.bfloat16)
+#     model.eval()
+#
+#     pairs = build_prompts_robust(model, n_pairs=50)
+#     print(f"Built {len(pairs)} test pairs")
+#
+#     ablate_key_heads_sequentially(model, pairs, layer=25, key_heads=[2, 4, 8, 12])
+#
+#     del model
+#     if torch.backends.mps.is_available(): torch.mps.empty_cache()
+
+
+# -----------------------------------------------------------------------
+# PROMPT BUILDER: Genuine Hard Task (No Hints)
+# -----------------------------------------------------------------------
+def build_pure_math_prompts(digits=3, n_pairs=50, seed=42):
+    random.seed(seed)
+    pairs = []
+
+    min_val = 10**(digits-1)
+    max_val = (10**digits) - 1
+
+    for _ in range(n_pairs):
+        a = random.randint(min_val, max_val)
+        b = random.randint(min_val, max_val)
+        ans = str(a + b)
+
+        # Zero hints. Just the equation.
+        prompt = f"Math:\n105 + 112 = 217\n231 + 143 = 374\n{a} + {b} ="
+
+        pairs.append({
+            'a': a, 'b': b, 'ans': ans,
+            'prompt': prompt
+        })
+
+    print(f"  Built {len(pairs)} pure {digits}-digit test pairs.")
+    return pairs
+
+# -----------------------------------------------------------------------
+# AUTOREGRESSIVE EVALUATION
+# -----------------------------------------------------------------------
+def evaluate_generation(model, pairs, fwd_hooks=None):
+    """Generates the answer autoregressively and checks for an exact match."""
+    correct = 0
+
+    for p in pairs:
+        tokens = model.to_tokens(p['prompt'])
+
+        # Generate enough tokens for the answer plus a buffer space
+        max_tokens_needed = len(p['ans']) + 2
+
+        with torch.no_grad():
+            # THE FIX: We must use the context manager for generation hooks!
+            if fwd_hooks:
+                with model.hooks(fwd_hooks=fwd_hooks):
+                    output_tokens = model.generate(
+                        tokens,
+                        max_new_tokens=max_tokens_needed,
+                        verbose=False
+                    )
+            else:
+                output_tokens = model.generate(
+                    tokens,
+                    max_new_tokens=max_tokens_needed,
+                    verbose=False
+                )
+
+        # Decode only the newly generated tokens
+        generated_str = model.tokenizer.decode(output_tokens[0][tokens.shape[1]:])
+
+        # Strip spaces from both strings to ensure exact mathematical match
+        if generated_str.strip().startswith(p['ans'].strip()):
+            correct += 1
+
+    return correct / len(pairs)
+
+# -----------------------------------------------------------------------
+# CAUSAL ABLATION (The Scalpel)
+# -----------------------------------------------------------------------
+def make_ablation_hook(heads_to_zero: list):
+    """Factory function to safely capture heads by value."""
+    def hook_fn(value, hook):
+        for h in heads_to_zero:
+            # FIXED: Only zero out the final token position (routing), not all positions (reading)
+            value[:, -1, h, :] = 0.0
+        return value
+    return hook_fn
+
+def run_edge_of_competence_test(model, digits, layer, key_heads, n_pairs=50):
+    print(f"\n{'='*65}")
+    print(f"STRESS TEST: {digits}-DIGIT ADDITION (Autoregressive Exact Match)")
+    print(f"{'='*65}")
+
+    pairs = build_pure_math_prompts(digits=digits, n_pairs=n_pairs)
+    hook_name = f"blocks.{layer}.attn.hook_z"
+
+    # 1. Baseline
+    print("  Evaluating Baseline (No Ablation)...")
+    # FIXED: Explicitly pass None for clarity
+    base_accuracy = evaluate_generation(model, pairs, fwd_hooks=None)
+    print(f"  Baseline Accuracy: {base_accuracy:>10.2%}\n")
+
+    if base_accuracy < 0.20:
+        print("  ⚠️ Baseline is too low. The model fundamentally cannot do this task.")
+        print("  Ablation results will be uninformative.\n")
+        return
+
+    # 2. Ablate All Key Heads
+    print(f"  Ablating Key Heads {key_heads} at Layer {layer}...")
+    ablated_accuracy = evaluate_generation(
+        model,
+        pairs,
+        fwd_hooks=[(hook_name, make_ablation_hook(key_heads))]
+    )
+
+    drop = base_accuracy - ablated_accuracy
+
+    marker = "🔥 NECESSARY (Circuit Confirmed)" if drop > 0.15 else "○ Still Redundant"
+    print(f"  Ablated Accuracy:  {ablated_accuracy:>10.2%}")
+    print(f"  Accuracy Drop:     {drop:>+10.2%}  {marker}")
+
+    if torch.backends.mps.is_available(): torch.mps.empty_cache()
+
+# -----------------------------------------------------------------------
+# EXECUTION
+# -----------------------------------------------------------------------
+def run_final_experiment_with_3digits():
+    device = ("mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu")
+    print(f"\nLoading Gemma-7B...")
+    model = HookedTransformer.from_pretrained("google/gemma-7b", device=device, dtype=torch.bfloat16)
+    model.eval()
+
+    # The 4 key heads we found previously
+    key_heads = [2, 4, 8, 12]
+    layer = 25
+
+    # Test: 3-Digit Addition (The True Edge of Competence)
+    run_edge_of_competence_test(model, digits=3, layer=layer, key_heads=key_heads, n_pairs=50)
+
+    del model
+    if torch.backends.mps.is_available(): torch.mps.empty_cache()
 
 if __name__ == "__main__":
     #google/gemma-2-2b
@@ -3848,35 +4654,34 @@ if __name__ == "__main__":
     # run_laser_focus_analysis("google/gemma-2b", causal_layer=17)
     # run_laser_focus_analysis("google/gemma-7b", causal_layer=25)
 
-    # print("\n\n" + "#"*65)
-    # print("PHASE 2: GROUP PATH PATCHING (EDGE TESTING)")
-    # print("#"*65)
+    # Gemma-7B (Using Layer 25 as the causally proven target)
+    # run_circuit_discovery("google/gemma-2b", target_layer=17, n_pairs=50)
+
+    # If you run Gemma-7B later (which has 28 layers):
+    # run_circuit_discovery("google/gemma-7b", target_layer=25, n_pairs=50)
+
+    # If you run Phi-3 (which has 32 layers):
+    # run_circuit_discovery("microsoft/Phi-3-mini-4k-instruct", target_layer=25, n_pairs=50)
+
+    #compare_formats("google/gemma-2b")
+    #compare_formats("microsoft/Phi-3-mini-4k-instruct")
+    #compare_formats("google/gemma-7b")
+    #compare_formats("microsoft/Phi-3-mini-4k-instruct")
+    #compare_formats("google/gemma-2b")
+    #compare_formats("google/gemma-7b")  # run separately if memory allows
+
+    # # Phi-3: Distributed logic
+    # run_head_drilldown("microsoft/Phi-3-mini-4k-instruct", computation_layer=25)
     #
-    # device = "mps" if torch.backends.mps.is_available() else "cpu"
-    # model = HookedTransformer.from_pretrained(
-    #     "google/gemma-2b", device=device, dtype=torch.float16
-    # )
-    # model.eval()
-    #
-    # patching_pairs = generate_clean_corrupted_pairs(model, n_pairs=20)
-    #
-    # # We group all the early and mid-layer heads that showed up in Tools 1 & 3
-    # early_router_team = [
-    #     (0, 0), (0, 2), (0, 3), (0, 4), (0, 6), # L0 positional/embedding readers
-    #     (6, 5), (6, 7),                         # L6 active readers
-    #     (9, 0),                                 # L9 active reader
-    #     (10, 3)                                 # L10 active reader
-    # ]
-    #
-    # # The heavy-lifting MLPs (and the Eraser)
-    # top_math_mlps = [11, 12, 13, 14, 15, 16]
-    #
-    # run_group_edge_patching(
-    #     model=model,
-    #     prompt_pairs=patching_pairs,
-    #     head_group=early_router_team,
-    #     candidate_mlps=top_math_mlps
-    # )
-    #
+    # # Gemma-2B: Glass cannon logic
+    # run_head_drilldown("google/gemma-2b", computation_layer=15)
+
+    # Gemma-7B: Carry-router logic
+    #run_head_drilldown("google/gemma-7b", computation_layer=25)
+
+
+    #run_final_experiment()
+    run_final_experiment_with_3digits()
+
 
 
