@@ -1,0 +1,166 @@
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct requires setting trust_remote_code=True
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct state dict requires setting trust_remote_code=True
+`torch_dtype` is deprecated! Use `dtype` instead!
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:`flash-attention` package not found, consider installing for better performance: No module named 'flash_attn'.
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:Current `flash-attention` does not support `window_size`. Either upgrade or use `attn_implementation='eager'`.
+Loading microsoft/Phi-3-mini-4k-instruct...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  5.17it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  6.81it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  6.50it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model microsoft/Phi-3-mini-4k-instruct into HookedTransformer
+  Model loaded: 32L, 32H, d=3072
+  Target: L24 H28, SVD dims (3, 7), resid L25, T=11.74
+  Sanity checks...
+  Sanity OK  (activation shape (1, 6, 3072))
+
+======================================================================
+Testing L30 H29 (sel=85.4x, dims=(0,1))
+======================================================================
+
+===========================================================================
+RUNTIME CONCEPT COMPASS VALIDATION
+Target: L30 H29, SVD Dims (0, 1)
+===========================================================================
+  [1] Extracting SVD Reading Subspace...
+  [2] Running Prompts and Calculating Runtime Angles...
+
+  [ Category: Operations / Programs (~0°-40° or ~330°-350°) ]
+  ----------------------------------------------------------------------
+    Token: 'program     ' | Angle: 237.7°
+    Token: 'experiments ' | Angle: 250.2°
+    Token: 'operations  ' | Angle: 252.6°
+    >>> Mean: 246.8° ± 6.5°
+
+  [ Category: Teams / Groups (~50°-120°) ]
+  ----------------------------------------------------------------------
+    Token: 'teams       ' | Angle: 273.9°
+    Token: 'team        ' | Angle: 252.4°
+    Token: 'groups      ' | Angle: 249.9°
+    >>> Mean: 258.7° ± 10.8°
+
+  [ Category: Tools / Components (~130°-150°) ]
+  ----------------------------------------------------------------------
+    Token: 'tools       ' | Angle: 238.0°
+    Token: 'atoms       ' | Angle: 253.1°
+    Token: 'tokens      ' | Angle: 246.7°
+    >>> Mean: 245.9° ± 6.2°
+
+  [ Category: Areas / Geography (~220°-280°) ]
+  ----------------------------------------------------------------------
+    Token: 'territory   ' | Angle: 252.6°
+    Token: 'areas       ' | Angle: 253.9°
+    Token: 'regions     ' | Angle: 256.3°
+    >>> Mean: 254.3° ± 1.6°
+
+  =================================================================
+  SUMMARY
+  =================================================================
+  Operations / Programs (~0°-40° or ~330°-   mean=246.8° ±  6.5°
+  Teams / Groups (~50°-120°)                 mean=258.7° ± 10.8°
+  Tools / Components (~130°-150°)            mean=245.9° ±  6.2°
+  Areas / Geography (~220°-280°)             mean=254.3° ±  1.6°
+
+  Category mean spread (std): 5.3°
+  --> WEAK separation — categories overlap in angle space
+
+======================================================================
+Testing L30 H28 (sel=54.4x, dims=(0,1))
+======================================================================
+
+===========================================================================
+RUNTIME CONCEPT COMPASS VALIDATION
+Target: L30 H28, SVD Dims (0, 1)
+===========================================================================
+  [1] Extracting SVD Reading Subspace...
+  [2] Running Prompts and Calculating Runtime Angles...
+
+  [ Category: Operations / Programs (~0°-40° or ~330°-350°) ]
+  ----------------------------------------------------------------------
+    Token: 'program     ' | Angle:  39.3°
+    Token: 'experiments ' | Angle: 104.1°
+    Token: 'operations  ' | Angle:  73.1°
+    >>> Mean: 72.2° ± 26.4°
+
+  [ Category: Teams / Groups (~50°-120°) ]
+  ----------------------------------------------------------------------
+    Token: 'teams       ' | Angle: 190.0°
+    Token: 'team        ' | Angle: 124.7°
+    Token: 'groups      ' | Angle:  65.9°
+    >>> Mean: 126.9° ± 50.7°
+
+  [ Category: Tools / Components (~130°-150°) ]
+  ----------------------------------------------------------------------
+    Token: 'tools       ' | Angle: 111.7°
+    Token: 'atoms       ' | Angle: 110.9°
+    Token: 'tokens      ' | Angle: 162.5°
+    >>> Mean: 128.3° ± 24.1°
+
+  [ Category: Areas / Geography (~220°-280°) ]
+  ----------------------------------------------------------------------
+    Token: 'territory   ' | Angle:  85.3°
+    Token: 'areas       ' | Angle: 101.6°
+    Token: 'regions     ' | Angle: 153.8°
+    >>> Mean: 113.6° ± 29.2°
+
+  =================================================================
+  SUMMARY
+  =================================================================
+  Operations / Programs (~0°-40° or ~330°-   mean= 72.2° ± 26.4°
+  Teams / Groups (~50°-120°)                 mean=126.9° ± 50.7°
+  Tools / Components (~130°-150°)            mean=128.3° ± 24.1°
+  Areas / Geography (~220°-280°)             mean=113.6° ± 29.2°
+
+  Category mean spread (std): 22.7°
+  --> MODERATE separation — some angular clustering visible
+
+======================================================================
+Testing L31 H31 (sel=44.2x, dims=(0,1))
+======================================================================
+
+===========================================================================
+RUNTIME CONCEPT COMPASS VALIDATION
+Target: L31 H31, SVD Dims (0, 1)
+===========================================================================
+  [1] Extracting SVD Reading Subspace...
+  [2] Running Prompts and Calculating Runtime Angles...
+
+  [ Category: Operations / Programs (~0°-40° or ~330°-350°) ]
+  ----------------------------------------------------------------------
+    Token: 'program     ' | Angle: 116.3°
+    Token: 'experiments ' | Angle: 148.9°
+    Token: 'operations  ' | Angle: 112.0°
+    >>> Mean: 125.8° ± 16.5°
+
+  [ Category: Teams / Groups (~50°-120°) ]
+  ----------------------------------------------------------------------
+    Token: 'teams       ' | Angle:  98.4°
+    Token: 'team        ' | Angle: 110.1°
+    Token: 'groups      ' | Angle: 129.4°
+    >>> Mean: 112.6° ± 12.8°
+
+  [ Category: Tools / Components (~130°-150°) ]
+  ----------------------------------------------------------------------
+    Token: 'tools       ' | Angle: 124.6°
+    Token: 'atoms       ' | Angle: 113.1°
+    Token: 'tokens      ' | Angle: 131.9°
+    >>> Mean: 123.2° ± 7.8°
+
+  [ Category: Areas / Geography (~220°-280°) ]
+  ----------------------------------------------------------------------
+    Token: 'territory   ' | Angle: 128.3°
+    Token: 'areas       ' | Angle:  98.0°
+    Token: 'regions     ' | Angle: 112.4°
+    >>> Mean: 112.9° ± 12.4°
+
+  =================================================================
+  SUMMARY
+  =================================================================
+  Operations / Programs (~0°-40° or ~330°-   mean=125.8° ± 16.5°
+  Teams / Groups (~50°-120°)                 mean=112.6° ± 12.8°
+  Tools / Components (~130°-150°)            mean=123.2° ±  7.8°
+  Areas / Geography (~220°-280°)             mean=112.9° ± 12.4°
+
+  Category mean spread (std): 5.9°
+  --> WEAK separation — categories overlap in angle space
+
+Done.

@@ -277,4 +277,137 @@ Based on preliminary geometric analysis:
 
 ---
 
+## Next Steps: Concept Compass & Circular Geometry Investigation
+
+### Story So Far
+
+The original 6-phase framework targeted **arithmetic circuits** (number helix). During investigation, we discovered a second, distinct phenomenon: the **Concept Compass** — a 2D angular encoding of semantic categories in the residual stream, found in Phi-3 Mini (instruct) at L24 H28.
+
+Key established facts:
+- **Circular geometry is universal** — every model tested has heads with strong angular structure in OV matrices (>5x MLP selectivity)
+- **The Concept Compass is rare** — only 1 of 384 heads scanned in Phi-3 shows clean semantic category separation at runtime
+- **The number helix is NOT causal** — 0% success on phase-shift intervention across all models tested (Gemma 7B, Phi-3)
+- **The compass encodes 4+ semantic categories** by angle: Operations (~19°), Teams (~68°), Tools (~53°), Geography (~327°)
+
+### Completed Experiments
+
+#### ✅ Experiment 1: RMSNorm Angle Preservation
+- **Result:** Δ angle = 0.00° across all prompts. Magnitudes crushed to 0.19x.
+- **Finding:** Phi-3 uses RMSNorm (pure scalar scaling) → angles are **exactly invariant** by mathematical identity. The architecture choice of RMSNorm guarantees angle preservation. Magnitudes are the only thing destroyed.
+- **Implication:** The model is architecturally forced to use angles — they are the only information surviving normalization.
+
+#### ✅ Experiment 2: Full Depth Profile (Goldilocks Curve)
+- **Result:** Fisher discriminability (vs random baseline) peaks at **L24 = 43.47x**, confirming the Goldilocks hypothesis.
+- **Finding:** Two converging trends — within-category noise decreases monotonically (33° → 12°), while between-category spread also decreases (129° → 31°). Their ratio peaks at L24.
+- **Bug note:** Initial version (v1) used raw circular spread without baseline, showing misleading early-layer peaks. Corrected in v2 with Fisher discriminability + 50-permutation random baseline.
+- **Implication:** L24 is the precise depth where semantic categories achieve maximal angular precision before output convergence collapses them.
+
+### Upcoming Experiments (Ranked by Impact)
+
+#### 🥇 Experiment 3: Causal Angle Intervention — *Is the compass functional?*
+**Priority:** CRITICAL
+**Status:** Not started
+
+**Question:** Does rotating the compass angle at L24 actually change downstream behavior?
+
+**Method:**
+1. Hook into `blocks.24.hook_resid_pre`
+2. For a Geography prompt (angle ~327°), rotate the residual stream's projection in the (u1, u2) SVD subspace by a controlled δ to move it into the Operations zone (~19°)
+3. Measure:
+   - Do downstream MLP neurons (L25-31) change their activation pattern?
+   - Does the model's next-token prediction shift semantically?
+   - Does the logit distribution change in a category-consistent way?
+
+**Why critical:** The number helix was NOT causal (0% on arithmetic phase-shift). The compass could be different — it operates on semantic categories, not arithmetic. This experiment determines whether the compass is a **functional mechanism** or a **representational artifact**. All downstream experiments depend on this answer.
+
+**Success criteria:**
+- >50% of targeted MLP neurons change activation by >1 std after rotation
+- Next-token predictions shift toward the target category
+- Effect is consistent across multiple prompt pairs
+
+---
+
+#### 🥈 Experiment 4: MLP Neuron Angular Tuning Curves — *Do neurons read the compass?*
+**Priority:** HIGH
+**Status:** Not started
+
+**Question:** Are there specific MLP neurons in L25-31 that selectively fire for specific compass angles?
+
+**Method:**
+1. Run all 20 compass prompts (4 categories × 5 prompts) through the model
+2. For each MLP neuron in layers 25-31, record its activation value
+3. Plot activation vs. compass angle (from the L24 H28 SVD projection)
+4. Identify neurons with clear angular selectivity: high activation in one angular zone, low in others
+5. Compute angular tuning sharpness (peak-to-trough ratio)
+
+**Why high value:** This is the "smoking gun" for the multiplexing theory. If MLP neurons have angular tuning curves (e.g., a neuron that fires strongly at ~327° Geography and stays silent at ~19° Operations), it proves the compass is being **read** by downstream computation — validating the expert's "gating neurons as angular selectors" intuition.
+
+**Success criteria:**
+- ≥10 neurons in L25-31 with peak-to-trough ratio > 3x
+- Tuning peaks cluster at known category angles (19°, 53°, 68°, 327°)
+- Tuning is sharper than expected from random direction projections (baseline test)
+
+---
+
+#### 🥉 Experiment 5: Instruction Tuning A/B Test — *Does RLHF create the compass?*
+**Priority:** MEDIUM-HIGH
+**Status:** Not started
+
+**Question:** Does instruction tuning create the compass, or does it exist in base models too?
+
+**Method:**
+1. Find a model pair with both base and instruct variants available (e.g., Llama-3-8B base vs Llama-3-8B-Instruct, or Mistral-7B base vs Mistral-7B-Instruct)
+2. Run compass validation (validate_concept_compass) on both variants at equivalent depth (~75% of layers)
+3. Sweep heads at the compass-equivalent layer for both models
+4. Compare Fisher discriminability between base and instruct versions
+
+**Why valuable:** We found the compass only in Phi-3 (instruct) and not in Gemma 2B (base). But that comparison is confounded by model architecture, size, and training data. A same-model base/instruct comparison isolates the instruction tuning variable. If RLHF creates the compass, it reveals how fine-tuning reorganizes internal representations.
+
+**Success criteria:**
+- Instruct model shows Fisher ratio >10x at compass layer
+- Base model shows Fisher ratio <3x at the same layer
+- Difference is statistically significant (permutation test p < 0.01)
+
+---
+
+#### Experiment 6: Category Boundary Probing — *How sharp are angular sectors?*
+**Priority:** MEDIUM
+**Status:** Not started
+
+**Question:** Are compass categories separated by sharp boundaries or gradual transitions?
+
+**Method:**
+1. Generate prompts that are semantically ambiguous between two categories (e.g., "The research team conducted field operations in the territory" — Teams + Operations + Geography)
+2. Measure where ambiguous prompts land on the compass
+3. Test if boundary sharpness correlates with model confidence
+
+---
+
+#### Experiment 7: Cross-Prompt Generalization — *Is the compass robust?*
+**Priority:** MEDIUM
+**Status:** Not started
+
+**Question:** Does the compass work across different prompt styles (questions, commands, narratives, single words)?
+
+**Method:**
+1. For each category, create prompts in 4 styles: declarative, interrogative, imperative, and single-word
+2. Measure within-category std across styles
+3. Compare to within-style std across categories
+
+---
+
+### Decision Tree
+
+```
+Experiment 3 (Causal Intervention)
+├── PASS (compass IS causal) → Experiment 4 (MLP tuning) → Experiment 5 (instruct A/B)
+│   → Full paper: "Semantic Compass as Functional Angular Multiplexer"
+│
+└── FAIL (compass NOT causal) → Experiment 5 (instruct A/B) → Experiment 6 (boundaries)
+    → Pivot: "Angular Structure as Emergent Representation, Not Computation"
+    → New question: What IS the compass for, if not direct MLP gating?
+```
+
+---
+
 This roadmap provides a complete, rigorous framework ready for professor review and implementation.

@@ -1,0 +1,168 @@
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct requires setting trust_remote_code=True
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct state dict requires setting trust_remote_code=True
+`torch_dtype` is deprecated! Use `dtype` instead!
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:`flash-attention` package not found, consider installing for better performance: No module named 'flash_attn'.
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:Current `flash-attention` does not support `window_size`. Either upgrade or use `attn_implementation='eager'`.
+Loading microsoft/Phi-3-mini-4k-instruct...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  5.94it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  6.94it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  6.76it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model microsoft/Phi-3-mini-4k-instruct into HookedTransformer
+  Model loaded: 32L, 32H, d=3072
+  Target: L24 H28, SVD dims (3, 7), resid L25, T=11.74
+  Sanity checks...
+  Sanity OK  (activation shape (1, 6, 3072))
+
+======================================================================
+Testing L24 H15 (sel=29.3x, dims=(0,1))
+======================================================================
+
+===========================================================================
+RUNTIME CONCEPT COMPASS VALIDATION
+Target: L24 H15, SVD Dims (0, 1)
+===========================================================================
+  [1] Extracting SVD Reading Subspace...
+  [2] Running Prompts and Calculating Runtime Angles...
+
+  [ Category: Operations / Programs (~0°-40° or ~330°-350°) ]
+  ----------------------------------------------------------------------
+    Token: 'program     ' | Angle: 180.3°
+    Token: 'experiments ' | Angle: 141.8°
+    Token: 'operations  ' | Angle: 183.5°
+    >>> Mean: 168.5° ± 19.0°
+
+  [ Category: Teams / Groups (~50°-120°) ]
+  ----------------------------------------------------------------------
+    Token: 'teams       ' | Angle: 178.2°
+    Token: 'team        ' | Angle: 183.2°
+    Token: 'groups      ' | Angle: 185.3°
+    >>> Mean: 182.2° ± 3.0°
+
+  [ Category: Tools / Components (~130°-150°) ]
+  ----------------------------------------------------------------------
+    Token: 'tools       ' | Angle: 162.6°
+    Token: 'atoms       ' | Angle: 164.8°
+    Token: 'tokens      ' | Angle: 207.3°
+    >>> Mean: 178.3° ± 20.6°
+
+  [ Category: Areas / Geography (~220°-280°) ]
+  ----------------------------------------------------------------------
+    Token: 'territory   ' | Angle: 177.4°
+    Token: 'areas       ' | Angle: 153.8°
+    Token: 'regions     ' | Angle: 147.8°
+    >>> Mean: 159.7° ± 12.8°
+
+  =================================================================
+  SUMMARY
+  =================================================================
+  Operations / Programs (~0°-40° or ~330°-   mean=168.5° ± 19.0°
+  Teams / Groups (~50°-120°)                 mean=182.2° ±  3.0°
+  Tools / Components (~130°-150°)            mean=178.3° ± 20.6°
+  Areas / Geography (~220°-280°)             mean=159.7° ± 12.8°
+
+  Category mean spread (std): 8.8°
+  --> WEAK separation — categories overlap in angle space
+
+======================================================================
+Testing L24 H17 (sel=19.3x, dims=(1,2))
+======================================================================
+
+===========================================================================
+RUNTIME CONCEPT COMPASS VALIDATION
+Target: L24 H17, SVD Dims (1, 2)
+===========================================================================
+  [1] Extracting SVD Reading Subspace...
+  [2] Running Prompts and Calculating Runtime Angles...
+
+  [ Category: Operations / Programs (~0°-40° or ~330°-350°) ]
+  ----------------------------------------------------------------------
+    Token: 'program     ' | Angle: 352.9°
+    Token: 'experiments ' | Angle:  40.4°
+    Token: 'operations  ' | Angle: 224.0°
+    >>> Mean: 205.8° ± 128.2°
+
+  [ Category: Teams / Groups (~50°-120°) ]
+  ----------------------------------------------------------------------
+    Token: 'teams       ' | Angle: 241.1°
+    Token: 'team        ' | Angle: 213.8°
+    Token: 'groups      ' | Angle:  48.0°
+    >>> Mean: 167.6° ± 85.3°
+
+  [ Category: Tools / Components (~130°-150°) ]
+  ----------------------------------------------------------------------
+    Token: 'tools       ' | Angle: 203.2°
+    Token: 'atoms       ' | Angle:  83.4°
+    Token: 'tokens      ' | Angle: 108.6°
+    >>> Mean: 131.7° ± 51.5°
+
+  [ Category: Areas / Geography (~220°-280°) ]
+  ----------------------------------------------------------------------
+    Token: 'territory   ' | Angle: 162.7°
+    Token: 'areas       ' | Angle:  98.8°
+    Token: 'regions     ' | Angle: 353.8°
+    >>> Mean: 205.1° ± 108.3°
+
+  =================================================================
+  SUMMARY
+  =================================================================
+  Operations / Programs (~0°-40° or ~330°-   mean=205.8° ± 128.2°
+  Teams / Groups (~50°-120°)                 mean=167.6° ± 85.3°
+  Tools / Components (~130°-150°)            mean=131.7° ± 51.5°
+  Areas / Geography (~220°-280°)             mean=205.1° ± 108.3°
+
+  Category mean spread (std): 30.6°
+  --> STRONG angular separation between semantic categories
+      The Concept Compass is active at runtime!
+
+======================================================================
+Testing L24 H3 (sel=19.3x, dims=(1,2))
+======================================================================
+
+===========================================================================
+RUNTIME CONCEPT COMPASS VALIDATION
+Target: L24 H3, SVD Dims (1, 2)
+===========================================================================
+  [1] Extracting SVD Reading Subspace...
+  [2] Running Prompts and Calculating Runtime Angles...
+
+  [ Category: Operations / Programs (~0°-40° or ~330°-350°) ]
+  ----------------------------------------------------------------------
+    Token: 'program     ' | Angle: 218.4°
+    Token: 'experiments ' | Angle: 236.1°
+    Token: 'operations  ' | Angle: 200.4°
+    >>> Mean: 218.3° ± 14.6°
+
+  [ Category: Teams / Groups (~50°-120°) ]
+  ----------------------------------------------------------------------
+    Token: 'teams       ' | Angle: 318.7°
+    Token: 'team        ' | Angle: 223.8°
+    Token: 'groups      ' | Angle: 136.1°
+    >>> Mean: 226.2° ± 74.6°
+
+  [ Category: Tools / Components (~130°-150°) ]
+  ----------------------------------------------------------------------
+    Token: 'tools       ' | Angle: 173.9°
+    Token: 'atoms       ' | Angle: 178.6°
+    Token: 'tokens      ' | Angle: 358.0°
+    >>> Mean: 236.8° ± 85.7°
+
+  [ Category: Areas / Geography (~220°-280°) ]
+  ----------------------------------------------------------------------
+    Token: 'territory   ' | Angle: 109.2°
+    Token: 'areas       ' | Angle: 152.6°
+    Token: 'regions     ' | Angle:  97.2°
+    >>> Mean: 119.7° ± 23.8°
+
+  =================================================================
+  SUMMARY
+  =================================================================
+  Operations / Programs (~0°-40° or ~330°-   mean=218.3° ± 14.6°
+  Teams / Groups (~50°-120°)                 mean=226.2° ± 74.6°
+  Tools / Components (~130°-150°)            mean=236.8° ± 85.7°
+  Areas / Geography (~220°-280°)             mean=119.7° ± 23.8°
+
+  Category mean spread (std): 47.0°
+  --> STRONG angular separation between semantic categories
+      The Concept Compass is active at runtime!
+
+Done.

@@ -1,0 +1,60 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+Some weights of the model checkpoint at EleutherAI/gpt-j-6B were not used when initializing GPTJForCausalLM: ['transformer.h.0.attn.bias', 'transformer.h.0.attn.masked_bias', 'transformer.h.1.attn.bias', 'transformer.h.1.attn.masked_bias', 'transformer.h.10.attn.bias', 'transformer.h.10.attn.masked_bias', 'transformer.h.11.attn.bias', 'transformer.h.11.attn.masked_bias', 'transformer.h.12.attn.bias', 'transformer.h.12.attn.masked_bias', 'transformer.h.13.attn.bias', 'transformer.h.13.attn.masked_bias', 'transformer.h.14.attn.bias', 'transformer.h.14.attn.masked_bias', 'transformer.h.15.attn.bias', 'transformer.h.15.attn.masked_bias', 'transformer.h.16.attn.bias', 'transformer.h.16.attn.masked_bias', 'transformer.h.17.attn.bias', 'transformer.h.17.attn.masked_bias', 'transformer.h.18.attn.bias', 'transformer.h.18.attn.masked_bias', 'transformer.h.19.attn.bias', 'transformer.h.19.attn.masked_bias', 'transformer.h.2.attn.bias', 'transformer.h.2.attn.masked_bias', 'transformer.h.20.attn.bias', 'transformer.h.20.attn.masked_bias', 'transformer.h.21.attn.bias', 'transformer.h.21.attn.masked_bias', 'transformer.h.22.attn.bias', 'transformer.h.22.attn.masked_bias', 'transformer.h.23.attn.bias', 'transformer.h.23.attn.masked_bias', 'transformer.h.24.attn.bias', 'transformer.h.24.attn.masked_bias', 'transformer.h.25.attn.bias', 'transformer.h.25.attn.masked_bias', 'transformer.h.26.attn.bias', 'transformer.h.26.attn.masked_bias', 'transformer.h.27.attn.bias', 'transformer.h.27.attn.masked_bias', 'transformer.h.3.attn.bias', 'transformer.h.3.attn.masked_bias', 'transformer.h.4.attn.bias', 'transformer.h.4.attn.masked_bias', 'transformer.h.5.attn.bias', 'transformer.h.5.attn.masked_bias', 'transformer.h.6.attn.bias', 'transformer.h.6.attn.masked_bias', 'transformer.h.7.attn.bias', 'transformer.h.7.attn.masked_bias', 'transformer.h.8.attn.bias', 'transformer.h.8.attn.masked_bias', 'transformer.h.9.attn.bias', 'transformer.h.9.attn.masked_bias']
+- This IS expected if you are initializing GPTJForCausalLM from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing GPTJForCausalLM from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+Loading EleutherAI/gpt-j-6B...
+Loaded pretrained model EleutherAI/gpt-j-6B into HookedTransformer
+  Model loaded: 28L, 16H, d=4096
+  Target: L3 H13, SVD dims (2, 3), resid L3, T=99.0
+  Sanity checks...
+  Sanity OK  (activation shape (1, 4, 4096))
+
+===========================================================================
+RUNTIME CONCEPT COMPASS VALIDATION
+Target: L3 H13, SVD Dims (2, 4)
+===========================================================================
+  [1] Extracting SVD Reading Subspace...
+  [2] Running Prompts and Calculating Runtime Angles...
+
+  [ Category: Operations / Programs (~0°-40° or ~330°-350°) ]
+  ----------------------------------------------------------------------
+    Token: ' program    ' | Angle: 299.5°
+    Token: ' experiments' | Angle:  74.1°
+    Token: ' operations ' | Angle: 233.7°
+    >>> Mean: 202.4° ± 94.6°
+
+  [ Category: Teams / Groups (~50°-120°) ]
+  ----------------------------------------------------------------------
+    Token: ' teams      ' | Angle: 176.1°
+    Token: ' team       ' | Angle: 109.9°
+    Token: ' groups     ' | Angle: 110.8°
+    >>> Mean: 132.3° ± 31.0°
+
+  [ Category: Tools / Components (~130°-150°) ]
+  ----------------------------------------------------------------------
+    Token: ' tools      ' | Angle:  87.4°
+    Token: ' atoms      ' | Angle:  88.7°
+    Token: ' tokens     ' | Angle: 146.3°
+    >>> Mean: 107.5° ± 27.5°
+
+  [ Category: Areas / Geography (~220°-280°) ]
+  ----------------------------------------------------------------------
+    Token: ' territory  ' | Angle: 181.9°
+    Token: ' areas      ' | Angle: 125.3°
+    Token: ' regions    ' | Angle: 176.9°
+    >>> Mean: 161.4° ± 25.6°
+
+  =================================================================
+  SUMMARY
+  =================================================================
+  Operations / Programs (~0°-40° or ~330°-   mean=202.4° ± 94.6°
+  Teams / Groups (~50°-120°)                 mean=132.3° ± 31.0°
+  Tools / Components (~130°-150°)            mean=107.5° ± 27.5°
+  Areas / Geography (~220°-280°)             mean=161.4° ± 25.6°
+
+  Category mean spread (std): 35.3°
+  --> STRONG angular separation between semantic categories
+      The Concept Compass is active at runtime!
+
+Done.

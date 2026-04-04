@@ -1,0 +1,60 @@
+WARNING:root:You tried to specify center_unembed=True for a model using logit softcap, but this can't be done! Softcapping is not invariant upon adding a constant Setting center_unembed=False instead.
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading google/gemma-2-2b...
+Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s]Loading checkpoint shards:  33%|███▎      | 1/3 [00:03<00:06,  3.35s/it]Loading checkpoint shards:  67%|██████▋   | 2/3 [00:06<00:03,  3.38s/it]Loading checkpoint shards: 100%|██████████| 3/3 [00:07<00:00,  2.02s/it]Loading checkpoint shards: 100%|██████████| 3/3 [00:07<00:00,  2.39s/it]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model google/gemma-2-2b into HookedTransformer
+  Model loaded: 26L, 8H, d=2304
+  Target: L9 H1, SVD dims (1, 2), resid L9, T=9.9
+  Sanity checks...
+  Sanity OK  (activation shape (1, 6, 2304))
+
+===========================================================================
+RUNTIME CONCEPT COMPASS VALIDATION
+Target: L21 H4, SVD Dims (0, 2)
+===========================================================================
+  [1] Extracting SVD Reading Subspace...
+  [2] Running Prompts and Calculating Runtime Angles...
+
+  [ Category: Verbs / Actions ]
+  ----------------------------------------------------------------------
+    Token: ' run        ' | Angle:  98.3°
+    Token: ' write      ' | Angle: 157.0°
+    Token: ' build      ' | Angle: 269.2°
+    >>> Mean: 174.9° ± 70.9°
+
+  [ Category: Nouns / Objects ]
+  ----------------------------------------------------------------------
+    Token: ' stone      ' | Angle: 284.1°
+    Token: ' bottle     ' | Angle: 263.9°
+    Token: ' mirror     ' | Angle: 283.6°
+    >>> Mean: 277.2° ± 9.4°
+
+  [ Category: Adjectives / Properties ]
+  ----------------------------------------------------------------------
+    Token: ' beautiful  ' | Angle: 258.9°
+    Token: ' simple     ' | Angle: 274.6°
+    Token: ' elegant    ' | Angle: 252.1°
+    >>> Mean: 261.9° ± 9.4°
+
+  [ Category: Abstract / Concepts ]
+  ----------------------------------------------------------------------
+    Token: ' theory     ' | Angle: 269.7°
+    Token: ' freedom    ' | Angle: 227.9°
+    Token: ' justice    ' | Angle: 272.8°
+    >>> Mean: 256.8° ± 20.5°
+
+  =================================================================
+  SUMMARY
+  =================================================================
+  Verbs / Actions                            mean=174.9° ± 70.9°
+  Nouns / Objects                            mean=277.2° ±  9.4°
+  Adjectives / Properties                    mean=261.9° ±  9.4°
+  Abstract / Concepts                        mean=256.8° ± 20.5°
+
+  Category mean spread (std): 39.9°
+  --> STRONG angular separation between semantic categories
+      The Concept Compass is active at runtime!
+
+Done.

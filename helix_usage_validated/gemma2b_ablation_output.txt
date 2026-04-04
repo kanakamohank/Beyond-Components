@@ -1,0 +1,44 @@
+WARNING:root:You tried to specify center_unembed=True for a model using logit softcap, but this can't be done! Softcapping is not invariant upon adding a constant Setting center_unembed=False instead.
+`torch_dtype` is deprecated! Use `dtype` instead!
+=================================================================
+VALIDATED HELIX USAGE INVESTIGATION
+=================================================================
+Loading google/gemma-2-2b...
+Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s]Loading checkpoint shards:  33%|███▎      | 1/3 [00:00<00:01,  1.74it/s]Loading checkpoint shards:  67%|██████▋   | 2/3 [00:01<00:00,  1.70it/s]Loading checkpoint shards: 100%|██████████| 3/3 [00:01<00:00,  2.44it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model google/gemma-2-2b into HookedTransformer
+  Model loaded: 26L, 8H, d=2304
+  Target: L9 H1, SVD dims (1, 2), resid L9, T=9.9
+  Sanity checks...
+  Sanity OK  (activation shape (1, 6, 2304))
+
+  Running Causal MLP Neuron Ablation...
+
+======================================================================
+CAUSAL MLP ABLATION
+OV Head: L9 H1, SVD dims (1, 2)
+MLP Target: Layer 9 | Digits: 2
+======================================================================
+  Mapped 20 SVD targets to 19 physical MLP neurons (out of 9216 total)
+  Random control: 19 neurons
+  Generated 40 few-shot 2-digit addition prompts.
+
+  [1] Baseline (no ablation)...
+      Baseline: 100.0% (40/40)
+  [2] Targeted ablation (19 neurons)...
+      Ablated: 100.0% (40/40)
+  [3] Random control (19 neurons)...
+      Random: 100.0% (40/40)
+
+  ============================================================
+  RESULTS
+  ============================================================
+  Baseline:         100.0%
+  Targeted ablated: 100.0% (drop: +0.0%)
+  Random control:   100.0% (drop: +0.0%)
+  Specificity:      +0.0% (targeted - random)
+
+  ○ Circuit remained resilient or routed around the ablation
+
+  Investigation completed successfully.

@@ -1,0 +1,62 @@
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct requires setting trust_remote_code=True
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct state dict requires setting trust_remote_code=True
+`torch_dtype` is deprecated! Use `dtype` instead!
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:`flash-attention` package not found, consider installing for better performance: No module named 'flash_attn'.
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:Current `flash-attention` does not support `window_size`. Either upgrade or use `attn_implementation='eager'`.
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  4.26it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  5.93it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  5.60it/s]
+WARNING:root:With reduced precision, Loaded pretrained model microsoft/Phi-3-mini-4k-instruct into HookedTransformer
+Phi-3: 32L, 32H, d=3072
+  L0 done (best: H1 @ 26.2x)
+  L1 done (best: H30 @ 55.4x)
+  L2 done (best: H27 @ 85.4x)
+  L3 done (best: H16 @ 19.9x)
+  L4 done (best: H14 @ 35.3x)
+  L5 done (best: H4 @ 25.1x)
+  L6 done (best: H25 @ 23.9x)
+  L7 done (best: H30 @ 81.7x)
+  L8 done (best: H25 @ 40.4x)
+  L9 done (best: H30 @ 38.8x)
+  L10 done (best: H17 @ 50.0x)
+  L11 done (best: H25 @ 37.9x)
+  L12 done (best: H20 @ 29.8x)
+  L13 done (best: H22 @ 27.4x)
+  L14 done (best: H29 @ 30.8x)
+  L15 done (best: H22 @ 39.5x)
+  L16 done (best: H22 @ 36.4x)
+  L17 done (best: H22 @ 38.9x)
+  L18 done (best: H3 @ 40.3x)
+  L19 done (best: H13 @ 34.7x)
+  L20 done (best: H13 @ 36.1x)
+  L21 done (best: H31 @ 35.2x)
+  L22 done (best: H20 @ 29.4x)
+  L23 done (best: H17 @ 29.5x)
+  L24 done (best: H15 @ 29.3x)
+  L25 done (best: H11 @ 41.6x)
+  L26 done (best: H8 @ 21.2x)
+  L27 done (best: H20 @ 30.6x)
+  L28 done (best: H1 @ 35.4x)
+  L29 done (best: H29 @ 36.4x)
+  L30 done (best: H29 @ 100.5x)
+  L31 done (best: H31 @ 44.1x)
+
+Top 20 heads by MLP selectivity:
+  L30 H29: dims=(0, 3), selectivity=100.5x
+  L2 H27: dims=(0, 1), selectivity=85.4x
+  L7 H30: dims=(0, 4), selectivity=81.7x
+  L2 H3: dims=(0, 3), selectivity=67.7x
+  L1 H30: dims=(0, 4), selectivity=55.4x
+  L30 H28: dims=(0, 1), selectivity=54.2x
+  L2 H31: dims=(2, 3), selectivity=53.1x
+  L1 H4: dims=(1, 5), selectivity=51.1x
+  L2 H19: dims=(0, 4), selectivity=50.7x
+  L10 H17: dims=(0, 3), selectivity=50.0x
+  L1 H11: dims=(0, 3), selectivity=45.8x
+  L1 H23: dims=(0, 4), selectivity=45.0x
+  L31 H31: dims=(0, 1), selectivity=44.1x
+  L30 H15: dims=(0, 1), selectivity=43.3x
+  L1 H28: dims=(0, 4), selectivity=42.4x
+  L25 H11: dims=(0, 1), selectivity=41.6x
+  L8 H25: dims=(0, 1), selectivity=40.4x
+  L18 H3: dims=(0, 4), selectivity=40.3x
+  L15 H22: dims=(2, 3), selectivity=39.5x
+  L17 H22: dims=(0, 1), selectivity=38.9x

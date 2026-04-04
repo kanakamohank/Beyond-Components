@@ -1,0 +1,58 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+=================================================================
+VALIDATED HELIX USAGE INVESTIGATION
+=================================================================
+Loading gpt2-small...
+Loaded pretrained model gpt2-small into HookedTransformer
+  Model loaded: 12L, 12H, d=768
+  Target: L10 H2, SVD dims (2, 7), resid L10, T=99.0
+  Sanity checks...
+  Sanity OK  (activation shape (1, 4, 768))
+
+  Running MLP Neuron Forward Trace...
+
+======================================================================
+MLP NEURON FORWARD TRACE: W_out → W_U → Vocabulary
+OV Head: L10 H2, SVD dims (2, 7)
+MLP Target: Layer 10
+======================================================================
+  Standard MLP: W_in [768×3072]
+
+  [SANITY CHECKS]
+    W_out shape: (3072, 768) (Expected: [d_mlp, d_model])
+    W_U shape:   (768, 50257) (Expected: [d_model, d_vocab])
+    -> Dimension match confirmed. Matrix multiplication is safe.
+
+  Neuron       |  Peak° | Top Output Tokens (W_out @ W_U)
+  --------------------------------------------------------------------------------
+  std:2287     |   160° | ' farther'(+5.5), ' afar'(+5.4), ' far'(+5.1), 'oser'(+4.9), 'Tes'(+4.7), ' furthe'(+4.5)
+  std:821      |   250° | 'catentry'(+3.8), ' warr'(+3.6), 'ot'(+3.3), ' Keeper'(+3.1), ' maiden'(+3.0), 'ota'(+2.9)
+  std:1991     |    10° | 'ageddon'(+4.5), 'ACY'(+4.1), 'icum'(+3.7), 'erous'(+3.6), ' Viz'(+3.5), ' Remastered'(+3.5)
+  std:2564     |    20° | ' 18'(+5.1), '18'(+5.0), ' 19'(+5.0), '22'(+5.0), '23'(+4.9), ' 23'(+4.9)
+  std:2020     |   200° | 'icularly'(+5.4), 'apon'(+4.5), 'uez'(+4.3), 'itive'(+4.2), 'rew'(+4.1), '="#'(+4.0)
+  std:1138     |   140° | 'aic'(+4.5), 'icity'(+3.9), 'amental'(+3.7), '90'(+3.6), 'iquid'(+3.6), ' retard'(+3.6)
+  std:2012     |   190° | '11'(+4.9), '112'(+4.8), '1100'(+4.8), '107'(+4.6), '1111'(+4.5), 'api'(+4.4)
+  std:491      |   150° | 'enegger'(+5.0), '80'(+4.6), '81'(+4.5), '�'(+4.2), '1981'(+4.1), '82'(+3.9)
+  std:1307     |   240° | ' SERVICE'(+7.1), ' STUD'(+6.8), ' CITY'(+6.8), ' SCHOOL'(+6.8), ' FOR'(+6.7), ' SERV'(+6.7)
+  std:423      |   150° | 'bane'(+4.5), 'iffe'(+4.3), 'gian'(+3.9), ' Helpful'(+3.9), ' Clicker'(+3.8), ')</'(+3.8)
+  std:1744     |   330° | '代'(+3.5), 'later'(+3.5), 'GBT'(+3.3), 'mingham'(+3.3), 'Reviewer'(+3.2), 'alties'(+3.2)
+  std:946      |    90° | 'er'(+3.5), 'hi'(+3.4), 'eer'(+3.4), 'alled'(+3.4), 'ario'(+3.3), 'ei'(+3.3)
+  std:2795     |    60° | 'adr'(+3.8), 'roma'(+3.5), '":"/'(+3.4), 'soDeliveryDate'(+3.2), 'ulkan'(+3.1), 'izu'(+2.9)
+  std:1456     |   230° | '51'(+3.6), ' 51'(+3.5), '81'(+3.4), '50'(+3.3), 'ersion'(+3.2), 'xx'(+3.2)
+  std:1638     |    40° | 'ァ'(+3.3), 'rentice'(+3.2), 'mast'(+3.2), 'ティ'(+3.2), 'ellen'(+3.2), 'ername'(+3.1)
+  std:2520     |   350° | '400'(+4.2), 'ARDS'(+4.2), 'MAT'(+4.2), 'hirt'(+4.1), ' Matthews'(+4.1), 'arth'(+4.1)
+  std:2590     |   240° | 'Pg'(+4.5), 'qus'(+4.4), 'Ns'(+4.3), 'eds'(+4.3), 'Fa'(+4.3), 'qqa'(+4.1)
+  std:2659     |   300° | ' come'(+4.6), ' Came'(+4.4), ' comes'(+4.2), ' coming'(+4.1), 'raised'(+4.1), '2017'(+3.9)
+  std:137      |   310° | ' times'(+3.1), ' vulner'(+3.1), ' preparation'(+3.1), 'osis'(+3.1), ' uncertainty'(+3.0), ' time'(+3.0)
+  std:1410     |    30° | 'back'(+3.2), 'due'(+3.1), 'years'(+3.0), ' years'(+3.0), 'months'(+3.0), ' Years'(+2.9)
+
+  =================================================================
+  SUMMARY
+  =================================================================
+  Neurons traced: 20
+  Neurons with number tokens in top-6: 7/20 (35%)
+  --> STRONG: Angle-selective MLP neurons project to number tokens
+      Full circuit confirmed: OV circle → MLP gate → W_out → number tokens
+
+  Investigation completed successfully.
