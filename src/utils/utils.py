@@ -61,8 +61,10 @@ def get_label_column_names(data_type='ioi'):
         return 'pronoun', 'corr_pronoun'
     elif data_type == 'gt':
         return 'century', 'corr_century'
+    elif data_type == 'arithmetic':
+        return 'arithmetic_answer', 'arithmetic_answer_wrong'
     else:
-        raise ValueError(f"Unknown data_type: {data_type}. Expected 'ioi', 'ioi_t1', 'gt', or 'gp'.")
+        raise ValueError(f"Unknown data_type: {data_type}. Expected 'ioi', 'ioi_t1', 'gt', 'gp', or 'arithmetic'.")
 
 
 def get_indirect_objects_and_subjects(data_type='ioi'):
@@ -87,6 +89,9 @@ def get_data_column_names(data_type='ioi'):
     elif data_type == 'gt' or data_type == 'gp':
         column_clean = 'prefix'
         column_corrupted = 'corr_prefix'
+    elif data_type == 'arithmetic':
+        column_clean = 'arithmetic_input'
+        column_corrupted = 'corr_arithmetic_input'
     else:
         raise ValueError(f"Unknown data_type: {data_type}")
 
@@ -110,6 +115,9 @@ def get_data_label_column_names(data_type='ioi'):
         column_wrong_label = 'corr_pronoun'
     elif data_type == 'gt':
         raise ValueError('GT task requires special handling for labels')
+    elif data_type == 'arithmetic':
+        column_clean_label = 'arithmetic_answer'
+        column_wrong_label = 'arithmetic_answer_wrong'
     else:
         raise ValueError(f"Unknown data_type: {data_type}")
 

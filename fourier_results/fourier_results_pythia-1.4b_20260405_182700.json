@@ -1,0 +1,477 @@
+{
+  "timestamp": "20260405_182700",
+  "model_key": "pythia-1.4b",
+  "n_layers_analyzed": 24,
+  "n_significant_heads": 0,
+  "layer_results": [
+    {
+      "layer": 0,
+      "dominant_frequency": 2,
+      "dominant_frequency_power_ratio": 0.0,
+      "resid_pre": {
+        "power_spectrum": [
+          89.330999385564,
+          0.0,
+          4.6564428709602973e-32,
+          0.0,
+          2.649703899181513e-32,
+          0.0
+        ],
+        "dominant_frequency": 2,
+        "power_ratio": 0.0
+      }
+    },
+    {
+      "layer": 1,
+      "dominant_frequency": 1,
+      "dominant_frequency_power_ratio": 2.9153390466809803,
+      "resid_pre": {
+        "power_spectrum": [
+          77157.49585725865,
+          65.4167741597204,
+          28.666402794831466,
+          23.787252249093573,
+          19.79589047975492,
+          17.505742780361803
+        ],
+        "dominant_frequency": 1,
+        "power_ratio": 2.9153390466809803
+      }
+    },
+    {
+      "layer": 2,
+      "dominant_frequency": 1,
+      "dominant_frequency_power_ratio": 2.8091475032714026,
+      "resid_pre": {
+        "power_spectrum": [
+          78616.35971622278,
+          134.1177269622387,
+          61.55037796501274,
+          50.79907440153488,
+          41.68796512947775,
+          36.93543359997642
+        ],
+        "dominant_frequency": 1,
+        "power_ratio": 2.8091475032714026
+      }
+    },
+    {
+      "layer": 3,
+      "dominant_frequency": 1,
+      "dominant_frequency_power_ratio": 2.7648849128562096,
+      "resid_pre": {
+        "power_spectrum": [
+          123612.43528234628,
+          346.7560393866071,
+          157.2882259587916,
+          126.06040688496789,
+          104.6713934428972,
+          113.63707744920568
+        ],
+        "dominant_frequency": 1,
+        "power_ratio": 2.7648849128562096
+      }
+    },
+    {
+      "layer": 4,
+      "dominant_frequency": 1,
+      "dominant_frequency_power_ratio": 3.7589824170695607,
+      "resid_pre": {
+        "power_spectrum": [
+          133813.34298413634,
+          1186.1574832644214,
+          408.92295026941804,
+          328.8860775865953,
+          226.99996829860098,
+          297.4022638694535
+        ],
+        "dominant_frequency": 1,
+        "power_ratio": 3.7589824170695607
+      }
+    },
+    {
+      "layer": 5,
+      "dominant_frequency": 1,
+      "dominant_frequency_power_ratio": 3.19636908000116,
+      "resid_pre": {
+        "power_spectrum": [
+          149850.5382205231,
+          1593.1066466639343,
+          630.6920169499648,
+          507.18983973095067,
+          379.7822070189094,
+          475.98135932917796
+        ],
+        "dominant_frequency": 1,
+        "power_ratio": 3.19636908000116
+      }
+    },
+    {
+      "layer": 6,
+      "dominant_frequency": 1,
+      "dominant_frequency_power_ratio": 3.16377149083002,
+      "resid_pre": {
+        "power_spectrum": [
+          167813.56714557184,
+          2184.4367974008273,
+          871.5707460257397,
+          696.6322228267478,
+          551.433220936272,
+          642.1774288398569
+        ],
+        "dominant_frequency": 1,
+        "power_ratio": 3.16377149083002
+      }
+    },
+    {
+      "layer": 7,
+      "dominant_frequency": 1,
+      "dominant_frequency_power_ratio": 3.220935080440506,
+      "resid_pre": {
+        "power_spectrum": [
+          205789.35057030915,
+          3217.0209396282967,
+          1335.2193766026094,
+          960.1840433578873,
+          770.7793344570596,
+          928.9563704459299
+        ],
+        "dominant_frequency": 1,
+        "power_ratio": 3.220935080440506
+      }
+    },
+    {
+      "layer": 8,
+      "dominant_frequency": 1,
+      "dominant_frequency_power_ratio": 2.971832748054863,
+      "resid_pre": {
+        "power_spectrum": [
+          213267.8865085341,
+          3428.5092942322426,
+          1488.4032020996788,
+          1076.2744031905736,
+          910.7717376553763,
+          1139.2239376772945
+        ],
+        "dominant_frequency": 1,
+        "power_ratio": 2.971832748054863
+      }
+    },
+    {
+      "layer": 9,
+      "dominant_frequency": 1,
+      "dominant_frequency_power_ratio": 2.9242251185317,
+      "resid_pre": {
+        "power_spectrum": [
+          243846.45600791776,
+          3703.19894268623,
+          1612.921199957139,
+          1175.1519544596315,
+          996.0789428603546,
+          1281.3935328700713
+        ],
+        "dominant_frequency": 1,
+        "power_ratio": 2.9242251185317
+      }
+    },
+    {
+      "layer": 10,
+      "dominant_frequency": 1,
+      "dominant_frequency_power_ratio": 3.016709076911105,
+      "resid_pre": {
+        "power_spectrum": [
+          256951.94660046702,
+          3586.2971348661995,
+          1510.8763880419212,
+          1087.3261588751895,
+          952.3225626278154,
+          1204.7191562207497
+        ],
+        "dominant_frequency": 1,
+        "power_ratio": 3.016709076911105
+      }
+    },
+    {
+      "layer": 11,
+      "dominant_frequency": 1,
+      "dominant_frequency_power_ratio": 3.231429353048013,
+      "resid_pre": {
+        "power_spectrum": [
+          272571.8267348993,
+          3941.668247602222,
+          1553.0746451761386,
+          1105.986040471992,
+          1005.898656211823,
+          1214.2044175263165
+        ],
+        "dominant_frequency": 1,
+        "power_ratio": 3.231429353048013
+      }
+    },
+    {
+      "layer": 12,
+      "dominant_frequency": 1,
+      "dominant_frequency_power_ratio": 3.365368869770038,
+      "resid_pre": {
+        "power_spectrum": [
+          311490.2305660586,
+          4038.895469383168,
+          1564.8790826852053,
+          1090.2017868909356,
+          966.1623903188652,
+          1179.2949582637107
+        ],
+        "dominant_frequency": 1,
+        "power_ratio": 3.365368869770038
+      }
+    },
+    {
+      "layer": 13,
+      "dominant_frequency": 1,
+      "dominant_frequency_power_ratio": 3.4802170084495154,
+      "resid_pre": {
+        "power_spectrum": [
+          376592.5557202656,
+          4514.469404044107,
+          1738.2605411023858,
+          1140.7841424390215,
+          1039.468917362451,
+          1270.2081289004168
+        ],
+        "dominant_frequency": 1,
+        "power_ratio": 3.4802170084495154
+      }
+    },
+    {
+      "layer": 14,
+      "dominant_frequency": 1,
+      "dominant_frequency_power_ratio": 3.579366624312564,
+      "resid_pre": {
+        "power_spectrum": [
+          455150.6827713266,
+          5166.068102462416,
+          1930.7857587613469,
+          1233.2791038285113,
+          1163.614459288954,
+          1445.4852009977305
+        ],
+        "dominant_frequency": 1,
+        "power_ratio": 3.579366624312564
+      }
+    },
+    {
+      "layer": 15,
+      "dominant_frequency": 1,
+      "dominant_frequency_power_ratio": 3.716928528598594,
+      "resid_pre": {
+        "power_spectrum": [
+          541779.7045842758,
+          6091.970609592362,
+          2211.4335630757028,
+          1384.2067435512824,
+          1278.8466186226783,
+          1681.4320952209707
+        ],
+        "dominant_frequency": 1,
+        "power_ratio": 3.716928528598594
+      }
+    },
+    {
+      "layer": 16,
+      "dominant_frequency": 1,
+      "dominant_frequency_power_ratio": 3.5650511009991184,
+      "resid_pre": {
+        "power_spectrum": [
+          620506.2080861717,
+          6421.733190761131,
+          2388.3995772031376,
+          1503.2052757632603,
+          1404.378927049892,
+          1909.223672927559
+        ],
+        "dominant_frequency": 1,
+        "power_ratio": 3.5650511009991184
+      }
+    },
+    {
+      "layer": 17,
+      "dominant_frequency": 1,
+      "dominant_frequency_power_ratio": 3.651212599942381,
+      "resid_pre": {
+        "power_spectrum": [
+          735511.6123473002,
+          7232.040277687795,
+          2682.027411089905,
+          1608.9245279341742,
+          1530.6025335422019,
+          2101.336983057993
+        ],
+        "dominant_frequency": 1,
+        "power_ratio": 3.651212599942381
+      }
+    },
+    {
+      "layer": 18,
+      "dominant_frequency": 1,
+      "dominant_frequency_power_ratio": 3.6688753301795756,
+      "resid_pre": {
+        "power_spectrum": [
+          866799.3190908572,
+          8223.498133477411,
+          2999.3976558953163,
+          1779.2851717747994,
+          1725.9120459035867,
+          2461.09340242984
+        ],
+        "dominant_frequency": 1,
+        "power_ratio": 3.6688753301795756
+      }
+    },
+    {
+      "layer": 19,
+      "dominant_frequency": 1,
+      "dominant_frequency_power_ratio": 3.6181939943714228,
+      "resid_pre": {
+        "power_spectrum": [
+          1068753.5712885943,
+          9094.439577373021,
+          3361.9373024386637,
+          1978.0083868996712,
+          1956.2052430776318,
+          2757.9695393117727
+        ],
+        "dominant_frequency": 1,
+        "power_ratio": 3.6181939943714228
+      }
+    },
+    {
+      "layer": 20,
+      "dominant_frequency": 1,
+      "dominant_frequency_power_ratio": 3.6042327605094666,
+      "resid_pre": {
+        "power_spectrum": [
+          1330951.7859208598,
+          9722.821730645173,
+          3625.96044587968,
+          2102.730363876723,
+          2058.596130890389,
+          3003.161264780241
+        ],
+        "dominant_frequency": 1,
+        "power_ratio": 3.6042327605094666
+      }
+    },
+    {
+      "layer": 21,
+      "dominant_frequency": 1,
+      "dominant_frequency_power_ratio": 3.581765551789679,
+      "resid_pre": {
+        "power_spectrum": [
+          1413257.4322729667,
+          10430.004038839877,
+          3943.2252585998535,
+          2255.4108066273975,
+          2244.109880782064,
+          3205.1454505991337
+        ],
+        "dominant_frequency": 1,
+        "power_ratio": 3.581765551789679
+      }
+    },
+    {
+      "layer": 22,
+      "dominant_frequency": 1,
+      "dominant_frequency_power_ratio": 3.6094661261092487,
+      "resid_pre": {
+        "power_spectrum": [
+          1504109.1754988576,
+          11686.403063667674,
+          4344.708802557933,
+          2543.931068696895,
+          2479.9151174879016,
+          3582.2833406528653
+        ],
+        "dominant_frequency": 1,
+        "power_ratio": 3.6094661261092487
+      }
+    },
+    {
+      "layer": 23,
+      "dominant_frequency": 1,
+      "dominant_frequency_power_ratio": 3.699049937827893,
+      "resid_pre": {
+        "power_spectrum": [
+          1595764.3500143255,
+          13083.044992211559,
+          4757.936818730794,
+          2781.9585390929187,
+          2720.366022769905,
+          3887.2037384028667
+        ],
+        "dominant_frequency": 1,
+        "power_ratio": 3.699049937827893
+      }
+    }
+  ],
+  "head_results": {},
+  "config": {
+    "experiment_name": "arithmetic_circuit_discovery",
+    "seed": 42,
+    "use_wandb": false,
+    "model": {
+      "key": "pythia-1.4b",
+      "name": "pythia-1.4b",
+      "pretrained_cache_dir": "cache_dir"
+    },
+    "data_type": "arithmetic",
+    "max_pad_length": 16,
+    "arithmetic": {
+      "operand_range_start": 0,
+      "operand_range_end": 10,
+      "operation": "add",
+      "prompt_template": "{a} + {b} ="
+    },
+    "fourier": {
+      "position": "last",
+      "include_resid_post": false,
+      "batch_size": 16,
+      "store_activations": true,
+      "store_dft": false,
+      "head_power_ratio_threshold": 3.0,
+      "layers": null,
+      "output_dir": "fourier_results"
+    },
+    "training": {
+      "batch_size": 64,
+      "num_epochs": 3,
+      "device": "mps",
+      "learning_rate": 0.02,
+      "weight_decay": 0.0,
+      "l1_weight": 0.0002,
+      "temperature": 1.0,
+      "eval_interval": 50,
+      "patience": 5,
+      "min_lr": "1e-6",
+      "lr_factor": 0.5,
+      "early_stopping": true,
+      "save_checkpoints": true,
+      "kl_opt": 0.15,
+      "l1_opt": 5000,
+      "validation_interval": 20
+    },
+    "masking": {
+      "mask_init_value": 0.99,
+      "cache_svd": true,
+      "warmup_steps": 0,
+      "max_iterations_per_batch": 15,
+      "sparsity_threshold": 0.001
+    },
+    "log_dir": "logs",
+    "visualization": {
+      "plot_interval": 100,
+      "log_gradients": false,
+      "save_visualizations": true,
+      "visualization_dir": "visualizations"
+    }
+  }
+}

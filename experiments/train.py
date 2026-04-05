@@ -17,6 +17,9 @@ import wandb
 import logging
 import sys
 import os
+import numpy as np
+import json
+import datetime
 
 # Add project root to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -32,6 +35,37 @@ sns.set_style("whitegrid")
 
 # Import our circuit discovery implementation
 from src.models.masked_transformer_circuit import MaskedTransformerCircuit
+
+def _arithmetic_loader_kwargs(config):
+    """Build extra kwargs for load_arithmetic_dataset from config."""
+    if config['data_type'] != 'arithmetic' or 'arithmetic' not in config:
+        return {}
+    arith_cfg = config['arithmetic']
+    return {
+        'operand_range': range(
+            arith_cfg.get('operand_range_start', 0),
+            arith_cfg.get('operand_range_end', 10),
+        ),
+        'operation': arith_cfg.get('operation', 'add'),
+        'prompt_template': arith_cfg.get('prompt_template', '{a} + {b} ='),
+    }
+
+
+def _prepare_label_strings(labels, data_type):
+    """Prepare label strings for tokenization.
+
+    For most data types (IOI, GP, GT), labels are bare strings that need
+    a leading space for proper tokenization.  For arithmetic, labels
+    already have the leading space, so we skip the prepend.
+    """
+    if isinstance(labels, torch.Tensor):
+        labels = labels.tolist()
+    if data_type == 'arithmetic':
+        # Arithmetic labels are already space-prefixed (e.g. " 7")
+        return [str(obj) for obj in labels]
+    else:
+        return [' ' + str(obj) for obj in labels]
+
 
 # IOI head categories with colors - using vibrant, publication-quality color palette
 IOI_HEAD_CATEGORIES = {
@@ -70,12 +104,61 @@ IOI_HEAD_CATEGORIES = {
     }
 }
 
+# Arithmetic head categories from Phase 1 Fourier head scan (Pythia-1.4B)
+# Grouped by functional hypothesis based on layer depth and signal strength
+ARITHMETIC_HEAD_CATEGORIES = {
+    'Strong Periodic (>8x)': {
+        'color': '#E63946',  # Vibrant Red
+        'heads': [(7, 9), (23, 9), (15, 13), (10, 15)]
+    },
+    'Moderate Periodic (6-8x)': {
+        'color': '#FF6B35',  # Vibrant Orange
+        'heads': [(14, 10), (11, 8), (6, 2), (21, 6), (5, 7),
+                  (8, 13), (3, 9), (17, 7), (11, 5), (3, 7),
+                  (10, 1), (21, 15), (10, 2), (22, 9), (9, 2),
+                  (3, 12)]
+    },
+    'Weak Periodic (4-6x)': {
+        'color': '#F4A261',  # Sandy Orange/Gold
+        'heads': [(18, 9), (16, 3), (19, 13), (11, 4), (15, 5),
+                  (11, 14), (16, 6), (19, 7), (15, 10), (7, 1),
+                  (19, 4), (15, 1), (11, 3), (17, 8), (12, 9),
+                  (7, 6), (5, 3), (8, 11), (17, 12), (23, 10),
+                  (9, 13), (21, 8), (8, 14), (12, 1), (20, 8),
+                  (9, 12), (23, 1), (16, 13), (11, 13), (3, 0),
+                  (3, 1), (5, 6), (16, 4), (23, 15), (4, 2),
+                  (20, 9), (15, 15), (4, 9), (14, 5), (18, 7),
+                  (17, 11)]
+    },
+    'Other Heads': {
+        'color': '#CCCCCC',  # Light Gray
+        'heads': []  # Will be filled automatically with non-circuit heads
+    }
+}
+
+
 def get_head_color_ioi(layer, head):
     """Get color for a head based on IOI circuit categories"""
     for category, info in IOI_HEAD_CATEGORIES.items():
         if (layer, head) in info['heads']:
             return info['color'], category
     return IOI_HEAD_CATEGORIES['Other Heads']['color'], 'Other Heads'
+
+
+def get_head_color_arithmetic(layer, head):
+    """Get color for a head based on arithmetic Fourier power ratio categories."""
+    for category, info in ARITHMETIC_HEAD_CATEGORIES.items():
+        if (layer, head) in info['heads']:
+            return info['color'], category
+    return ARITHMETIC_HEAD_CATEGORIES['Other Heads']['color'], 'Other Heads'
+
+
+def get_head_color(layer, head, data_type):
+    """Dispatch to the correct head color function based on data_type."""
+    if data_type == 'arithmetic':
+        return get_head_color_arithmetic(layer, head)
+    else:
+        return get_head_color_ioi(layer, head)
 
 def parse_args():
     """Parse command line arguments"""
@@ -417,6 +500,8 @@ def create_mask_value_plots(circuit, output_dir, data_type, logger):
     import json
 
     is_ioi = (data_type.lower() == 'ioi')
+    is_arithmetic = (data_type.lower() == 'arithmetic')
+    use_categories = is_ioi or is_arithmetic
 
     # Extract mask data for QK circuit
     qk_mask_data = []
@@ -437,8 +522,8 @@ def create_mask_value_plots(circuit, output_dir, data_type, logger):
                 qk_mask_values = torch.sigmoid(qk_mask)
                 avg_mask_value = qk_mask_values.mean().item()
 
-                if is_ioi:
-                    color, category = get_head_color_ioi(layer, head)
+                if use_categories:
+                    color, category = get_head_color(layer, head, data_type)
                 else:
                     color, category = '#1f77b4', 'All Heads'
 
@@ -458,8 +543,8 @@ def create_mask_value_plots(circuit, output_dir, data_type, logger):
                 ov_mask_values = torch.sigmoid(ov_mask)
                 avg_mask_value = ov_mask_values.mean().item()
 
-                if is_ioi:
-                    color, category = get_head_color_ioi(layer, head)
+                if use_categories:
+                    color, category = get_head_color(layer, head, data_type)
                 else:
                     color, category = '#ff7f0e', 'All Heads'
 
@@ -504,11 +589,12 @@ def create_mask_value_plots(circuit, output_dir, data_type, logger):
         ax.set_xticklabels(labels[::2], rotation=90, ha='right', fontsize=14)
         ax.grid(True, alpha=0.3, axis='y')
 
-        # Issue B fix: Create legend at bottom with bigger fonts
-        if is_ioi:
+        # Create legend at bottom with bigger fonts
+        if use_categories:
             from matplotlib.patches import Patch
+            cat_dict = ARITHMETIC_HEAD_CATEGORIES if is_arithmetic else IOI_HEAD_CATEGORIES
             legend_elements = []
-            for category, info in IOI_HEAD_CATEGORIES.items():
+            for category, info in cat_dict.items():
                 if any(d['category'] == category for d in qk_mask_data_sorted):
                     legend_elements.append(Patch(facecolor=info['color'],
                                                 edgecolor='black',
@@ -552,11 +638,12 @@ def create_mask_value_plots(circuit, output_dir, data_type, logger):
         ax.set_xticklabels(labels[::2], rotation=90, ha='right', fontsize=14)
         ax.grid(True, alpha=0.3, axis='y')
 
-        # Issue B fix: Create legend at bottom with bigger fonts
-        if is_ioi:
+        # Create legend at bottom with bigger fonts
+        if use_categories:
             from matplotlib.patches import Patch
+            cat_dict = ARITHMETIC_HEAD_CATEGORIES if is_arithmetic else IOI_HEAD_CATEGORIES
             legend_elements = []
-            for category, info in IOI_HEAD_CATEGORIES.items():
+            for category, info in cat_dict.items():
                 if any(d['category'] == category for d in ov_mask_data_sorted):
                     legend_elements.append(Patch(facecolor=info['color'],
                                                 edgecolor='black',
@@ -620,22 +707,19 @@ def run_test_evaluation(circuit, model, test_loader, config, device, logger):
                 padding=True
             )['input_ids'].to(device)
 
-            # Handle indirect objects - convert to list if tensor
-            indirect_objs = batch[indirect_objects_column_name]
-            if isinstance(indirect_objs, torch.Tensor):
-                indirect_objs = indirect_objs.tolist()
-            batch[indirect_objects_column_name] = [' ' + str(obj) for obj in indirect_objs]
+            # Prepare labels: add space prefix for non-arithmetic data types
+            batch[indirect_objects_column_name] = _prepare_label_strings(
+                batch[indirect_objects_column_name], config['data_type']
+            )
+            batch[subjects_column_name] = _prepare_label_strings(
+                batch[subjects_column_name], config['data_type']
+            )
             indirect_objects = model.tokenizer(
                 batch[indirect_objects_column_name],
                 return_tensors='pt',
                 padding=True
             )['input_ids'].to(device)
 
-            # Handle subjects - convert to list if tensor
-            subjs = batch[subjects_column_name]
-            if isinstance(subjs, torch.Tensor):
-                subjs = subjs.tolist()
-            batch[subjects_column_name] = [' ' + str(subj) for subj in subjs]
             subjects = model.tokenizer(
                 batch[subjects_column_name],
                 return_tensors='pt',
@@ -776,24 +860,19 @@ def run_validation(circuit, model, validation_loader, config, device, l1_weight,
                 padding=True
             )['input_ids'].to(device)
 
-            # Add space before labels and convert to strings if needed
-            # This handles both string labels (IOI, GP) and numeric labels (GT)
-            # Handle indirect objects - convert to list if tensor
-            indirect_objs = val_batch[indirect_objects_column_name]
-            if isinstance(indirect_objs, torch.Tensor):
-                indirect_objs = indirect_objs.tolist()
-            val_batch[indirect_objects_column_name] = [' ' + str(obj) for obj in indirect_objs]
+            # Prepare labels: add space prefix for non-arithmetic data types
+            val_batch[indirect_objects_column_name] = _prepare_label_strings(
+                val_batch[indirect_objects_column_name], config['data_type']
+            )
+            val_batch[subjects_column_name] = _prepare_label_strings(
+                val_batch[subjects_column_name], config['data_type']
+            )
             indirect_objects = model.tokenizer(
                 val_batch[indirect_objects_column_name],
                 return_tensors='pt',
                 padding=True
             )['input_ids'].to(device)
 
-            # Handle subjects - convert to list if tensor
-            subjs = val_batch[subjects_column_name]
-            if isinstance(subjs, torch.Tensor):
-                subjs = subjs.tolist()
-            val_batch[subjects_column_name] = [' ' + str(subj) for subj in subjs]
             subjects = model.tokenizer(
                 val_batch[subjects_column_name],
                 return_tensors='pt',
@@ -930,11 +1009,13 @@ def run_validation(circuit, model, validation_loader, config, device, l1_weight,
         # Run test evaluation
         logger.info("Running test evaluation...")
         data_loader_fn = getattr(local_data_loader, f"load_{config['data_type']}_dataset")
+        _extra = _arithmetic_loader_kwargs(config)
         test_loader = data_loader_fn(
             batch_size=config['training']['batch_size'],
             train=False,
             validation=False,
-            shuffle=False
+            shuffle=False,
+            **_extra
         )
         test_metrics = run_test_evaluation(circuit, model, test_loader, config, device, logger)
         logger.info(f"Test KL: {test_metrics['test_kl']:.6f}, "
@@ -1077,8 +1158,24 @@ def train_circuit(config, logger):
     # Set random seed for reproducibility
     torch.manual_seed(config['seed'])
 
-    # Set device
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # Set device - respect config, with fallback chain: cuda -> mps -> cpu
+    # device: null in YAML means auto-detect
+    device_str = config['training'].get('device', None)
+    if device_str is None:
+        if torch.cuda.is_available():
+            device_str = 'cuda'
+        elif torch.backends.mps.is_available():
+            device_str = 'mps'
+        else:
+            device_str = 'cpu'
+    elif device_str == 'cuda' and not torch.cuda.is_available():
+        if torch.backends.mps.is_available():
+            device_str = 'mps'
+        else:
+            device_str = 'cpu'
+    elif device_str == 'mps' and not torch.backends.mps.is_available():
+        device_str = 'cpu'
+    device = torch.device(device_str)
     logger.info(f"Using device: {device}")
 
     # Create run-specific directory structure
@@ -1125,8 +1222,15 @@ def train_circuit(config, logger):
     # Load data
     logger.info(f"Loading {config['data_type']} dataset")
     data_loader_fn = getattr(local_data_loader, f"load_{config['data_type']}_dataset")
-    train_loader = data_loader_fn(batch_size=config['training']['batch_size'], train=True)
-    validation_loader = data_loader_fn(batch_size=config['training']['batch_size'], train=False, validation=True)
+
+    # Build extra kwargs for arithmetic dataset (operand_range from config)
+    extra_loader_kwargs = _arithmetic_loader_kwargs(config)
+    if extra_loader_kwargs:
+        logger.info(f"Arithmetic: operand_range={extra_loader_kwargs['operand_range']}, "
+                     f"operation={extra_loader_kwargs['operation']}")
+
+    train_loader = data_loader_fn(batch_size=config['training']['batch_size'], train=True, **extra_loader_kwargs)
+    validation_loader = data_loader_fn(batch_size=config['training']['batch_size'], train=False, validation=True, **extra_loader_kwargs)
     
     logger.info(f"Training with {len(train_loader)} batches")
     
@@ -1189,19 +1293,13 @@ def train_circuit(config, logger):
                 padding=True
             )['input_ids'].to(device)
             
-            # Add space before labels and convert to strings if needed
-            # This handles both string labels (IOI, GP) and numeric labels (GT)
-            # Handle indirect objects - convert to list if tensor
-            indirect_objs = batch[indirect_objects_column_name]
-            if isinstance(indirect_objs, torch.Tensor):
-                indirect_objs = indirect_objs.tolist()
-            batch[indirect_objects_column_name] = [' ' + str(obj) for obj in indirect_objs]
-
-            # Handle subjects - convert to list if tensor
-            subjs = batch[subjects_column_name]
-            if isinstance(subjs, torch.Tensor):
-                subjs = subjs.tolist()
-            batch[subjects_column_name] = [' ' + str(subj) for subj in subjs]
+            # Prepare labels: add space prefix for non-arithmetic data types
+            batch[indirect_objects_column_name] = _prepare_label_strings(
+                batch[indirect_objects_column_name], config['data_type']
+            )
+            batch[subjects_column_name] = _prepare_label_strings(
+                batch[subjects_column_name], config['data_type']
+            )
 
             indirect_objects = model.tokenizer(
                 batch[indirect_objects_column_name],
@@ -1424,11 +1522,13 @@ def train_circuit(config, logger):
     # Run test evaluation
     logger.info("Running test evaluation...")
     data_loader_fn = getattr(local_data_loader, f"load_{config['data_type']}_dataset")
+    _extra = _arithmetic_loader_kwargs(config)
     test_loader = data_loader_fn(
         batch_size=config['training']['batch_size'],
         train=False,
         validation=False,
-        shuffle=False
+        shuffle=False,
+        **_extra
     )
     test_metrics = run_test_evaluation(circuit, model, test_loader, config, device, logger)
     logger.info(f"Test KL: {test_metrics['test_kl']:.6f}, "

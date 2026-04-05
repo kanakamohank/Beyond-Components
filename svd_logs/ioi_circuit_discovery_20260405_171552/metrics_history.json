@@ -1,0 +1,22 @@
+[
+  {
+    "test_kl": 0.1720448900014162,
+    "test_kl_std": 0.016412042802066363,
+    "test_loss": 0.1720448900014162,
+    "test_masked_acc": 0.7916015610098839,
+    "test_masked_acc_std": 0.062272229403223064,
+    "test_full_acc": 0.7861328125,
+    "test_full_acc_std": 0.04678335768360736,
+    "test_exact_match": 0.8380859382450581,
+    "test_exact_match_std": 0.055068080904968286,
+    "test_masked_exact_match": 0.7916015610098839,
+    "test_masked_exact_match_std": 0.062272229403223064,
+    "test_logit_diff": 3.3305469006299973,
+    "test_logit_diff_std": 0.2438497691551992,
+    "relative_sparsity": 0.0,
+    "full_sparsity": 84.56033231569991,
+    "num_active_components": 37020,
+    "epoch": 32,
+    "step": 32
+  }
+]

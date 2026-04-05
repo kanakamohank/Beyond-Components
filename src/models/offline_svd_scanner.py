@@ -6,6 +6,126 @@ import itertools
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import os
+def map_pair_to_frequencies(Vh, number_embeddings, valid_nums, k1, k2,
+                            model_name="", layer=0, head=0, output_dir="."):
+    """
+    Runs Fourier analysis on the specific (k1, k2) singular vector pair
+    identified by the geometric scan as forming a circular structure.
+
+    Validates that both dimensions share the same dominant period and
+    exhibit the ~pi/2 phase offset expected of a sine/cosine pair.
+    Plots a side-by-side FFT spectrum for visual confirmation.
+    """
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    print(f"\n🔍 Fourier Analysis of Identified Circular Pair (Dims {k1}, {k2}):")
+
+    def _analyze_dim(Vh, number_embeddings, valid_nums, dim_idx):
+        signal = (number_embeddings @ Vh[dim_idx]).cpu().numpy()
+        signal = signal - np.mean(signal)
+
+        fft_values = np.fft.rfft(signal)
+        fft_mags = np.abs(fft_values)
+        fft_phases = np.angle(fft_values)
+
+        freqs = np.fft.rfftfreq(len(valid_nums), d=1.0)
+
+        pos_mask = freqs > 0.01
+        clean_freqs = freqs[pos_mask]
+        clean_mags = fft_mags[pos_mask]
+        clean_phases = fft_phases[pos_mask]
+
+        if len(clean_mags) == 0:
+            return None
+
+        best_idx = np.argmax(clean_mags)
+        best_freq = clean_freqs[best_idx]
+        best_period = 1.0 / best_freq
+        best_phase = clean_phases[best_idx]
+        signal_strength = clean_mags[best_idx] / np.sum(clean_mags) * 100
+
+        return {
+            "period": best_period,
+            "frequency": best_freq,
+            "phase": best_phase,
+            "strength": signal_strength,
+            "periods": 1.0 / clean_freqs,
+            "magnitudes": clean_mags,
+            "best_idx": best_idx,
+        }
+
+    result_k1 = _analyze_dim(Vh, number_embeddings, valid_nums, k1)
+    result_k2 = _analyze_dim(Vh, number_embeddings, valid_nums, k2)
+
+    if result_k1 is None or result_k2 is None:
+        print("   ⚠️ Could not extract frequency for one or both dimensions.")
+        return
+
+    print(f"   Dim {k1:2d}: Period = {result_k1['period']:5.1f} | Strength = {result_k1['strength']:4.1f}% | Phase = {result_k1['phase']:+.3f} rad")
+    print(f"   Dim {k2:2d}: Period = {result_k2['period']:5.1f} | Strength = {result_k2['strength']:4.1f}% | Phase = {result_k2['phase']:+.3f} rad")
+
+    period_ratio = result_k1['period'] / result_k2['period']
+    periods_match = 0.9 < period_ratio < 1.1
+
+    phase_delta = abs(result_k1['phase'] - result_k2['phase'])
+    phase_delta = min(phase_delta, 2 * np.pi - phase_delta)
+    ideal_offset = np.pi / 2
+    phase_close = abs(phase_delta - ideal_offset) < 0.3
+
+    print(f"\n   📐 Period ratio (ideal ~1.0):  {period_ratio:.3f}  {'✅' if periods_match else '❌'}")
+    print(f"   📐 Phase offset (ideal ~π/2):  {phase_delta:.3f} rad ({np.degrees(phase_delta):.1f}°)  {'✅' if phase_close else '❌'}")
+
+    if periods_match and phase_close:
+        avg_period = (result_k1['period'] + result_k2['period']) / 2
+        print(f"\n   ✅ Confirmed sine/cosine pair! Shared period ≈ {avg_period:.1f} numbers per cycle.")
+    elif periods_match:
+        print(f"\n   ⚠️ Periods match but phase offset deviates from π/2 — may be a rotated basis.")
+    else:
+        print(f"\n   ❌ Periods diverge — this pair may not encode a single clean frequency.")
+
+    # ==========================================
+    # Plot side-by-side FFT spectra for the pair
+    # ==========================================
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5), sharey=True)
+
+    for ax, dim_idx, result, color in [
+        (ax1, k1, result_k1, 'teal'),
+        (ax2, k2, result_k2, 'darkorange'),
+    ]:
+        periods = result['periods']
+        mags = result['magnitudes']
+        bi = result['best_idx']
+
+        markerline, stemlines, baseline = ax.stem(periods, mags, basefmt=" ")
+        plt.setp(stemlines, 'linewidth', 2, 'color', color)
+        plt.setp(markerline, 'markersize', 8, 'color', 'darkblue')
+
+        ax.annotate(
+            f'$T \\approx {result["period"]:.1f}$\n({result["strength"]:.0f}%)',
+            xy=(periods[bi], mags[bi]),
+            xytext=(periods[bi] + 5, mags[bi] * 0.9),
+            arrowprops=dict(facecolor='red', shrink=0.05, width=1.5, headwidth=6),
+            fontweight='bold', color='red',
+        )
+        ax.set_xlabel('Period $T$ (Numbers per cycle)', fontweight='bold')
+        ax.set_title(f'SVD Dim {dim_idx}  (φ = {result["phase"]:+.2f} rad)', fontweight='bold')
+        ax.grid(True, alpha=0.3)
+
+    ax1.set_ylabel('Fourier Magnitude', fontweight='bold')
+
+    verdict = "✅ Sine/Cosine Pair" if (periods_match and phase_close) else "⚠️ Unconfirmed"
+    fig.suptitle(
+        f'Paired FFT Spectrum — {model_name} L{layer}H{head}, Dims ({k1},{k2})  [{verdict}]',
+        fontweight='bold', fontsize=13,
+    )
+    plt.tight_layout()
+
+    clean_model_name = model_name.replace("/", "_")
+    save_path = os.path.join(output_dir, f"paired_fft_{clean_model_name}_L{layer}H{head}_dims{k1}_{k2}.png")
+    plt.savefig(save_path, dpi=300)
+    print(f"✅ Paired FFT spectrum saved to {save_path}")
+    plt.close()
 
 def map_svd_to_frequencies(Vh, number_embeddings, valid_nums, top_n_dims=10):
     import numpy as np
@@ -263,6 +383,11 @@ def plot_candidate_geometry(model_name, layer, head, k1, k2, Vh, number_embeddin
 
     # Mapping circular geometry to frequencies
     map_svd_to_frequencies(Vh, number_embeddings, valid_nums)
+
+    # New: focused analysis on the identified circular pair
+    map_pair_to_frequencies(Vh, number_embeddings, valid_nums, k1, k2,
+                            model_name=model_name, layer=layer, head=head,
+                            output_dir=output_dir)
 
 
 def scan_offline_matrices(model_name="gpt2-small", cache_dir="svd_cache"):

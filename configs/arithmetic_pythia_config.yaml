@@ -1,0 +1,104 @@
+# ==========================================================================
+# Arithmetic Circuit Discovery Configuration — Pythia-1.4B
+# ==========================================================================
+# Phase 1: Bottom-up Fourier discovery of periodic number representations.
+# Phase 3: SVD mask learning for arithmetic circuit identification.
+#
+# Compatible with: Pythia-1.4B, Gemma-2B, Phi-3-Mini
+# (change model.name and model.key to switch models)
+# ==========================================================================
+
+experiment_name: arithmetic_circuit_discovery
+seed: 42
+use_wandb: false
+
+# ---------- Model ----------
+model:
+  # Registry key from src/utils/model_registry.py
+  key: "pythia-1.4b"
+  # TransformerLens name (used directly by train.py)
+  name: "pythia-1.4b"
+  pretrained_cache_dir: "cache_dir"
+
+# ---------- Data ----------
+data_type: "arithmetic"
+max_pad_length: 16  # arithmetic prompts are short
+
+# Arithmetic-specific settings
+arithmetic:
+  # NOTE: operand_range_end=5 ensures all answers are single-digit (max 4+4=8),
+  # which is required because the mask learning pipeline uses single-token
+  # label matching (indirect_objects[:, 0]).  25 pairs is sufficient for
+  # discovering the arithmetic circuit.  Phase 1 Fourier used range(0,10)
+  # because it only needed the operand values, not the answers.
+  operand_range_start: 0
+  operand_range_end: 5
+  operation: "add"
+  prompt_template: "{a} + {b} ="
+
+# ---------- Fourier Discovery (Phase 1) ----------
+fourier:
+  # Token position to extract activations from
+  position: "last"
+  # Include post-layer residual streams (doubles memory)
+  include_resid_post: false
+  # Batch size for activation collection (lower = less memory)
+  batch_size: 16
+  # Store raw activations in results (needed for visualization)
+  store_activations: true
+  # Store full complex DFT (large, only if needed for detailed analysis)
+  store_dft: false
+  # Minimum power ratio to flag a head as significant
+  head_power_ratio_threshold: 3.0
+  # Layers to analyze (null = all layers)
+  layers: null
+  # Output directory for results
+  output_dir: "fourier_results"
+
+# ---------- Training (Phase 3 — mask learning) ----------
+training:
+  batch_size: 25  # = full dataset (5*5 pairs) for clean gradient signal
+  num_epochs: 3
+  device: null  # auto-detect: cuda > mps > cpu (override with --device CLI flag)
+
+  # Optimizer hyperparameters
+  learning_rate: 2.0e-2
+  weight_decay: 0.0
+  l1_weight: 2.0e-4
+  temperature: 1.0
+
+  # Learning rate scheduling
+  eval_interval: 50
+  patience: 5
+  min_lr: 1e-6
+  lr_factor: 0.5
+  early_stopping: true
+  save_checkpoints: true
+
+  # Optimal stopping criteria
+  kl_opt: 0.15
+  l1_opt: 5000
+  validation_interval: 20
+
+# ---------- SVD Masking ----------
+# train_masks: Skip QK for RoPE models (Pythia).  The masked forward pass
+# uses cached full-model attention patterns for positional correctness.
+# OV + MLP masks are sufficient to identify the arithmetic circuit.
+train_masks: ["OV", "MLP_in", "MLP_out"]
+
+masking:
+  mask_init_value: 0.99
+  cache_svd: true
+  warmup_steps: 0
+  max_iterations_per_batch: 15
+  sparsity_threshold: 1.0e-3
+
+# ---------- Logging ----------
+log_dir: "logs"
+
+# ---------- Visualization ----------
+visualization:
+  plot_interval: 100
+  log_gradients: false
+  save_visualizations: true
+  visualization_dir: "visualizations"

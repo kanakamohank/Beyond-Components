@@ -638,13 +638,31 @@ class MaskedTransformerCircuit:
         batch_size, seq_len = input_ids.shape
         device = input_ids.device
         
-        # Get embeddings
+        # Get embeddings (and attention patterns for RoPE models)
+        self._use_cached_attn = False
         with torch.no_grad():
             _, cache = self.model.run_with_cache(input_ids)
             token_embeddings = cache['hook_embed']
-            position_embeddings = cache['hook_pos_embed']
+
+            # Detect positional embedding type
+            has_pos_embed = ('hook_pos_embed' in cache.cache_dict or
+                            f'blocks.0.hook_pos_embed' in cache.cache_dict)
+            if has_pos_embed:
+                position_embeddings = cache['hook_pos_embed']
+                hidden_states = token_embeddings + position_embeddings
+            else:
+                # Rotary models (e.g. Pythia): no additive pos embed.
+                # Cache the full-model attention patterns so the masked
+                # forward pass still has correct position-aware attention.
+                hidden_states = token_embeddings
+                self._use_cached_attn = True
+                self._cached_attn_patterns = {}
+                for layer_i in range(self.n_layers):
+                    # hook_pattern shape: (B, n_heads, L, L) — post-softmax
+                    key = f'blocks.{layer_i}.attn.hook_pattern'
+                    self._cached_attn_patterns[layer_i] = cache[key].detach()
+
             del cache, _
-            hidden_states = token_embeddings + position_embeddings
         
         # Create causal mask
         causal_mask = torch.ones((seq_len, seq_len), device=device).triu(diagonal=1).bool()
@@ -801,48 +819,54 @@ class MaskedTransformerCircuit:
             Vh_ov = w['Vh_ov']
             ov_mask = w['ov_mask']
             
-            # Compute attention scores
-            q_proj = torch.matmul(hidden_aug, W_QK)  # (B, L, d_model+1)
-            attn_scores = torch.bmm(q_proj, hidden_aug.transpose(1, 2))  # (B, L, L)
-
-            # DEBUG: Check attention scores before scaling
-            if torch.isnan(attn_scores).any() or torch.isinf(attn_scores).any():
-                logger.error(f"❌ NaN/Inf in layer {layer} head {head} attn_scores BEFORE scaling!")
-                logger.error(f"  q_proj had NaN: {torch.isnan(q_proj).any().item()}")
-                logger.error(f"  hidden_aug had NaN: {torch.isnan(hidden_aug).any().item()}")
-                logger.error(f"  W_QK had NaN: {torch.isnan(W_QK).any().item()}")
-                if not torch.isnan(attn_scores).all():
-                    valid = ~(torch.isnan(attn_scores) | torch.isinf(attn_scores))
-                    logger.error(f"  Valid score range: [{attn_scores[valid].min().item():.4f}, {attn_scores[valid].max().item():.4f}]")
-
-            # Scale attention scores
-            attn_scores = attn_scores / math.sqrt(head_dim)
-
-            # DEBUG: Check after scaling
-            if torch.isnan(attn_scores).any() or torch.isinf(attn_scores).any():
-                logger.error(f"❌ NaN/Inf in layer {layer} head {head} attn_scores AFTER scaling!")
-                logger.error(f"  Scale factor: {math.sqrt(head_dim)}")
-
-            # Apply masks
-            attn_scores = attn_scores.masked_fill(causal_mask.unsqueeze(0), -float('inf'))
-
-            if attention_mask is not None:
-                expanded_mask = attention_mask.unsqueeze(1).expand(-1, L, -1)
-                attn_scores = attn_scores.masked_fill(~expanded_mask, -1e9)
-
             # Compute attention probabilities
-            attn_probs = F.softmax(attn_scores, dim=-1)  # (B, L, L)
+            if self._use_cached_attn:
+                # RoPE model: use full-model attention patterns (includes positional info)
+                # cached shape: (B, n_heads, L, L) → extract this head
+                attn_probs = self._cached_attn_patterns[layer][:, head, :, :]  # (B, L, L)
+            else:
+                # Learned pos-embed model: compute from effective W_QK
+                q_proj = torch.matmul(hidden_aug, W_QK)  # (B, L, d_model+1)
+                attn_scores = torch.bmm(q_proj, hidden_aug.transpose(1, 2))  # (B, L, L)
 
-            # DEBUG: Check softmax output
-            if torch.isnan(attn_probs).any() or torch.isinf(attn_probs).any():
-                logger.error(f"❌ NaN/Inf in layer {layer} head {head} attn_probs after softmax!")
-                logger.error(f"  Num NaN: {torch.isnan(attn_probs).sum().item()}")
-                logger.error(f"  Num Inf: {torch.isinf(attn_probs).sum().item()}")
-                # Check if input had extreme values
-                finite_mask = torch.isfinite(attn_scores)
-                if finite_mask.any():
-                    logger.error(f"  Finite attn_scores range: [{attn_scores[finite_mask].min().item():.4f}, {attn_scores[finite_mask].max().item():.4f}]")
-                logger.error(f"  All attn_scores are -inf: {(attn_scores == -float('inf')).all().item()}")
+                # DEBUG: Check attention scores before scaling
+                if torch.isnan(attn_scores).any() or torch.isinf(attn_scores).any():
+                    logger.error(f"❌ NaN/Inf in layer {layer} head {head} attn_scores BEFORE scaling!")
+                    logger.error(f"  q_proj had NaN: {torch.isnan(q_proj).any().item()}")
+                    logger.error(f"  hidden_aug had NaN: {torch.isnan(hidden_aug).any().item()}")
+                    logger.error(f"  W_QK had NaN: {torch.isnan(W_QK).any().item()}")
+                    if not torch.isnan(attn_scores).all():
+                        valid = ~(torch.isnan(attn_scores) | torch.isinf(attn_scores))
+                        logger.error(f"  Valid score range: [{attn_scores[valid].min().item():.4f}, {attn_scores[valid].max().item():.4f}]")
+
+                # Scale attention scores
+                attn_scores = attn_scores / math.sqrt(head_dim)
+
+                # DEBUG: Check after scaling
+                if torch.isnan(attn_scores).any() or torch.isinf(attn_scores).any():
+                    logger.error(f"❌ NaN/Inf in layer {layer} head {head} attn_scores AFTER scaling!")
+                    logger.error(f"  Scale factor: {math.sqrt(head_dim)}")
+
+                # Apply masks
+                attn_scores = attn_scores.masked_fill(causal_mask.unsqueeze(0), -float('inf'))
+
+                if attention_mask is not None:
+                    expanded_mask = attention_mask.unsqueeze(1).expand(-1, L, -1)
+                    attn_scores = attn_scores.masked_fill(~expanded_mask, -1e9)
+
+                # Compute attention probabilities
+                attn_probs = F.softmax(attn_scores, dim=-1)  # (B, L, L)
+
+                # DEBUG: Check softmax output
+                if torch.isnan(attn_probs).any() or torch.isinf(attn_probs).any():
+                    logger.error(f"❌ NaN/Inf in layer {layer} head {head} attn_probs after softmax!")
+                    logger.error(f"  Num NaN: {torch.isnan(attn_probs).sum().item()}")
+                    logger.error(f"  Num Inf: {torch.isinf(attn_probs).sum().item()}")
+                    # Check if input had extreme values
+                    finite_mask = torch.isfinite(attn_scores)
+                    if finite_mask.any():
+                        logger.error(f"  Finite attn_scores range: [{attn_scores[finite_mask].min().item():.4f}, {attn_scores[finite_mask].max().item():.4f}]")
+                    logger.error(f"  All attn_scores are -inf: {(attn_scores == -float('inf')).all().item()}")
             
             # Compute context vectors (weighted sum of values)
             context_aug = torch.bmm(attn_probs, hidden_aug)  # (B, L, d_model+1)
@@ -909,7 +933,7 @@ class MaskedTransformerCircuit:
             intermediate = torch.matmul(hidden_states, W_in) + b_in
             
             # Apply activation function
-            act_fn = getattr(utils, self.cfg.act_fn)
+            act_fn = getattr(utils, self.cfg.act_fn, None) or getattr(F, self.cfg.act_fn)
             intermediate = act_fn(intermediate)
             
             # Second linear layer
@@ -969,7 +993,7 @@ class MaskedTransformerCircuit:
                 intermediate = torch.matmul(hidden_aug, W_in_aug)  # [B, L, d_mlp]
             
             # Apply activation function
-            act_fn = getattr(utils, self.cfg.act_fn)
+            act_fn = getattr(utils, self.cfg.act_fn, None) or getattr(F, self.cfg.act_fn)
             intermediate = act_fn(intermediate)
             
             # Augment intermediate with ones for output computation

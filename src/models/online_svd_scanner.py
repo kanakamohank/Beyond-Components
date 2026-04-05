@@ -745,112 +745,330 @@ def test_safe_mlp_alignment(model_name="google/gemma-7b", layer=14, head=2, dim1
 ######## Phase 6: Causal Intervention #####
 ###########################################
 
-def test_causal_phase_shift(model_name="google/gemma-7b", layer=14, head=2, dim1=2, dim2=5, period=10.0):
+# def test_causal_phase_shift(model_name="google/gemma-7b", layer=14, head=2, dim1=2, dim2=5, period=10.0):
+#     print(f"\n🚀 Initiating Phase 6: Causal Phase-Shift on {model_name}")
+#
+#     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+#     model = HookedTransformer.from_pretrained(model_name, device=device, dtype=torch.bfloat16)
+#
+#     # 1. CPU SVD for Speed and Stability
+#     print("   Extracting Reading Plane (SVD on CPU)...")
+#     W_V = model.W_V[layer, head].detach().float().cpu()
+#     W_O = model.W_O[layer, head].detach().float().cpu()
+#     W_OV = W_V @ W_O
+#     _, _, Vh = torch.linalg.svd(W_OV.to("cpu"), full_matrices=False)
+#
+#     # Move the essential 2D plane back to MPS for lightning-fast intervention
+#     v1 = Vh[dim1].to(device)
+#     v2 = Vh[dim2].to(device)
+#
+#     # 2. Define our Test Cases (Prompt, Target Token, Shift Amount, Expected Hacked Sum)
+#     # We use No-Carry additions to keep the math purely inside the T=10 units digit
+#     random.seed(42)
+#     candidates = []
+#     while len(candidates) < 50:
+#         a, b = random.randint(10, 40), random.randint(10, 40)
+#         if (a % 10) + (b % 10) < 10:  # no-carry
+#             candidates.append((a, b))
+#
+#     # Pre-filter: only keep prompts the model answers correctly
+#     test_cases = []
+#     for a, b in candidates:
+#         prompt = f"{a} + {b} ="
+#         tokens = model.to_tokens(prompt)
+#         out = model.generate(tokens, max_new_tokens=3, verbose=False)
+#         pred = model.to_string(out[0][tokens.shape[1]:]).strip()
+#         expected = str(a + b)
+#         if pred == expected:
+#             test_cases.append({"a": a, "b": b, "clean_sum": a + b, "prompt": prompt})
+#
+#         if len(test_cases) >= 20:
+#             break
+#
+#     print(f"   Found {len(test_cases)} prompts where model gets the clean answer right.")
+#
+#     print("\n" + "="*50)
+#
+#     # Measure actual period: run clean prompts, collect (sum, angle) pairs
+#     sums_list = []
+#     angles_list = []
+#     for case in test_cases:
+#         tokens = model.to_tokens(case["prompt"])
+#         _, cache = model.run_with_cache(tokens)
+#
+#         str_tokens = model.to_str_tokens(prompt)
+#
+#         # Find the Units Digit of Operand B automatically!
+#         eq_idx = -1
+#         for i, tok in enumerate(str_tokens):
+#             if "=" in tok:
+#                 eq_idx = i
+#                 break
+#         if eq_idx == -1:
+#             print(f"   Skipping: Could not find '=' token in {str_tokens}")
+#             continue
+#
+#         head_z = cache[f"blocks.{layer}.attn.hook_z"][0, eq_idx, head, :].float()
+#         head_out = head_z @ W_O.to(device)
+#         angle = torch.atan2(torch.dot(head_out, v2), torch.dot(head_out, v1)).item()
+#         sums_list.append(case["clean_sum"])
+#         angles_list.append(angle)
+#
+#     unwrapped = np.unwrap(angles_list)
+#     slope, _ = np.polyfit(sums_list, unwrapped, 1)
+#     measured_period = 2 * np.pi / abs(slope)
+#     print(f"   Measured angular period: {measured_period:.2f}")
+#
+#     for case in test_cases:
+#         prompt = case["prompt"]
+#         target_str = case["target"]
+#         shift_amount = case["shift"]
+#
+#         print(f"🎯 Test Case: {prompt} | Shifting '{target_str}' by +{shift_amount}")
+#
+#         # Setup Rotation Math
+#         theta = (2 * np.pi * shift_amount) / period
+#         cos_t = np.cos(theta)
+#         sin_t = np.sin(theta)
+#
+#         tokens = model.to_tokens(prompt)
+#         str_tokens = model.to_str_tokens(prompt)
+#
+#         # Find the Units Digit of Operand B automatically!
+#         eq_idx = -1
+#         for i, tok in enumerate(str_tokens):
+#             if "=" in tok:
+#                 eq_idx = i
+#                 break
+#         if eq_idx == -1:
+#             print(f"   Skipping: Could not find '=' token in {str_tokens}")
+#             continue
+#
+#         # --- Baseline Generation ---
+#         # Let the model generate 3 tokens so we can see the full answer (e.g., " 26")
+#         clean_out = model.generate(tokens, max_new_tokens=3, verbose=False)
+#         clean_pred = model.to_string(clean_out[0][tokens.shape[1]:]).strip()
+#
+#         # 3. The Protected Intervention Hook
+#         magnitude_check_passed = True
+#
+#         def rotation_hook(attn_result, hook):
+#             nonlocal magnitude_check_passed
+#
+#             # PROTECTIVE SHIELD: During KV-cache generation, sequence length drops to 1.
+#             # We only want to spin the clock on the very first full pass!
+#             if attn_result.shape[1] <= eq_idx:
+#                 return attn_result
+#
+#             vec = attn_result[0, eq_idx, :].clone().float()
+#
+#             # Project onto 2D clock face
+#             c1 = torch.dot(vec, v1)
+#             c2 = torch.dot(vec, v2)
+#
+#             # Check Magnitude
+#             original_magnitude = torch.sqrt(c1**2 + c2**2).item()
+#
+#             # Rotate
+#             new_c1 = c1 * cos_t - c2 * sin_t
+#             new_c2 = c1 * sin_t + c2 * cos_t
+#
+#             new_magnitude = torch.sqrt(new_c1**2 + new_c2**2).item()
+#             if abs(original_magnitude - new_magnitude) > 1e-4:
+#                 magnitude_check_passed = False
+#
+#             # Reconstruct vector
+#             vec = vec - (c1 * v1 + c2 * v2) + (new_c1 * v1 + new_c2 * v2)
+#             attn_result[0, eq_idx, :] = vec.to(attn_result.dtype)
+#             return attn_result
+#
+#         # 4. Run Intervened Model
+#         # We use model.hooks context manager to apply the hook during generation
+#         with model.hooks(fwd_hooks=[(f"blocks.{layer}.attn.hook_result", rotation_hook)]):
+#             patched_out = model.generate(tokens, max_new_tokens=3, verbose=False)
+#
+#         patched_pred = model.to_string(patched_out[0][tokens.shape[1]:]).strip()
+#
+#         # Results Logging
+#         print(f"   Clean Prediction:   '{clean_pred}'")
+#         print(f"   Hacked Prediction:  '{patched_pred}' (We wanted: {case['expected_hacked']})")
+#         if not magnitude_check_passed:
+#             print("   ⚠️ Warning: Vector magnitude was NOT preserved during rotation!")
+#     print("-" * 50)
+
+def test_causal_phase_shift(model_name="google/gemma-7b", layer=14, head=2, dim1=2, dim2=5):
     print(f"\n🚀 Initiating Phase 6: Causal Phase-Shift on {model_name}")
 
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
-    model = HookedTransformer.from_pretrained(model_name, device=device, dtype=torch.bfloat16)
+    model = HookedTransformer.from_pretrained(
+        model_name, device=device, dtype=torch.bfloat16,
+        center_writing_weights=False,
+    )
 
-    # 1. CPU SVD for Speed and Stability
-    print("   Extracting Reading Plane (SVD on CPU)...")
+    # 1. SVD on CPU for stability, extract Vh (the directions the scan found the circle in)
+    print("   Extracting Vh Plane (SVD on CPU)...")
     W_V = model.W_V[layer, head].detach().float().cpu()
     W_O = model.W_O[layer, head].detach().float().cpu()
     W_OV = W_V @ W_O
-    _, _, Vh = torch.linalg.svd(W_OV.to("cpu"), full_matrices=False)
+    _, _, Vh = torch.linalg.svd(W_OV, full_matrices=False)
 
-    # Move the essential 2D plane back to MPS for lightning-fast intervention
     v1 = Vh[dim1].to(device)
     v2 = Vh[dim2].to(device)
 
-    # 2. Define our Test Cases (Prompt, Target Token, Shift Amount, Expected Hacked Sum)
-    # We use No-Carry additions to keep the math purely inside the T=10 units digit
-    test_cases = [
-        {"prompt": "12 + 14 =", "target": "14", "shift": 2, "expected_clean": "26", "expected_hacked": "28"},
-        {"prompt": "21 + 13 =", "target": "13", "shift": 4, "expected_clean": "34", "expected_hacked": "38"},
-        {"prompt": "33 + 11 =", "target": "11", "shift": 3, "expected_clean": "44", "expected_hacked": "47"}
-    ]
+    # 2. Generate no-carry addition test cases, filter to ones the model gets right
+    print("   Generating and filtering test cases...")
+    random.seed(42)
+    candidates = []
+    while len(candidates) < 50:
+        a, b = random.randint(10, 40), random.randint(10, 40)
+        if (a % 10) + (b % 10) < 10:
+            candidates.append((a, b))
 
-    print("\n" + "="*50)
-
-    for case in test_cases:
-        prompt = case["prompt"]
-        target_str = case["target"]
-        shift_amount = case["shift"]
-
-        print(f"🎯 Test Case: {prompt} | Shifting '{target_str}' by +{shift_amount}")
-
-        # Setup Rotation Math
-        theta = (2 * np.pi * shift_amount) / period
-        cos_t = np.cos(theta)
-        sin_t = np.sin(theta)
-
+    test_cases = []
+    for a, b in candidates:
+        prompt = f"{a} + {b} ="
         tokens = model.to_tokens(prompt)
-        str_tokens = model.to_str_tokens(prompt)
+        out = model.generate(tokens, max_new_tokens=3, verbose=False)
+        pred = model.to_string(out[0][tokens.shape[1]:]).strip()
+        expected = str(a + b)
+        if pred == expected:
+            test_cases.append({"a": a, "b": b, "clean_sum": a + b, "prompt": prompt})
+        if len(test_cases) >= 20:
+            break
 
-        # Find the Units Digit of Operand B automatically!
-        target_idx = -1
+    print(f"   Found {len(test_cases)} prompts where model gets the clean answer right.")
+    if len(test_cases) < 5:
+        print("   ❌ Too few valid test cases. Aborting.")
+        return
+
+    # 3. Measure angular period from live residual stream at operand B position
+    #    Project resid_pre onto Vh rows — the SAME projection the scan used to find the circle
+    print("   Measuring angular period from live activations (Vh projection at operand B)...")
+    operand_b_values = []
+    for case in test_cases:
+        tokens = model.to_tokens(case["prompt"])
+        str_tokens = model.to_str_tokens(case["prompt"])
+
+        # Find operand B position: last digit token before '='
+        b_idx = -1
         for i, tok in enumerate(str_tokens):
             if "=" in tok:
                 for j in range(i - 1, -1, -1):
-                    if any(char.isdigit() for char in str_tokens[j]):
-                        target_idx = j
+                    if any(c.isdigit() for c in str_tokens[j]):
+                        b_idx = j
                         break
                 break
-
-        if target_idx == -1:
-            print(f"   ❌ Skipping: Could not find the units digit token in {str_tokens}")
+        if b_idx == -1:
             continue
 
-        # --- Baseline Generation ---
-        # Let the model generate 3 tokens so we can see the full answer (e.g., " 26")
-        clean_out = model.generate(tokens, max_new_tokens=3, verbose=False)
-        clean_pred = model.to_string(clean_out[0][tokens.shape[1]:]).strip()
+        _, cache = model.run_with_cache(tokens, stop_at_layer=layer + 1)
+        resid = cache[f"blocks.{layer}.hook_resid_pre"][0, b_idx, :].float()
+        c1 = torch.dot(resid, v1).item()
+        c2 = torch.dot(resid, v2).item()
+        angle = np.arctan2(c2, c1)
+        operand_b_values.append((case["b"], case["clean_sum"], angle))
 
-        # 3. The Protected Intervention Hook
-        magnitude_check_passed = True
+    if len(operand_b_values) >= 5:
+        b_vals = [x[0] for x in operand_b_values]
+        sums_list = [x[1] for x in operand_b_values]
+        angles_list = [x[2] for x in operand_b_values]
 
-        def rotation_hook(resid_pre, hook):
-            nonlocal magnitude_check_passed
+        # Sort by operand B for unwrap
+        sorted_by_b = sorted(zip(b_vals, angles_list), key=lambda x: x[0])
+        b_sorted = [x[0] for x in sorted_by_b]
+        ang_sorted = [x[1] for x in sorted_by_b]
+        unwrapped = np.unwrap(ang_sorted)
+        slope, _ = np.polyfit(b_sorted, unwrapped, 1)
+        measured_period = abs(2 * np.pi / slope)
+        linearity = abs(np.corrcoef(b_sorted, unwrapped)[0, 1])
+        print(f"   Measured angular period (vs operand B): {measured_period:.2f}")
+        print(f"   Angle-vs-B linearity: {linearity:.4f}")
 
-            # PROTECTIVE SHIELD: During KV-cache generation, sequence length drops to 1.
-            # We only want to spin the clock on the very first full pass!
-            if resid_pre.shape[1] <= target_idx:
+        # Also check vs sum
+        sorted_by_sum = sorted(zip(sums_list, angles_list), key=lambda x: x[0])
+        s_sorted = [x[0] for x in sorted_by_sum]
+        a_sorted = [x[1] for x in sorted_by_sum]
+        unwrapped_s = np.unwrap(a_sorted)
+        slope_s, _ = np.polyfit(s_sorted, unwrapped_s, 1)
+        period_sum = abs(2 * np.pi / slope_s)
+        lin_sum = abs(np.corrcoef(s_sorted, unwrapped_s)[0, 1])
+        print(f"   Measured angular period (vs sum): {period_sum:.2f}")
+        print(f"   Angle-vs-sum linearity: {lin_sum:.4f}")
+    else:
+        print("   ⚠️ Too few valid measurements for period estimation.")
+
+    # 4. Run causal interventions with shifts of +1, +2, +3
+    shifts_to_test = [1, 2, 3]
+    print("\n" + "="*50)
+
+    for case in test_cases[:10]:
+        prompt = case["prompt"]
+        clean_sum = case["clean_sum"]
+        tokens = model.to_tokens(prompt)
+        str_tokens = model.to_str_tokens(prompt)
+
+        # Find operand B position: last digit token before '='
+        b_idx = -1
+        for i, tok in enumerate(str_tokens):
+            if "=" in tok:
+                for j in range(i - 1, -1, -1):
+                    if any(c.isdigit() for c in str_tokens[j]):
+                        b_idx = j
+                        break
+                break
+        if b_idx == -1:
+            print(f"   ❌ Skipping {prompt}: Could not find operand B token")
+            continue
+
+        print(f"   Operand B token: '{str_tokens[b_idx]}' at position {b_idx}")
+
+        for shift_amount in shifts_to_test:
+            expected_hacked = clean_sum + shift_amount
+            theta = (2 * np.pi * shift_amount) / 10.0
+            cos_t = np.cos(theta)
+            sin_t = np.sin(theta)
+
+            print(f"🎯 {prompt} | Shift +{shift_amount} | Expect: {clean_sum} -> {expected_hacked}")
+
+            magnitude_check_passed = True
+            _b_idx = b_idx
+
+            def rotation_hook(resid_pre, hook):
+                nonlocal magnitude_check_passed
+                # Guard: during KV-cache generation, seq length drops to 1
+                if resid_pre.shape[1] <= _b_idx:
+                    return resid_pre
+
+                vec = resid_pre[0, _b_idx, :].clone().float()
+
+                # Project onto the Vh plane (same basis the scan found the circle in)
+                c1 = torch.dot(vec, v1)
+                c2 = torch.dot(vec, v2)
+                original_magnitude = torch.sqrt(c1**2 + c2**2).item()
+
+                # Rotate
+                new_c1 = c1 * cos_t - c2 * sin_t
+                new_c2 = c1 * sin_t + c2 * cos_t
+
+                new_magnitude = torch.sqrt(new_c1**2 + new_c2**2).item()
+                if abs(original_magnitude - new_magnitude) > 1e-4:
+                    magnitude_check_passed = False
+
+                # Reconstruct: replace only the Vh-plane component
+                vec = vec - (c1 * v1 + c2 * v2) + (new_c1 * v1 + new_c2 * v2)
+                resid_pre[0, _b_idx, :] = vec.to(resid_pre.dtype)
                 return resid_pre
 
-            vec = resid_pre[0, target_idx, :].clone().float()
+            # Hook on residual stream BEFORE the target layer reads it
+            with model.hooks(fwd_hooks=[(f"blocks.{layer}.hook_resid_pre", rotation_hook)]):
+                patched_out = model.generate(tokens, max_new_tokens=3, verbose=False)
 
-            # Project onto 2D clock face
-            c1 = torch.dot(vec, v1)
-            c2 = torch.dot(vec, v2)
+            patched_pred = model.to_string(patched_out[0][tokens.shape[1]:]).strip()
 
-            # Check Magnitude
-            original_magnitude = torch.sqrt(c1**2 + c2**2).item()
-
-            # Rotate
-            new_c1 = c1 * cos_t - c2 * sin_t
-            new_c2 = c1 * sin_t + c2 * cos_t
-
-            new_magnitude = torch.sqrt(new_c1**2 + new_c2**2).item()
-            if abs(original_magnitude - new_magnitude) > 1e-4:
-                magnitude_check_passed = False
-
-            # Reconstruct vector
-            vec = vec - (c1 * v1 + c2 * v2) + (new_c1 * v1 + new_c2 * v2)
-            resid_pre[0, target_idx, :] = vec.to(resid_pre.dtype)
-            return resid_pre
-
-        # 4. Run Intervened Model
-        # We use model.hooks context manager to apply the hook during generation
-        with model.hooks(fwd_hooks=[(f"blocks.{layer}.hook_resid_pre", rotation_hook)]):
-            patched_out = model.generate(tokens, max_new_tokens=3, verbose=False)
-
-        patched_pred = model.to_string(patched_out[0][tokens.shape[1]:]).strip()
-
-        # Results Logging
-        print(f"   Clean Prediction:   '{clean_pred}'")
-        print(f"   Hacked Prediction:  '{patched_pred}' (We wanted: {case['expected_hacked']})")
-        if not magnitude_check_passed:
-            print("   ⚠️ Warning: Vector magnitude was NOT preserved during rotation!")
+            status = "✅" if patched_pred == str(expected_hacked) else "❌"
+            print(f"   {status} Clean: {clean_sum} | Hacked: '{patched_pred}' (wanted {expected_hacked})")
+            if not magnitude_check_passed:
+                print("   ⚠️ Warning: Vector magnitude was NOT preserved during rotation!")
     print("-" * 50)
 
 def run_rigorous_logit_lens(model_name="google/gemma-7b"):
@@ -4555,12 +4773,14 @@ if __name__ == "__main__":
     #microsoft/Phi-3-mini-4k-instruct
     #EleutherAI/gpt-j-6B
     #google/gemma-7b
+    #EleutherAI/pythia-6.9b
+    #meta-llama/Llama-3.2-3B
 
-    #scan_model_on_the_fly("meta-llama/Llama-3.2-3B")
+    #scan_model_on_the_fly("EleutherAI/pythia-6.9b")
     #Layer 1, Head 17 (Dims 2,6) | CV: 0.312, Lin: 0.934
 
     #You can run it at the bottom of your script like this:
-    #test_output_plane_computation("google/gemma-7b", layer=14, head=2, dim1=2, dim2=5)
+    test_output_plane_computation("google/gemma-7b", layer=14, head=2, dim1=2, dim2=5)
     #test_output_plane_computation("microsoft/Phi-3-mini-4k-instruct", layer=24, head=28, dim1=3, dim2=7)
 
     # Run it for Gemma 7B:
@@ -4681,7 +4901,7 @@ if __name__ == "__main__":
 
 
     #run_final_experiment()
-    run_final_experiment_with_3digits()
+    #run_final_experiment_with_3digits()
 
 
 

@@ -1,0 +1,2311 @@
+{
+  "qk_masks": [
+    {
+      "layer": 0,
+      "head": 0,
+      "avg_mask": 0.07566295564174652,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L0H0"
+    },
+    {
+      "layer": 0,
+      "head": 1,
+      "avg_mask": 0.2609684467315674,
+      "color": "#1D3557",
+      "category": "Duplicate Token Heads",
+      "head_label": "L0H1"
+    },
+    {
+      "layer": 0,
+      "head": 2,
+      "avg_mask": 0.10406376421451569,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L0H2"
+    },
+    {
+      "layer": 0,
+      "head": 3,
+      "avg_mask": 0.16358739137649536,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L0H3"
+    },
+    {
+      "layer": 0,
+      "head": 4,
+      "avg_mask": 0.2296927273273468,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L0H4"
+    },
+    {
+      "layer": 0,
+      "head": 5,
+      "avg_mask": 0.4285946488380432,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L0H5"
+    },
+    {
+      "layer": 0,
+      "head": 6,
+      "avg_mask": 0.14386305212974548,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L0H6"
+    },
+    {
+      "layer": 0,
+      "head": 7,
+      "avg_mask": 0.153555765748024,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L0H7"
+    },
+    {
+      "layer": 0,
+      "head": 8,
+      "avg_mask": 0.10163566470146179,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L0H8"
+    },
+    {
+      "layer": 0,
+      "head": 9,
+      "avg_mask": 0.18453562259674072,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L0H9"
+    },
+    {
+      "layer": 0,
+      "head": 10,
+      "avg_mask": 0.2828010022640228,
+      "color": "#1D3557",
+      "category": "Duplicate Token Heads",
+      "head_label": "L0H10"
+    },
+    {
+      "layer": 0,
+      "head": 11,
+      "avg_mask": 0.06790345907211304,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L0H11"
+    },
+    {
+      "layer": 1,
+      "head": 0,
+      "avg_mask": 0.11836960166692734,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L1H0"
+    },
+    {
+      "layer": 1,
+      "head": 1,
+      "avg_mask": 0.1690792441368103,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L1H1"
+    },
+    {
+      "layer": 1,
+      "head": 2,
+      "avg_mask": 0.013229300267994404,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L1H2"
+    },
+    {
+      "layer": 1,
+      "head": 3,
+      "avg_mask": 0.10475092381238937,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L1H3"
+    },
+    {
+      "layer": 1,
+      "head": 4,
+      "avg_mask": 0.07515309005975723,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L1H4"
+    },
+    {
+      "layer": 1,
+      "head": 5,
+      "avg_mask": 0.06077848747372627,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L1H5"
+    },
+    {
+      "layer": 1,
+      "head": 6,
+      "avg_mask": 0.0630076602101326,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L1H6"
+    },
+    {
+      "layer": 1,
+      "head": 7,
+      "avg_mask": 0.11679793149232864,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L1H7"
+    },
+    {
+      "layer": 1,
+      "head": 8,
+      "avg_mask": 0.053906701505184174,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L1H8"
+    },
+    {
+      "layer": 1,
+      "head": 9,
+      "avg_mask": 0.05323199927806854,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L1H9"
+    },
+    {
+      "layer": 1,
+      "head": 10,
+      "avg_mask": 0.031138692051172256,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L1H10"
+    },
+    {
+      "layer": 1,
+      "head": 11,
+      "avg_mask": 0.2376314103603363,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L1H11"
+    },
+    {
+      "layer": 2,
+      "head": 0,
+      "avg_mask": 0.13854224979877472,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L2H0"
+    },
+    {
+      "layer": 2,
+      "head": 1,
+      "avg_mask": 0.18295249342918396,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L2H1"
+    },
+    {
+      "layer": 2,
+      "head": 2,
+      "avg_mask": 0.1512388288974762,
+      "color": "#E63946",
+      "category": "Previous Token Heads",
+      "head_label": "L2H2"
+    },
+    {
+      "layer": 2,
+      "head": 3,
+      "avg_mask": 0.08104488998651505,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L2H3"
+    },
+    {
+      "layer": 2,
+      "head": 4,
+      "avg_mask": 0.08767461031675339,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L2H4"
+    },
+    {
+      "layer": 2,
+      "head": 5,
+      "avg_mask": 0.13000227510929108,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L2H5"
+    },
+    {
+      "layer": 2,
+      "head": 6,
+      "avg_mask": 0.2249375879764557,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L2H6"
+    },
+    {
+      "layer": 2,
+      "head": 7,
+      "avg_mask": 0.03884337842464447,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L2H7"
+    },
+    {
+      "layer": 2,
+      "head": 8,
+      "avg_mask": 0.09950876981019974,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L2H8"
+    },
+    {
+      "layer": 2,
+      "head": 9,
+      "avg_mask": 0.1816650778055191,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L2H9"
+    },
+    {
+      "layer": 2,
+      "head": 10,
+      "avg_mask": 0.09632301330566406,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L2H10"
+    },
+    {
+      "layer": 2,
+      "head": 11,
+      "avg_mask": 0.2423066794872284,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L2H11"
+    },
+    {
+      "layer": 3,
+      "head": 0,
+      "avg_mask": 0.3953877091407776,
+      "color": "#1D3557",
+      "category": "Duplicate Token Heads",
+      "head_label": "L3H0"
+    },
+    {
+      "layer": 3,
+      "head": 1,
+      "avg_mask": 0.13383322954177856,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L3H1"
+    },
+    {
+      "layer": 3,
+      "head": 2,
+      "avg_mask": 0.19178840517997742,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L3H2"
+    },
+    {
+      "layer": 3,
+      "head": 3,
+      "avg_mask": 0.20031610131263733,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L3H3"
+    },
+    {
+      "layer": 3,
+      "head": 4,
+      "avg_mask": 0.15916946530342102,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L3H4"
+    },
+    {
+      "layer": 3,
+      "head": 5,
+      "avg_mask": 0.0978253185749054,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L3H5"
+    },
+    {
+      "layer": 3,
+      "head": 6,
+      "avg_mask": 0.12334123998880386,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L3H6"
+    },
+    {
+      "layer": 3,
+      "head": 7,
+      "avg_mask": 0.2135586440563202,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L3H7"
+    },
+    {
+      "layer": 3,
+      "head": 8,
+      "avg_mask": 0.1641252636909485,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L3H8"
+    },
+    {
+      "layer": 3,
+      "head": 9,
+      "avg_mask": 0.10056843608617783,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L3H9"
+    },
+    {
+      "layer": 3,
+      "head": 10,
+      "avg_mask": 0.17378190159797668,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L3H10"
+    },
+    {
+      "layer": 3,
+      "head": 11,
+      "avg_mask": 0.08791905641555786,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L3H11"
+    },
+    {
+      "layer": 4,
+      "head": 0,
+      "avg_mask": 0.09672920405864716,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L4H0"
+    },
+    {
+      "layer": 4,
+      "head": 1,
+      "avg_mask": 0.13087309896945953,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L4H1"
+    },
+    {
+      "layer": 4,
+      "head": 2,
+      "avg_mask": 0.05493351072072983,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L4H2"
+    },
+    {
+      "layer": 4,
+      "head": 3,
+      "avg_mask": 0.20256152749061584,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L4H3"
+    },
+    {
+      "layer": 4,
+      "head": 4,
+      "avg_mask": 0.18100784718990326,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L4H4"
+    },
+    {
+      "layer": 4,
+      "head": 5,
+      "avg_mask": 0.260506272315979,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L4H5"
+    },
+    {
+      "layer": 4,
+      "head": 6,
+      "avg_mask": 0.19825291633605957,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L4H6"
+    },
+    {
+      "layer": 4,
+      "head": 7,
+      "avg_mask": 0.05980859696865082,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L4H7"
+    },
+    {
+      "layer": 4,
+      "head": 8,
+      "avg_mask": 0.08414782583713531,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L4H8"
+    },
+    {
+      "layer": 4,
+      "head": 9,
+      "avg_mask": 0.1144666075706482,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L4H9"
+    },
+    {
+      "layer": 4,
+      "head": 10,
+      "avg_mask": 0.06886830925941467,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L4H10"
+    },
+    {
+      "layer": 4,
+      "head": 11,
+      "avg_mask": 0.19666633009910583,
+      "color": "#E63946",
+      "category": "Previous Token Heads",
+      "head_label": "L4H11"
+    },
+    {
+      "layer": 5,
+      "head": 0,
+      "avg_mask": 0.1563582420349121,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L5H0"
+    },
+    {
+      "layer": 5,
+      "head": 1,
+      "avg_mask": 0.016877431422472,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L5H1"
+    },
+    {
+      "layer": 5,
+      "head": 2,
+      "avg_mask": 0.13460466265678406,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L5H2"
+    },
+    {
+      "layer": 5,
+      "head": 3,
+      "avg_mask": 0.07774485647678375,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L5H3"
+    },
+    {
+      "layer": 5,
+      "head": 4,
+      "avg_mask": 0.24883387982845306,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L5H4"
+    },
+    {
+      "layer": 5,
+      "head": 5,
+      "avg_mask": 0.4135591983795166,
+      "color": "#2A9D8F",
+      "category": "Induction Heads",
+      "head_label": "L5H5"
+    },
+    {
+      "layer": 5,
+      "head": 6,
+      "avg_mask": 0.08675546944141388,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L5H6"
+    },
+    {
+      "layer": 5,
+      "head": 7,
+      "avg_mask": 0.07130633294582367,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L5H7"
+    },
+    {
+      "layer": 5,
+      "head": 8,
+      "avg_mask": 0.5043448805809021,
+      "color": "#2A9D8F",
+      "category": "Induction Heads",
+      "head_label": "L5H8"
+    },
+    {
+      "layer": 5,
+      "head": 9,
+      "avg_mask": 0.41956618428230286,
+      "color": "#2A9D8F",
+      "category": "Induction Heads",
+      "head_label": "L5H9"
+    },
+    {
+      "layer": 5,
+      "head": 10,
+      "avg_mask": 0.2205912470817566,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L5H10"
+    },
+    {
+      "layer": 5,
+      "head": 11,
+      "avg_mask": 0.06561229377985,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L5H11"
+    },
+    {
+      "layer": 6,
+      "head": 0,
+      "avg_mask": 0.15575414896011353,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L6H0"
+    },
+    {
+      "layer": 6,
+      "head": 1,
+      "avg_mask": 0.2244892716407776,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L6H1"
+    },
+    {
+      "layer": 6,
+      "head": 2,
+      "avg_mask": 0.0993521511554718,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L6H2"
+    },
+    {
+      "layer": 6,
+      "head": 3,
+      "avg_mask": 0.11781779676675797,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L6H3"
+    },
+    {
+      "layer": 6,
+      "head": 4,
+      "avg_mask": 0.1196870505809784,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L6H4"
+    },
+    {
+      "layer": 6,
+      "head": 5,
+      "avg_mask": 0.22296205163002014,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L6H5"
+    },
+    {
+      "layer": 6,
+      "head": 6,
+      "avg_mask": 0.22378641366958618,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L6H6"
+    },
+    {
+      "layer": 6,
+      "head": 7,
+      "avg_mask": 0.13369129598140717,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L6H7"
+    },
+    {
+      "layer": 6,
+      "head": 8,
+      "avg_mask": 0.14432314038276672,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L6H8"
+    },
+    {
+      "layer": 6,
+      "head": 9,
+      "avg_mask": 0.4257892370223999,
+      "color": "#2A9D8F",
+      "category": "Induction Heads",
+      "head_label": "L6H9"
+    },
+    {
+      "layer": 6,
+      "head": 10,
+      "avg_mask": 0.1094309613108635,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L6H10"
+    },
+    {
+      "layer": 6,
+      "head": 11,
+      "avg_mask": 0.15716658532619476,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L6H11"
+    },
+    {
+      "layer": 7,
+      "head": 0,
+      "avg_mask": 0.12644526362419128,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L7H0"
+    },
+    {
+      "layer": 7,
+      "head": 1,
+      "avg_mask": 0.21490220725536346,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L7H1"
+    },
+    {
+      "layer": 7,
+      "head": 2,
+      "avg_mask": 0.014707298018038273,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L7H2"
+    },
+    {
+      "layer": 7,
+      "head": 3,
+      "avg_mask": 0.2843268811702728,
+      "color": "#8338EC",
+      "category": "S-Inhibition Heads",
+      "head_label": "L7H3"
+    },
+    {
+      "layer": 7,
+      "head": 4,
+      "avg_mask": 0.13577473163604736,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L7H4"
+    },
+    {
+      "layer": 7,
+      "head": 5,
+      "avg_mask": 0.1331455558538437,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L7H5"
+    },
+    {
+      "layer": 7,
+      "head": 6,
+      "avg_mask": 0.10407380759716034,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L7H6"
+    },
+    {
+      "layer": 7,
+      "head": 7,
+      "avg_mask": 0.02526649460196495,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L7H7"
+    },
+    {
+      "layer": 7,
+      "head": 8,
+      "avg_mask": 0.13131685554981232,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L7H8"
+    },
+    {
+      "layer": 7,
+      "head": 9,
+      "avg_mask": 0.353776216506958,
+      "color": "#8338EC",
+      "category": "S-Inhibition Heads",
+      "head_label": "L7H9"
+    },
+    {
+      "layer": 7,
+      "head": 10,
+      "avg_mask": 0.01995602622628212,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L7H10"
+    },
+    {
+      "layer": 7,
+      "head": 11,
+      "avg_mask": 0.05990247428417206,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L7H11"
+    },
+    {
+      "layer": 8,
+      "head": 0,
+      "avg_mask": 0.05810382589697838,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L8H0"
+    },
+    {
+      "layer": 8,
+      "head": 1,
+      "avg_mask": 0.01959235593676567,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L8H1"
+    },
+    {
+      "layer": 8,
+      "head": 2,
+      "avg_mask": 0.08555883169174194,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L8H2"
+    },
+    {
+      "layer": 8,
+      "head": 3,
+      "avg_mask": 0.3703566789627075,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L8H3"
+    },
+    {
+      "layer": 8,
+      "head": 4,
+      "avg_mask": 0.056034404784440994,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L8H4"
+    },
+    {
+      "layer": 8,
+      "head": 5,
+      "avg_mask": 0.1280079036951065,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L8H5"
+    },
+    {
+      "layer": 8,
+      "head": 6,
+      "avg_mask": 0.43531760573387146,
+      "color": "#8338EC",
+      "category": "S-Inhibition Heads",
+      "head_label": "L8H6"
+    },
+    {
+      "layer": 8,
+      "head": 7,
+      "avg_mask": 0.049897778779268265,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L8H7"
+    },
+    {
+      "layer": 8,
+      "head": 8,
+      "avg_mask": 0.09507416188716888,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L8H8"
+    },
+    {
+      "layer": 8,
+      "head": 9,
+      "avg_mask": 0.1435771882534027,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L8H9"
+    },
+    {
+      "layer": 8,
+      "head": 10,
+      "avg_mask": 0.3645821213722229,
+      "color": "#8338EC",
+      "category": "S-Inhibition Heads",
+      "head_label": "L8H10"
+    },
+    {
+      "layer": 8,
+      "head": 11,
+      "avg_mask": 0.18233343958854675,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L8H11"
+    },
+    {
+      "layer": 9,
+      "head": 0,
+      "avg_mask": 0.0859905332326889,
+      "color": "#8B4513",
+      "category": "Backup Name Mover Heads",
+      "head_label": "L9H0"
+    },
+    {
+      "layer": 9,
+      "head": 1,
+      "avg_mask": 0.020242666825652122,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L9H1"
+    },
+    {
+      "layer": 9,
+      "head": 2,
+      "avg_mask": 0.06332868337631226,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L9H2"
+    },
+    {
+      "layer": 9,
+      "head": 3,
+      "avg_mask": 0.1030983105301857,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L9H3"
+    },
+    {
+      "layer": 9,
+      "head": 4,
+      "avg_mask": 0.42686620354652405,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L9H4"
+    },
+    {
+      "layer": 9,
+      "head": 5,
+      "avg_mask": 0.1632905751466751,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L9H5"
+    },
+    {
+      "layer": 9,
+      "head": 6,
+      "avg_mask": 0.3074423372745514,
+      "color": "#F4A261",
+      "category": "Name Mover Heads",
+      "head_label": "L9H6"
+    },
+    {
+      "layer": 9,
+      "head": 7,
+      "avg_mask": 0.3202531337738037,
+      "color": "#8B4513",
+      "category": "Backup Name Mover Heads",
+      "head_label": "L9H7"
+    },
+    {
+      "layer": 9,
+      "head": 8,
+      "avg_mask": 0.17360645532608032,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L9H8"
+    },
+    {
+      "layer": 9,
+      "head": 9,
+      "avg_mask": 0.41821980476379395,
+      "color": "#F4A261",
+      "category": "Name Mover Heads",
+      "head_label": "L9H9"
+    },
+    {
+      "layer": 9,
+      "head": 10,
+      "avg_mask": 0.05556485429406166,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L9H10"
+    },
+    {
+      "layer": 9,
+      "head": 11,
+      "avg_mask": 0.023487715050578117,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L9H11"
+    },
+    {
+      "layer": 10,
+      "head": 0,
+      "avg_mask": 0.4699156880378723,
+      "color": "#F4A261",
+      "category": "Name Mover Heads",
+      "head_label": "L10H0"
+    },
+    {
+      "layer": 10,
+      "head": 1,
+      "avg_mask": 0.19738554954528809,
+      "color": "#8B4513",
+      "category": "Backup Name Mover Heads",
+      "head_label": "L10H1"
+    },
+    {
+      "layer": 10,
+      "head": 2,
+      "avg_mask": 0.4165690541267395,
+      "color": "#8B4513",
+      "category": "Backup Name Mover Heads",
+      "head_label": "L10H2"
+    },
+    {
+      "layer": 10,
+      "head": 3,
+      "avg_mask": 0.1394701898097992,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L10H3"
+    },
+    {
+      "layer": 10,
+      "head": 4,
+      "avg_mask": 0.07636904716491699,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L10H4"
+    },
+    {
+      "layer": 10,
+      "head": 5,
+      "avg_mask": 0.04432903230190277,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L10H5"
+    },
+    {
+      "layer": 10,
+      "head": 6,
+      "avg_mask": 0.3222457766532898,
+      "color": "#8B4513",
+      "category": "Backup Name Mover Heads",
+      "head_label": "L10H6"
+    },
+    {
+      "layer": 10,
+      "head": 7,
+      "avg_mask": 0.6604765057563782,
+      "color": "#FF6B35",
+      "category": "Negative Name Mover Heads",
+      "head_label": "L10H7"
+    },
+    {
+      "layer": 10,
+      "head": 8,
+      "avg_mask": 0.19405364990234375,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L10H8"
+    },
+    {
+      "layer": 10,
+      "head": 9,
+      "avg_mask": 0.14710907638072968,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L10H9"
+    },
+    {
+      "layer": 10,
+      "head": 10,
+      "avg_mask": 0.3648032546043396,
+      "color": "#8B4513",
+      "category": "Backup Name Mover Heads",
+      "head_label": "L10H10"
+    },
+    {
+      "layer": 10,
+      "head": 11,
+      "avg_mask": 0.02166084200143814,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L10H11"
+    },
+    {
+      "layer": 11,
+      "head": 0,
+      "avg_mask": 0.02537960559129715,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L11H0"
+    },
+    {
+      "layer": 11,
+      "head": 1,
+      "avg_mask": 0.2562178075313568,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L11H1"
+    },
+    {
+      "layer": 11,
+      "head": 2,
+      "avg_mask": 0.6061196327209473,
+      "color": "#8B4513",
+      "category": "Backup Name Mover Heads",
+      "head_label": "L11H2"
+    },
+    {
+      "layer": 11,
+      "head": 3,
+      "avg_mask": 0.21821433305740356,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L11H3"
+    },
+    {
+      "layer": 11,
+      "head": 4,
+      "avg_mask": 0.25415703654289246,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L11H4"
+    },
+    {
+      "layer": 11,
+      "head": 5,
+      "avg_mask": 0.015239180997014046,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L11H5"
+    },
+    {
+      "layer": 11,
+      "head": 6,
+      "avg_mask": 0.5501942038536072,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L11H6"
+    },
+    {
+      "layer": 11,
+      "head": 7,
+      "avg_mask": 0.020207658410072327,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L11H7"
+    },
+    {
+      "layer": 11,
+      "head": 8,
+      "avg_mask": 0.03450338914990425,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L11H8"
+    },
+    {
+      "layer": 11,
+      "head": 9,
+      "avg_mask": 0.14601093530654907,
+      "color": "#8B4513",
+      "category": "Backup Name Mover Heads",
+      "head_label": "L11H9"
+    },
+    {
+      "layer": 11,
+      "head": 10,
+      "avg_mask": 0.7582231760025024,
+      "color": "#FF6B35",
+      "category": "Negative Name Mover Heads",
+      "head_label": "L11H10"
+    },
+    {
+      "layer": 11,
+      "head": 11,
+      "avg_mask": 0.0603790245950222,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L11H11"
+    }
+  ],
+  "ov_masks": [
+    {
+      "layer": 0,
+      "head": 0,
+      "avg_mask": 0.009332052432000637,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L0H0"
+    },
+    {
+      "layer": 0,
+      "head": 1,
+      "avg_mask": 0.011305986903607845,
+      "color": "#1D3557",
+      "category": "Duplicate Token Heads",
+      "head_label": "L0H1"
+    },
+    {
+      "layer": 0,
+      "head": 2,
+      "avg_mask": 0.008893698453903198,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L0H2"
+    },
+    {
+      "layer": 0,
+      "head": 3,
+      "avg_mask": 0.007793367840349674,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L0H3"
+    },
+    {
+      "layer": 0,
+      "head": 4,
+      "avg_mask": 0.007883395999670029,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L0H4"
+    },
+    {
+      "layer": 0,
+      "head": 5,
+      "avg_mask": 0.0076705776154994965,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L0H5"
+    },
+    {
+      "layer": 0,
+      "head": 6,
+      "avg_mask": 0.027330100536346436,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L0H6"
+    },
+    {
+      "layer": 0,
+      "head": 7,
+      "avg_mask": 0.007950509898364544,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L0H7"
+    },
+    {
+      "layer": 0,
+      "head": 8,
+      "avg_mask": 0.009708499535918236,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L0H8"
+    },
+    {
+      "layer": 0,
+      "head": 9,
+      "avg_mask": 0.008876530453562737,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L0H9"
+    },
+    {
+      "layer": 0,
+      "head": 10,
+      "avg_mask": 0.008614171296358109,
+      "color": "#1D3557",
+      "category": "Duplicate Token Heads",
+      "head_label": "L0H10"
+    },
+    {
+      "layer": 0,
+      "head": 11,
+      "avg_mask": 0.011488772928714752,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L0H11"
+    },
+    {
+      "layer": 1,
+      "head": 0,
+      "avg_mask": 0.01063546258956194,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L1H0"
+    },
+    {
+      "layer": 1,
+      "head": 1,
+      "avg_mask": 0.008522906340658665,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L1H1"
+    },
+    {
+      "layer": 1,
+      "head": 2,
+      "avg_mask": 0.012060791254043579,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L1H2"
+    },
+    {
+      "layer": 1,
+      "head": 3,
+      "avg_mask": 0.008859927766025066,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L1H3"
+    },
+    {
+      "layer": 1,
+      "head": 4,
+      "avg_mask": 0.014472541399300098,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L1H4"
+    },
+    {
+      "layer": 1,
+      "head": 5,
+      "avg_mask": 0.02261427231132984,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L1H5"
+    },
+    {
+      "layer": 1,
+      "head": 6,
+      "avg_mask": 0.00944578368216753,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L1H6"
+    },
+    {
+      "layer": 1,
+      "head": 7,
+      "avg_mask": 0.019606832414865494,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L1H7"
+    },
+    {
+      "layer": 1,
+      "head": 8,
+      "avg_mask": 0.024160845205187798,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L1H8"
+    },
+    {
+      "layer": 1,
+      "head": 9,
+      "avg_mask": 0.014300423674285412,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L1H9"
+    },
+    {
+      "layer": 1,
+      "head": 10,
+      "avg_mask": 0.013517466373741627,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L1H10"
+    },
+    {
+      "layer": 1,
+      "head": 11,
+      "avg_mask": 0.0193504448980093,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L1H11"
+    },
+    {
+      "layer": 2,
+      "head": 0,
+      "avg_mask": 0.00799886416643858,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L2H0"
+    },
+    {
+      "layer": 2,
+      "head": 1,
+      "avg_mask": 0.01754092052578926,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L2H1"
+    },
+    {
+      "layer": 2,
+      "head": 2,
+      "avg_mask": 0.008339057676494122,
+      "color": "#E63946",
+      "category": "Previous Token Heads",
+      "head_label": "L2H2"
+    },
+    {
+      "layer": 2,
+      "head": 3,
+      "avg_mask": 0.008016162551939487,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L2H3"
+    },
+    {
+      "layer": 2,
+      "head": 4,
+      "avg_mask": 0.008060695603489876,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L2H4"
+    },
+    {
+      "layer": 2,
+      "head": 5,
+      "avg_mask": 0.008527121506631374,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L2H5"
+    },
+    {
+      "layer": 2,
+      "head": 6,
+      "avg_mask": 0.0100413728505373,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L2H6"
+    },
+    {
+      "layer": 2,
+      "head": 7,
+      "avg_mask": 0.010381130501627922,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L2H7"
+    },
+    {
+      "layer": 2,
+      "head": 8,
+      "avg_mask": 0.010451335459947586,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L2H8"
+    },
+    {
+      "layer": 2,
+      "head": 9,
+      "avg_mask": 0.011631487868726254,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L2H9"
+    },
+    {
+      "layer": 2,
+      "head": 10,
+      "avg_mask": 0.00993727333843708,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L2H10"
+    },
+    {
+      "layer": 2,
+      "head": 11,
+      "avg_mask": 0.01650235801935196,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L2H11"
+    },
+    {
+      "layer": 3,
+      "head": 0,
+      "avg_mask": 0.00770875858142972,
+      "color": "#1D3557",
+      "category": "Duplicate Token Heads",
+      "head_label": "L3H0"
+    },
+    {
+      "layer": 3,
+      "head": 1,
+      "avg_mask": 0.014346442185342312,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L3H1"
+    },
+    {
+      "layer": 3,
+      "head": 2,
+      "avg_mask": 0.009098225273191929,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L3H2"
+    },
+    {
+      "layer": 3,
+      "head": 3,
+      "avg_mask": 0.014949551783502102,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L3H3"
+    },
+    {
+      "layer": 3,
+      "head": 4,
+      "avg_mask": 0.010667379945516586,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L3H4"
+    },
+    {
+      "layer": 3,
+      "head": 5,
+      "avg_mask": 0.009602225385606289,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L3H5"
+    },
+    {
+      "layer": 3,
+      "head": 6,
+      "avg_mask": 0.009297228418290615,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L3H6"
+    },
+    {
+      "layer": 3,
+      "head": 7,
+      "avg_mask": 0.010594877414405346,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L3H7"
+    },
+    {
+      "layer": 3,
+      "head": 8,
+      "avg_mask": 0.009044753387570381,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L3H8"
+    },
+    {
+      "layer": 3,
+      "head": 9,
+      "avg_mask": 0.011586794629693031,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L3H9"
+    },
+    {
+      "layer": 3,
+      "head": 10,
+      "avg_mask": 0.013517985120415688,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L3H10"
+    },
+    {
+      "layer": 3,
+      "head": 11,
+      "avg_mask": 0.00847100280225277,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L3H11"
+    },
+    {
+      "layer": 4,
+      "head": 0,
+      "avg_mask": 0.012162408791482449,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L4H0"
+    },
+    {
+      "layer": 4,
+      "head": 1,
+      "avg_mask": 0.011560052633285522,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L4H1"
+    },
+    {
+      "layer": 4,
+      "head": 2,
+      "avg_mask": 0.008545733988285065,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L4H2"
+    },
+    {
+      "layer": 4,
+      "head": 3,
+      "avg_mask": 0.020663419738411903,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L4H3"
+    },
+    {
+      "layer": 4,
+      "head": 4,
+      "avg_mask": 0.019021859392523766,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L4H4"
+    },
+    {
+      "layer": 4,
+      "head": 5,
+      "avg_mask": 0.011148236691951752,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L4H5"
+    },
+    {
+      "layer": 4,
+      "head": 6,
+      "avg_mask": 0.02553717978298664,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L4H6"
+    },
+    {
+      "layer": 4,
+      "head": 7,
+      "avg_mask": 0.011580024845898151,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L4H7"
+    },
+    {
+      "layer": 4,
+      "head": 8,
+      "avg_mask": 0.011380910873413086,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L4H8"
+    },
+    {
+      "layer": 4,
+      "head": 9,
+      "avg_mask": 0.010605566203594208,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L4H9"
+    },
+    {
+      "layer": 4,
+      "head": 10,
+      "avg_mask": 0.008351417258381844,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L4H10"
+    },
+    {
+      "layer": 4,
+      "head": 11,
+      "avg_mask": 0.010307461023330688,
+      "color": "#E63946",
+      "category": "Previous Token Heads",
+      "head_label": "L4H11"
+    },
+    {
+      "layer": 5,
+      "head": 0,
+      "avg_mask": 0.010014216415584087,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L5H0"
+    },
+    {
+      "layer": 5,
+      "head": 1,
+      "avg_mask": 0.007808597292751074,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L5H1"
+    },
+    {
+      "layer": 5,
+      "head": 2,
+      "avg_mask": 0.013773194514214993,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L5H2"
+    },
+    {
+      "layer": 5,
+      "head": 3,
+      "avg_mask": 0.026245594024658203,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L5H3"
+    },
+    {
+      "layer": 5,
+      "head": 4,
+      "avg_mask": 0.017379609867930412,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L5H4"
+    },
+    {
+      "layer": 5,
+      "head": 5,
+      "avg_mask": 0.06026541814208031,
+      "color": "#2A9D8F",
+      "category": "Induction Heads",
+      "head_label": "L5H5"
+    },
+    {
+      "layer": 5,
+      "head": 6,
+      "avg_mask": 0.0077269552275538445,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L5H6"
+    },
+    {
+      "layer": 5,
+      "head": 7,
+      "avg_mask": 0.01219036616384983,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L5H7"
+    },
+    {
+      "layer": 5,
+      "head": 8,
+      "avg_mask": 0.01012423075735569,
+      "color": "#2A9D8F",
+      "category": "Induction Heads",
+      "head_label": "L5H8"
+    },
+    {
+      "layer": 5,
+      "head": 9,
+      "avg_mask": 0.010021461173892021,
+      "color": "#2A9D8F",
+      "category": "Induction Heads",
+      "head_label": "L5H9"
+    },
+    {
+      "layer": 5,
+      "head": 10,
+      "avg_mask": 0.04099568724632263,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L5H10"
+    },
+    {
+      "layer": 5,
+      "head": 11,
+      "avg_mask": 0.010601518675684929,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L5H11"
+    },
+    {
+      "layer": 6,
+      "head": 0,
+      "avg_mask": 0.03314679488539696,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L6H0"
+    },
+    {
+      "layer": 6,
+      "head": 1,
+      "avg_mask": 0.058918245136737823,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L6H1"
+    },
+    {
+      "layer": 6,
+      "head": 2,
+      "avg_mask": 0.031242916360497475,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L6H2"
+    },
+    {
+      "layer": 6,
+      "head": 3,
+      "avg_mask": 0.016394978389143944,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L6H3"
+    },
+    {
+      "layer": 6,
+      "head": 4,
+      "avg_mask": 0.02382577769458294,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L6H4"
+    },
+    {
+      "layer": 6,
+      "head": 5,
+      "avg_mask": 0.019035907462239265,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L6H5"
+    },
+    {
+      "layer": 6,
+      "head": 6,
+      "avg_mask": 0.038575828075408936,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L6H6"
+    },
+    {
+      "layer": 6,
+      "head": 7,
+      "avg_mask": 0.04479921981692314,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L6H7"
+    },
+    {
+      "layer": 6,
+      "head": 8,
+      "avg_mask": 0.01783268339931965,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L6H8"
+    },
+    {
+      "layer": 6,
+      "head": 9,
+      "avg_mask": 0.0096992626786232,
+      "color": "#2A9D8F",
+      "category": "Induction Heads",
+      "head_label": "L6H9"
+    },
+    {
+      "layer": 6,
+      "head": 10,
+      "avg_mask": 0.025751961395144463,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L6H10"
+    },
+    {
+      "layer": 6,
+      "head": 11,
+      "avg_mask": 0.01594441942870617,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L6H11"
+    },
+    {
+      "layer": 7,
+      "head": 0,
+      "avg_mask": 0.03704163432121277,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L7H0"
+    },
+    {
+      "layer": 7,
+      "head": 1,
+      "avg_mask": 0.023212425410747528,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L7H1"
+    },
+    {
+      "layer": 7,
+      "head": 2,
+      "avg_mask": 0.009719716385006905,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L7H2"
+    },
+    {
+      "layer": 7,
+      "head": 3,
+      "avg_mask": 0.3104954659938812,
+      "color": "#8338EC",
+      "category": "S-Inhibition Heads",
+      "head_label": "L7H3"
+    },
+    {
+      "layer": 7,
+      "head": 4,
+      "avg_mask": 0.03211091458797455,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L7H4"
+    },
+    {
+      "layer": 7,
+      "head": 5,
+      "avg_mask": 0.03144944831728935,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L7H5"
+    },
+    {
+      "layer": 7,
+      "head": 6,
+      "avg_mask": 0.061823487281799316,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L7H6"
+    },
+    {
+      "layer": 7,
+      "head": 7,
+      "avg_mask": 0.012610911391675472,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L7H7"
+    },
+    {
+      "layer": 7,
+      "head": 8,
+      "avg_mask": 0.023609330877661705,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L7H8"
+    },
+    {
+      "layer": 7,
+      "head": 9,
+      "avg_mask": 0.4785546362400055,
+      "color": "#8338EC",
+      "category": "S-Inhibition Heads",
+      "head_label": "L7H9"
+    },
+    {
+      "layer": 7,
+      "head": 10,
+      "avg_mask": 0.0076318648643791676,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L7H10"
+    },
+    {
+      "layer": 7,
+      "head": 11,
+      "avg_mask": 0.018631549552083015,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L7H11"
+    },
+    {
+      "layer": 8,
+      "head": 0,
+      "avg_mask": 0.02252981811761856,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L8H0"
+    },
+    {
+      "layer": 8,
+      "head": 1,
+      "avg_mask": 0.007691354490816593,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L8H1"
+    },
+    {
+      "layer": 8,
+      "head": 2,
+      "avg_mask": 0.13848792016506195,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L8H2"
+    },
+    {
+      "layer": 8,
+      "head": 3,
+      "avg_mask": 0.27174344658851624,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L8H3"
+    },
+    {
+      "layer": 8,
+      "head": 4,
+      "avg_mask": 0.013954517431557178,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L8H4"
+    },
+    {
+      "layer": 8,
+      "head": 5,
+      "avg_mask": 0.1397140473127365,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L8H5"
+    },
+    {
+      "layer": 8,
+      "head": 6,
+      "avg_mask": 0.4494677186012268,
+      "color": "#8338EC",
+      "category": "S-Inhibition Heads",
+      "head_label": "L8H6"
+    },
+    {
+      "layer": 8,
+      "head": 7,
+      "avg_mask": 0.013697713613510132,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L8H7"
+    },
+    {
+      "layer": 8,
+      "head": 8,
+      "avg_mask": 0.015037186443805695,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L8H8"
+    },
+    {
+      "layer": 8,
+      "head": 9,
+      "avg_mask": 0.02124755270779133,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L8H9"
+    },
+    {
+      "layer": 8,
+      "head": 10,
+      "avg_mask": 0.3694709241390228,
+      "color": "#8338EC",
+      "category": "S-Inhibition Heads",
+      "head_label": "L8H10"
+    },
+    {
+      "layer": 8,
+      "head": 11,
+      "avg_mask": 0.02910018526017666,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L8H11"
+    },
+    {
+      "layer": 9,
+      "head": 0,
+      "avg_mask": 0.028376983478665352,
+      "color": "#8B4513",
+      "category": "Backup Name Mover Heads",
+      "head_label": "L9H0"
+    },
+    {
+      "layer": 9,
+      "head": 1,
+      "avg_mask": 0.008377619087696075,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L9H1"
+    },
+    {
+      "layer": 9,
+      "head": 2,
+      "avg_mask": 0.01627465710043907,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L9H2"
+    },
+    {
+      "layer": 9,
+      "head": 3,
+      "avg_mask": 0.05221980810165405,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L9H3"
+    },
+    {
+      "layer": 9,
+      "head": 4,
+      "avg_mask": 0.21650543808937073,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L9H4"
+    },
+    {
+      "layer": 9,
+      "head": 5,
+      "avg_mask": 0.1683746725320816,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L9H5"
+    },
+    {
+      "layer": 9,
+      "head": 6,
+      "avg_mask": 0.7937677502632141,
+      "color": "#F4A261",
+      "category": "Name Mover Heads",
+      "head_label": "L9H6"
+    },
+    {
+      "layer": 9,
+      "head": 7,
+      "avg_mask": 0.24881626665592194,
+      "color": "#8B4513",
+      "category": "Backup Name Mover Heads",
+      "head_label": "L9H7"
+    },
+    {
+      "layer": 9,
+      "head": 8,
+      "avg_mask": 0.3708232641220093,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L9H8"
+    },
+    {
+      "layer": 9,
+      "head": 9,
+      "avg_mask": 0.856545090675354,
+      "color": "#F4A261",
+      "category": "Name Mover Heads",
+      "head_label": "L9H9"
+    },
+    {
+      "layer": 9,
+      "head": 10,
+      "avg_mask": 0.00783595722168684,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L9H10"
+    },
+    {
+      "layer": 9,
+      "head": 11,
+      "avg_mask": 0.027933018282055855,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L9H11"
+    },
+    {
+      "layer": 10,
+      "head": 0,
+      "avg_mask": 0.7749314904212952,
+      "color": "#F4A261",
+      "category": "Name Mover Heads",
+      "head_label": "L10H0"
+    },
+    {
+      "layer": 10,
+      "head": 1,
+      "avg_mask": 0.41575342416763306,
+      "color": "#8B4513",
+      "category": "Backup Name Mover Heads",
+      "head_label": "L10H1"
+    },
+    {
+      "layer": 10,
+      "head": 2,
+      "avg_mask": 0.5781479477882385,
+      "color": "#8B4513",
+      "category": "Backup Name Mover Heads",
+      "head_label": "L10H2"
+    },
+    {
+      "layer": 10,
+      "head": 3,
+      "avg_mask": 0.19571274518966675,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L10H3"
+    },
+    {
+      "layer": 10,
+      "head": 4,
+      "avg_mask": 0.03279072046279907,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L10H4"
+    },
+    {
+      "layer": 10,
+      "head": 5,
+      "avg_mask": 0.05007581785321236,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L10H5"
+    },
+    {
+      "layer": 10,
+      "head": 6,
+      "avg_mask": 0.5035178661346436,
+      "color": "#8B4513",
+      "category": "Backup Name Mover Heads",
+      "head_label": "L10H6"
+    },
+    {
+      "layer": 10,
+      "head": 7,
+      "avg_mask": 0.46255427598953247,
+      "color": "#FF6B35",
+      "category": "Negative Name Mover Heads",
+      "head_label": "L10H7"
+    },
+    {
+      "layer": 10,
+      "head": 8,
+      "avg_mask": 0.26063990592956543,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L10H8"
+    },
+    {
+      "layer": 10,
+      "head": 9,
+      "avg_mask": 0.04830751568078995,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L10H9"
+    },
+    {
+      "layer": 10,
+      "head": 10,
+      "avg_mask": 0.7128325700759888,
+      "color": "#8B4513",
+      "category": "Backup Name Mover Heads",
+      "head_label": "L10H10"
+    },
+    {
+      "layer": 10,
+      "head": 11,
+      "avg_mask": 0.012061726301908493,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L10H11"
+    },
+    {
+      "layer": 11,
+      "head": 0,
+      "avg_mask": 0.04091639816761017,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L11H0"
+    },
+    {
+      "layer": 11,
+      "head": 1,
+      "avg_mask": 0.30075985193252563,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L11H1"
+    },
+    {
+      "layer": 11,
+      "head": 2,
+      "avg_mask": 0.7089362740516663,
+      "color": "#8B4513",
+      "category": "Backup Name Mover Heads",
+      "head_label": "L11H2"
+    },
+    {
+      "layer": 11,
+      "head": 3,
+      "avg_mask": 0.6585037112236023,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L11H3"
+    },
+    {
+      "layer": 11,
+      "head": 4,
+      "avg_mask": 0.3032635748386383,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L11H4"
+    },
+    {
+      "layer": 11,
+      "head": 5,
+      "avg_mask": 0.07545991986989975,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L11H5"
+    },
+    {
+      "layer": 11,
+      "head": 6,
+      "avg_mask": 0.634357213973999,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L11H6"
+    },
+    {
+      "layer": 11,
+      "head": 7,
+      "avg_mask": 0.05831194669008255,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L11H7"
+    },
+    {
+      "layer": 11,
+      "head": 8,
+      "avg_mask": 0.10125613212585449,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L11H8"
+    },
+    {
+      "layer": 11,
+      "head": 9,
+      "avg_mask": 0.350799024105072,
+      "color": "#8B4513",
+      "category": "Backup Name Mover Heads",
+      "head_label": "L11H9"
+    },
+    {
+      "layer": 11,
+      "head": 10,
+      "avg_mask": 0.5044475197792053,
+      "color": "#FF6B35",
+      "category": "Negative Name Mover Heads",
+      "head_label": "L11H10"
+    },
+    {
+      "layer": 11,
+      "head": 11,
+      "avg_mask": 0.1252470463514328,
+      "color": "#CCCCCC",
+      "category": "Other Heads",
+      "head_label": "L11H11"
+    }
+  ],
+  "is_ioi": true
+}
