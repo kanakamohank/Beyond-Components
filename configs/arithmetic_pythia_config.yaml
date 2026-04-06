@@ -58,13 +58,13 @@ fourier:
 # ---------- Training (Phase 3 — mask learning) ----------
 training:
   batch_size: 25  # = full dataset (5*5 pairs) for clean gradient signal
-  num_epochs: 3
+  num_epochs: 5
   device: null  # auto-detect: cuda > mps > cpu (override with --device CLI flag)
 
   # Optimizer hyperparameters
   learning_rate: 2.0e-2
   weight_decay: 0.0
-  l1_weight: 2.0e-4
+  l1_weight: 2.0e-3
   temperature: 1.0
 
   # Learning rate scheduling
@@ -87,10 +87,10 @@ training:
 train_masks: ["OV", "MLP_in", "MLP_out"]
 
 masking:
-  mask_init_value: 0.99
+  mask_init_value: 0.5
   cache_svd: true
   warmup_steps: 0
-  max_iterations_per_batch: 15
+  max_iterations_per_batch: 30
   sparsity_threshold: 1.0e-3
 
 # ---------- Logging ----------

@@ -22,6 +22,9 @@ wheels/
 data/data_main.zip
 data_main
 data_main.zip
+*_results/*
+*_models/*
+svd_logs/*
 
 # Virtual environments
 venv/
