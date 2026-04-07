@@ -216,15 +216,15 @@ class MaskedTransformerCircuit:
         try:
             svd_data = torch.load(filepath, map_location='cpu')
             
-            # Move to appropriate device
-            U = svd_data['U'].to(self.device)
-            S = svd_data['S'].to(self.device)
-            Vh = svd_data['Vh'].to(self.device)
+            # Keep on CPU to avoid GPU OOM; moved to device on-the-fly in get_masked_weights
+            U = svd_data['U']
+            S = svd_data['S']
+            Vh = svd_data['Vh']
             
             # Load original matrix if available
             original_matrix = None
             if 'original_matrix' in svd_data:
-                original_matrix = svd_data['original_matrix'].to(self.device)
+                original_matrix = svd_data['original_matrix']
             
             # logger.info(f"Loaded SVD for layer {layer}, head {head}, {component} from {filepath}")
             
@@ -332,79 +332,129 @@ class MaskedTransformerCircuit:
     
     def _compute_qk_svd(self, layer: int, head: int):
         """Compute SVD for Query-Key matrix."""
-        # Extract weights and biases
-        W_Q = self.state_dict[f'blocks.{layer}.attn.W_Q'][head].to(self.device)
-        W_K = self.state_dict[f'blocks.{layer}.attn.W_K'][head].to(self.device)
-        b_Q = self.state_dict[f'blocks.{layer}.attn.b_Q'][head].to(self.device)
-        b_K = self.state_dict[f'blocks.{layer}.attn.b_K'][head].to(self.device)
+        # Extract weights and biases (compute on CPU to avoid GPU OOM)
+        W_Q = self.state_dict[f'blocks.{layer}.attn.W_Q'][head].cpu()
+        W_K = self.state_dict[f'blocks.{layer}.attn.W_K'][head].cpu()
+        b_Q = self.state_dict[f'blocks.{layer}.attn.b_Q'][head].cpu()
+        b_K = self.state_dict[f'blocks.{layer}.attn.b_K'][head].cpu()
         
         # Construct augmented W_QK matrix
-        W_QK = torch.zeros(self.d_model+1, self.d_model+1, device=self.device, dtype=W_Q.dtype)
+        W_QK = torch.zeros(self.d_model+1, self.d_model+1, device='cpu', dtype=W_Q.dtype)
         W_QK[0, 0] = torch.dot(b_Q, b_K)
         W_QK[0, 1:] = b_Q @ W_K.T
         W_QK[1:, 0] = W_Q @ b_K
         W_QK[1:, 1:] = W_Q @ W_K.T
         
-        # Compute SVD
+        # Compute SVD (cast to float32 — CPU SVD doesn't support float16/bfloat16)
+        orig_dtype = W_QK.dtype
         with torch.no_grad():
-            U, S, Vh = torch.linalg.svd(W_QK, full_matrices=False)
+            U, S, Vh = torch.linalg.svd(W_QK.float(), full_matrices=False)
+        U, S, Vh = U.to(orig_dtype), S.to(orig_dtype), Vh.to(orig_dtype)
         
         return U, S, Vh, W_QK
     
     def _compute_ov_svd(self, layer: int, head: int):
         """Compute SVD for Output-Value matrix."""
-        # Extract weights and biases
-        W_V = self.state_dict[f'blocks.{layer}.attn.W_V'][head].to(self.device)
-        W_O = self.state_dict[f'blocks.{layer}.attn.W_O'][head].to(self.device)
-        b_V = self.state_dict[f'blocks.{layer}.attn.b_V'][head].to(self.device)
-        b_O = self.state_dict[f'blocks.{layer}.attn.b_O'].to(self.device)
+        # Extract weights and biases (compute on CPU to avoid GPU OOM)
+        W_V = self.state_dict[f'blocks.{layer}.attn.W_V'][head].cpu()
+        W_O = self.state_dict[f'blocks.{layer}.attn.W_O'][head].cpu()
+        b_V = self.state_dict[f'blocks.{layer}.attn.b_V'][head].cpu()
+        b_O = self.state_dict[f'blocks.{layer}.attn.b_O'].cpu()
         
         # Construct W_OV matrix
-        W_OV = torch.zeros(self.d_model+1, self.d_model, device=self.device, dtype=W_V.dtype)
+        W_OV = torch.zeros(self.d_model+1, self.d_model, device='cpu', dtype=W_V.dtype)
         b_eff = b_V @ W_O + b_O/self.n_heads
         W_OV[0] = b_eff
         W_OV[1:] = W_V @ W_O
         
-        # Compute SVD
+        # Compute SVD (cast to float32 — CPU SVD doesn't support float16/bfloat16)
+        orig_dtype = W_OV.dtype
         with torch.no_grad():
-            U, S, Vh = torch.linalg.svd(W_OV, full_matrices=False)
+            U, S, Vh = torch.linalg.svd(W_OV.float(), full_matrices=False)
+        U, S, Vh = U.to(orig_dtype), S.to(orig_dtype), Vh.to(orig_dtype)
         
         return U, S, Vh, W_OV
     
     def _compute_mlp_in_svd(self, layer: int):
         """Compute SVD for MLP input matrix (W_in) with bias."""
-        # Extract weights and bias
-        W_in = self.state_dict[f'blocks.{layer}.mlp.W_in'].to(self.device)
-        b_in = self.state_dict[f'blocks.{layer}.mlp.b_in'].to(self.device)
+        # Extract weights and bias (compute on CPU to avoid GPU OOM)
+        W_in = self.state_dict[f'blocks.{layer}.mlp.W_in'].cpu()
+        b_in = self.state_dict[f'blocks.{layer}.mlp.b_in'].cpu()
         
         # Construct augmented W_in matrix
-        W_in_aug = torch.zeros(self.d_model+1, self.d_mlp, device=self.device, dtype=W_in.dtype)
+        W_in_aug = torch.zeros(self.d_model+1, self.d_mlp, device='cpu', dtype=W_in.dtype)
         W_in_aug[0] = b_in
         W_in_aug[1:] = W_in
         
-        # Compute SVD
+        # Compute SVD (cast to float32 — CPU SVD doesn't support float16/bfloat16)
+        orig_dtype = W_in_aug.dtype
         with torch.no_grad():
-            U, S, Vh = torch.linalg.svd(W_in_aug, full_matrices=False)
+            U, S, Vh = torch.linalg.svd(W_in_aug.float(), full_matrices=False)
+        U, S, Vh = U.to(orig_dtype), S.to(orig_dtype), Vh.to(orig_dtype)
         
         return U, S, Vh, W_in_aug
     
     def _compute_mlp_out_svd(self, layer: int):
         """Compute SVD for MLP output matrix (W_out) with bias."""
-        # Extract weights and bias
-        W_out = self.state_dict[f'blocks.{layer}.mlp.W_out'].to(self.device)
-        b_out = self.state_dict[f'blocks.{layer}.mlp.b_out'].to(self.device)
+        # Extract weights and bias (compute on CPU to avoid GPU OOM)
+        W_out = self.state_dict[f'blocks.{layer}.mlp.W_out'].cpu()
+        b_out = self.state_dict[f'blocks.{layer}.mlp.b_out'].cpu()
         
         # Construct augmented W_out matrix
-        W_out_aug = torch.zeros(self.d_mlp+1, self.d_model, device=self.device, dtype=W_out.dtype)
+        W_out_aug = torch.zeros(self.d_mlp+1, self.d_model, device='cpu', dtype=W_out.dtype)
         W_out_aug[0] = b_out
         W_out_aug[1:] = W_out
         
-        # Compute SVD
+        # Compute SVD (cast to float32 — CPU SVD doesn't support float16/bfloat16)
+        orig_dtype = W_out_aug.dtype
         with torch.no_grad():
-            U, S, Vh = torch.linalg.svd(W_out_aug, full_matrices=False)
+            U, S, Vh = torch.linalg.svd(W_out_aug.float(), full_matrices=False)
+        U, S, Vh = U.to(orig_dtype), S.to(orig_dtype), Vh.to(orig_dtype)
         
         return U, S, Vh, W_out_aug
-    
+
+    def _recompute_qk_matrix(self, layer: int, head: int):
+        """Recompute W_QK matrix from model weights on-the-fly (no SVD, no caching)."""
+        W_Q = self.state_dict[f'blocks.{layer}.attn.W_Q'][head].to(self.device)
+        W_K = self.state_dict[f'blocks.{layer}.attn.W_K'][head].to(self.device)
+        b_Q = self.state_dict[f'blocks.{layer}.attn.b_Q'][head].to(self.device)
+        b_K = self.state_dict[f'blocks.{layer}.attn.b_K'][head].to(self.device)
+        W_QK = torch.zeros(self.d_model+1, self.d_model+1, device=self.device, dtype=W_Q.dtype)
+        W_QK[0, 0] = torch.dot(b_Q, b_K)
+        W_QK[0, 1:] = b_Q @ W_K.T
+        W_QK[1:, 0] = W_Q @ b_K
+        W_QK[1:, 1:] = W_Q @ W_K.T
+        return W_QK.float()
+
+    def _recompute_ov_matrix(self, layer: int, head: int):
+        """Recompute W_OV matrix from model weights on-the-fly (no SVD, no caching)."""
+        W_V = self.state_dict[f'blocks.{layer}.attn.W_V'][head].to(self.device)
+        W_O = self.state_dict[f'blocks.{layer}.attn.W_O'][head].to(self.device)
+        b_V = self.state_dict[f'blocks.{layer}.attn.b_V'][head].to(self.device)
+        b_O = self.state_dict[f'blocks.{layer}.attn.b_O'].to(self.device)
+        W_OV = torch.zeros(self.d_model+1, self.d_model, device=self.device, dtype=W_V.dtype)
+        W_OV[0] = b_V @ W_O + b_O/self.n_heads
+        W_OV[1:] = W_V @ W_O
+        return W_OV.float()
+
+    def _recompute_mlp_in_matrix(self, layer: int):
+        """Recompute W_in augmented matrix from model weights on-the-fly."""
+        W_in = self.state_dict[f'blocks.{layer}.mlp.W_in'].to(self.device)
+        b_in = self.state_dict[f'blocks.{layer}.mlp.b_in'].to(self.device)
+        W_in_aug = torch.zeros(self.d_model+1, self.d_mlp, device=self.device, dtype=W_in.dtype)
+        W_in_aug[0] = b_in
+        W_in_aug[1:] = W_in
+        return W_in_aug.float()
+
+    def _recompute_mlp_out_matrix(self, layer: int):
+        """Recompute W_out augmented matrix from model weights on-the-fly."""
+        W_out = self.state_dict[f'blocks.{layer}.mlp.W_out'].to(self.device)
+        b_out = self.state_dict[f'blocks.{layer}.mlp.b_out'].to(self.device)
+        W_out_aug = torch.zeros(self.d_mlp+1, self.d_model, device=self.device, dtype=W_out.dtype)
+        W_out_aug[0] = b_out
+        W_out_aug[1:] = W_out
+        return W_out_aug.float()
+
     def _load_or_compute_svd(self):
         """Load SVD from disk if available, otherwise compute and save."""
         logger.info("Loading or computing SVD decompositions...")
@@ -422,21 +472,27 @@ class MaskedTransformerCircuit:
             for head in range(self.n_heads):
                 head_key = f'differential_head_{layer}_{head}'
                 
-                # QK components
-                qk_cache_key = f"{head_key}_qk"
-                qk_loaded = False
-                
-                if use_cache:
-                    loaded_data = self._load_svd_components(layer, head, 'qk')
-                    if loaded_data is not None:
-                        self.svd_cache[qk_cache_key] = loaded_data
-                        qk_loaded = True
-                
-                if not qk_loaded:
-                    logger.info(f"Computing SVD for {head_key}_qk")
-                    U_qk, S_qk, Vh_qk, W_QK = self._compute_qk_svd(layer, head)
-                    self.svd_cache[qk_cache_key] = (U_qk, S_qk, Vh_qk, W_QK)
-                    self._save_svd_components(layer, head, 'qk', U_qk, S_qk, Vh_qk, W_QK)
+                # QK components — skip if QK is not trained (W_QK recomputed on-the-fly)
+                if 'qk' in self.trainable_mask_types:
+                    qk_cache_key = f"{head_key}_qk"
+                    qk_loaded = False
+                    
+                    if use_cache:
+                        loaded_data = self._load_svd_components(layer, head, 'qk')
+                        if loaded_data is not None:
+                            U, S, Vh, _ = loaded_data
+                            k = self.d_head
+                            self.svd_cache[qk_cache_key] = (U[:, :k], S[:k], Vh[:k, :])
+                            del loaded_data, U, S, Vh
+                            qk_loaded = True
+                    
+                    if not qk_loaded:
+                        logger.info(f"Computing SVD for {head_key}_qk")
+                        U_qk, S_qk, Vh_qk, W_QK = self._compute_qk_svd(layer, head)
+                        self._save_svd_components(layer, head, 'qk', U_qk, S_qk, Vh_qk, W_QK)
+                        k = self.d_head
+                        self.svd_cache[qk_cache_key] = (U_qk[:, :k], S_qk[:k], Vh_qk[:k, :])
+                        del U_qk, S_qk, Vh_qk, W_QK
                 
                 # OV components
                 ov_cache_key = f"{head_key}_ov"
@@ -445,49 +501,37 @@ class MaskedTransformerCircuit:
                 if use_cache:
                     loaded_data = self._load_svd_components(layer, head, 'ov')
                     if loaded_data is not None:
-                        self.svd_cache[ov_cache_key] = loaded_data
+                        U, S, Vh, _ = loaded_data
+                        k = self.d_head + 1
+                        self.svd_cache[ov_cache_key] = (U[:, :k], S[:k], Vh[:k, :])
+                        del loaded_data, U, S, Vh
                         ov_loaded = True
                 
                 if not ov_loaded:
                     logger.info(f"Computing SVD for {head_key}_ov")
                     U_ov, S_ov, Vh_ov, W_OV = self._compute_ov_svd(layer, head)
-                    self.svd_cache[ov_cache_key] = (U_ov, S_ov, Vh_ov, W_OV)
                     self._save_svd_components(layer, head, 'ov', U_ov, S_ov, Vh_ov, W_OV)
+                    k = self.d_head + 1
+                    self.svd_cache[ov_cache_key] = (U_ov[:, :k], S_ov[:k], Vh_ov[:k, :])
+                    del U_ov, S_ov, Vh_ov, W_OV
         
-        # Process MLP layers if enabled
+        # Process MLP layers if enabled — compute/save to disk but DON'T keep in memory
+        # MLP SVD is large (~4.4GB for 32 layers); loaded on-demand in get_masked_mlp_weights
         if self.mask_mlp:
             for layer in range(self.n_layers):
-                # MLP input components
-                mlp_in_cache_key = f"mlp_{layer}_in"
-                mlp_in_loaded = False
-                
-                if use_cache:
-                    loaded_data = self._load_svd_components(layer, -1, 'mlp_in')
-                    if loaded_data is not None:
-                        self.svd_cache[mlp_in_cache_key] = loaded_data
-                        mlp_in_loaded = True
-                
-                if not mlp_in_loaded:
+                # MLP input components — just ensure file exists on disk
+                if not use_cache or self._load_svd_components(layer, -1, 'mlp_in') is None:
                     logger.info(f"Computing SVD for MLP layer {layer} input")
                     U_in, S_in, Vh_in, W_in = self._compute_mlp_in_svd(layer)
-                    self.svd_cache[mlp_in_cache_key] = (U_in, S_in, Vh_in, W_in)
                     self._save_svd_components(layer, -1, 'mlp_in', U_in, S_in, Vh_in, W_in)
+                    del U_in, S_in, Vh_in, W_in
                 
-                # MLP output components
-                mlp_out_cache_key = f"mlp_{layer}_out"
-                mlp_out_loaded = False
-                
-                if use_cache:
-                    loaded_data = self._load_svd_components(layer, -1, 'mlp_out')
-                    if loaded_data is not None:
-                        self.svd_cache[mlp_out_cache_key] = loaded_data
-                        mlp_out_loaded = True
-                
-                if not mlp_out_loaded:
+                # MLP output components — just ensure file exists on disk
+                if not use_cache or self._load_svd_components(layer, -1, 'mlp_out') is None:
                     logger.info(f"Computing SVD for MLP layer {layer} output")
                     U_out, S_out, Vh_out, W_out = self._compute_mlp_out_svd(layer)
-                    self.svd_cache[mlp_out_cache_key] = (U_out, S_out, Vh_out, W_out)
                     self._save_svd_components(layer, -1, 'mlp_out', U_out, S_out, Vh_out, W_out)
+                    del U_out, S_out, Vh_out, W_out
         
         logger.info("SVD loading/computation complete.")
     
@@ -511,21 +555,21 @@ class MaskedTransformerCircuit:
         """
         head_key = f'differential_head_{layer}_{head}'
 
-        # Get SVD components from cache
-        qk_cache_key = f"{head_key}_qk"
+        # Get OV SVD components from cache
         ov_cache_key = f"{head_key}_ov"
 
-        # Check if SVD is in cache, if not compute/load it
-        if qk_cache_key not in self.svd_cache or ov_cache_key not in self.svd_cache:
+        # Check if OV SVD is in cache, if not compute/load it
+        if ov_cache_key not in self.svd_cache:
             self._load_or_compute_svd()
 
-        # Retrieve from cache
-        U_qk, S_qk, Vh_qk, W_QK_orig = self.svd_cache[qk_cache_key]
-        U_ov, S_ov, Vh_ov, W_OV_orig = self.svd_cache[ov_cache_key]
-
-        # If neither QK nor OV is being trained, return original matrices
+        # If neither QK nor OV is being trained, recompute original matrices from weights
         if 'qk' not in self.trainable_mask_types and 'ov' not in self.trainable_mask_types:
-            return {'W_QK': W_QK_orig, 'W_OV': W_OV_orig}
+            return {'W_QK': self._recompute_qk_matrix(layer, head),
+                    'W_OV': self._recompute_ov_matrix(layer, head)}
+
+        # Retrieve OV truncated SVD from cache (CPU) and move to device as float32
+        U_ov, S_ov, Vh_ov = self.svd_cache[ov_cache_key]
+        U_ov, S_ov, Vh_ov = U_ov.float().to(self.device), S_ov.float().to(self.device), Vh_ov.float().to(self.device)
 
         # Apply masking to singular values
         if self.l1_reg:
@@ -535,20 +579,23 @@ class MaskedTransformerCircuit:
             qk_mask, ov_mask = self.sample_hard_concrete_masks()
             qk_mask = qk_mask[head_key]
             ov_mask = ov_mask[head_key]
-        
-        S_qk_masked = S_qk[:self.d_head] * qk_mask
-        S_ov_masked = S_ov[:self.d_head+1] * ov_mask
 
-        # Reconstruct with masks (use original if not training that mask type)
+        # QK: reconstruct from SVD if trained, otherwise recompute from weights
         if 'qk' in self.trainable_mask_types:
-            W_QK = U_qk[:, :self.d_head] @ torch.diag(S_qk_masked) @ Vh_qk[:self.d_head, :]
+            qk_cache_key = f"{head_key}_qk"
+            U_qk, S_qk, Vh_qk = self.svd_cache[qk_cache_key]
+            U_qk, S_qk, Vh_qk = U_qk.float().to(self.device), S_qk.float().to(self.device), Vh_qk.float().to(self.device)
+            S_qk_masked = (S_qk * qk_mask).to(U_qk.dtype)
+            W_QK = U_qk @ torch.diag(S_qk_masked) @ Vh_qk
         else:
-            W_QK = W_QK_orig
+            W_QK = self._recompute_qk_matrix(layer, head)
 
+        # OV: reconstruct from SVD if trained, otherwise recompute from weights
+        S_ov_masked = (S_ov * ov_mask).to(U_ov.dtype)
         if 'ov' in self.trainable_mask_types:
-            W_OV = U_ov[:, :self.d_head+1] @ torch.diag(S_ov_masked) @ Vh_ov[:self.d_head+1, :]
+            W_OV = U_ov @ torch.diag(S_ov_masked) @ Vh_ov
         else:
-            W_OV = W_OV_orig
+            W_OV = self._recompute_ov_matrix(layer, head)
         
         return {'W_QK': W_QK, 'W_OV': W_OV, 
                 'U_ov': U_ov, 'S_ov': S_ov, 'Vh_ov': Vh_ov, 'ov_mask': ov_mask}
@@ -568,21 +615,24 @@ class MaskedTransformerCircuit:
 
         mlp_key = f'mlp_{layer}'
 
-        # Get SVD components from cache
-        mlp_in_cache_key = f"mlp_{layer}_in"
-        mlp_out_cache_key = f"mlp_{layer}_out"
-
-        # Check if SVD is in cache, if not compute/load it
-        if mlp_in_cache_key not in self.svd_cache or mlp_out_cache_key not in self.svd_cache:
-            self._load_or_compute_svd()
-
-        # Retrieve from cache
-        U_in, S_in, Vh_in, W_in_orig = self.svd_cache[mlp_in_cache_key]
-        U_out, S_out, Vh_out, W_out_orig = self.svd_cache[mlp_out_cache_key]
-
-        # If neither MLP mask is being trained, return original matrices
+        # If neither MLP mask is being trained, recompute original matrices from weights
         if 'mlp_in' not in self.trainable_mask_types and 'mlp_out' not in self.trainable_mask_types:
-            return {'W_in': W_in_orig, 'W_out': W_out_orig}
+            return {'W_in': self._recompute_mlp_in_matrix(layer),
+                    'W_out': self._recompute_mlp_out_matrix(layer)}
+
+        # Lazy-load MLP SVD from disk (not kept in memory to save ~4.4GB)
+        mlp_in_data = self._load_svd_components(layer, -1, 'mlp_in')
+        mlp_out_data = self._load_svd_components(layer, -1, 'mlp_out')
+        if mlp_in_data is None or mlp_out_data is None:
+            self._load_or_compute_svd()
+            mlp_in_data = self._load_svd_components(layer, -1, 'mlp_in')
+            mlp_out_data = self._load_svd_components(layer, -1, 'mlp_out')
+
+        U_in, S_in, Vh_in, _ = mlp_in_data
+        U_out, S_out, Vh_out, _ = mlp_out_data
+        U_in, S_in, Vh_in = U_in.float().to(self.device), S_in.float().to(self.device), Vh_in.float().to(self.device)
+        U_out, S_out, Vh_out = U_out.float().to(self.device), S_out.float().to(self.device), Vh_out.float().to(self.device)
+        del mlp_in_data, mlp_out_data
         
         # Sample masks
         if self.l1_reg:
@@ -597,19 +647,19 @@ class MaskedTransformerCircuit:
         k_in = len(mlp_in_mask)
         k_out = len(mlp_out_mask)
         
-        S_in_masked = S_in[:k_in] * mlp_in_mask
-        S_out_masked = S_out[:k_out] * mlp_out_mask
+        S_in_masked = (S_in[:k_in] * mlp_in_mask).to(U_in.dtype)
+        S_out_masked = (S_out[:k_out] * mlp_out_mask).to(U_out.dtype)
 
-        # Reconstruct with masks (use original if not training that mask type)
+        # Reconstruct with masks (recompute original from weights if not training that mask type)
         if 'mlp_in' in self.trainable_mask_types:
             W_in = U_in[:, :k_in] @ torch.diag(S_in_masked) @ Vh_in[:k_in, :]
         else:
-            W_in = W_in_orig
+            W_in = self._recompute_mlp_in_matrix(layer)
 
         if 'mlp_out' in self.trainable_mask_types:
             W_out = U_out[:, :k_out] @ torch.diag(S_out_masked) @ Vh_out[:k_out, :]
         else:
-            W_out = W_out_orig
+            W_out = self._recompute_mlp_out_matrix(layer)
         
         return {'W_in': W_in, 'W_out': W_out,
                 'U_in': U_in, 'S_in': S_in, 'Vh_in': Vh_in, 'mlp_in_mask': mlp_in_mask,
@@ -671,8 +721,8 @@ class MaskedTransformerCircuit:
         for layer in range(self.n_layers):
             # Layer normalization before attention
             try:
-                ln1_weight = self.state_dict[f'blocks.{layer}.ln1.w'].to(device)
-                ln1_bias = self.state_dict[f'blocks.{layer}.ln1.b'].to(device)
+                ln1_weight = self.state_dict[f'blocks.{layer}.ln1.w'].float().to(device)
+                ln1_bias = self.state_dict[f'blocks.{layer}.ln1.b'].float().to(device)
             except KeyError:
                 ln1_weight = torch.ones(self.d_model, device=device)
                 ln1_bias = torch.zeros(self.d_model, device=device)
@@ -705,8 +755,8 @@ class MaskedTransformerCircuit:
             
             try:
                 # Layer normalization before MLP
-                ln2_weight = self.state_dict[f'blocks.{layer}.ln2.w'].to(device)
-                ln2_bias = self.state_dict[f'blocks.{layer}.ln2.b'].to(device)
+                ln2_weight = self.state_dict[f'blocks.{layer}.ln2.w'].float().to(device)
+                ln2_bias = self.state_dict[f'blocks.{layer}.ln2.b'].float().to(device)
             except KeyError:
                 ln2_weight = torch.ones(self.d_model, device=device)
                 ln2_bias = torch.zeros(self.d_model, device=device)
@@ -742,8 +792,8 @@ class MaskedTransformerCircuit:
         # Final layer norm if present
         if hasattr(self.model, 'ln_final'):
             try:
-                ln_final_weight = self.state_dict['ln_final.w'].to(device)
-                ln_final_bias = self.state_dict['ln_final.b'].to(device)
+                ln_final_weight = self.state_dict['ln_final.w'].float().to(device)
+                ln_final_bias = self.state_dict['ln_final.b'].float().to(device)
             except KeyError:
                 ln_final_weight = 1
                 ln_final_bias = 0
@@ -754,7 +804,7 @@ class MaskedTransformerCircuit:
             W_U = self.state_dict['unembed.W_U'].to(device)
             b_U = self.state_dict['unembed.b_U'].to(device)
         
-        logits = torch.matmul(hidden_states, W_U) + b_U
+        logits = torch.matmul(hidden_states, W_U.float()) + b_U.float()
         
         # Clear cached corrupted activations
         self.corrupted_activations = None
@@ -924,10 +974,10 @@ class MaskedTransformerCircuit:
         if masked_weights is None:
             # Original implementation without masking
             with torch.no_grad():
-                W_in = self.state_dict[f'blocks.{layer}.mlp.W_in'].to(device)
-                b_in = self.state_dict[f'blocks.{layer}.mlp.b_in'].to(device)
-                W_out = self.state_dict[f'blocks.{layer}.mlp.W_out'].to(device)
-                b_out = self.state_dict[f'blocks.{layer}.mlp.b_out'].to(device)
+                W_in = self.state_dict[f'blocks.{layer}.mlp.W_in'].float().to(device)
+                b_in = self.state_dict[f'blocks.{layer}.mlp.b_in'].float().to(device)
+                W_out = self.state_dict[f'blocks.{layer}.mlp.W_out'].float().to(device)
+                b_out = self.state_dict[f'blocks.{layer}.mlp.b_out'].float().to(device)
             
             # First linear layer
             intermediate = torch.matmul(hidden_states, W_in) + b_in
@@ -1060,11 +1110,13 @@ class MaskedTransformerCircuit:
         batch_size = input_ids.shape[0]
         batch_indices = torch.arange(batch_size, device=device)
         
-        full_indirect_logits = full_model_logits[batch_indices, sequence_lengths - 1, indirect_object_index[:,0]]
-        full_subject_logits = full_model_logits[batch_indices, sequence_lengths - 1, subject_index[:,0]]
+        io_idx = indirect_object_index[:, 0] if indirect_object_index.dim() > 1 else indirect_object_index
+        subj_idx = subject_index[:, 0] if subject_index.dim() > 1 else subject_index
+        full_indirect_logits = full_model_logits[batch_indices, sequence_lengths - 1, io_idx]
+        full_subject_logits = full_model_logits[batch_indices, sequence_lengths - 1, subj_idx]
         
-        masked_indirect_logits = masked_model_logits[batch_indices, sequence_lengths - 1, indirect_object_index[:,0]]
-        masked_subject_logits = masked_model_logits[batch_indices, sequence_lengths - 1, subject_index[:,0]]
+        masked_indirect_logits = masked_model_logits[batch_indices, sequence_lengths - 1, io_idx]
+        masked_subject_logits = masked_model_logits[batch_indices, sequence_lengths - 1, subj_idx]
         
         logit_diff_masked = masked_indirect_logits - masked_subject_logits
         logit_diff_full = full_indirect_logits - full_subject_logits
@@ -1129,8 +1181,9 @@ class MaskedTransformerCircuit:
         kl_div = F.kl_div(log_probs_masked, probs_full, reduction='batchmean')
         
         # Compute accuracy metrics
-        masked_accuracy = (masked_logits.argmax(dim=-1) == indirect_object_index[:,0]).float().mean()
-        full_model_accuracy = (full_logits.argmax(dim=-1) == indirect_object_index[:,0]).float().mean()
+        io_idx = indirect_object_index[:, 0] if indirect_object_index.dim() > 1 else indirect_object_index
+        masked_accuracy = (masked_logits.argmax(dim=-1) == io_idx).float().mean()
+        full_model_accuracy = (full_logits.argmax(dim=-1) == io_idx).float().mean()
         exact_match = (masked_logits.argmax(dim=-1) == full_logits.argmax(dim=-1)).float().mean()
         
         return kl_div, masked_accuracy, full_model_accuracy, exact_match

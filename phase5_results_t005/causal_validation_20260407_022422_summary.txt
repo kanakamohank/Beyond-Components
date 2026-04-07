@@ -1,0 +1,129 @@
+==========================================================================================
+PHASE 5: CAUSAL VALIDATION — DIRECTION-LEVEL SCALAR SWAPPING
+==========================================================================================
+
+--- A-corruption (change a) ---
+
+  Individual Direction Patching (sorted by median logit recovery):
+                       Direction      Str   Freq      Mean    Median     RankΔ
+  ---------------------------------------------------------------------------
+            MLP_L31_MLP_out_dir7     2.27     12   +0.4086   +0.3798     +68.5
+         MLP_L29_MLP_out_dir3049     0.06      1   +0.0169   +0.0230      +6.9
+           MLP_L31_MLP_out_dir20     0.73      1   +0.0638   +0.0152      +9.8
+           MLP_L31_MLP_out_dir24     0.66      3   +0.0344   +0.0022      +4.1
+           MLP_L30_MLP_out_dir77     0.38      3   +0.0010   +0.0011      +7.2
+           MLP_L30_MLP_out_dir13     0.68      1   +0.0078   +0.0011      +8.9
+                   L28H3_OV_dir1     3.73      1   +0.0021   +0.0000      +2.9
+                  L29H18_OV_dir0     2.75      1   -0.0020   +0.0000      +8.8
+           MLP_L31_MLP_out_dir16     1.51      1   -0.0044   +0.0000      +0.2
+                  L26H29_OV_dir3     1.07      1   -0.0062   +0.0000      +4.4
+           MLP_L31_MLP_out_dir28     0.87      1   +0.0037   +0.0000      -0.6
+           MLP_L30_MLP_out_dir16     0.57      1   -0.0072   +0.0000      -3.1
+                  L26H29_OV_dir1     0.56      1   -0.0008   +0.0000      +0.1
+                   L27H8_OV_dir0     0.55      1   -0.0037   +0.0000      +0.1
+            MLP_L28_MLP_out_dir0     0.43      1   -0.0005   +0.0000      +6.0
+                   L31H2_OV_dir2     0.41      2   +0.0002   +0.0000      -0.3
+                  L29H17_OV_dir7     0.36      2   -0.0027   +0.0000      +0.6
+             MLP_L20_MLP_in_dir0     0.33      1   -0.0017   +0.0000      +0.1
+             MLP_L21_MLP_in_dir0     0.27      2   -0.0019   +0.0000      -0.4
+                  L28H3_OV_dir24     0.26      1   +0.0005   +0.0000      +0.4
+                 L26H29_OV_dir67     0.20      1   -0.0017   +0.0000      +2.7
+           MLP_L31_MLP_out_dir23     1.93      3   -0.0839   -0.0021      -4.6
+                 L30H27_OV_dir32     0.50      5   -0.0053   -0.0043      +6.1
+                   L31H6_OV_dir3     0.38      2   -0.0265   -0.0056      -7.0
+            MLP_L29_MLP_out_dir3     0.46      1   -0.0175   -0.0119     -10.9
+           MLP_L31_MLP_out_dir15     0.84      2   -0.0205   -0.0171     -11.3
+           MLP_L31_MLP_out_dir12     1.18      1   -0.0214   -0.0191     -14.6
+                   L31H1_OV_dir3     0.42      2   -0.0409   -0.0225      +6.5
+           MLP_L31_MLP_out_dir18     2.50      1   -0.0161   -0.0288      -7.9
+           MLP_L31_MLP_out_dir13     3.18      9   -0.1656   -0.1757    -133.1
+           MLP_L31_MLP_out_dir11     0.71      2   -0.1255   -0.2176     -64.2
+
+  Cumulative Top-K (by effective strength):
+      K      Mean    Median     RankΔ
+  -----------------------------------
+      1   +0.0021   +0.0000      +2.9
+      3   -0.1637   -0.1824    -108.2
+      5   +0.2300   +0.1710     +34.7 ← target
+     10   +0.1216   +0.1146     +22.0
+     15   +0.0927   -0.0501      +0.1
+     20   +0.0164   -0.0202      +8.9
+     31   +0.0363   -0.0566     -35.0
+
+  Beneficial-Only Cumulative (dirs with positive individual median):
+      K      Mean    Median     RankΔ
+  -----------------------------------
+      1   +0.4086   +0.3798     +68.5
+      3   +0.5028   +0.3866     +73.6
+      5   +0.5426   +0.3923     +76.0 ★
+      6   +0.5507   +0.3923     +79.4
+
+  Frequency Group Patching:
+  freq= 1: 18 dirs, mean_recovery=+0.0168, median=+0.0255
+  freq= 2:  7 dirs, mean_recovery=-0.1521, median=-0.2549
+  freq= 3:  3 dirs, mean_recovery=-0.0458, median=+0.0075
+  freq= 5:  1 dirs, mean_recovery=-0.0053, median=-0.0043
+  freq= 9:  1 dirs, mean_recovery=-0.1656, median=-0.1757
+  freq=12:  1 dirs, mean_recovery=+0.4086, median=+0.3798
+
+--- B-corruption (change b) ---
+
+  Individual Direction Patching (sorted by median logit recovery):
+                       Direction      Str   Freq      Mean    Median     RankΔ
+  ---------------------------------------------------------------------------
+            MLP_L31_MLP_out_dir7     2.27     12   +0.3180   +0.3010     +92.7
+           MLP_L31_MLP_out_dir20     0.73      1   +0.0472   +0.0311     +10.1
+           MLP_L31_MLP_out_dir24     0.66      3   +0.0408   +0.0032      +1.8
+                   L28H3_OV_dir1     3.73      1   +0.0041   +0.0000      +3.2
+                  L29H18_OV_dir0     2.75      1   +0.0031   +0.0000     +11.9
+           MLP_L31_MLP_out_dir23     1.93      3   -0.0933   +0.0000      -1.3
+           MLP_L31_MLP_out_dir16     1.51      1   -0.0067   +0.0000      +0.8
+           MLP_L31_MLP_out_dir28     0.87      1   +0.0025   +0.0000      -2.4
+           MLP_L30_MLP_out_dir13     0.68      1   +0.0099   +0.0000      +9.4
+           MLP_L30_MLP_out_dir16     0.57      1   -0.0127   +0.0000      -2.9
+                  L26H29_OV_dir1     0.56      1   -0.0016   +0.0000      -0.3
+                   L27H8_OV_dir0     0.55      1   -0.0014   +0.0000      +0.5
+            MLP_L29_MLP_out_dir3     0.46      1   +0.0172   +0.0000     -30.7
+            MLP_L28_MLP_out_dir0     0.43      1   -0.0028   +0.0000      +7.1
+                   L31H2_OV_dir2     0.41      2   +0.0013   +0.0000      -0.3
+           MLP_L30_MLP_out_dir77     0.38      3   -0.0007   +0.0000      +9.3
+                  L29H17_OV_dir7     0.36      2   -0.0007   +0.0000      -0.7
+             MLP_L20_MLP_in_dir0     0.33      1   -0.0012   +0.0000      -0.2
+             MLP_L21_MLP_in_dir0     0.27      2   -0.0008   +0.0000      -0.9
+                  L28H3_OV_dir24     0.26      1   -0.0014   +0.0000      +0.5
+                 L26H29_OV_dir67     0.20      1   +0.0001   +0.0000      +3.4
+         MLP_L29_MLP_out_dir3049     0.06      1   -0.0118   +0.0000      +0.5
+                 L30H27_OV_dir32     0.50      5   -0.0016   -0.0013      +7.2
+                  L26H29_OV_dir3     1.07      1   -0.0060   -0.0076      +5.6
+                   L31H6_OV_dir3     0.38      2   -0.0253   -0.0089     -12.2
+           MLP_L31_MLP_out_dir15     0.84      2   -0.0458   -0.0144     -13.3
+           MLP_L31_MLP_out_dir12     1.18      1   -0.0270   -0.0199     -22.4
+           MLP_L31_MLP_out_dir18     2.50      1   -0.0034   -0.0243     -11.6
+                   L31H1_OV_dir3     0.42      2   -0.0428   -0.0276      +4.0
+           MLP_L31_MLP_out_dir13     3.18      9   -0.1904   -0.1633    -202.7
+           MLP_L31_MLP_out_dir11     0.71      2   -0.0776   -0.2048     -93.4
+
+  Cumulative Top-K (by effective strength):
+      K      Mean    Median     RankΔ
+  -----------------------------------
+      1   +0.0041   +0.0000      +3.2
+      3   -0.1813   -0.1611    -157.7
+      5   +0.1272   +0.1352     +46.4 ← target
+     10   -0.0106   +0.0857     +33.1
+     15   -0.0341   -0.0911      -3.5
+     20   -0.0878   -0.0289      +6.6
+     31   -0.1048   -0.1293     -63.1
+
+  Beneficial-Only Cumulative (dirs with positive individual median):
+      K      Mean    Median     RankΔ
+  -----------------------------------
+      1   +0.3180   +0.3010     +92.7
+      3   +0.4008   +0.3293     +96.7
+
+  Frequency Group Patching:
+  freq= 1: 18 dirs, mean_recovery=+0.0090, median=+0.0607
+  freq= 2:  7 dirs, mean_recovery=-0.1392, median=-0.2309
+  freq= 3:  3 dirs, mean_recovery=-0.0572, median=+0.0051
+  freq= 5:  1 dirs, mean_recovery=-0.0016, median=-0.0013
+  freq= 9:  1 dirs, mean_recovery=-0.1904, median=-0.1633
+  freq=12:  1 dirs, mean_recovery=+0.3180, median=+0.3010

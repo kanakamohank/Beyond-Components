@@ -67,6 +67,21 @@ def _prepare_label_strings(labels, data_type):
         return [' ' + str(obj) for obj in labels]
 
 
+def _get_first_answer_token_ids(tokenizer, label_strings, device):
+    """Get the first answer token ID for each label string.
+
+    Handles multi-token answers (e.g. " 10" → multiple tokens) by encoding
+    without special tokens and taking the first token.  This is used for
+    accuracy metrics only — the training loss (KL divergence) does not
+    depend on answer token IDs.
+    """
+    token_ids = []
+    for s in label_strings:
+        toks = tokenizer.encode(s, add_special_tokens=False)
+        token_ids.append(toks[0])
+    return torch.tensor(token_ids, device=device)
+
+
 # IOI head categories with colors - using vibrant, publication-quality color palette
 IOI_HEAD_CATEGORIES = {
     'Previous Token Heads': {
@@ -714,17 +729,12 @@ def run_test_evaluation(circuit, model, test_loader, config, device, logger):
             batch[subjects_column_name] = _prepare_label_strings(
                 batch[subjects_column_name], config['data_type']
             )
-            indirect_objects = model.tokenizer(
-                batch[indirect_objects_column_name],
-                return_tensors='pt',
-                padding=True
-            )['input_ids'].to(device)
-
-            subjects = model.tokenizer(
-                batch[subjects_column_name],
-                return_tensors='pt',
-                padding=True
-            )['input_ids'].to(device)
+            indirect_objects = _get_first_answer_token_ids(
+                model.tokenizer, batch[indirect_objects_column_name], device
+            )
+            subjects = _get_first_answer_token_ids(
+                model.tokenizer, batch[subjects_column_name], device
+            )
 
             # Calculate sequence lengths
             clean_lengths = (input_ids_clean != model.tokenizer.pad_token_id).sum(dim=1)
@@ -779,8 +789,8 @@ def run_test_evaluation(circuit, model, test_loader, config, device, logger):
             # Compute accuracies
             masked_preds = masked_last_token_logits.argmax(dim=-1)
             full_preds = full_last_token_logits.argmax(dim=-1)
-            correct_labels = indirect_objects[:, 0]
-            incorrect_labels = subjects[:, 0]
+            correct_labels = indirect_objects
+            incorrect_labels = subjects
 
             # Masked accuracy: How often the masked model predicts the correct label
             masked_accuracy = (masked_preds == correct_labels).float().mean().item()
@@ -867,17 +877,12 @@ def run_validation(circuit, model, validation_loader, config, device, l1_weight,
             val_batch[subjects_column_name] = _prepare_label_strings(
                 val_batch[subjects_column_name], config['data_type']
             )
-            indirect_objects = model.tokenizer(
-                val_batch[indirect_objects_column_name],
-                return_tensors='pt',
-                padding=True
-            )['input_ids'].to(device)
-
-            subjects = model.tokenizer(
-                val_batch[subjects_column_name],
-                return_tensors='pt',
-                padding=True
-            )['input_ids'].to(device)
+            indirect_objects = _get_first_answer_token_ids(
+                model.tokenizer, val_batch[indirect_objects_column_name], device
+            )
+            subjects = _get_first_answer_token_ids(
+                model.tokenizer, val_batch[subjects_column_name], device
+            )
 
             # Calculate sequence lengths
             clean_lengths = (input_ids_clean != model.tokenizer.pad_token_id).sum(dim=1)
@@ -932,8 +937,8 @@ def run_validation(circuit, model, validation_loader, config, device, l1_weight,
             val_losses.append(kl_div.detach().cpu().item() + circuit.get_l1_penalty() * l1_weight)
             kl_losses.append(kl_div.detach().cpu().item())
 
-            masked_accuracy = (masked_last_token_logits.argmax(dim=-1) == indirect_objects[:, 0]).float().mean().item()
-            full_model_accuracy = (full_last_token_logits.argmax(dim=-1) == indirect_objects[:, 0]).float().mean().item()
+            masked_accuracy = (masked_last_token_logits.argmax(dim=-1) == indirect_objects).float().mean().item()
+            full_model_accuracy = (full_last_token_logits.argmax(dim=-1) == indirect_objects).float().mean().item()
             exact_match_value = (masked_last_token_logits.argmax(dim=-1) == full_last_token_logits.argmax(dim=-1)).float().mean().item()
 
             # Append to lists
@@ -1196,10 +1201,14 @@ def train_circuit(config, logger):
     config['vis_dir'] = vis_dir
     
     # Load model
-    logger.info(f"Loading model: {config['model']['name']}")
+    dtype_str = config['model'].get('dtype', None)
+    dtype_map = {"float16": torch.float16, "bfloat16": torch.bfloat16, "float32": torch.float32}
+    torch_dtype = dtype_map.get(dtype_str) if dtype_str else None
+    logger.info(f"Loading model: {config['model']['name']} (dtype={dtype_str or 'default'})")
     model = HookedTransformer.from_pretrained(
         config['model']['name'],
-        cache_dir=config['model']['pretrained_cache_dir']
+        cache_dir=os.path.expanduser(config['model']['pretrained_cache_dir']),
+        **({"dtype": torch_dtype} if torch_dtype else {})
     )
     model = model.to(device)
     
@@ -1301,17 +1310,12 @@ def train_circuit(config, logger):
                 batch[subjects_column_name], config['data_type']
             )
 
-            indirect_objects = model.tokenizer(
-                batch[indirect_objects_column_name],
-                return_tensors='pt',
-                padding=True
-            )['input_ids'].to(device)
-
-            subjects = model.tokenizer(
-                batch[subjects_column_name],
-                return_tensors='pt',
-                padding=True
-            )['input_ids'].to(device)
+            indirect_objects = _get_first_answer_token_ids(
+                model.tokenizer, batch[indirect_objects_column_name], device
+            )
+            subjects = _get_first_answer_token_ids(
+                model.tokenizer, batch[subjects_column_name], device
+            )
             
             # Calculate sequence lengths
             clean_lengths = (input_ids_clean != model.tokenizer.pad_token_id).sum(dim=1)

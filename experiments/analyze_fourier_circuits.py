@@ -357,11 +357,19 @@ def analyze_direction_fit(
         logger.warning(f"Unknown component type: {component}")
         return None
 
-    if cache_key not in circuit.svd_cache:
+    # Handle memory-optimized SVD cache (3-tuples) and MLP lazy-loading from disk
+    svd_data = circuit.svd_cache.get(cache_key)
+    if svd_data is None and component in ("MLP_in", "MLP_out"):
+        suffix = "in" if component == "MLP_in" else "out"
+        svd_data = circuit._load_svd_components(layer, -1, f'mlp_{suffix}')
+    if svd_data is None:
         logger.warning(f"SVD cache missing for {cache_key}")
         return None
 
-    U, S, Vh, _ = circuit.svd_cache[cache_key]
+    if len(svd_data) == 4:
+        U, S, Vh, _ = svd_data
+    else:
+        U, S, Vh = svd_data
 
     # Get the projection vector in d_model residual-stream space.
     # Must match Phase 3 (analyze_svd_directions.py) for consistency:
@@ -394,6 +402,9 @@ def analyze_direction_fit(
         return None
 
     # Project activations onto this direction → scalar signal p(n)
+    # Ensure float32 for numpy linalg compatibility
+    activations = activations.astype(np.float32) if activations.dtype != np.float32 else activations
+    vec = vec.astype(np.float32) if vec.dtype != np.float32 else vec
     projections = activations @ vec  # (N,)
 
     # Fit cos/sin at the dominant frequency
@@ -533,10 +544,17 @@ def _extract_input_vector(
     else:
         return None
 
-    if cache_key not in circuit.svd_cache:
+    svd_data = circuit.svd_cache.get(cache_key)
+    if svd_data is None and component in ("MLP_in", "MLP_out"):
+        suffix = "in" if component == "MLP_in" else "out"
+        svd_data = circuit._load_svd_components(result.layer, -1, f'mlp_{suffix}')
+    if svd_data is None:
         return None
 
-    U, S, Vh, _ = circuit.svd_cache[cache_key]
+    if len(svd_data) == 4:
+        U, S, Vh, _ = svd_data
+    else:
+        U, S, Vh = svd_data
 
     # Match Phase 3 projection vectors:
     #   OV: Vh[k, :] (d_model output space)
@@ -547,9 +565,10 @@ def _extract_input_vector(
     else:  # OV, MLP_out
         vec = Vh[k, :].cpu().numpy()
 
-    # Strip bias row if augmented
-    if vec.shape[0] > 2048:  # d_model
-        vec = vec[1:] if vec.shape[0] == 2049 else vec
+    # Strip bias row if augmented (d_model+1 → d_model)
+    d_model = circuit.d_model
+    if vec.shape[0] == d_model + 1:
+        vec = vec[1:]
     return vec
 
 
@@ -602,7 +621,7 @@ def collect_mlp_hidden_activations(
             )
 
         # Extract last-token activations
-        act = cache[hook_name][:, -1, :].cpu().numpy()  # (batch, d_mlp)
+        act = cache[hook_name][:, -1, :].cpu().float().numpy()  # (batch, d_mlp)
         all_activations.append(act)
 
     all_activations = np.concatenate(all_activations, axis=0)  # (N_a*N_b, d_mlp)
@@ -985,7 +1004,7 @@ def print_phase4_summary(
 # Main orchestration
 # ---------------------------------------------------------------------------
 
-def load_phase3_results(path: str) -> List[dict]:
+def load_phase3_results(path: str, mask_threshold: float = 0.3) -> List[dict]:
     """Load Phase 3 JSON results and extract surviving directions."""
     with open(path) as f:
         data = json.load(f)
@@ -993,7 +1012,7 @@ def load_phase3_results(path: str) -> List[dict]:
     survivors = []
     for r in data.get("results", []):
         for d in r.get("directions", []):
-            if d["mask_value"] > 0.3:
+            if d["mask_value"] > mask_threshold:
                 survivors.append({
                     "layer": r["layer"],
                     "head": r["head"],
@@ -1018,6 +1037,7 @@ def run_analysis(
     trig_r2_threshold: float = 0.3,
     max_freq: int = 10,
     batch_size: int = 16,
+    mask_threshold: float = 0.3,
 ) -> Tuple[List[DirectionFitResult], List[FrequencyGroupResult], List[MLPTrigSummary]]:
     """Run the full Phase 4 analysis.
 
@@ -1052,14 +1072,19 @@ def run_analysis(
 
     # Load Phase 3 results
     logger.info(f"Loading Phase 3 results from {phase3_path}")
-    survivors = load_phase3_results(phase3_path)
-    logger.info(f"Found {len(survivors)} surviving directions (mask > 0.3)")
+    survivors = load_phase3_results(phase3_path, mask_threshold=mask_threshold)
+    logger.info(f"Found {len(survivors)} surviving directions (mask > {mask_threshold})")
 
     # Load model
     logger.info(f"Loading model: {config['model']['name']}")
+    dtype_str = config.get("model", {}).get("dtype", None)
+    dtype_map = {"float16": torch.float16, "bfloat16": torch.bfloat16, "float32": torch.float32}
+    dtype = dtype_map.get(dtype_str, None)
+    cache_dir = os.path.expanduser(config["model"]["pretrained_cache_dir"])
     model = HookedTransformer.from_pretrained(
         config["model"]["name"],
-        cache_dir=config["model"]["pretrained_cache_dir"],
+        cache_dir=cache_dir,
+        dtype=dtype,
     )
     model = model.to(device)
     model.eval()
@@ -1078,8 +1103,7 @@ def run_analysis(
     )
 
     # Load trained masks from checkpoint
-    torch.serialization.add_safe_globals([torch.nn.modules.container.ParameterDict])
-    checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=True)
+    checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
     logger.info(f"Loaded checkpoint from {checkpoint_path}")
 
     for key in checkpoint.get("ov_masks", {}):
@@ -1304,6 +1328,10 @@ def parse_args():
         "--batch_size", type=int, default=16,
         help="Batch size for forward passes (default: 16)",
     )
+    parser.add_argument(
+        "--mask_threshold", type=float, default=0.3,
+        help="Min mask value for a direction to be included (default: 0.3)",
+    )
     return parser.parse_args()
 
 
@@ -1327,6 +1355,7 @@ def main():
         trig_r2_threshold=args.trig_r2_threshold,
         max_freq=args.max_freq,
         batch_size=args.batch_size,
+        mask_threshold=args.mask_threshold,
     )
 
     # Final summary

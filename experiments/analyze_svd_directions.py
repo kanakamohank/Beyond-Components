@@ -134,8 +134,7 @@ def load_checkpoint(checkpoint_path: str, device: str = "cpu") -> dict:
     if not os.path.exists(checkpoint_path):
         raise FileNotFoundError(f"Checkpoint not found: {checkpoint_path}")
 
-    torch.serialization.add_safe_globals([torch.nn.modules.container.ParameterDict])
-    checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=True)
+    checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
     step = checkpoint.get('step', '?')
     val_loss = checkpoint.get('val_loss', None)
     val_str = f", val_loss={val_loss:.4f}" if isinstance(val_loss, (int, float)) else ""
@@ -341,14 +340,18 @@ def analyze_head_directions(
         cache_key = f"{head_key}_qk"
         masks = circuit.qk_masks
 
-    if cache_key not in circuit.svd_cache:
+    svd_data = circuit.svd_cache.get(cache_key)
+    if svd_data is None:
         logger.warning(f"SVD cache missing for {cache_key}, skipping")
         return HeadCircuitSummary(
             layer=layer, head=head, component=component,
             avg_mask=0.0, n_active_directions=0, n_periodic_directions=0,
         )
-
-    U, S, Vh, _ = circuit.svd_cache[cache_key]
+    # Cache stores 3-tuples (U, S, Vh) after memory optimization
+    if len(svd_data) == 4:
+        U, S, Vh, _ = svd_data
+    else:
+        U, S, Vh = svd_data
     mask_values = mask_fn(masks[head_key]).detach().cpu().numpy()
 
     # Scan ALL directions (not just top_k) since survivors can be at high indices
@@ -445,14 +448,26 @@ def analyze_mlp_directions(
     cache_key = f"mlp_{layer}_{'in' if comp_lower == 'mlp_in' else 'out'}"
     masks = circuit.mlp_in_masks if comp_lower == "mlp_in" else circuit.mlp_out_masks
 
-    if cache_key not in circuit.svd_cache:
-        logger.warning(f"SVD cache missing for {cache_key}, skipping")
-        return HeadCircuitSummary(
-            layer=layer, head=None, component=component,
-            avg_mask=0.0, n_active_directions=0, n_periodic_directions=0,
-        )
-
-    U, S, Vh, _ = circuit.svd_cache[cache_key]
+    # MLP SVDs may not be in cache (lazy-loaded from disk). Try cache first, then disk.
+    svd_data = circuit.svd_cache.get(cache_key)
+    if svd_data is None:
+        # Try loading from disk
+        in_or_out = 'in' if comp_lower == 'mlp_in' else 'out'
+        disk_data = circuit._load_svd_components(layer, -1, f'mlp_{in_or_out}')
+        if disk_data is None:
+            logger.warning(f"SVD cache/disk missing for {cache_key}, skipping")
+            return HeadCircuitSummary(
+                layer=layer, head=None, component=component,
+                avg_mask=0.0, n_active_directions=0, n_periodic_directions=0,
+            )
+        if len(disk_data) == 4:
+            U, S, Vh, _ = disk_data
+        else:
+            U, S, Vh = disk_data
+    elif len(svd_data) == 4:
+        U, S, Vh, _ = svd_data
+    else:
+        U, S, Vh = svd_data
     mask_values = mask_fn(masks[mlp_key]).detach().cpu().numpy()
 
     # Scan ALL directions (not just top_k) since survivors can be at high indices
@@ -642,9 +657,14 @@ def run_analysis(
 
     # Load model
     logger.info(f"Loading model: {config['model']['name']}")
+    dtype_str = config.get("model", {}).get("dtype", None)
+    dtype_map = {"float16": torch.float16, "bfloat16": torch.bfloat16, "float32": torch.float32}
+    dtype = dtype_map.get(dtype_str, None)
+    cache_dir = os.path.expanduser(config["model"]["pretrained_cache_dir"])
     model = HookedTransformer.from_pretrained(
         config["model"]["name"],
-        cache_dir=config["model"]["pretrained_cache_dir"],
+        cache_dir=cache_dir,
+        dtype=dtype,
     )
     model = model.to(device)
     model.eval()

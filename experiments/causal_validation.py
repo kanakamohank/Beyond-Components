@@ -270,11 +270,19 @@ def extract_direction_specs(
         else:
             continue
 
-        if cache_key not in circuit.svd_cache:
+        # Handle memory-optimized SVD cache (3-tuples) and MLP lazy-loading
+        svd_data = circuit.svd_cache.get(cache_key)
+        if svd_data is None and component in ("MLP_in", "MLP_out"):
+            suffix = "in" if component == "MLP_in" else "out"
+            svd_data = circuit._load_svd_components(layer, -1, f'mlp_{suffix}')
+        if svd_data is None:
             logger.warning(f"SVD cache missing for {cache_key}, skipping")
             continue
 
-        U, S, Vh, _ = circuit.svd_cache[cache_key]
+        if len(svd_data) == 4:
+            U, S, Vh, _ = svd_data
+        else:
+            U, S, Vh = svd_data
 
         # Extract projection vector (matches Phase 3/4 conventions)
         if component in ("OV", "MLP_out"):
@@ -374,10 +382,15 @@ def run_patching_experiment(
         clean_tokens = model.to_tokens(clean_prompts, prepend_bos=True).to(device)
         corrupt_tokens = model.to_tokens(corrupt_prompts, prepend_bos=True).to(device)
 
-        # Get answer token IDs
+        # Get answer token IDs — use first token of encoded answer
+        # (to_single_token fails for some tokenizers that split " 7" into multiple tokens)
+        def _answer_token_id(answer_str):
+            toks = model.tokenizer.encode(answer_str, add_special_tokens=False)
+            return toks[0]
+
         clean_answer_strs = [p[0].answer_str for p in batch_pairs]
         clean_answer_ids = torch.tensor(
-            [model.to_single_token(s) for s in clean_answer_strs],
+            [_answer_token_id(s) for s in clean_answer_strs],
             device=device,
         )
 
@@ -412,14 +425,15 @@ def run_patching_experiment(
             clean_act_full = clean_cache[hook_name]  # (bs, seq, d_model)
 
             def hook_fn(value, hook):
-                # value: (batch, seq, d_model)
-                original = value[:, seq_pos, :].clone()  # snapshot before any patches
-                clean_act = clean_act_full[:, seq_pos, :]  # (bs, d_model)
+                # value: (batch, seq, d_model) — may be float16 on MPS
+                act_dtype = value.dtype
+                original = value[:, seq_pos, :].clone().float()
+                clean_act = clean_act_full[:, seq_pos, :].float()
                 for v_norm in vecs_t:
                     s_clean = (clean_act @ v_norm).unsqueeze(-1)  # (bs, 1)
                     s_corrupt = (original @ v_norm).unsqueeze(-1)  # (bs, 1)
                     delta = (s_clean - s_corrupt) * v_norm.unsqueeze(0)  # (bs, d_model)
-                    value[:, seq_pos, :] = value[:, seq_pos, :] + delta
+                    value[:, seq_pos, :] = value[:, seq_pos, :] + delta.to(act_dtype)
                 return value
 
             return hook_fn
@@ -860,12 +874,12 @@ def print_summary(
 # Phase 3 results loader (reused from analyze_fourier_circuits.py)
 # ---------------------------------------------------------------------------
 
-def load_phase3_results(path: str) -> List[dict]:
+def load_phase3_results(path: str, mask_threshold: float = 0.3) -> List[dict]:
     """Load Phase 3 survivor directions from JSON.
 
     Phase 3 JSON has nested structure:
         results[i] = {layer, head, component, directions: [{direction_idx, ...}]}
-    We flatten and filter by mask_value > 0.3.
+    We flatten and filter by mask_value > mask_threshold.
     """
     with open(path) as f:
         data = json.load(f)
@@ -876,7 +890,7 @@ def load_phase3_results(path: str) -> List[dict]:
         head = comp.get("head")
         component = comp["component"]
         for d in comp.get("directions", []):
-            if d.get("mask_value", 0) > 0.3:
+            if d.get("mask_value", 0) > mask_threshold:
                 survivors.append({
                     "layer": layer,
                     "head": head,
@@ -903,6 +917,8 @@ def main():
     parser.add_argument("--n_pairs", type=int, default=100, help="Number of clean/corrupted pairs per corruption type")
     parser.add_argument("--batch_size", type=int, default=16, help="Batch size for model runs")
     parser.add_argument("--device", default=None, help="Device (auto-detect if not specified)")
+    parser.add_argument("--mask_threshold", type=float, default=0.3,
+                        help="Min mask value for a direction to be included (default: 0.3)")
     args = parser.parse_args()
 
     import yaml
@@ -922,14 +938,20 @@ def main():
 
     # Load Phase 3 results
     logger.info(f"Loading Phase 3 results from {args.phase3_results}")
-    survivors = load_phase3_results(args.phase3_results)
-    logger.info(f"Found {len(survivors)} surviving directions")
+    survivors = load_phase3_results(args.phase3_results, mask_threshold=args.mask_threshold)
+    logger.info(f"Found {len(survivors)} surviving directions (mask > {args.mask_threshold})")
 
     # Load model
     logger.info(f"Loading model: {config['model']['name']}")
+    import yaml as _yaml  # already imported above via argparse block
+    dtype_str = config.get("model", {}).get("dtype", None)
+    dtype_map = {"float16": torch.float16, "bfloat16": torch.bfloat16, "float32": torch.float32}
+    dtype = dtype_map.get(dtype_str, None)
+    cache_dir = os.path.expanduser(config["model"]["pretrained_cache_dir"])
     model = HookedTransformer.from_pretrained(
         config["model"]["name"],
-        cache_dir=config["model"]["pretrained_cache_dir"],
+        cache_dir=cache_dir,
+        dtype=dtype,
     )
     model = model.to(device)
     model.eval()
@@ -946,8 +968,7 @@ def main():
     )
 
     # Load trained masks
-    torch.serialization.add_safe_globals([torch.nn.modules.container.ParameterDict])
-    checkpoint = torch.load(args.checkpoint, map_location=device, weights_only=True)
+    checkpoint = torch.load(args.checkpoint, map_location=device, weights_only=False)
     logger.info(f"Loaded checkpoint from {args.checkpoint}")
 
     for key in checkpoint.get("ov_masks", {}):
