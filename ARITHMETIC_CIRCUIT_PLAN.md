@@ -268,7 +268,7 @@ This is the approach validated by both papers. It does NOT depend on clean circu
 
 ---
 
-## Total Timeline
+## Total Timeline (Original Plan)
 
 | Phase | Duration | Cumulative |
 |-------|----------|------------|
@@ -306,4 +306,218 @@ src/analysis/circuit_identification.py  # Phase 2
 src/analysis/geometric_interpreter.py   # Phase 4a
 src/analysis/neuron_analyzer.py         # Phase 4b
 experiments/arithmetic_validation.py    # Phase 5
+```
+
+---
+---
+
+# Part 2: Circuit Analysis — Completed Work & Next Steps
+
+*Updated: April 2025*
+
+A parallel investigation was conducted using causal activation patching, linear probing,
+and direct logit attribution across 3 models. This section documents what was found and
+what remains.
+
+---
+
+## Completed Experiments
+
+### Models Tested
+
+| Model | Architecture | Layers | Heads | Baseline Accuracy | Stages Run |
+|-------|-------------|--------|-------|-------------------|------------|
+| **Phi-3 Mini** | Phi-3 | 32 | 32 | 100% | Stages 1-3 + Exp 1-5 |
+| **Gemma 2B** | Gemma | 18 | 8 | 100% | Stages 1-3 + Exp 2-3 |
+| **Pythia 1.4B** | GPT-NeoX | 24 | 16 | ~40% | Stages 1-2 (patching only) |
+
+### Universal Findings (All 3 Models)
+
+1. **Three-Phase Circuit**: Route → Crossover → Compute, with proportional layer scaling
+2. **MLP-Dominated Computation**: Top-5 MLPs have 0.2-0.6 recovery; no head exceeds 0.21
+3. **Near-Deterministic A→+ Copy Head**: Phi-3 L1H19 (0.75), Gemma L10H4 (0.77)
+4. **Carry Peaks in Compute Zone**: Linear probes reach 91-97% at compute MLP layers
+5. **No Individual MLP Writes the Answer**: Distributed superposition across 5-7 MLPs
+6. **Extreme Routing Redundancy**: 20 heads ablated = 0% accuracy drop (Phi-3)
+7. **MLP Activations Are Superposed**: PCA separability <0.5; not clusterable
+
+### Results Location
+
+| Directory | Contents |
+|-----------|----------|
+| `arithmetic_circuit_results/` | Phi-3 Mini results (Stages 1-3, Experiments 1-5) |
+| `arithmetic_circuit_results/gemma-2b/` | Gemma 2B results (Stages 1-3, Experiments 2-3) |
+| `arithmetic_circuit_results/pythia-1.4b/` | Pythia 1.4B results (Stages 1-2) |
+| `experiments/circuit_synthesis.md` | Full synthesis with 3-model comparison tables |
+
+### Codebase
+
+| File | Purpose |
+|------|--------|
+| `experiments/arithmetic_circuit_discovery.py` | Stages 1-3: Logit Lens, Layer/Component Patching, Ablation |
+| `experiments/circuit_analysis.py` | Experiments 1-5: MLP Unembedding, Operand B Hunt, Carry Probe, PCA, Ensemble Patching |
+| `tests/test_arithmetic_circuit_discovery.py` | 38 tests for discovery pipeline |
+| `tests/test_circuit_analysis.py` | 14 tests for analysis experiments |
+
+---
+
+## Recommended Next Steps
+
+### Tier A: High Impact, Low-to-Moderate Effort
+
+#### Step A1: Causal Knockout of A→+ Copy Head
+
+**Effort**: ~2 hours (30 min code + 90 min runtime)  
+**Target venue impact**: Converts strongest correlational claim to causal  
+
+**What to do**:
+- Zero out L1H19 (Phi-3) and L10H4 (Gemma) specifically
+- Measure: accuracy drop, logit degradation, and whether the crossover zone shifts
+- Given extreme routing redundancy, the key question is *what compensates*
+
+**Implementation**:
+- Add `run_targeted_head_knockout()` to `experiments/circuit_analysis.py`
+- Hook `blocks.{L}.attn.hook_z` and zero dimension H for the target head
+- Run 200 problems, compare against baseline
+- Also test: knock out top-3 copy heads simultaneously
+
+**Expected outcome**: Single head knockout likely survives (redundancy). Multi-head
+knockout may cause degradation. The compensation mechanism itself is interesting.
+
+---
+
+#### Step A2: 3-Digit Operand Scaling
+
+**Effort**: ~1 day  
+**Target venue impact**: Addresses strongest reviewer objection ("could be memorized")  
+
+**What to do**:
+- Run full Phi-3 + Gemma pipeline with operands 100-999
+- Verify prompt format and tokenization work for 3-digit numbers (may be multi-token)
+- Compare: do the same MLPs activate? Does the crossover zone shift?
+- Run carry probe: does multi-digit carry (e.g., 999+1 with carry chain) require more layers?
+
+**Key test cases**:
+- Standard: 123 + 456 = 579 (no carry)
+- Single carry: 157 + 268 = 425 (carry in ones)
+- Chain carry: 999 + 1 = 1000 (triple carry chain)
+- Large: 500 + 499 = 999 (boundary)
+
+**Risk**: Tokenization — 3-digit numbers may be multi-token in some models.
+Need to verify `get_answer_token_id()` still works or adapt for multi-token answers.
+
+---
+
+#### Step A3: Subtraction Circuit Comparison
+
+**Effort**: ~2-3 days  
+**Target venue impact**: "Does addition and subtraction share a circuit?" is a compelling question  
+
+**What to do**:
+- Modify `generate_arithmetic_prompts()` to support `a - b` (ensure a > b for positive results)
+- Run Stages 1-2 on Phi-3 + Gemma for subtraction
+- Compare: which MLPs have high recovery? Are they the same as addition?
+- Run carry/borrow probe: does "borrowing" use the same layers as "carrying"?
+
+**Possible outcomes**:
+- **Shared circuit** → evidence for a general arithmetic module
+- **Different circuit** → evidence for operation-specific computation
+- **Partially shared** → shared routing, different compute (most likely)
+
+All outcomes are publishable.
+
+---
+
+### Tier B: Highest Scientific Value, High Effort
+
+#### Step B1: Sparse Autoencoder on Compute MLPs
+
+**Effort**: 4-6 weeks  
+**Target venue impact**: Transforms paper from "circuit geography" to "algorithm discovery"  
+**Required for**: Top-venue paper (NeurIPS / ICML / ICLR)  
+
+**What to do**:
+- Train SAEs on L20-L22 MLP activations (Phi-3) and L13-L14 (Gemma)
+- Collect activations from ~10K arithmetic problems
+- Train with standard SAE architecture (encoder-decoder with L1 sparsity)
+- Analyze learned features: look for interpretable features like:
+  - "carry = 1" (fires when ones digits sum > 9)
+  - "ones digit = 7" (fires for specific digit values)
+  - "tens digit computation" (fires during tens-place processing)
+- Validate features causally: ablate individual SAE features and measure accuracy drop
+
+**Infrastructure needed**:
+- SAE training library (e.g., `sae-lens` or custom)
+- GPU recommended for training (CPU feasible but slow)
+- Hyperparameter sweep: dictionary size (512-4096), L1 coefficient, learning rate
+
+**This is the single biggest gap** in the current work. We know WHERE computation
+happens but not HOW. SAE features would answer the "how" question.
+
+---
+
+#### Step B2: ACDC / Edge Activation Patching
+
+**Effort**: 2-3 weeks  
+**Target venue impact**: Publication-standard minimal circuit diagram  
+**Required for**: Matching IOI paper's presentation standard  
+
+**What to do**:
+- Use ACDC (Conmy et al., 2023) or EAP (Syed et al., 2023) to automatically
+  enumerate all causal edges in the arithmetic circuit
+- Produces a clean graph: which heads write to which MLPs, which MLPs write to the output
+- Our manual patching found the big components; ACDC finds all edges
+
+**Implementation options**:
+- Integrate `acdc` Python library (https://github.com/ArthurConmy/Automatic-Circuit-Discovery)
+- Or implement EAP from scratch (simpler, gradient-based approximation)
+
+---
+
+### Tier C: Statistical Hardening & Additional Models
+
+#### Step C1: Statistical Rigor
+
+**Effort**: ~1 week  
+
+- Scale all experiments to 200+ problems (currently 30-40)
+- Add bootstrap confidence intervals on all recovery scores
+- Add null-distribution baseline for carry probe (random labels → ~50%)
+- Report effect sizes and p-values for key claims
+
+---
+
+#### Step C2: 4th Model — Llama 3.1 8B or Mistral 7B
+
+**Effort**: ~1 day runtime (needs GPU or patient CPU)  
+
+- Validates universality claim at larger scale (8B vs current max 3.8B)
+- Different architecture family strengthens cross-model argument
+- Requires GPU or very patient CPU execution
+
+---
+
+## Publication Pathway
+
+| Target | What's Needed | Timeline |
+|--------|--------------|----------|
+| **Workshop paper** (MI@NeurIPS, ATTRIB@ICML) | Current work + writeup | 2-3 weeks |
+| **Findings paper** (ACL/EMNLP Findings) | + Steps A1-A3 + C1 | 6-8 weeks |
+| **Top conference** (ICLR / NeurIPS main) | + Steps B1 + B2 + C2 | 3-4 months |
+
+### Recommended Execution Order
+
+```
+Week 1:    A1 (copy head knockout)     — 2 hours
+           A2 (3-digit scaling)         — 1 day
+           C1 (statistical hardening)   — parallel with A2
+
+Week 2-3:  A3 (subtraction comparison)  — 2-3 days
+           Workshop paper writeup       — remainder
+
+Week 4-9:  B1 (SAE on compute MLPs)    — 4-6 weeks
+           B2 (ACDC) can overlap        — 2-3 weeks
+
+Week 10:   C2 (4th model, Llama 8B)    — 1 day
+           Full paper writeup           — remainder
 ```

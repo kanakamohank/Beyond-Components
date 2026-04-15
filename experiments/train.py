@@ -68,17 +68,25 @@ def _prepare_label_strings(labels, data_type):
 
 
 def _get_first_answer_token_ids(tokenizer, label_strings, device):
-    """Get the first answer token ID for each label string.
+    """Get the first *meaningful* answer token ID for each label string.
 
-    Handles multi-token answers (e.g. " 10" → multiple tokens) by encoding
-    without special tokens and taking the first token.  This is used for
-    accuracy metrics only — the training loss (KL divergence) does not
-    depend on answer token IDs.
+    Skips whitespace-only prefix tokens (e.g. sentencepiece '▁' or space)
+    to find the actual content token.  For arithmetic " 7" → [259, 29955],
+    this returns 29955 (the digit), not 259 (the space).
+
+    This is used for accuracy metrics AND logit difference loss.
     """
     token_ids = []
     for s in label_strings:
         toks = tokenizer.encode(s, add_special_tokens=False)
-        token_ids.append(toks[0])
+        # Skip whitespace-only prefix tokens to find first content token
+        chosen = toks[0]  # fallback
+        for tok in toks:
+            decoded = tokenizer.decode([tok]).strip()
+            if decoded:  # non-empty after stripping whitespace
+                chosen = tok
+                break
+        token_ids.append(chosen)
     return torch.tensor(token_ids, device=device)
 
 
@@ -852,8 +860,11 @@ def run_validation(circuit, model, validation_loader, config, device, l1_weight,
     full_model_acc = []
     exact_match = []
 
+    max_val_batches = config['training'].get('max_val_batches') or len(validation_loader)
     with torch.no_grad():
-        for val_batch in tqdm(validation_loader, desc="Validation"):
+        for val_idx, val_batch in enumerate(tqdm(validation_loader, desc="Validation", total=min(max_val_batches, len(validation_loader)))):
+            if val_idx >= max_val_batches:
+                break
             clean_column_name, corrupted_column_name = get_data_column_names(config['data_type'])
             indirect_objects_column_name, subjects_column_name = get_indirect_objects_and_subjects(config['data_type'])
 
@@ -965,6 +976,22 @@ def run_validation(circuit, model, validation_loader, config, device, l1_weight,
             'validation/exact_match': np.mean(exact_match)
         }, step=step)
 
+    # Safety stop: if masked accuracy collapses, halt before losing signal
+    min_accuracy = config['training'].get('min_masked_accuracy', 0.30)
+    if np.mean(masked_acc) < min_accuracy:
+        logger.warning(f"⚠️ SAFETY STOP: Masked accuracy {np.mean(masked_acc):.2%} < {min_accuracy:.0%} threshold!")
+        logger.warning(f"   L1 may be too strong — important components being pruned.")
+        should_stop = True
+        return {
+            'avg_val_loss': avg_val_loss,
+            'avg_val_kl': avg_val_kl,
+            'current_l1_norm': current_l1_norm,
+            'should_stop': should_stop,
+            'masked_acc': np.mean(masked_acc),
+            'full_acc': np.mean(full_model_acc),
+            'exact_match': np.mean(exact_match)
+        }
+
     # Check early stopping criteria
     kl_opt = config['training'].get('kl_opt', 0.15)
     l1_opt = config['training'].get('l1_opt', 900)
@@ -1004,12 +1031,12 @@ def run_validation(circuit, model, validation_loader, config, device, l1_weight,
         }, optimal_path)
         logger.info(f"✓ Saved optimal model to {optimal_path}")
 
-        # Create final visualizations
-        logger.info("Creating final visualizations...")
-        circuit.visualize_masks(output_dir=vis_dir, data_type=config['data_type'])
+        # Create final visualizations (commented out — focus on mask training first)
+        # logger.info("Creating final visualizations...")
+        # circuit.visualize_masks(output_dir=vis_dir, data_type=config['data_type'])
 
-        logger.info("Creating masked singular value visualizations...")
-        circuit.visualize_masked_singular_values(output_dir=vis_dir)
+        # logger.info("Creating masked singular value visualizations...")
+        # circuit.visualize_masked_singular_values(output_dir=vis_dir)
 
         # Run test evaluation
         logger.info("Running test evaluation...")
@@ -1218,6 +1245,17 @@ def train_circuit(config, logger):
         train_masks = config['train_masks']
         logger.info(f"Training masks: {train_masks}")
 
+    # Parse trainable_layers for circuit-constrained masking
+    trainable_layers = None
+    if 'circuit_constraints' in config and config['circuit_constraints'] is not None:
+        cc = config['circuit_constraints']
+        trainable_layers = {}
+        if 'trainable_attention_layers' in cc:
+            trainable_layers['attention'] = cc['trainable_attention_layers']
+        if 'trainable_mlp_layers' in cc:
+            trainable_layers['mlp'] = cc['trainable_mlp_layers']
+        logger.info(f"Circuit-constrained masking: {trainable_layers}")
+
     # Create circuit analyzer
     logger.info("Initializing circuit analyzer")
     circuit = MaskedTransformerCircuit(
@@ -1225,7 +1263,8 @@ def train_circuit(config, logger):
         device=device,
         cache_svd=config['masking']['cache_svd'],
         mask_init_value=config['masking']['mask_init_value'],
-        train_masks=train_masks
+        train_masks=train_masks,
+        trainable_layers=trainable_layers,
     )
     
     # Load data
@@ -1274,6 +1313,11 @@ def train_circuit(config, logger):
     plots_dir = os.path.join(run_dir, "monitoring_plots")
     os.makedirs(plots_dir, exist_ok=True)
 
+    # L1 convergence tracking for early stopping
+    l1_history = []
+    l1_conv_window = config['training'].get('l1_convergence_window', 3)
+    l1_conv_threshold = config['training'].get('l1_convergence_threshold', 0.001)  # 0.1% relative change
+
     # Get validation interval from config (-1 means only at epoch end)
     validation_interval = config['training'].get('validation_interval', -1)
     logger.info(f"Validation interval: {'epoch end only' if validation_interval == -1 else f'every {validation_interval} steps'}")
@@ -1282,8 +1326,14 @@ def train_circuit(config, logger):
         logger.info(f"Epoch {epoch+1}/{config['training']['num_epochs']}")
         l1_weight = config['training']['l1_weight']
 
-        # Training loop
-        for batch_idx, batch in enumerate(tqdm(train_loader, desc=f"Epoch {epoch+1}")):
+        # Training loop (optionally limit batches for faster iteration)
+        max_batches = config['training'].get('max_batches') or len(train_loader)
+        if max_batches < len(train_loader):
+            logger.info(f"Limiting to {max_batches}/{len(train_loader)} batches per epoch")
+        for batch_idx, batch in enumerate(tqdm(train_loader, desc=f"Epoch {epoch+1}", total=min(max_batches, len(train_loader)))):
+            if batch_idx >= max_batches:
+                logger.info(f"Reached max_batches={max_batches}, stopping epoch")
+                break
             
             clean_column_name, corrupted_column_name = get_data_column_names(config['data_type'])
             indirect_objects_column_name, subjects_column_name = get_indirect_objects_and_subjects(config['data_type'])
@@ -1361,8 +1411,15 @@ def train_circuit(config, logger):
                 lr_factor=config['training']['lr_factor'],
                 indirect_objects=indirect_objects,
                 subjects=subjects,
-                corrupted_activations=corrupted_activations,  # NEW: Pass corrupted activations
-                clean_last_idx=clean_last_idx  # NEW: Pass last token indices
+                corrupted_activations=corrupted_activations,
+                clean_last_idx=clean_last_idx,
+                loss_type=config['training'].get('loss_type', 'kl'),
+                logit_diff_clamp=config['training'].get('logit_diff_clamp', 20.0),
+                logit_diff_alpha=config['training'].get('logit_diff_alpha', 0.7),
+                adaptive_l1=config['training'].get('adaptive_l1', False),
+                adaptive_l1_threshold=config['training'].get('adaptive_l1_threshold', 0.95),
+                adaptive_l1_multiplier=config['training'].get('adaptive_l1_multiplier', 2.0),
+                adaptive_l1_check_interval=config['training'].get('adaptive_l1_check_interval', 10),
             )
             
             # Log metrics (only if history is not empty)
@@ -1414,6 +1471,40 @@ def train_circuit(config, logger):
 
             # Create visualizations periodically (skip intermediate ones, only save final)
             # Intermediate visualizations are commented out to reduce overhead
+
+            # L1 convergence check
+            if len(history['l1_penalty']) > 0:
+                current_l1 = history['l1_penalty'][-1]
+                l1_history.append(current_l1)
+                if len(l1_history) >= l1_conv_window:
+                    old_l1 = l1_history[-l1_conv_window]
+                    rel_change = abs(old_l1 - current_l1) / (abs(old_l1) + 1e-8)
+                    if rel_change < l1_conv_threshold:
+                        logger.info(f"🛑 L1 CONVERGED: relative change {rel_change:.4%} < {l1_conv_threshold:.2%} "
+                                   f"over last {l1_conv_window} batches (L1={current_l1:.1f})")
+                        logger.info(f"   Saving converged model and stopping training.")
+                        # Save converged model
+                        sparsity_stats = circuit.get_sparsity_stats()
+                        sparsity_threshold = config['masking'].get('sparsity_threshold', 1e-3)
+                        sparsity_metrics = circuit.get_relative_and_full_sparsity(threshold=sparsity_threshold)
+                        converged_path = os.path.join(run_dir, "model_converged.pt")
+                        torch.save({
+                            'step': step,
+                            'qk_masks': circuit.qk_masks,
+                            'ov_masks': circuit.ov_masks,
+                            'mlp_in_masks': circuit.mlp_in_masks,
+                            'mlp_out_masks': circuit.mlp_out_masks,
+                            'sparsity_stats': sparsity_stats,
+                            'sparsity_metrics': sparsity_metrics,
+                            'l1_norm': current_l1,
+                            'config': config,
+                        }, converged_path)
+                        logger.info(f"✓ Saved converged model to {converged_path}")
+                        logger.info(f"   Relative sparsity: {sparsity_metrics['relative_sparsity_pct']:.2f}% "
+                                   f"({sparsity_metrics['num_active_components']}/{sparsity_metrics['relative_denominator']})")
+                        if config['use_wandb']:
+                            wandb.finish()
+                        return circuit
 
             # Increment step counter
             step += 1
@@ -1516,12 +1607,12 @@ def train_circuit(config, logger):
     }, final_path)
     logger.info(f"Saved final model to {final_path}")
 
-    # Final visualizations
-    logger.info("Creating final mask visualizations...")
-    circuit.visualize_masks(output_dir=config['vis_dir'], data_type=config['data_type'])
+    # Final visualizations (commented out — focus on mask training first)
+    # logger.info("Creating final mask visualizations...")
+    # circuit.visualize_masks(output_dir=config['vis_dir'], data_type=config['data_type'])
 
-    logger.info("Creating masked singular value visualizations...")
-    circuit.visualize_masked_singular_values(output_dir=config['vis_dir'])
+    # logger.info("Creating masked singular value visualizations...")
+    # circuit.visualize_masked_singular_values(output_dir=config['vis_dir'])
 
     # Run test evaluation
     logger.info("Running test evaluation...")

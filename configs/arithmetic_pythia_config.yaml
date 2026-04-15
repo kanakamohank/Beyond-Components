@@ -34,7 +34,7 @@ arithmetic:
   operand_range_start: 0
   operand_range_end: 5
   operation: "add"
-  prompt_template: "{a} + {b} ="
+  prompt_template: "{a} + {b} = "
 
 # ---------- Fourier Discovery (Phase 1) ----------
 fourier:

@@ -32,11 +32,12 @@ arithmetic:
   # NOTE: multi-token answer handling is supported via _get_first_answer_token_ids
   # in train.py.  The training loss (KL divergence) does not depend on answer
   # tokens; the helper is only used for accuracy metrics.
-  # 625 pairs (25x25) with answers 0-48 provides rich Fourier structure.
+  # 2500 pairs (50x50) with answers 0-98 (all single-token).
+  # Rich carry/no-carry variation for mask learning.
   operand_range_start: 0
-  operand_range_end: 25
+  operand_range_end: 50
   operation: "add"
-  prompt_template: "{a} + {b} ="
+  prompt_template: "{a} + {b} = "
 
 # ---------- Fourier Discovery (Phase 1) ----------
 fourier:
@@ -59,7 +60,7 @@ fourier:
 
 # ---------- Training (Phase 3 — mask learning) ----------
 training:
-  batch_size: 25
+  batch_size: 50
   num_epochs: 1
   device: null  # auto-detect: cuda > mps > cpu (override with --device CLI flag)
 

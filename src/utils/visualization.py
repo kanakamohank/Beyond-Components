@@ -414,44 +414,48 @@ def visualize_masked_singular_values(circuit, output_dir=None, mask_fn=None, dpi
             qk_cache_key = f"{head_key}_qk"
             ov_cache_key = f"{head_key}_ov"
 
-            # Get singular values from SVD cache
-            U_qk, S_qk, Vh_qk, _ = circuit.svd_cache[qk_cache_key]
-            U_ov, S_ov, Vh_ov, _ = circuit.svd_cache[ov_cache_key]
+            # Get singular values from SVD cache (skip if not available)
+            has_qk = qk_cache_key in circuit.svd_cache
+            has_ov = ov_cache_key in circuit.svd_cache
 
-            # Get mask values
-            qk_mask = mask_fn(circuit.qk_masks[head_key]).detach().cpu().numpy()
-            ov_mask = mask_fn(circuit.ov_masks[head_key]).detach().cpu().numpy()
+            if has_qk:
+                U_qk, S_qk, Vh_qk, _ = circuit.svd_cache[qk_cache_key]
+                qk_mask = mask_fn(circuit.qk_masks[head_key]).detach().cpu().numpy()
+                S_qk_trunc = S_qk[:circuit.d_head].detach().cpu().numpy()
+                masked_S_qk = qk_mask * S_qk_trunc
 
-            # Get singular values (truncated to d_head or d_head+1)
-            S_qk_trunc = S_qk[:circuit.d_head].detach().cpu().numpy()
-            S_ov_trunc = S_ov[:circuit.d_head+1].detach().cpu().numpy()
-
-            # Compute masked singular values
-            masked_S_qk = qk_mask * S_qk_trunc
-            masked_S_ov = ov_mask * S_ov_trunc
+            if has_ov:
+                U_ov, S_ov, Vh_ov, _ = circuit.svd_cache[ov_cache_key]
+                ov_mask = mask_fn(circuit.ov_masks[head_key]).detach().cpu().numpy()
+                S_ov_trunc = S_ov[:circuit.d_head+1].detach().cpu().numpy()
+                masked_S_ov = ov_mask * S_ov_trunc
 
             # Plot QK masked singular values with improved styling
             ax_qk = axes_qk[layer, head]
-            indices_qk = np.arange(len(masked_S_qk))
+            if has_qk:
+                indices_qk = np.arange(len(masked_S_qk))
 
-            # Plot masked values as bars
-            bars_qk = ax_qk.bar(indices_qk, masked_S_qk,
-                               color=COLORS['qk'], alpha=0.85,
-                               edgecolor='black', linewidth=1.2,
-                               label='Masked σ')
+                # Plot masked values as bars
+                bars_qk = ax_qk.bar(indices_qk, masked_S_qk,
+                                   color=COLORS['qk'], alpha=0.85,
+                                   edgecolor='black', linewidth=1.2,
+                                   label='Masked σ')
 
-            # Add circular markers at the top of each bar
-            ax_qk.plot(indices_qk, masked_S_qk, 'o',
-                      color=COLORS['qk'], markersize=6,
-                      markeredgecolor='black', markeredgewidth=1.2,
-                      zorder=5)
+                # Add circular markers at the top of each bar
+                ax_qk.plot(indices_qk, masked_S_qk, 'o',
+                          color=COLORS['qk'], markersize=6,
+                          markeredgecolor='black', markeredgewidth=1.2,
+                          zorder=5)
 
-            # Plot original singular values as line
-            ax_qk.plot(indices_qk, S_qk_trunc,
-                      color=COLORS['original'], linestyle='--',
-                      linewidth=3, alpha=0.8, marker='D',
-                      markersize=5, markeredgecolor='black',
-                      markeredgewidth=0.8, label='Original σ')
+                # Plot original singular values as line
+                ax_qk.plot(indices_qk, S_qk_trunc,
+                          color=COLORS['original'], linestyle='--',
+                          linewidth=3, alpha=0.8, marker='D',
+                          markersize=5, markeredgecolor='black',
+                          markeredgewidth=0.8, label='Original σ')
+            else:
+                ax_qk.text(0.5, 0.5, 'No QK SVD', transform=ax_qk.transAxes,
+                          ha='center', va='center', fontsize=12, color='gray')
 
             ax_qk.set_title(f'Layer {layer}, Head {head}',
                            fontsize=16, fontweight='bold', pad=10)
@@ -461,7 +465,7 @@ def visualize_masked_singular_values(circuit, output_dir=None, mask_fn=None, dpi
                                fontsize=16, fontweight='bold')
             if layer == circuit.n_layers - 1:
                 ax_qk.set_xlabel('Index', fontsize=16, fontweight='bold')
-            if layer == 0 and head == circuit.n_heads - 1:
+            if layer == 0 and head == circuit.n_heads - 1 and has_qk:
                 ax_qk.legend(fontsize=10, loc='upper right',
                             framealpha=0.95, edgecolor='black', fancybox=False)
 
@@ -470,26 +474,30 @@ def visualize_masked_singular_values(circuit, output_dir=None, mask_fn=None, dpi
 
             # Plot OV masked singular values with improved styling
             ax_ov = axes_ov[layer, head]
-            indices_ov = np.arange(len(masked_S_ov))
+            if has_ov:
+                indices_ov = np.arange(len(masked_S_ov))
 
-            # Plot masked values as bars
-            bars_ov = ax_ov.bar(indices_ov, masked_S_ov,
-                               color=COLORS['ov'], alpha=0.85,
-                               edgecolor='black', linewidth=1.2,
-                               label='Masked σ')
+                # Plot masked values as bars
+                bars_ov = ax_ov.bar(indices_ov, masked_S_ov,
+                                   color=COLORS['ov'], alpha=0.85,
+                                   edgecolor='black', linewidth=1.2,
+                                   label='Masked σ')
 
-            # Add circular markers at the top of each bar
-            ax_ov.plot(indices_ov, masked_S_ov, 'o',
-                      color=COLORS['ov'], markersize=6,
-                      markeredgecolor='black', markeredgewidth=1.2,
-                      zorder=5)
+                # Add circular markers at the top of each bar
+                ax_ov.plot(indices_ov, masked_S_ov, 'o',
+                          color=COLORS['ov'], markersize=6,
+                          markeredgecolor='black', markeredgewidth=1.2,
+                          zorder=5)
 
-            # Plot original singular values as line
-            ax_ov.plot(indices_ov, S_ov_trunc,
-                      color=COLORS['original'], linestyle='--',
-                      linewidth=3, alpha=0.8, marker='D',
-                      markersize=5, markeredgecolor='black',
-                      markeredgewidth=0.8, label='Original σ')
+                # Plot original singular values as line
+                ax_ov.plot(indices_ov, S_ov_trunc,
+                          color=COLORS['original'], linestyle='--',
+                          linewidth=3, alpha=0.8, marker='D',
+                          markersize=5, markeredgecolor='black',
+                          markeredgewidth=0.8, label='Original σ')
+            else:
+                ax_ov.text(0.5, 0.5, 'No OV SVD', transform=ax_ov.transAxes,
+                          ha='center', va='center', fontsize=12, color='gray')
 
             ax_ov.set_title(f'Layer {layer}, Head {head}',
                            fontsize=16, fontweight='bold', pad=10)
@@ -499,7 +507,7 @@ def visualize_masked_singular_values(circuit, output_dir=None, mask_fn=None, dpi
                                fontsize=16, fontweight='bold')
             if layer == circuit.n_layers - 1:
                 ax_ov.set_xlabel('Index', fontsize=16, fontweight='bold')
-            if layer == 0 and head == circuit.n_heads - 1:
+            if layer == 0 and head == circuit.n_heads - 1 and has_ov:
                 ax_ov.legend(fontsize=10, loc='upper right',
                             framealpha=0.95, edgecolor='black', fancybox=False)
 

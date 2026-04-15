@@ -28,6 +28,7 @@ from ..utils.visualization import (
 def mask_fn(x):
     """
     Apply sigmoid to the input tensor and clamp values between 0 and 1.
+    Used by hard-concrete sampling paths (l1_reg=False).
     
     Args:
         x: Input tensor
@@ -36,6 +37,15 @@ def mask_fn(x):
         Masked tensor with values between 0 and 1
     """
     return torch.sigmoid(x)
+
+
+def clamp_mask_fn(x):
+    """
+    Clamp mask values to [0, 1]. Used for L1-regularized mask training.
+    Unlike sigmoid, clamp has constant gradient=1 in (0,1), avoiding the
+    vanishing-gradient problem that causes masks to get stuck near init.
+    """
+    return torch.clamp(x, 0.0, 1.0)
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -52,6 +62,7 @@ class MaskedTransformerCircuit:
         mask_mlp: bool = True,
         l1_reg: bool = True,
         train_masks: Optional[List[str]] = None,
+        trainable_layers: Optional[Dict[str, List[int]]] = None,
     ):
         """
         Initialize the masked transformer circuit.
@@ -66,6 +77,11 @@ class MaskedTransformerCircuit:
             mask_mlp: Whether to mask MLP layers in addition to attention
             train_masks: List of mask types to train (options: 'QK', 'OV', 'MLP_in', 'MLP_out').
                         If None, trains all masks (default behavior).
+            trainable_layers: Dict specifying which layers get trainable masks.
+                        Keys: 'attention' (list of layer indices for attention heads),
+                              'mlp' (list of layer indices for MLP layers).
+                        Layers NOT listed are frozen at mask=1.0 (pass-through).
+                        If None, all layers are trainable (default behavior).
         """
         self.model = model
         self.device = device if device is not None else next(model.parameters()).device
@@ -89,6 +105,16 @@ class MaskedTransformerCircuit:
 
         logger.info(f"Training masks: {self.trainable_mask_types}")
 
+        # Parse trainable_layers for circuit-constrained masking
+        if trainable_layers is not None:
+            self.trainable_attn_layers = set(trainable_layers.get('attention', []))
+            self.trainable_mlp_layers = set(trainable_layers.get('mlp', []))
+            logger.info(f"Circuit-constrained masking: attn layers {sorted(self.trainable_attn_layers)}, "
+                        f"mlp layers {sorted(self.trainable_mlp_layers)}")
+        else:
+            self.trainable_attn_layers = None  # None means all layers trainable
+            self.trainable_mlp_layers = None
+
         # Create cache directory if it doesn't exist
         if self.cache_svd:
             self.svd_cache_dir.mkdir(parents=True, exist_ok=True)
@@ -100,6 +126,13 @@ class MaskedTransformerCircuit:
         self.d_model = model.cfg.d_model
         self.d_head = model.cfg.d_head
         self.d_mlp = model.cfg.d_mlp
+
+        # GQA support: detect grouped query attention
+        self.n_kv_heads = getattr(model.cfg, 'n_key_value_heads', None) or self.n_heads
+        self.is_gqa = self.n_kv_heads < self.n_heads
+        self.kv_group_size = self.n_heads // self.n_kv_heads  # queries per KV head
+        if self.is_gqa:
+            logger.info(f"GQA detected: {self.n_kv_heads} KV heads shared across {self.n_heads} query heads (group size {self.kv_group_size})")
 
         # Generate a unique model identifier for caching
         self.model_id = self._generate_model_id()
@@ -234,109 +267,104 @@ class MaskedTransformerCircuit:
             logger.warning(f"Failed to load SVD from {filepath}: {e}")
             return None
     
+    def _is_attn_layer_trainable(self, layer: int) -> bool:
+        """Check if attention masks for this layer should be trainable."""
+        if self.trainable_attn_layers is None:
+            return True  # No constraint: all layers trainable
+        return layer in self.trainable_attn_layers
+
+    def _is_mlp_layer_trainable(self, layer: int) -> bool:
+        """Check if MLP masks for this layer should be trainable."""
+        if self.trainable_mlp_layers is None:
+            return True  # No constraint: all layers trainable
+        return layer in self.trainable_mlp_layers
+
     def _initialize_masks(self, init_value: float = None, eps: float = 1e-3):
-        """Initialize learnable masks for each attention head and MLP layer."""
+        """Initialize learnable masks for each attention head and MLP layer.
+        
+        Layers not in trainable_layers are frozen at mask=1.0 (pass-through).
+        
+        For L1-regularized training (clamp_mask_fn): raw values used directly
+        (init_value=1.0 means pass-through, L1 pushes toward 0).
+        For hard-concrete training (sigmoid): values stored in logit space.
+        """
+
+        def _make_param(dim, trainable):
+            """Create a mask parameter tensor of given dim."""
+            if not trainable:
+                # Frozen pass-through: 1.0 for clamp, sigmoid(10)≈1 for sigmoid
+                frozen_val = 1.0 if self.l1_reg else 10.0
+                return nn.Parameter(torch.ones(dim) * frozen_val, requires_grad=False)
+            if init_value is None:
+                # RANDOM initialization (logit space for sigmoid)
+                p = torch.rand(dim).clamp(eps, 1 - eps)
+                return nn.Parameter(torch.log(p / (1 - p)), requires_grad=True)
+            # CONSTANT initialization
+            if self.l1_reg:
+                # Clamp-based: use raw value directly (1.0 = identity)
+                return nn.Parameter(torch.ones(dim) * init_value, requires_grad=True)
+            else:
+                # Sigmoid-based: transform to logit space
+                if 0 < init_value < 1:
+                    logit = torch.log(torch.tensor(init_value / (1 - init_value)))
+                else:
+                    logit = torch.tensor(-10.0 if init_value == 0 else 10.0)
+                return nn.Parameter(torch.ones(dim) * logit, requires_grad=True)
 
         # Initialize attention masks
         for layer in range(self.n_layers):
+            attn_trainable = self._is_attn_layer_trainable(layer)
+
             for head in range(self.n_heads):
                 head_key = f'differential_head_{layer}_{head}'
 
                 qk_dim = self.d_head
                 ov_dim = self.d_head + 1
 
-                # QK masks
-                if 'qk' in self.trainable_mask_types:
-                    if init_value is None:
-                        # RANDOM initialization:
-                        qk_p = torch.rand(qk_dim).clamp(eps, 1 - eps)
-                        qk_logit = torch.log(qk_p / (1 - qk_p))
-                    else:
-                        # CONSTANT initialization
-                        if 0 < init_value < 1:
-                            logit_init = torch.log(torch.tensor(init_value / (1 - init_value)))
-                        else:
-                            logit_init = torch.tensor(-10.0 if init_value == 0 else 10.0)
-                        qk_logit = torch.ones(qk_dim) * logit_init
-                    self.qk_masks[head_key] = nn.Parameter(qk_logit, requires_grad=True)
-                else:
-                    # Not training: fix to 1.0 (logit = 10.0 gives sigmoid ≈ 1.0)
-                    qk_logit = torch.ones(qk_dim) * 10.0
-                    self.qk_masks[head_key] = nn.Parameter(qk_logit, requires_grad=False)
+                qk_train = 'qk' in self.trainable_mask_types and attn_trainable
+                ov_train = 'ov' in self.trainable_mask_types and attn_trainable
 
-                # OV masks
-                if 'ov' in self.trainable_mask_types:
-                    if init_value is None:
-                        # RANDOM initialization:
-                        ov_p = torch.rand(ov_dim).clamp(eps, 1 - eps)
-                        ov_logit = torch.log(ov_p / (1 - ov_p))
-                    else:
-                        # CONSTANT initialization
-                        if 0 < init_value < 1:
-                            logit_init = torch.log(torch.tensor(init_value / (1 - init_value)))
-                        else:
-                            logit_init = torch.tensor(-10.0 if init_value == 0 else 10.0)
-                        ov_logit = torch.ones(ov_dim) * logit_init
-                    self.ov_masks[head_key] = nn.Parameter(ov_logit, requires_grad=True)
-                else:
-                    # Not training: fix to 1.0
-                    ov_logit = torch.ones(ov_dim) * 10.0
-                    self.ov_masks[head_key] = nn.Parameter(ov_logit, requires_grad=False)
+                self.qk_masks[head_key] = _make_param(qk_dim, qk_train)
+                self.ov_masks[head_key] = _make_param(ov_dim, ov_train)
         
         # Initialize MLP masks
         if self.mask_mlp:
             for layer in range(self.n_layers):
+                mlp_trainable = self._is_mlp_layer_trainable(layer)
                 mlp_key = f'mlp_{layer}'
 
-                # Dimensions for augmented matrices
                 mlp_in_dim = min(self.d_model + 1, self.d_mlp)
                 mlp_out_dim = min(self.d_mlp + 1, self.d_model)
 
-                # MLP_in masks
-                if 'mlp_in' in self.trainable_mask_types:
-                    if init_value is None:
-                        # RANDOM initialization:
-                        mlp_in_p = torch.rand(mlp_in_dim).clamp(eps, 1 - eps)
-                        mlp_in_logit = torch.log(mlp_in_p / (1 - mlp_in_p))
-                    else:
-                        # CONSTANT initialization
-                        if 0 < init_value < 1:
-                            logit_init = torch.log(torch.tensor(init_value / (1 - init_value)))
-                        else:
-                            logit_init = torch.tensor(-10.0 if init_value == 0 else 10.0)
-                        mlp_in_logit = torch.ones(mlp_in_dim) * logit_init
-                    self.mlp_in_masks[mlp_key] = nn.Parameter(mlp_in_logit, requires_grad=True)
-                else:
-                    # Not training: fix to 1.0
-                    mlp_in_logit = torch.ones(mlp_in_dim) * 10.0
-                    self.mlp_in_masks[mlp_key] = nn.Parameter(mlp_in_logit, requires_grad=False)
+                mlp_in_train = 'mlp_in' in self.trainable_mask_types and mlp_trainable
+                mlp_out_train = 'mlp_out' in self.trainable_mask_types and mlp_trainable
 
-                # MLP_out masks
-                if 'mlp_out' in self.trainable_mask_types:
-                    if init_value is None:
-                        # RANDOM initialization:
-                        mlp_out_p = torch.rand(mlp_out_dim).clamp(eps, 1 - eps)
-                        mlp_out_logit = torch.log(mlp_out_p / (1 - mlp_out_p))
-                    else:
-                        # CONSTANT initialization
-                        if 0 < init_value < 1:
-                            logit_init = torch.log(torch.tensor(init_value / (1 - init_value)))
-                        else:
-                            logit_init = torch.tensor(-10.0 if init_value == 0 else 10.0)
-                        mlp_out_logit = torch.ones(mlp_out_dim) * logit_init
-                    self.mlp_out_masks[mlp_key] = nn.Parameter(mlp_out_logit, requires_grad=True)
-                else:
-                    # Not training: fix to 1.0
-                    mlp_out_logit = torch.ones(mlp_out_dim) * 10.0
-                    self.mlp_out_masks[mlp_key] = nn.Parameter(mlp_out_logit, requires_grad=False)
+                self.mlp_in_masks[mlp_key] = _make_param(mlp_in_dim, mlp_in_train)
+                self.mlp_out_masks[mlp_key] = _make_param(mlp_out_dim, mlp_out_train)
     
+    def _get_kv_weight(self, layer: int, head: int, component: str, device='cpu'):
+        """Get KV weight for a given query head, handling GQA broadcasting.
+        
+        For standard MHA: W_V[head], W_K[head], b_V[head], b_K[head]
+        For GQA: _W_V[kv_head], _W_K[kv_head], _b_V[kv_head], _b_K[kv_head]
+        where kv_head = head // kv_group_size.
+        """
+        kv_head = head // self.kv_group_size if self.is_gqa else head
+        prefix = f'blocks.{layer}.attn'
+        # Try GQA naming first (underscore prefix), then standard
+        gqa_key = f'{prefix}._{component}'
+        std_key = f'{prefix}.{component}'
+        if gqa_key in self.state_dict:
+            return self.state_dict[gqa_key][kv_head].to(device)
+        return self.state_dict[std_key][head].to(device)
+
     def _compute_qk_svd(self, layer: int, head: int):
         """Compute SVD for Query-Key matrix."""
         # Extract weights and biases (compute on CPU to avoid GPU OOM)
         W_Q = self.state_dict[f'blocks.{layer}.attn.W_Q'][head].cpu()
-        W_K = self.state_dict[f'blocks.{layer}.attn.W_K'][head].cpu()
+        W_K = self._get_kv_weight(layer, head, 'W_K', device='cpu')
         b_Q = self.state_dict[f'blocks.{layer}.attn.b_Q'][head].cpu()
-        b_K = self.state_dict[f'blocks.{layer}.attn.b_K'][head].cpu()
+        b_K = self._get_kv_weight(layer, head, 'b_K', device='cpu')
         
         # Construct augmented W_QK matrix
         W_QK = torch.zeros(self.d_model+1, self.d_model+1, device='cpu', dtype=W_Q.dtype)
@@ -356,9 +384,9 @@ class MaskedTransformerCircuit:
     def _compute_ov_svd(self, layer: int, head: int):
         """Compute SVD for Output-Value matrix."""
         # Extract weights and biases (compute on CPU to avoid GPU OOM)
-        W_V = self.state_dict[f'blocks.{layer}.attn.W_V'][head].cpu()
+        W_V = self._get_kv_weight(layer, head, 'W_V', device='cpu')
         W_O = self.state_dict[f'blocks.{layer}.attn.W_O'][head].cpu()
-        b_V = self.state_dict[f'blocks.{layer}.attn.b_V'][head].cpu()
+        b_V = self._get_kv_weight(layer, head, 'b_V', device='cpu')
         b_O = self.state_dict[f'blocks.{layer}.attn.b_O'].cpu()
         
         # Construct W_OV matrix
@@ -416,9 +444,9 @@ class MaskedTransformerCircuit:
     def _recompute_qk_matrix(self, layer: int, head: int):
         """Recompute W_QK matrix from model weights on-the-fly (no SVD, no caching)."""
         W_Q = self.state_dict[f'blocks.{layer}.attn.W_Q'][head].to(self.device)
-        W_K = self.state_dict[f'blocks.{layer}.attn.W_K'][head].to(self.device)
+        W_K = self._get_kv_weight(layer, head, 'W_K', device=self.device)
         b_Q = self.state_dict[f'blocks.{layer}.attn.b_Q'][head].to(self.device)
-        b_K = self.state_dict[f'blocks.{layer}.attn.b_K'][head].to(self.device)
+        b_K = self._get_kv_weight(layer, head, 'b_K', device=self.device)
         W_QK = torch.zeros(self.d_model+1, self.d_model+1, device=self.device, dtype=W_Q.dtype)
         W_QK[0, 0] = torch.dot(b_Q, b_K)
         W_QK[0, 1:] = b_Q @ W_K.T
@@ -428,9 +456,9 @@ class MaskedTransformerCircuit:
 
     def _recompute_ov_matrix(self, layer: int, head: int):
         """Recompute W_OV matrix from model weights on-the-fly (no SVD, no caching)."""
-        W_V = self.state_dict[f'blocks.{layer}.attn.W_V'][head].to(self.device)
+        W_V = self._get_kv_weight(layer, head, 'W_V', device=self.device)
         W_O = self.state_dict[f'blocks.{layer}.attn.W_O'][head].to(self.device)
-        b_V = self.state_dict[f'blocks.{layer}.attn.b_V'][head].to(self.device)
+        b_V = self._get_kv_weight(layer, head, 'b_V', device=self.device)
         b_O = self.state_dict[f'blocks.{layer}.attn.b_O'].to(self.device)
         W_OV = torch.zeros(self.d_model+1, self.d_model, device=self.device, dtype=W_V.dtype)
         W_OV[0] = b_V @ W_O + b_O/self.n_heads
@@ -573,8 +601,8 @@ class MaskedTransformerCircuit:
 
         # Apply masking to singular values
         if self.l1_reg:
-            qk_mask = mask_fn(self.qk_masks[head_key])
-            ov_mask = mask_fn(self.ov_masks[head_key])
+            qk_mask = clamp_mask_fn(self.qk_masks[head_key])
+            ov_mask = clamp_mask_fn(self.ov_masks[head_key])
         else:
             qk_mask, ov_mask = self.sample_hard_concrete_masks()
             qk_mask = qk_mask[head_key]
@@ -636,11 +664,11 @@ class MaskedTransformerCircuit:
         
         # Sample masks
         if self.l1_reg:
-            mlp_in_mask = mask_fn(self.mlp_in_masks[mlp_key])
-            mlp_out_mask = mask_fn(self.mlp_out_masks[mlp_key])
+            mlp_in_mask = clamp_mask_fn(self.mlp_in_masks[mlp_key])
+            mlp_out_mask = clamp_mask_fn(self.mlp_out_masks[mlp_key])
         else:
             mlp_in_mask, mlp_out_mask = self.sample_mlp_hard_concrete_masks()
-            mlp_in_mask = mlp_in_mask[mlp_key]
+            mlp_in_mask = mlp_in_mask[mlp_key]            
             mlp_out_mask = mlp_out_mask[mlp_key]
         
         # Apply masks and reconstruct
@@ -964,9 +992,19 @@ class MaskedTransformerCircuit:
         return output
     
     def _compute_mlp(self, hidden_states, layer):
-        """Compute MLP layer with optional masking and activation patching."""
+        """Compute MLP layer with optional masking and activation patching.
+        
+        Supports both standard MLPs (GPT-2, Pythia) and gated MLPs / SwiGLU
+        (Phi-3, Llama).  For gated models the gate projection (W_gate) is
+        always applied unmasked; only W_in (up projection) and W_out (down
+        projection) are SVD-masked.
+        """
         device = hidden_states.device
         batch_size, seq_len, d_model = hidden_states.shape
+        is_gated = getattr(self.cfg, 'gated_mlp', False)
+        
+        # Resolve activation function once
+        act_fn = getattr(utils, self.cfg.act_fn, None) or getattr(F, self.cfg.act_fn)
         
         # Get masked weights if MLP masking is enabled
         masked_weights = self.get_masked_mlp_weights(layer)
@@ -979,14 +1017,15 @@ class MaskedTransformerCircuit:
                 W_out = self.state_dict[f'blocks.{layer}.mlp.W_out'].float().to(device)
                 b_out = self.state_dict[f'blocks.{layer}.mlp.b_out'].float().to(device)
             
-            # First linear layer
-            intermediate = torch.matmul(hidden_states, W_in) + b_in
+            if is_gated:
+                with torch.no_grad():
+                    W_gate = self.state_dict[f'blocks.{layer}.mlp.W_gate'].float().to(device)
+                gate = act_fn(torch.matmul(hidden_states, W_gate))
+                up = torch.matmul(hidden_states, W_in) + b_in
+                intermediate = gate * up
+            else:
+                intermediate = act_fn(torch.matmul(hidden_states, W_in) + b_in)
             
-            # Apply activation function
-            act_fn = getattr(utils, self.cfg.act_fn, None) or getattr(F, self.cfg.act_fn)
-            intermediate = act_fn(intermediate)
-            
-            # Second linear layer
             output = torch.matmul(intermediate, W_out) + b_out
         else:
             # Masked implementation with augmented matrices and optional patching
@@ -1004,11 +1043,17 @@ class MaskedTransformerCircuit:
             Vh_out = masked_weights['Vh_out']
             mlp_out_mask = masked_weights['mlp_out_mask']
             
-            # Augment hidden states with ones
+            # Augment hidden states with ones for bias-folded W_in
             ones = torch.ones(batch_size, seq_len, 1, device=device)
             hidden_aug = torch.cat([ones, hidden_states], dim=2)  # [B, L, d_model+1]
             
-            # NEW: Apply activation patching for MLP_in if enabled
+            # For gated MLPs, compute gate (unmasked) from original W_gate
+            if is_gated:
+                with torch.no_grad():
+                    W_gate = self.state_dict[f'blocks.{layer}.mlp.W_gate'].float().to(device)
+                gate = act_fn(torch.matmul(hidden_states, W_gate))  # [B, L, d_mlp]
+            
+            # Apply activation patching for MLP_in if enabled
             if ('mlp_in' in self.trainable_mask_types and 
                 self.corrupted_activations is not None and 
                 self.clean_last_idx is not None):
@@ -1021,7 +1066,6 @@ class MaskedTransformerCircuit:
                 x_corrupt_aug = torch.cat([ones_corrupt, x_corrupt_last], dim=1)  # [B, d_model+1]
 
                 # Project using U (input space to SVD space)
-                # W_in_aug = U @ diag(S) @ Vh
                 y_clean = hidden_aug @ U_in  # [B, L, rank]
                 y_corrupt = x_corrupt_aug @ U_in  # [B, rank]
 
@@ -1036,21 +1080,23 @@ class MaskedTransformerCircuit:
 
                 # Apply singular values and back-project using Vh
                 y_masked = y_clean[:, :, :k_in] * S_in[None, None, :k_in]
-                intermediate = y_masked @ Vh_in[:k_in, :]  # [B, L, d_mlp]
+                up = y_masked @ Vh_in[:k_in, :]  # [B, L, d_mlp]
                 
             else:
                 # Standard MLP input without patching
-                intermediate = torch.matmul(hidden_aug, W_in_aug)  # [B, L, d_mlp]
+                up = torch.matmul(hidden_aug, W_in_aug)  # [B, L, d_mlp]
             
-            # Apply activation function
-            act_fn = getattr(utils, self.cfg.act_fn, None) or getattr(F, self.cfg.act_fn)
-            intermediate = act_fn(intermediate)
+            # Apply gating or activation
+            if is_gated:
+                intermediate = gate * up
+            else:
+                intermediate = act_fn(up)
             
-            # Augment intermediate with ones for output computation
+            # Augment intermediate with ones for bias-folded W_out
             ones_int = torch.ones(batch_size, seq_len, 1, device=device)
             intermediate_aug = torch.cat([ones_int, intermediate], dim=2)  # [B, L, d_mlp+1]
             
-            # NEW: Apply activation patching for MLP_out if enabled
+            # Apply activation patching for MLP_out if enabled
             if ('mlp_out' in self.trainable_mask_types and 
                 self.corrupted_activations is not None and 
                 self.clean_last_idx is not None):
@@ -1063,7 +1109,6 @@ class MaskedTransformerCircuit:
                 h_corrupt_aug = torch.cat([ones_corrupt_h, h_corrupt_last], dim=1)  # [B, d_mlp+1]
 
                 # Project using U (input space to SVD space)
-                # W_out_aug = U @ diag(S) @ Vh
                 y_clean_out = intermediate_aug @ U_out  # [B, L, d_model]
                 y_corrupt_out = h_corrupt_aug @ U_out  # [B, d_model]
 
@@ -1122,7 +1167,159 @@ class MaskedTransformerCircuit:
         logit_diff_full = full_indirect_logits - full_subject_logits
         
         return logit_diff_masked.mean(), logit_diff_full.mean()
-    
+
+    def _compute_task_loss_fast(self, input_ids, attention_mask, temperature,
+                                sequence_lengths, cached_full_logits,
+                                indirect_object_index, subject_index,
+                                corrupted_activations, clean_last_idx,
+                                loss_type, logit_diff_clamp=20.0, logit_diff_alpha=0.7):
+        """
+        Unified fast loss computation: ONE masked forward pass, derive any loss type.
+        
+        Uses pre-cached full model logits (computed once per batch) and only runs
+        the masked forward pass. For hybrid loss, both logit_diff and KL are derived
+        from the same pair of (full, masked) logits — no redundant forward passes.
+        
+        This is ~4× faster than calling find_logit_diff_arithmetic + find_KL_divergence
+        separately (which each do their own full + masked forward passes).
+        
+        Args:
+            cached_full_logits: Pre-computed full model logits at last token positions
+                [batch_size, vocab_size]. Computed once per batch, reused across iterations.
+            loss_type: 'kl', 'logit_diff', or 'logit_diff_kl'
+            (other args: same as find_KL_divergence)
+            
+        Returns:
+            Tuple of (task_loss, masked_accuracy, full_model_accuracy, exact_match)
+        """
+        device = input_ids.device
+        
+        # Only ONE forward pass: the masked model (full model logits are cached)
+        masked_model_logits = self.forward_pass_through_model(
+            input_ids, attention_mask,
+            corrupted_activations=corrupted_activations,
+            clean_last_idx=clean_last_idx
+        )
+        
+        # Extract logits at last token position
+        last_token_indices = sequence_lengths - 1
+        batch_indices = torch.arange(input_ids.shape[0], device=device)
+        masked_logits = masked_model_logits[batch_indices, last_token_indices]
+        full_logits = cached_full_logits  # Already extracted at last token positions
+        
+        # Token indices for accuracy
+        correct_idx = indirect_object_index[:, 0] if indirect_object_index.dim() > 1 else indirect_object_index
+        wrong_idx = subject_index[:, 0] if subject_index.dim() > 1 else subject_index
+        
+        # Compute logit diff (needed for logit_diff and logit_diff_kl)
+        if loss_type in ('logit_diff', 'logit_diff_kl'):
+            masked_logit_diff = masked_logits[batch_indices, correct_idx] - masked_logits[batch_indices, wrong_idx]
+            clamped_diff = torch.clamp(masked_logit_diff, min=-logit_diff_clamp, max=logit_diff_clamp)
+            ld_loss = -clamped_diff.mean()
+        
+        # Compute KL divergence (needed for kl and logit_diff_kl)
+        if loss_type in ('kl', 'logit_diff_kl'):
+            log_probs_full = F.log_softmax(full_logits / temperature, dim=-1)
+            probs_full = torch.exp(log_probs_full)
+            log_probs_masked = F.log_softmax(masked_logits / temperature, dim=-1)
+            kl_loss = F.kl_div(log_probs_masked, probs_full, reduction='batchmean')
+        
+        # Combine based on loss type
+        if loss_type == 'logit_diff':
+            task_loss = ld_loss
+        elif loss_type == 'logit_diff_kl':
+            task_loss = logit_diff_alpha * ld_loss + (1 - logit_diff_alpha) * kl_loss
+        else:  # kl
+            task_loss = kl_loss
+        
+        # Accuracy metrics
+        masked_accuracy = (masked_logits.argmax(dim=-1) == correct_idx).float().mean()
+        full_model_accuracy = (full_logits.argmax(dim=-1) == correct_idx).float().mean()
+        exact_match = (masked_logits.argmax(dim=-1) == full_logits.argmax(dim=-1)).float().mean()
+        
+        return task_loss, masked_accuracy, full_model_accuracy, exact_match
+
+    def find_logit_diff_arithmetic(self, input_ids, attention_mask=None, temperature=1.0,
+                                    sequence_lengths=None, sequence_lengths_corrupt=None,
+                                    indirect_object_index=None, subject_index=None,
+                                    corrupted_activations=None, clean_last_idx=None,
+                                    logit_diff_clamp: float = 20.0):
+        """
+        Logit Difference loss for arithmetic tasks.
+        
+        Instead of KL divergence (which preserves the full output distribution and
+        biases toward output-formatting layers like L31), this computes:
+            loss = -clamp(mean(logit[correct_answer] - logit[wrong_answer]), max=clamp_val)
+        
+        This focuses gradients on layers doing actual arithmetic computation
+        (L18-L27) rather than numeric-to-token conversion (L31).
+        
+        The clamp prevents unbounded optimization: once the logit diff exceeds the
+        clamp value, gradients from this term go to zero and only L1 drives pruning.
+        
+        Args:
+            indirect_object_index: Correct answer token IDs [batch_size]
+            subject_index: Wrong answer token IDs [batch_size]
+            logit_diff_clamp: Max absolute value for logit diff before clamping.
+                Default 20.0 (typical full-model logit diffs are 5-15).
+            (other args: same as find_KL_divergence)
+            
+        Returns:
+            Tuple of (neg_logit_diff, masked_accuracy, full_model_accuracy, exact_match)
+            where neg_logit_diff is the clamped loss to minimize.
+        """
+        device = input_ids.device
+        
+        # Forward pass through full model
+        with torch.no_grad():
+            full_model_logits = self.model(input_ids, attention_mask=attention_mask)
+        
+        # Forward pass through masked model with optional patching
+        masked_model_logits = self.forward_pass_through_model(
+            input_ids, attention_mask,
+            corrupted_activations=corrupted_activations,
+            clean_last_idx=clean_last_idx
+        )
+        
+        # Get last token positions
+        last_token_indices = sequence_lengths - 1
+        batch_indices = torch.arange(input_ids.shape[0], device=device)
+        
+        # Extract logits at last token position
+        full_logits = full_model_logits[batch_indices, last_token_indices]
+        masked_logits = masked_model_logits[batch_indices, last_token_indices]
+        
+        # Get correct and wrong answer token indices
+        correct_idx = indirect_object_index[:, 0] if indirect_object_index.dim() > 1 else indirect_object_index
+        wrong_idx = subject_index[:, 0] if subject_index.dim() > 1 else subject_index
+        
+        # Compute logit differences: correct_logit - wrong_logit
+        masked_logit_diff = masked_logits[batch_indices, correct_idx] - masked_logits[batch_indices, wrong_idx]
+        full_logit_diff = full_logits[batch_indices, correct_idx] - full_logits[batch_indices, wrong_idx]
+        
+        # Clamp to prevent unbounded optimization
+        # Once logit diff exceeds clamp_val, task loss gradient → 0, only L1 drives pruning
+        clamped_diff = torch.clamp(masked_logit_diff, min=-logit_diff_clamp, max=logit_diff_clamp)
+        neg_logit_diff = -clamped_diff.mean()
+        
+        # Debug: check for NaN and log clamp events
+        if torch.isnan(neg_logit_diff) or torch.isinf(neg_logit_diff):
+            logger.error(f"❌ NaN/Inf in logit diff loss!")
+            logger.error(f"  masked_logit_diff: {masked_logit_diff}")
+            logger.error(f"  full_logit_diff: {full_logit_diff}")
+        
+        n_clamped = ((masked_logit_diff.abs() > logit_diff_clamp).sum().item())
+        if n_clamped > 0:
+            logger.debug(f"Logit diff clamped {n_clamped}/{len(masked_logit_diff)} samples "
+                        f"(raw mean={masked_logit_diff.mean().item():.2f}, clamp={logit_diff_clamp})")
+        
+        # Compute accuracy metrics (same as KL version for comparability)
+        masked_accuracy = (masked_logits.argmax(dim=-1) == correct_idx).float().mean()
+        full_model_accuracy = (full_logits.argmax(dim=-1) == correct_idx).float().mean()
+        exact_match = (masked_logits.argmax(dim=-1) == full_logits.argmax(dim=-1)).float().mean()
+        
+        return neg_logit_diff, masked_accuracy, full_model_accuracy, exact_match
+
     def find_KL_divergence(self, input_ids, attention_mask=None, temperature=1.0, sequence_lengths=None,
                            sequence_lengths_corrupt=None, indirect_object_index=None, subject_index=None,
                            corrupted_activations=None, clean_last_idx=None):
@@ -1201,7 +1398,7 @@ class MaskedTransformerCircuit:
         for key in self.qk_masks:
             log_alpha = self.qk_masks[key]
             u = torch.rand_like(log_alpha).clamp(epsilon, 1-epsilon)
-            s = mask_fn((torch.log(u) - torch.log(1-u) + log_alpha)/beta)
+            s = torch.sigmoid((torch.log(u) - torch.log(1-u) + log_alpha)/beta)
             s_bar = s * (r - l) + l
             z = torch.clamp(s_bar, 0, 1)
             qk_sampled_masks[key] = z
@@ -1209,7 +1406,7 @@ class MaskedTransformerCircuit:
         for key in self.ov_masks:
             log_alpha = self.ov_masks[key]
             u = torch.rand_like(log_alpha).clamp(epsilon, 1-epsilon)
-            s = mask_fn((torch.log(u) - torch.log(1-u) + log_alpha)/beta)
+            s = torch.sigmoid((torch.log(u) - torch.log(1-u) + log_alpha)/beta)
             s_bar = s * (r - l) + l
             z = torch.clamp(s_bar, 0, 1)
             ov_sampled_masks[key] = z
@@ -1232,7 +1429,7 @@ class MaskedTransformerCircuit:
         for key in self.mlp_in_masks:
             log_alpha = self.mlp_in_masks[key]
             u = torch.rand_like(log_alpha).clamp(epsilon, 1-epsilon)
-            s = mask_fn((torch.log(u) - torch.log(1-u) + log_alpha)/beta)
+            s = torch.sigmoid((torch.log(u) - torch.log(1-u) + log_alpha)/beta)
             s_bar = s * (r - l) + l
             z = torch.clamp(s_bar, 0, 1)
             mlp_in_sampled_masks[key] = z
@@ -1240,7 +1437,7 @@ class MaskedTransformerCircuit:
         for key in self.mlp_out_masks:
             log_alpha = self.mlp_out_masks[key]
             u = torch.rand_like(log_alpha).clamp(epsilon, 1-epsilon)
-            s = mask_fn((torch.log(u) - torch.log(1-u) + log_alpha)/beta)
+            s = torch.sigmoid((torch.log(u) - torch.log(1-u) + log_alpha)/beta)
             s_bar = s * (r - l) + l
             z = torch.clamp(s_bar, 0, 1)
             mlp_out_sampled_masks[key] = z
@@ -1248,10 +1445,10 @@ class MaskedTransformerCircuit:
         return mlp_in_sampled_masks, mlp_out_sampled_masks
     
     def get_thresholded_masks(self, threshold=1e-2):
-        """Get binary masks by applying a threshold to the sigmoid of mask parameters.
+        """Get binary masks by applying a threshold to mask parameters.
 
         Args:
-            threshold: Components with sigmoid(mask) < threshold are considered pruned.
+            threshold: Components with mask value < threshold are considered pruned.
                       Default 1e-2 (1% strength) for practical binary decisions."""
         thresholded_masks = {
             'qk_masks': {},
@@ -1260,21 +1457,22 @@ class MaskedTransformerCircuit:
             'mlp_out_masks': {}
         }
         
+        _fn = clamp_mask_fn if self.l1_reg else mask_fn
         for key in self.qk_masks:
-            mask = mask_fn(self.qk_masks[key])
+            mask = _fn(self.qk_masks[key])
             thresholded_masks['qk_masks'][key] = mask
         
         for key in self.ov_masks:
-            mask = mask_fn(self.ov_masks[key])
+            mask = _fn(self.ov_masks[key])
             thresholded_masks['ov_masks'][key] = mask
         
         if self.mask_mlp:
             for key in self.mlp_in_masks:
-                mask = mask_fn(self.mlp_in_masks[key])
+                mask = _fn(self.mlp_in_masks[key])
                 thresholded_masks['mlp_in_masks'][key] = mask
             
             for key in self.mlp_out_masks:
-                mask = mask_fn(self.mlp_out_masks[key])
+                mask = _fn(self.mlp_out_masks[key])
                 thresholded_masks['mlp_out_masks'][key] = mask
         
         return thresholded_masks
@@ -1302,29 +1500,38 @@ class MaskedTransformerCircuit:
         }
     
     def get_l1_penalty(self):
-        """Calculate L1 norm of masks being trained (after sigmoid)."""
+        """Calculate L1 norm of trainable masks only (clamp for L1, sigmoid for HC).
+        
+        Only includes masks with requires_grad=True to avoid inflating the
+        norm with frozen pass-through masks (which are constant at 1.0).
+        """
+        _fn = clamp_mask_fn if self.l1_reg else mask_fn
         l1_norm = 0.0
 
         if 'qk' in self.trainable_mask_types:
             for key in self.qk_masks:
-                l1_norm += mask_fn(self.qk_masks[key]).sum()
+                if self.qk_masks[key].requires_grad:
+                    l1_norm += _fn(self.qk_masks[key]).sum()
 
         if 'ov' in self.trainable_mask_types:
             for key in self.ov_masks:
-                l1_norm += mask_fn(self.ov_masks[key]).sum()
+                if self.ov_masks[key].requires_grad:
+                    l1_norm += _fn(self.ov_masks[key]).sum()
 
         if 'mlp_in' in self.trainable_mask_types:
             for key in self.mlp_in_masks:
-                l1_norm += mask_fn(self.mlp_in_masks[key]).sum()
+                if self.mlp_in_masks[key].requires_grad:
+                    l1_norm += _fn(self.mlp_in_masks[key]).sum()
 
         if 'mlp_out' in self.trainable_mask_types:
             for key in self.mlp_out_masks:
-                l1_norm += mask_fn(self.mlp_out_masks[key]).sum()
+                if self.mlp_out_masks[key].requires_grad:
+                    l1_norm += _fn(self.mlp_out_masks[key]).sum()
 
         return l1_norm
     
     def get_l0_penalty(self):
-        """Calculate the L0 complexity loss for masks being trained."""
+        """Calculate the L0 complexity loss for masks being trained (hard concrete)."""
         beta = torch.tensor(2/3, device=self.device)
         gamma = torch.tensor(-0.1, device=self.device)
         zeta = torch.tensor(1.1, device=self.device)
@@ -1334,26 +1541,26 @@ class MaskedTransformerCircuit:
         if 'qk' in self.trainable_mask_types:
             for key in self.qk_masks:
                 log_alpha = self.qk_masks[key]
-                prob_non_zero = mask_fn(log_alpha - beta * torch.log(-gamma/zeta))
+                prob_non_zero = torch.sigmoid(log_alpha - beta * torch.log(-gamma/zeta))
                 l0_norm += prob_non_zero.sum()
 
         if 'ov' in self.trainable_mask_types:
             for key in self.ov_masks:
                 log_alpha = self.ov_masks[key]
-                prob_non_zero = mask_fn(log_alpha - beta * torch.log(-gamma/zeta))
+                prob_non_zero = torch.sigmoid(log_alpha - beta * torch.log(-gamma/zeta))
                 l0_norm += prob_non_zero.sum()
 
         if self.mask_mlp:
             if 'mlp_in' in self.trainable_mask_types:
                 for key in self.mlp_in_masks:
                     log_alpha = self.mlp_in_masks[key]
-                    prob_non_zero = mask_fn(log_alpha - beta * torch.log(-gamma/zeta))
+                    prob_non_zero = torch.sigmoid(log_alpha - beta * torch.log(-gamma/zeta))
                     l0_norm += prob_non_zero.sum()
 
             if 'mlp_out' in self.trainable_mask_types:
                 for key in self.mlp_out_masks:
                     log_alpha = self.mlp_out_masks[key]
-                    prob_non_zero = mask_fn(log_alpha - beta * torch.log(-gamma/zeta))
+                    prob_non_zero = torch.sigmoid(log_alpha - beta * torch.log(-gamma/zeta))
                     l0_norm += prob_non_zero.sum()
 
         return l0_norm
@@ -1379,9 +1586,16 @@ class MaskedTransformerCircuit:
         subjects: Optional[torch.Tensor] = None,
         corrupted_activations: Optional[Dict] = None,
         clean_last_idx: Optional[torch.Tensor] = None,
+        loss_type: str = 'kl',
+        logit_diff_clamp: float = 20.0,
+        logit_diff_alpha: float = 0.7,
+        adaptive_l1: bool = False,
+        adaptive_l1_threshold: float = 0.95,
+        adaptive_l1_multiplier: float = 2.0,
+        adaptive_l1_check_interval: int = 10,
     ):
         """
-        Train masks to minimize KL divergence with L1 regularization and activation patching.
+        Train masks to minimize task loss with L1 regularization and activation patching.
         
         Args:
             input_ids: Input token IDs
@@ -1403,10 +1617,46 @@ class MaskedTransformerCircuit:
             subjects: Subject token IDs for accuracy
             corrupted_activations: Dictionary with corrupted activations for patching
             clean_last_idx: Indices of last valid tokens [batch_size]
+            loss_type: Loss function to use. Options:
+                'kl' — KL divergence (preserves full output distribution, default)
+                'logit_diff' — Negative logit difference (correct - wrong answer).
+                    Focuses gradients on math-computation layers instead of
+                    output-formatting layers. Recommended for arithmetic tasks.
+                    Clamped at logit_diff_clamp to prevent unbounded optimization.
+                'logit_diff_kl' — Hybrid: alpha * logit_diff + (1-alpha) * KL.
+                    Keeps the math-focused signal while preserving some output
+                    distribution structure. Safest option for arithmetic.
+            logit_diff_clamp: Max absolute logit diff before clamping (default 20.0).
+                Prevents unbounded loss when using logit_diff or logit_diff_kl.
+            logit_diff_alpha: Mixing weight for hybrid loss (default 0.7).
+                Higher = more logit_diff influence, lower = more KL influence.
+                Only used when loss_type='logit_diff_kl'.
+            adaptive_l1: If True, monitor mask sparsity and auto-increase l1_weight
+                when masks aren't pruning (mean sigmoid > adaptive_l1_threshold).
+            adaptive_l1_threshold: If mean mask sigmoid exceeds this, increase L1.
+                Default 0.95 (masks are barely pruning).
+            adaptive_l1_multiplier: Factor to multiply l1_weight by when adapting.
+                Default 2.0.
+            adaptive_l1_check_interval: Check mask density every N iterations.
             
         Returns:
             Dictionary with training history
         """
+        valid_loss_types = {'kl', 'logit_diff', 'logit_diff_kl'}
+        if loss_type not in valid_loss_types:
+            raise ValueError(f"Invalid loss_type '{loss_type}'. Options: {valid_loss_types}")
+        
+        if loss_type == 'logit_diff':
+            logger.info(f"Using Logit Difference loss (clamp={logit_diff_clamp})")
+        elif loss_type == 'logit_diff_kl':
+            logger.info(f"Using Hybrid loss: {logit_diff_alpha:.0%} logit_diff + "
+                        f"{1-logit_diff_alpha:.0%} KL (clamp={logit_diff_clamp})")
+        else:
+            logger.info("Using KL Divergence loss (preserves full output distribution)")
+        
+        if adaptive_l1:
+            logger.info(f"Adaptive L1 enabled: threshold={adaptive_l1_threshold}, "
+                        f"multiplier={adaptive_l1_multiplier}x, check every {adaptive_l1_check_interval} iters")
         device = input_ids.device
         
         # Move inputs to correct device
@@ -1468,6 +1718,16 @@ class MaskedTransformerCircuit:
         wait = 0
         current_lr = learning_rate
         
+        # PERF: Cache full model logits once per batch (full model never changes)
+        # This saves 1-3 full model forward passes per iteration depending on loss_type.
+        with torch.no_grad():
+            full_model_logits = self.model(input_ids, attention_mask=attention_mask)
+            last_token_indices = sequence_lengths - 1
+            batch_indices = torch.arange(input_ids.shape[0], device=device)
+            cached_full_logits = full_model_logits[batch_indices, last_token_indices].detach()
+            del full_model_logits  # Free memory
+        logger.info(f"Cached full model logits (shape={cached_full_logits.shape})")
+        
         pbar = tqdm(range(num_iterations), desc="Training masks")
         for iteration in pbar:
 
@@ -1485,27 +1745,30 @@ class MaskedTransformerCircuit:
                     param_group['lr'] = current_lr
                 logger.info(f"Warmup complete, LR set to {current_lr}")
 
-            # Forward pass and calculate loss with activation patching
+            # PERF: Unified loss — 1 masked forward pass, derive all loss types
             try:
-                kl_div, masked_accuracy, full_model_accuracy, exact_match = self.find_KL_divergence(
-                    input_ids, attention_mask,
-                    temperature, sequence_lengths, sequence_lengths_corrupt,
+                task_loss, masked_accuracy, full_model_accuracy, exact_match = self._compute_task_loss_fast(
+                    input_ids, attention_mask, temperature,
+                    sequence_lengths, cached_full_logits,
                     indirect_object_index=indirect_objects,
                     subject_index=subjects,
                     corrupted_activations=corrupted_activations,
-                    clean_last_idx=clean_last_idx
+                    clean_last_idx=clean_last_idx,
+                    loss_type=loss_type,
+                    logit_diff_clamp=logit_diff_clamp,
+                    logit_diff_alpha=logit_diff_alpha,
                 )
             except Exception as e:
-                logger.error(f"❌ Exception in find_KL_divergence at iteration {iteration}: {e}")
+                logger.error(f"❌ Exception in {loss_type} loss at iteration {iteration}: {e}")
                 import traceback
                 traceback.print_exc()
                 break
 
-            # DEBUG: Check KL divergence for NaN
-            if torch.isnan(kl_div) or torch.isinf(kl_div):
-                logger.error(f"❌ NaN/Inf detected in KL divergence at iteration {iteration}")
-                logger.error(f"  KL value: {kl_div.item()}")
-                logger.error("  Problem is in forward pass or KL computation")
+            # DEBUG: Check task loss for NaN
+            if torch.isnan(task_loss) or torch.isinf(task_loss):
+                logger.error(f"❌ NaN/Inf detected in {loss_type} loss at iteration {iteration}")
+                logger.error(f"  Loss value: {task_loss.item()}")
+                logger.error("  Problem is in forward pass or loss computation")
                 break
 
             # Calculate penalty
@@ -1513,6 +1776,21 @@ class MaskedTransformerCircuit:
                 l1_penalty = self.get_l1_penalty()
             else:
                 l1_penalty = self.get_l0_penalty()
+
+            # Adaptive L1: auto-increase l1_weight if masks aren't pruning
+            if adaptive_l1 and iteration > 0 and iteration % adaptive_l1_check_interval == 0:
+                # Compute mean mask density across all trainable parameters
+                with torch.no_grad():
+                    mask_vals = []
+                    for p in parameters:
+                        mask_vals.append(torch.sigmoid(p).mean().item())
+                    mean_density = sum(mask_vals) / len(mask_vals) if mask_vals else 0.0
+                
+                if mean_density > adaptive_l1_threshold:
+                    old_l1 = l1_weight
+                    l1_weight = l1_weight * adaptive_l1_multiplier
+                    logger.info(f"⚡ Adaptive L1: mask density={mean_density:.3f} > {adaptive_l1_threshold} → "
+                               f"l1_weight {old_l1:.2e} → {l1_weight:.2e}")
 
             # DEBUG: Check L1 penalty for NaN
             if torch.isnan(l1_penalty) or torch.isinf(l1_penalty):
@@ -1525,13 +1803,13 @@ class MaskedTransformerCircuit:
                     logger.error(f"  QK mask {idx}: min={mask_val.min().item():.6f}, max={mask_val.max().item():.6f}, has_nan={torch.isnan(mask_val).any().item()}")
                 break
 
-            loss = kl_div + l1_weight * l1_penalty
+            loss = task_loss + l1_weight * l1_penalty
             
             # Check for NaN/Inf before backward pass
             if torch.isnan(loss) or torch.isinf(loss):
                 logger.error(f"❌ NaN/Inf detected in loss at iteration {iteration}. Stopping inner loop early.")
                 logger.error(f"  Loss: {loss.item() if not torch.isnan(loss) else 'nan'}")
-                logger.error(f"  KL: {kl_div.item() if not torch.isnan(kl_div) else 'nan'}")
+                logger.error(f"  Task loss ({loss_type}): {task_loss.item() if not torch.isnan(task_loss) else 'nan'}")
                 logger.error(f"  L1: {l1_penalty.item() if not torch.isnan(l1_penalty) else 'nan'}")
                 logger.error(f"  L1 weight: {l1_weight}")
 
@@ -1587,14 +1865,14 @@ class MaskedTransformerCircuit:
                 break
 
             # Log progress
-            pbar.set_description(f"Loss: {loss.item():.4f}, KL: {kl_div.item():.4f}, L1: {l1_penalty.item():.4f}")
+            pbar.set_description(f"Loss: {loss.item():.4f}, {loss_type}: {task_loss.item():.4f}, L1: {l1_penalty.item():.4f}")
             
             # Evaluate periodically
             if iteration % eval_interval == 0 or iteration == num_iterations - 1:
                 # Record history
                 history['iteration'].append(iteration)
                 history['loss'].append(loss.item())
-                history['kl_div'].append(kl_div.item())
+                history['kl_div'].append(task_loss.item())
                 history['l1_penalty'].append(l1_penalty.item())
                 history['lr'].append(current_lr)
                 history['accuracy'].append(full_model_accuracy.item())
@@ -1623,21 +1901,25 @@ class MaskedTransformerCircuit:
 
                         wait = 0
         
-        # Final evaluation
+        # Final evaluation (reuses cached full logits — no extra full model forward)
         with torch.no_grad():
-            final_kl, masked_accuracy, full_model_accuracy, exact_match = self.find_KL_divergence(
-                input_ids, attention_mask, temperature, sequence_lengths,
-                indirect_object_index=indirect_objects, 
+            final_task_loss, masked_accuracy, full_model_accuracy, exact_match = self._compute_task_loss_fast(
+                input_ids, attention_mask, temperature,
+                sequence_lengths, cached_full_logits,
+                indirect_object_index=indirect_objects,
                 subject_index=subjects,
                 corrupted_activations=corrupted_activations,
-                clean_last_idx=clean_last_idx
+                clean_last_idx=clean_last_idx,
+                loss_type=loss_type,
+                logit_diff_clamp=logit_diff_clamp,
+                logit_diff_alpha=logit_diff_alpha,
             )
             if self.l1_reg:
                 final_l1 = self.get_l1_penalty().item()
             else:
                 final_l1 = self.get_l0_penalty().item()
         
-        logger.info(f"Training complete. Final KL: {final_kl:.6f}, Final L1: {final_l1:.6f}")
+        logger.info(f"Training complete. Final {loss_type} loss: {final_task_loss:.6f}, Final L1: {final_l1:.6f}")
         
         return history
     
@@ -1693,8 +1975,9 @@ class MaskedTransformerCircuit:
                 head_key = f'differential_head_{layer}_{head}'
                 
                 # Get mask values
-                qk_mask = mask_fn(self.qk_masks[head_key]).detach().cpu()
-                ov_mask = mask_fn(self.ov_masks[head_key]).detach().cpu()
+                _fn = clamp_mask_fn if self.l1_reg else mask_fn
+                qk_mask = _fn(self.qk_masks[head_key]).detach().cpu()
+                ov_mask = _fn(self.ov_masks[head_key]).detach().cpu()
                 
                 # Calculate sparsity
                 qk_sparsity = (qk_mask < threshold).float().mean().item()
@@ -1715,8 +1998,8 @@ class MaskedTransformerCircuit:
                 mlp_key = f'mlp_{layer}'
                 
                 # Get MLP mask values
-                mlp_in_mask = mask_fn(self.mlp_in_masks[mlp_key]).detach().cpu()
-                mlp_out_mask = mask_fn(self.mlp_out_masks[mlp_key]).detach().cpu()
+                mlp_in_mask = _fn(self.mlp_in_masks[mlp_key]).detach().cpu()
+                mlp_out_mask = _fn(self.mlp_out_masks[mlp_key]).detach().cpu()
                 
                 # Calculate MLP sparsity
                 mlp_in_sparsity = (mlp_in_mask < threshold).float().mean().item()
@@ -1786,8 +2069,9 @@ class MaskedTransformerCircuit:
             for head in range(self.n_heads):
                 head_key = f'differential_head_{layer}_{head}'
 
-                qk_mask = mask_fn(self.qk_masks[head_key]).detach()
-                ov_mask = mask_fn(self.ov_masks[head_key]).detach()
+                _fn = clamp_mask_fn if self.l1_reg else mask_fn
+                qk_mask = _fn(self.qk_masks[head_key]).detach()
+                ov_mask = _fn(self.ov_masks[head_key]).detach()
 
                 # Count components >= threshold (active)
                 num_active += (qk_mask >= threshold).sum().item()
@@ -1795,8 +2079,8 @@ class MaskedTransformerCircuit:
 
             if self.mask_mlp:
                 mlp_key = f'mlp_{layer}'
-                mlp_in_mask = mask_fn(self.mlp_in_masks[mlp_key]).detach()
-                mlp_out_mask = mask_fn(self.mlp_out_masks[mlp_key]).detach()
+                mlp_in_mask = _fn(self.mlp_in_masks[mlp_key]).detach()
+                mlp_out_mask = _fn(self.mlp_out_masks[mlp_key]).detach()
 
                 num_active += (mlp_in_mask >= threshold).sum().item()
                 num_active += (mlp_out_mask >= threshold).sum().item()
@@ -1816,16 +2100,25 @@ class MaskedTransformerCircuit:
         }
 
     def to(self, device):
-        """Move model to device."""
+        """Move model to device, preserving requires_grad on frozen masks.
+        
+        NOTE: Tensor.to(device) returns a plain Tensor (not nn.Parameter),
+        and ParameterDict.__setitem__ re-wraps it as Parameter(requires_grad=True).
+        We must explicitly preserve the original requires_grad setting.
+        """
+        def _move_param(param, device):
+            grad = param.requires_grad
+            return nn.Parameter(param.data.to(device), requires_grad=grad)
+
         for key in self.qk_masks:
-            self.qk_masks[key] = self.qk_masks[key].to(device)
+            self.qk_masks[key] = _move_param(self.qk_masks[key], device)
         for key in self.ov_masks:
-            self.ov_masks[key] = self.ov_masks[key].to(device)
+            self.ov_masks[key] = _move_param(self.ov_masks[key], device)
         
         if self.mask_mlp:
             for key in self.mlp_in_masks:
-                self.mlp_in_masks[key] = self.mlp_in_masks[key].to(device)
+                self.mlp_in_masks[key] = _move_param(self.mlp_in_masks[key], device)
             for key in self.mlp_out_masks:
-                self.mlp_out_masks[key] = self.mlp_out_masks[key].to(device)
+                self.mlp_out_masks[key] = _move_param(self.mlp_out_masks[key], device)
         
         return self

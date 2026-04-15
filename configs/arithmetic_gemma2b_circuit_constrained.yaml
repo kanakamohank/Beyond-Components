@@ -1,0 +1,102 @@
+# ==========================================================================
+# Circuit-Constrained Arithmetic Mask Learning — Gemma 2B
+# ==========================================================================
+# Uses circuit knowledge from Experiments 1-5 to constrain mask training
+# to only the identified arithmetic circuit components:
+#   - Routing head: L10 (H4 copies operand information)
+#   - Compute MLPs: L11-L16 (distributed arithmetic computation)
+#   - Output MLP: L17 (last layer, numeric → token conversion)
+# All other layers are frozen at mask=1.0 (pass-through).
+#
+# Model: google/gemma-2b (18L / 8H / d=2048)
+# ==========================================================================
+
+experiment_name: arithmetic_circuit_constrained_gemma2b
+seed: 42
+use_wandb: false
+
+# ---------- Model ----------
+model:
+  key: "gemma-2b"
+  name: "google/gemma-2b"
+  pretrained_cache_dir: "~/.cache/huggingface/hub"
+  # Gemma on MPS requires float32 (bfloat16/float16 broken on MPS)
+  dtype: "float32"
+
+# ---------- Data ----------
+data_type: "arithmetic"
+max_pad_length: 16
+
+arithmetic:
+  # 2500 pairs (50x50), answers 0-98 (all single-token).
+  operand_range_start: 0
+  operand_range_end: 50
+  operation: "add"
+  prompt_template: "{a} + {b} = "
+
+# ---------- Training ----------
+training:
+  batch_size: 32
+  num_epochs: 1
+  device: null
+  # 30 batches × 15 iters — same headroom as Phi-3 run
+  max_batches: 30
+
+  learning_rate: 2.0e-2
+  weight_decay: 0.0
+  # Push hard: 5e-2 to find real pruning floor (1e-2 only got 64% trainable pruning)
+  l1_weight: 5.0e-2
+  temperature: 1.0
+  # CRITICAL: Use hybrid logit_diff + KL instead of pure KL divergence.
+  # Focuses gradients on math-computation layers, not output formatting.
+  # Hybrid (70% logit_diff + 30% KL) is safer than pure logit_diff.
+  loss_type: logit_diff_kl
+  logit_diff_alpha: 0.7
+  logit_diff_clamp: 20.0
+  # Fixed L1 (2e-3 worked well for Phi-3 — sharp binary masks)
+  adaptive_l1: false
+
+  eval_interval: 50
+  patience: 5
+  min_lr: 1e-6
+  lr_factor: 0.5
+  early_stopping: true
+  save_checkpoints: true
+
+  kl_opt: 0.15
+  l1_opt: 5000
+  validation_interval: 30
+  max_val_batches: 20
+
+# ---------- SVD Masking ----------
+# Skip QK for RoPE models — cached attention patterns used instead.
+train_masks: ["OV", "MLP_in", "MLP_out"]
+
+masking:
+  # Start near pass-through: optimizer must actively prune directions
+  mask_init_value: 1.0
+  cache_svd: true
+  warmup_steps: 0
+  max_iterations_per_batch: 25
+  sparsity_threshold: 1.0e-3
+
+# ---------- Circuit Constraints ----------
+# From Experiments 1-5 (circuit_synthesis.md, Gemma 2B results).
+# ROUTING ZONE (attention): Widen beyond just L10H4.
+# Let optimizer find minimal routing subset across L0-L9 (early routing)
+# and L10 (known crossover). Defeats Hydra redundancy.
+# COMPUTE ZONE (MLPs): L10-L17 (compute + output).
+# All other layers frozen at mask=1.0 (pass-through, no gradient).
+circuit_constraints:
+  trainable_attention_layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  trainable_mlp_layers: [10, 11, 12, 13, 14, 15, 16, 17]
+
+# ---------- Logging ----------
+log_dir: "logs"
+
+# ---------- Visualization ----------
+visualization:
+  plot_interval: 100
+  log_gradients: false
+  save_visualizations: true
+  visualization_dir: "visualizations"
