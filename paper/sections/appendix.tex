@@ -1,0 +1,74 @@
+\appendix
+
+\section{MPS Gradient Artifact}
+\label{app:mps}
+
+During development, we discovered that Fisher information matrix computation on Apple Silicon MPS backend produces qualitatively different (and incorrect) eigenvectors compared to CPU computation. For Gemma~2B at L22, MPS Fisher patching at 50D yielded 78.8\% transfer vs 20.1\% on CPU---a 4$\times$ inflation. The MPS effective dimensionality was also inflated (16.08 vs 7.32 on CPU). We attribute this to numerical precision differences in gradient accumulation on the MPS backend. All Fisher results reported in this paper use CPU computation.
+
+\section{Component Attribution}
+\label{app:attribution}
+
+We performed Fourier-projected Direct Logit Attribution (DLA) and single-component causal patching across all attention heads and MLP layers for each model. Table~\ref{tab:attribution} summarizes the circuit architecture.
+
+\begin{table}[h]
+\centering
+\caption{Component attribution summary. DLA = Fourier-projected direct logit attribution (\% of total Fourier energy). Damage = accuracy drop from single-component mean ablation.}
+\label{tab:attribution}
+\small
+\begin{tabular}{llccc}
+\toprule
+\textbf{Model} & \textbf{Circuit Type} & \textbf{Top DLA Component} & \textbf{Causally Necessary} & \textbf{Damage} \\
+\midrule
+Gemma 2B & Pure MLP & MLP L19 (29.2\%) & MLP L19 & 0.7\% \\
+Phi-3 Mini & Mixed & MLP L25 (20.4\%) & L21H30 & 27.9\% \\
+ & & & MLP L25 & 1.8\% \\
+LLaMA 3.2-3B & Pure MLP & MLP L20 (23.8\%) & MLP L16 & 14.1\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Gemma and LLaMA circuits are MLP-dominated, with no attention head showing measurable causal impact. Phi-3 is the only model with a causally necessary attention head (L21H30, 27.9\% damage), located well before the computation layer (L26), suggesting an early-stage information routing role. Despite having the highest DLA, MLP L20 in LLaMA is individually dispensable; MLP L16 (the computation bottleneck) is the only causally necessary component.
+
+\section{Head Attribution Frequency Breakdown}
+\label{app:freq_breakdown}
+
+The causally necessary components show characteristic frequency tunings that align with the model-specific CRT emphasis:
+
+\begin{itemize}
+    \item \textbf{Gemma MLP L19}: $k{=}5$ (46\%) -- parity-dominant, matching the Fourier layer sweep finding of $k{=}5$ dominance at L19.
+    \item \textbf{Phi-3 L21H30}: Broadly tuned ($k{=}3$: 22\%, $k{=}2$: 21\%, $k{=}1$: 19\%) -- consistent with a general ``arithmetic attention'' role.
+    \item \textbf{LLaMA MLP L16}: $k{=}1$ (40\%) + $k{=}2$ (33\%) -- ordinal + mod-5, matching the computation onset Fourier spectrum.
+\end{itemize}
+
+\section{Fourier Phase Rotation Details}
+\label{app:rotation_details}
+
+\paragraph{Forward/backward asymmetry.} Coherent rotation shows a systematic asymmetry: backward shifts ($j{=}7,8,9$) achieve higher exact rates than forward shifts ($j{=}1,2,3$). Diagnosis reveals this stems from non-uniform Fourier-Unembed overlap across digits: digits 3, 5, 6 have 13--15\% overlap (basins of attraction), while digits 0, 1 have only 1--2\% overlap. Backward shifts for common answer digits target high-overlap digits, while forward shifts target low-overlap digits. The $W_U$-steer method largely eliminates this asymmetry by directly targeting $W_U$ readout directions.
+
+\paragraph{Readout layer immunity.} At readout layers (Gemma L25, LLaMA L27), all steering methods produce $\leq$10\% exact shift rate. The Fourier-Unembed overlap drops from $\sim$10\% at computation layers to 0.2\% at LLaMA L27, confirming that by readout, the Fourier subspace has been fully absorbed into the $W_U$-aligned representation and can no longer be independently manipulated.
+
+\paragraph{Elliptical correction.} The SVD singular value ratios within each frequency pair (cos/sin) range from 1.05$\times$ (LLaMA, near-circular) to 3.04$\times$ (Gemma, highly elliptical). Elliptical correction---scaling each axis by its singular value before rotation---lifted exact rates from $\sim$0\% to 8--15\% for all models, confirming that the encoding geometry is genuinely elliptical rather than circular.
+
+\section{Cumulative Ablation Data}
+\label{app:ablation_data}
+
+\begin{table}[h]
+\centering
+\caption{Cumulative multi-layer frequency ablation on Gemma~2B. Frequencies added in order of decreasing $\sigma^2$ at L19. L13--L19 = early computation; L19--L25 = late computation+readout.}
+\label{tab:cumulative}
+\small
+\begin{tabular}{lccc}
+\toprule
+\textbf{Frequencies Ablated} & \textbf{Total Dims} & \textbf{Acc (L13--L19)} & \textbf{Acc (L19--L25)} \\
+\midrule
+Baseline & 0 & 100.0\% & 100.0\% \\
+$k{=}5$ & 1 & 99.6\% & 99.0\% \\
+$+k{=}3$ & 3 & --- & 83.1\% \\
+$+k{=}2$ & 5 & --- & 30.8\% \\
+$+k{=}4$ & 7 & --- & 27.3\% \\
+$+k{=}1$ (all 9D) & 9 & 52.8\% & 14.0\% \\
+\midrule
+Random 9D (all layers) & 9 & 100.0\% & 100.0\% \\
+\bottomrule
+\end{tabular}
+\end{table}

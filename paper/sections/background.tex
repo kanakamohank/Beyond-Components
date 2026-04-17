@@ -1,0 +1,10 @@
+\section{Background and Related Work}
+\label{sec:background}
+
+\paragraph{Mechanistic interpretability of arithmetic.} \citet{nanda2023progress} showed that small transformers trained on modular addition learn Fourier representations, using pairs of sine and cosine features to implement the ``clock algorithm.'' \citet{zhong2024clock} extended this to general group operations. Our work differs in studying \emph{pretrained} language models performing natural-language arithmetic, where the Fourier structure emerges without explicit modular arithmetic training.
+
+\paragraph{Activation patching and causal methods.} Activation patching~\citep{vig2020investigating,meng2022locating,geiger2024finding} replaces activations from one input with those from another to measure causal effects. We use both full activation patching (for layer scanning) and subspace-restricted patching (Fisher and Fourier directions) to establish causal sufficiency.
+
+\paragraph{Fourier analysis on finite groups.} The discrete Fourier transform on $\mathbb{Z}/N\mathbb{Z}$ decomposes functions into $N$ frequency components. For $N{=}10$, the irreducible representations give frequencies $k \in \{0, 1, 2, 3, 4, 5\}$ with $k{=}0$ being the mean (discarded after centering), $k{=}1,\ldots,4$ each contributing 2 dimensions (cosine and sine), and $k{=}5$ (Nyquist) contributing 1 dimension, totaling $1 + 2{\times}4 + 1 = 10$ dimensions with the mean, or 9 dimensions after centering.
+
+\paragraph{Chinese Remainder Theorem.} Since $10 = 2 \times 5$ with $\gcd(2,5) = 1$, the CRT gives $\mathbb{Z}/10\mathbb{Z} \cong \mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/5\mathbb{Z}$. The frequency $k{=}5$ corresponds to $\mathbb{Z}/2\mathbb{Z}$ (parity: $(-1)^d$), while $k{=}2$ corresponds to the generator of $\mathbb{Z}/5\mathbb{Z}$ (period-5 structure). This decomposition is relevant because models could, in principle, compute ones-digit addition by separately computing mod-2 and mod-5 components and combining via CRT.

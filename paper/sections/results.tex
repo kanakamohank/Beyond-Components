@@ -1,0 +1,191 @@
+\section{Results}
+\label{sec:results}
+
+\subsection{The 9D Fourier Subspace}
+\label{sec:fourier_basis}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{eigenvector_fourier_cross_model.png}
+    \caption{\textbf{SVD directions of per-digit mean activations are discrete Fourier modes.} Each panel shows one SVD direction's loadings on digits 0--9 (bars) overlaid with the best-fit DFT sinusoid (curve). Frequency assignment and purity shown above each panel. Left: Gemma~2B at L19. Right: Phi-3~Mini at L26. All directions achieve ${>}70\%$ purity, with most ${>}85\%$.}
+    \label{fig:eigenvector}
+\end{figure}
+
+At computation layers, the SVD of per-digit mean activations reveals a \emph{perfect Fourier basis} of $\mathbb{Z}/10\mathbb{Z}$: each of the 9 SVD directions is dominated by a single DFT frequency, and every frequency $k \in \{1,\ldots,5\}$ receives exactly the expected number of degrees of freedom (2 for $k{=}1,\ldots,4$; 1 for $k{=}5$). Figure~\ref{fig:eigenvector} shows the SVD direction digit loadings overlaid with their best-fit sinusoids.
+
+Table~\ref{tab:purity} summarizes frequency purities across models. All three models show frequency purities of 72--99\% at their computation layers, indicating that the learned digit representations are well-described by discrete Fourier modes.
+
+\begin{table}[t]
+\centering
+\caption{Frequency purity of SVD directions at computation layers.}
+\label{tab:purity}
+\small
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Model} & \textbf{Layer} & \textbf{Mean Purity} & \textbf{Dominant Dir} & \textbf{$\sigma_1/\sigma_9$} & \textbf{Perfect Basis?} \\
+\midrule
+Gemma 2B & L19 & 89.2\% & $k{=}5$, $\sigma{=}135$ & 7.4$\times$ & \checkmark \\
+Phi-3 Mini & L26 & 85.9\% & $k{=}2$, $\sigma{=}87$ & 3.1$\times$ & \checkmark \\
+LLaMA 3.2-3B & L20 & 67.1\% & $k{=}5$, $\sigma{=}8.3$ & 2.5$\times$ & \checkmark \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{CP tensor decomposition confirms trig identity structure.} We decompose the per-digit outer product tensor $T_{d,i,j} = \mathbb{E}[h_i \cdot h_j \mid \text{digit}{=}d]$ projected into the Fourier subspace. The $\sigma^2$-weighted trigonometric identity score is 0.964 for Gemma, confirming that the conditional expectation tensor satisfies $\cos(\alpha)\cos(\beta) = \tfrac{1}{2}[\cos(\alpha{-}\beta) + \cos(\alpha{+}\beta)]$---the hallmark of Fourier-domain angle addition.
+
+
+\subsection{Causal Necessity and Sufficiency}
+\label{sec:causal}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{ablation_curves.png}
+    \caption{\textbf{Causal ablation results.} (a)~Per-frequency multi-layer ablation on Gemma~2B: $k{=}5$ (parity) is non-causal at both early and late layer ranges, while $k{=}1$ and $k{=}2$ each cause ${\sim}40\%$ damage at late layers. (b)~Cumulative ablation ordered by $\sigma^2$ at L19--L25: a sharp cliff at 5D. (c)~Cross-model Fourier knockout: multi-layer ablation drops all models to $\leq$19\%, while random 9D ablation has zero effect.}
+    \label{fig:ablation}
+\end{figure}
+
+\paragraph{Necessity: Fourier knockout.} Zeroing the 9D Fourier subspace across all layers from computation to readout reduces accuracy to near-chance for all three models (Table~\ref{tab:knockout}). Critically, matched-dimension random subspace ablation has \emph{zero} effect, establishing perfect specificity. Single-layer ablation causes partial damage (11--77\%), revealing a distributed pipeline where Fourier information is actively maintained across multiple layers.
+
+\begin{table}[t]
+\centering
+\caption{Fourier knockout results. Multi-layer ablation covers all layers from computation to readout. Chance $\approx$ 10\%.}
+\label{tab:knockout}
+\small
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Model} & \textbf{Single Fourier 9D} & \textbf{Single Random 9D} & \textbf{Multi Fourier 9D} & \textbf{Multi Random 9D} \\
+\midrule
+Gemma 2B & 88.7\% ($-$11.3\%) & 100\% (0\%) & 12.8\% ($-$87.2\%) & 100\% (0\%) \\
+Phi-3 Mini & 54.0\% ($-$46.0\%) & 100\% (0\%) & 12.1\% ($-$87.9\%) & 100\% (0\%) \\
+LLaMA 3.2-3B & 22.7\% ($-$77.3\%) & 100\% (0\%) & 18.8\% ($-$81.2\%) & 99.8\% (0\%) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Sufficiency: Fisher activation patching.} At readout layers, Fisher subspace patching transfers nearly all digit information (Table~\ref{tab:fisher}). Standard Fisher at 10D transfers 85\% (Gemma, Phi-3) and 100\% (LLaMA); contrastive Fisher at 9D transfers 83--100\%. The alignment between standard Fisher top-20D and contrastive Fisher 9D subspaces exceeds 0.97 in principal cosine, confirming they identify the same subspace.
+
+\begin{table}[t]
+\centering
+\caption{Fisher activation patching transfer at readout layers (\% of full-patch transfer).}
+\label{tab:fisher}
+\small
+\begin{tabular}{lccccc|ccc}
+\toprule
+& \multicolumn{5}{c}{\textbf{Standard Fisher}} & \multicolumn{3}{c}{\textbf{Contrastive Fisher}} \\
+\cmidrule(lr){2-6} \cmidrule(lr){7-9}
+\textbf{Model (Layer)} & 2D & 5D & 10D & 20D & 50D & 2D & 5D & 9D \\
+\midrule
+Gemma L21 & 4.1 & 20.7 & 85.2 & 96.3 & 99.3 & 5.9 & 29.3 & 82.6 \\
+Phi-3 L28 & 2.2 & 17.8 & 85.2 & 99.6 & 100 & 5.9 & 34.1 & 93.7 \\
+LLaMA L27 & 3.2 & 35.8 & 100 & 100 & 100 & 8.7 & 56.4 & 100 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{The $k{=}5$ paradox.} Despite being the dominant SVD direction at Gemma's computation layer ($\sigma{=}135$, 71\% of subspace variance), $k{=}5$ (parity) is \emph{causally inert}: multi-layer ablation of $k{=}5$ across L13--L25 causes only 0.4--1.0\% accuracy damage. In contrast, $k{=}1$ and $k{=}2$ each cause ${\sim}40\%$ damage when ablated at L19--L25. This establishes that $k{=}5$ is an \textbf{epiphenomenal encoding}---the model encodes parity strongly but does not use it for ones-digit computation. The causally necessary frequencies are $k{=}1$ (ordinal) and $k{=}2$ (mod-5).
+
+
+\subsection{Progressive Rotation into Readout Position}
+\label{sec:rotation}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{layer_scan_curves.png}
+    \caption{\textbf{Arithmetic information emerges at sharp phase transitions.} (a)~Absolute layer indices show model-specific transition points: L18 for Gemma, L16 for LLaMA, L21 for Phi-3. (b)~Normalized depth reveals transitions occur at similar relative positions ($\sim$0.55--0.70 depth).}
+    \label{fig:layer_scan}
+\end{figure}
+
+We track how the digit subspace aligns with the unembedding matrix $W_U$ across layers using unembed-aligned patching. The results reveal \textbf{progressive rotation}: at computation layers, the Fourier subspace captures digit information that is largely \emph{orthogonal} to $W_U$ directions, but by readout layers, the same information has rotated to align perfectly with $W_U$.
+
+For LLaMA, unembed-aligned 9D patching transfers: L20 (29.8\%) $\rightarrow$ L21 (56.9\%) $\rightarrow$ L24 (94.5\%) $\rightarrow$ L27 (100\%). The complementary orthogonal patching decreases correspondingly: 86.7\% $\rightarrow$ 13.8\% $\rightarrow$ 0.0\% $\rightarrow$ 0.0\%. This progressive alignment is consistent across all three models.
+
+\begin{table}[t]
+\centering
+\caption{Progressive rotation: unembed-aligned 9D patching transfer across layers (LLaMA 3.2-3B).}
+\label{tab:progressive}
+\small
+\begin{tabular}{lcccc}
+\toprule
+& \textbf{L20 (comp)} & \textbf{L21} & \textbf{L24} & \textbf{L27 (readout)} \\
+\midrule
+Unembed 9D transfer & 29.8\% & 56.9\% & 94.5\% & 100.0\% \\
+Orthogonal transfer & 86.7\% & 13.8\% & 0.0\% & 0.0\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Dissociation between Fisher and unembed alignment.} At intermediate layers, Fisher patching captures substantial digit information (e.g., Gemma L21: Fisher 10D = 85\%) while unembed patching captures very little (Gemma L21: unembed 9D = 30\%). This dissociation means the digit encoding is gradient-visible but not yet output-aligned---Fisher and unembedding rotation are \emph{separate processes} that converge only at output layers.
+
+
+\subsection{Architecture-Specific CRT Components}
+\label{sec:crt}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{fourier_heatmap_cross_model.png}
+    \caption{\textbf{Fourier energy spectrum across layers.} Gemma (left) shows a dramatic $k{=}5$ (parity) spike at L18--L19, while Phi-3 (right) shows a $k{=}2$ (mod-5) surge at L24--L26. Both converge to ordinal ($k{=}1$ dominant) at readout.}
+    \label{fig:heatmap}
+\end{figure}
+
+The Fourier energy spectrum varies dramatically across layers and models (Figure~\ref{fig:heatmap}):
+
+\begin{itemize}
+    \item \textbf{Gemma 2B}: $k{=}5$ (parity) dominates at L18--L19 (64--71\% of energy), then drops sharply at L20+ as $k{=}1$ takes over. The model computes parity \emph{first}, then transforms to ordinal encoding.
+    \item \textbf{Phi-3 Mini}: $k{=}2$ (mod-5) surges at L24--L26 (40\%), with $k{=}1$ ordinal dominant at earlier layers. Phi-3 computes the mod-5 CRT component during its main computation phase.
+    \item \textbf{LLaMA 3.2-3B}: $k{=}1 + k{=}2$ dominate at L16--L18 (74--78\% combined), with $k{=}3$ and $k{=}4$ \emph{suppressed} to ${\sim}1\%$. LLaMA uses balanced ordinal+mod-5 encoding from the start.
+\end{itemize}
+
+All models converge to approximately ordinal encoding ($k{=}1 > k{=}2 > \cdots > k{=}5$) at readout layers, consistent with the unembedding matrix being organized by digit magnitude.
+
+\paragraph{Per-neuron frequency tuning.} At computation layers, a substantial fraction of MLP neurons are tuned to individual Fourier frequencies (Figure~\ref{fig:neuron_tuning}). In Gemma L19, 809/9216 neurons (8.8\%) have ${>}80\%$ frequency purity, with $k{=}1$ and $k{=}5$ as the dominant tunings.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{neuron_frequency_tuning.png}
+    \caption{\textbf{Per-neuron and per-dimension Fourier frequency tuning} at computation layers. Top: MLP neurons with ${>}50\%$ purity. Bottom: residual stream dimensions. All models show $k{=}1$ (ordinal) as the most common tuning, with model-specific secondary peaks.}
+    \label{fig:neuron_tuning}
+\end{figure}
+
+\paragraph{Energy explosion.} Total Fourier energy in the digit subspace increases by 2--3 orders of magnitude at computation layers (Figure~\ref{fig:energy}), indicating active amplification of digit-discriminative signals rather than passive propagation.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{energy_explosion.png}
+    \caption{\textbf{Energy explosion} at computation layers. Total Fourier energy (log scale) and high-purity neuron count both spike at computation onset.}
+    \label{fig:energy}
+\end{figure}
+
+
+\subsection{Fourier Phase Rotation Steering}
+\label{sec:steering}
+
+We test whether rotating activations within the Fourier subspace can steer digit predictions. Given a problem with correct answer digit $d$, we apply Fourier rotation to shift the encoding to target digit $(d + j) \bmod 10$ for each shift $j \in \{1, \ldots, 9\}$.
+
+\paragraph{Baseline coherent rotation.} At computation layers with the hybrid SVD+DFT basis, coherent rotation achieves above-chance steering for all models, with strong backward-shift asymmetry: Gemma L19 averages 28\% exact (range: $j{=}1$: 27\%, $j{=}9$: 62\%), Phi-3 L26 averages 28\% (range: $j{=}1$: 49\%, $j{=}9$: 56\%), and LLaMA L20 averages 69\% (range: $j{=}1$: 82\%, $j{=}9$: 94\%).
+
+\paragraph{The encoding-readout gap.} The Fourier-Unembed overlap (fraction of Fourier subspace variance captured by $W_U$ digit directions) is only 8--11\% across models at computation layers. This means rotating in Fourier space does not directly map to the readout directions $W_U$ uses. This gap is the primary bottleneck for steering performance.
+
+\paragraph{$W_U$-informed steering bridges the gap.} The $W_U$-steer method (using $\mathbf{w}_\text{target} - \mathbf{w}_\text{orig}$ projected onto the Fourier subspace) dramatically improves steering:
+
+\begin{table}[t]
+\centering
+\caption{Steering exact digit shift rates (\%) with different methods. Best scale factor $N$ shown.}
+\label{tab:steering}
+\small
+\begin{tabular}{lccc}
+\toprule
+\textbf{Method} & \textbf{Gemma L19} & \textbf{Phi-3 L26} & \textbf{LLaMA L20} \\
+\midrule
+Coherent $\times$1 & 16.0 & 14.3 & 69.2 \\
+Coherent $\times$3 & --- & --- & 86.4 \\
+$W_U$-proj $\times$10 & --- & --- & 88.1 \\
+$W_U$-steer $\times$5 & \textbf{69.7} & \textbf{84.2} ($\times$10) & 82.2 ($\times$3) \\
+\midrule
+Clean logit-lens acc. & 52.7\% & 100\% & 100\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+$W_U$-steer is transformative for Gemma (16\% $\rightarrow$ 70\%) and Phi-3 (14\% $\rightarrow$ 84\%), where plain rotation was bottlenecked by the encoding-readout gap. For LLaMA, where Fourier structure is already highly pure (93--99\%), simple coherent scaling is nearly as effective. $W_U$-steer also eliminates the forward/backward asymmetry: Phi-3 at $\times$5 gives $j{=}1$: 82\%, $j{=}9$: 96\% (was 20\%/29\% at $\times$1 coherent).
+
+\paragraph{Readout layers are immune.} At readout layers (Gemma L25, LLaMA L27), all steering methods produce $\leq$10\% exact shift (chance level). The Fourier-Unembed overlap drops to 0.2\% at LLaMA L27, confirming that by readout, the Fourier subspace has been fully absorbed into the unembedding-aligned representation and can no longer be independently manipulated.

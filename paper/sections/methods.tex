@@ -1,0 +1,62 @@
+\section{Methods}
+\label{sec:methods}
+
+\subsection{Models and Setup}
+
+We study three pretrained models: \textbf{Gemma~2B} (google/gemma-2-2b, 26 layers, $d_\text{model}{=}2304$), \textbf{Phi-3~Mini} (microsoft/Phi-3-mini-4k-instruct, 32 layers, $d_\text{model}{=}3072$), and \textbf{LLaMA~3.2-3B} (meta-llama/Llama-3.2-3B, 28 layers, $d_\text{model}{=}3072$). All experiments use TransformerLens~\citep{nanda2022transformerlens} for hook-based interventions.
+
+\paragraph{Problem generation.} We generate two-operand addition problems in ``\texttt{a + b = c}'' format. Gemma and Phi-3 use \emph{teacher-forced} multi-digit problems where we provide the tens digit and measure ones-digit prediction. LLaMA uses \emph{direct-answer} single-digit problems ($a + b < 10$) since LLaMA tokenizes all integers 0--198 as single tokens, enabling clean single-step prediction. All problems are balanced to ${\sim}100$ examples per ones digit (0--9).
+
+\paragraph{Layer identification.} We perform full-layer activation patching scans to identify \emph{computation layers} (where arithmetic information first appears) and \emph{readout layers} (where the model commits to an answer). Table~\ref{tab:layers} summarizes.
+
+\begin{table}[t]
+\centering
+\caption{Key layers identified by full-patch transfer scan. \emph{Computation} = first layer with ${>}50\%$ transfer; \emph{Readout} = first layer with 100\% transfer.}
+\label{tab:layers}
+\small
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Model} & \textbf{Total Layers} & \textbf{Computation} & \textbf{Readout} & \textbf{$d_\text{model}$} & \textbf{$d_\text{mlp}$} \\
+\midrule
+Gemma 2B & 26 & L18 (65\%) & L21 (100\%) & 2304 & 9216 \\
+Phi-3 Mini & 32 & L21 (76\%) & L28 (100\%) & 3072 & 8192 \\
+LLaMA 3.2-3B & 28 & L16 (99\%) & L22 (100\%) & 3072 & 8192 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Fourier Basis Extraction}
+\label{sec:method_fourier}
+
+Given a set of correctly-solved problems, we collect the residual stream activation $\mathbf{h}_\ell \in \mathbb{R}^{d_\text{model}}$ at layer $\ell$ at the position where the ones digit is predicted. We compute per-digit means $\boldsymbol{\mu}_d = \mathbb{E}[\mathbf{h}_\ell \mid \text{ones digit} = d]$ for $d \in \{0, \ldots, 9\}$, forming a $10 \times d_\text{model}$ matrix $M$.
+
+We extract the 9D Fourier subspace via SVD of the row-centered $M$: $\bar{M} = U \Sigma V^\top$, where $U \in \mathbb{R}^{10 \times 9}$ contains the digit patterns and $V \in \mathbb{R}^{d_\text{model} \times 9}$ contains the subspace directions. To label the frequency content of each SVD direction, we compute the DFT of each column of $U$ and assign the dominant frequency $k^*$.
+
+\paragraph{Hybrid SVD+DFT basis.} For phase rotation experiments (\S\ref{sec:steering}), we use a hybrid method: SVD provides the orthogonal 9D subspace, then DFT within the SVD coordinate system identifies cosine/sine axes for each frequency. This guarantees both orthonormality (from SVD) and correct frequency labeling (from DFT).
+
+\paragraph{Frequency purity.} For each SVD direction with DFT spectrum $\{|c_k|^2\}_{k=1}^5$, purity is $\max_k |c_k|^2 / \sum_k |c_k|^2$. A purity of 100\% means the direction is a pure sinusoid at one frequency.
+
+\subsection{Causal Methods}
+
+\paragraph{Full activation patching.} For each pair of problems $(p_\text{clean}, p_\text{corrupt})$ with different ones digits, we run $p_\text{clean}$, cache all activations, then run $p_\text{corrupt}$ while replacing the residual stream at layer $\ell$ with the cached clean activation. \emph{Transfer} = fraction of pairs where the patched model outputs the clean answer.
+
+\paragraph{Subspace-restricted patching.} Given an orthonormal basis $B \in \mathbb{R}^{d_\text{model} \times k}$ for a $k$-dimensional subspace, we patch only the projection: $\mathbf{h}_\text{patched} = \mathbf{h}_\text{corrupt} + B B^\top (\mathbf{h}_\text{clean} - \mathbf{h}_\text{corrupt})$. We use this for Fisher, contrastive Fisher, and unembedding-aligned subspaces.
+
+\paragraph{Fisher subspace.} We compute the Fisher information matrix $F = \mathbb{E}[\nabla_\mathbf{h} \log p(y|\mathbf{h}) \nabla_\mathbf{h} \log p(y|\mathbf{h})^\top]$ at layer $\ell$ and take its top eigenvectors. \emph{Contrastive Fisher} averages the Fisher matrix within each digit class and takes the top eigenvectors of the between-class Fisher. All Fisher computations use CPU to avoid MPS gradient artifacts (Appendix~\ref{app:mps}).
+
+\paragraph{Fourier knockout.} We zero out the 9D Fourier projection at one or more layers: $\mathbf{h}_\text{ablated} = \mathbf{h} - V V^\top \mathbf{h}$, where $V$ spans the Fourier subspace. We also perform frequency-specific knockout (ablating only the 1--3 dimensions assigned to a single frequency $k$) and random controls (ablating matched-dimension random subspaces).
+
+\subsection{Fourier Phase Rotation}
+\label{sec:method_rotation}
+
+To test whether the Fourier encoding supports controllable digit manipulation, we \emph{rotate} the Fourier component of activations to shift the encoded digit by $j$ positions (mod 10). For each frequency $k$ with cosine/sine axes $(\mathbf{e}^c_k, \mathbf{e}^s_k)$, we apply:
+\begin{equation}
+    R_k(j) = \begin{pmatrix} \cos(2\pi k j / 10) & -\sin(2\pi k j / 10) \\ \sin(2\pi k j / 10) & \cos(2\pi k j / 10) \end{pmatrix}
+\end{equation}
+applied to the $(c_k, s_k)$ coordinates of the activation projected onto the Fourier subspace. The rotation is applied coherently across all frequencies simultaneously. We test three steering variants:
+
+\begin{itemize}
+    \item \textbf{Coherent}: Apply the rotation delta $\Delta = R(\mathbf{h}_\text{fourier}) - \mathbf{h}_\text{fourier}$ scaled by factor $N$.
+    \item \textbf{$W_U$-projected}: Project $\Delta$ onto the $W_U$ column space before adding.
+    \item \textbf{$W_U$-steer}: Use $\mathbf{w}_\text{target} - \mathbf{w}_\text{orig}$ from $W_U$ digit columns, projected onto the Fourier subspace and normalized to $\|\Delta\|$, scaled by $N$.
+\end{itemize}

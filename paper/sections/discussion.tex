@@ -1,0 +1,27 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{Fourier structure as a universal arithmetic primitive.} Our finding that three independently trained architectures all converge on a Fourier basis of $\mathbb{Z}/10\mathbb{Z}$ for digit encoding suggests this is not an architectural accident but a natural computational strategy. The Fourier basis is mathematically optimal for representing cyclic structure: it diagonalizes the shift operator, making addition a simple phase rotation. That pretrained LLMs discover this representation without explicit modular arithmetic training mirrors findings in trained ``grokking'' models~\citep{nanda2023progress}, suggesting a deep connection between learned and theoretically optimal representations.
+
+\paragraph{The $k{=}5$ paradox and epiphenomenal encoding.} The striking finding that $k{=}5$ (parity) dominates Gemma's computation layer yet is causally unnecessary challenges a naive interpretation of representational analyses. The model encodes parity information strongly---perhaps because it is useful for other tasks or emerges naturally from the training distribution---but does not use it for ones-digit addition. This highlights the importance of complementing observational analyses (SVD, Fourier decomposition) with causal interventions (knockout, patching). Without the multi-layer frequency ablation experiment, we would have incorrectly concluded that parity is a central computational feature.
+
+\paragraph{Progressive rotation as a computational mechanism.} The progressive rotation of digit information from an arbitrary encoding subspace into the $W_U$-aligned readout subspace represents a novel mechanistic finding. This suggests that intermediate layers serve as a ``rotation pipeline'' that transforms representations from a format optimized for computation (the Fourier basis, which diagonalizes the shift operator) into a format optimized for readout (the unembedding basis, which maps to logits). The dissociation between Fisher visibility and $W_U$ alignment at intermediate layers (e.g., Gemma L21: Fisher 10D captures 85\% but $W_U$ 9D captures only 30\%) provides direct evidence that these are distinct representational processes.
+
+\paragraph{Architecture-specific CRT strategies.} The fact that Gemma emphasizes parity ($k{=}5$, corresponding to $\mathbb{Z}/2\mathbb{Z}$), Phi-3 emphasizes mod-5 ($k{=}2$, corresponding to $\mathbb{Z}/5\mathbb{Z}$), and LLaMA uses a balanced approach suggests that the CRT decomposition $\mathbb{Z}/10\mathbb{Z} \cong \mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/5\mathbb{Z}$ is a useful framework for understanding arithmetic circuits, even though no model implements a clean sequential CRT algorithm. The architectural differences likely stem from differences in training data, model size, and layer count affecting which computational strategies are favored during training.
+
+\paragraph{Steering and the encoding-readout gap.} The success of $W_U$-informed steering (70--88\% exact shift) demonstrates genuine mechanistic control over arithmetic computation. The key insight is that the Fourier subspace and the unembedding readout are related but not identical: the Fourier-Unembed overlap is only 8--11\%. The $W_U$-steer method bridges this gap by directly targeting the readout direction while constraining the intervention to the Fourier subspace. The residual 12--30\% failure rate is attributable to LayerNorm nonlinearity, within-class variance in the Fourier projection, and the inherent limitation of single-layer interventions in a distributed pipeline.
+
+\paragraph{Limitations.}
+\begin{itemize}
+    \item Our analysis is restricted to ones-digit addition with operands $<100$ (or $<10$ for LLaMA). Multi-digit carry propagation circuits remain unexplored.
+    \item The Fourier basis is extracted from per-digit \emph{means}, discarding within-digit variance that may carry information about operand identity, carry status, or tens digit.
+    \item Fisher patching on Apple Silicon MPS produces incorrect results (Appendix~\ref{app:mps}); all Fisher results use CPU. This limits scalability to larger models.
+    \item We study only three models from different families. Within-family scaling laws (e.g., Gemma 2B vs 7B vs 27B) would strengthen generalization claims.
+\end{itemize}
+
+\paragraph{Future work.} Natural extensions include: (1)~analyzing carry propagation circuits using the same Fourier framework; (2)~testing whether the Fourier basis generalizes to multiplication and other modular operations; (3)~studying how the Fourier subspace emerges during training (grokking dynamics in full-scale models); and (4)~using the identified circuit for targeted model editing (e.g., correcting arithmetic errors by intervening on the Fourier subspace).
+
+
+\section{Conclusion}
+
+We have shown that pretrained language models encode ones-digit identity in a 9-dimensional Fourier subspace of $\mathbb{Z}/10\mathbb{Z}$, established its causal necessity and sufficiency via a complete ablation-patching-specificity evidence triangle, discovered the progressive rotation mechanism by which this subspace aligns with the unembedding matrix, characterized architecture-specific CRT component emphasis, and demonstrated controllable steering of digit predictions via Fourier phase rotation. These findings provide a detailed mechanistic account of how language models perform integer addition, grounded in the representation theory of cyclic groups.
