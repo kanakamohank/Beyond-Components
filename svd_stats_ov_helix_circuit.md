@@ -521,6 +521,53 @@ Only one candidate passed the threshold:
 
 ---
 
+## 9. Llama 3.2 3B Instruct (`meta-llama/Llama-3.2-3B-Instruct`) — Online Scan (bf16)
+
+**Scanner:** `online_svd_scanner.py` (Online — contextualized embeddings, bf16)
+**Matrices Scanned:** 672 (28 layers × 24 heads)
+
+**Best Candidate:**
+
+| Metric | Value |
+|---|---|
+| **Layer / Head** | L1 H17 |
+| **SVD Dims** | 4, 6 |
+| **Circular Variance (CV)** | 0.255 |
+| **Linearity** | 0.917 |
+| **Matrix Type** | OV (Computation) |
+
+**Singular Value Hypothesis:**
+
+| Metric | Value |
+|---|---|
+| Sigma 4 | 0.0769 |
+| Sigma 6 | 0.0706 |
+| Ratio (ideal = 1.0) | 1.0893 |
+
+**Fourier Frequency Mapping (Top 10 SVD Dims):**
+
+| Dim | Dominant Period | Signal Strength |
+|---|---|---|
+| 0 | 99.0 | 11.6% |
+| 1 | 99.0 | 9.2% |
+| 2 | 2.0 | 10.5% |
+| 3 | 99.0 | 14.0% |
+| **4** | **2.0** | **11.5%** |
+| 5 | 2.0 | 20.5% |
+| **6** | **2.0** | **21.4%** |
+| 7 | 2.0 | 11.2% |
+| 8 | 99.0 | 9.6% |
+| 9 | 99.0 | 7.0% |
+
+> **Note:** The instruction-tuned variant shows improved circular geometry compared to the base model (CV: 0.255 vs 0.312). Interestingly, the best SVD dims shift from (2,6) to (4,6), with both dimensions now showing T=2.0 periodicity (even/odd parity). The σ ratio improves significantly (1.089 vs 1.256), indicating a more balanced encoding plane. Like the base model, the best head remains at L1 H17, confirming early-layer arithmetic encoding is consistent across both versions. The Fourier spectrum shows a cleaner split: dims 0,1,3,8,9 at T=99.0 and dims 2,4,5,6,7 at T=2.0, with the T=2.0 dimensions showing stronger signal strength overall (especially dim 5 at 20.5% and dim 6 at 21.4%).
+
+**Visualizations:**
+- `geometry_meta-llama_Llama-3.2-3B-Instruct_L1H17_OV.png`
+- `fft_spectrum_meta-llama_Llama-3.2-3B-Instruct_L1H17.png`
+- `meta-llama_Llama-3.2-3B-Instruct_L1H17_OV_sine_cosine_unpacking_L_H_dims_4_6.png`
+
+---
+
 ## Cross-Model Comparison
 
 | Model | Scanner | Best Head | SVD Dims | CV | Linearity | σ Ratio | Dominant Period |
@@ -533,6 +580,7 @@ Only one candidate passed the threshold:
 | **Gemma-2 2B (4-bit)** | Online (sim. quant) | L11 H3 | 0, 7 | 0.249 | 0.994 | 1.6596 | 9.9 |
 | **Phi-3 Mini** | Online (bf16) | L24 H28 | 3, 7 | 0.141 | 0.999 | 1.0663 | 9.9 |
 | **Llama 3.2 3B** | Online (bf16) | L1 H17 | 2, 6 | 0.312 | 0.934 | 1.2555 | 99.0 / 2.0 |
+| **Llama 3.2 3B-Instruct** | Online (bf16) | L1 H17 | 4, 6 | 0.255 | 0.917 | 1.0893 | 2.0 |
 
 ---
 
@@ -544,12 +592,13 @@ Only one candidate passed the threshold:
 - **GPT-J 6B has the best σ ratio (1.014) but weakest linearity (0.928)** — near-perfect singular value balance doesn't guarantee a clean helix.
 - **GPT-J 6B clusters with GPT-2 in Fourier behavior** — all three GPT-family models lock to T≈99, while Gemma and Phi-3 use T≈9.9 (base-10). This is an architectural/training-data divide.
 - **Helix quality does not scale with model size alone** — GPT-J 6B (6B params) has the weakest linearity; Phi-3 Mini (3.8B) has the best. But within the same family (Gemma), the larger model does produce a cleaner helix.
-- **Low circular variance ranking:** Phi-3 Mini (0.141) > GPT-2 Medium (0.191) > Gemma 7B (0.220) > GPT-J 6B (0.273) > Gemma-2 2B (0.293) > Llama 3.2 3B (0.312) > GPT-2 Small (0.336).
+- **Low circular variance ranking:** Phi-3 Mini (0.141) > GPT-2 Medium (0.191) > Gemma 7B (0.220) > Gemma-2 2B (4-bit) (0.249) > Llama 3.2 3B-Instruct (0.255) > GPT-J 6B (0.273) > Gemma-2 2B (0.293) > Llama 3.2 3B (0.312) > GPT-2 Small (0.336).
 - **4-bit quantization preserves the helix** — Gemma-2 2B's CV improves (0.293 → 0.249) and linearity stays high (0.994) under simulated quantization.
 - **Fourier spectra split into two families:** GPT-family (T≈99, single rotation) vs modern architectures (T≈9.9, multi-frequency base-10 encoding). **Llama 3.2 3B bridges both** — T=99.0 in low dims and T=2.0 (even/odd parity) in higher dims.
 - **Matrices scanned:** 2086 cached OV/QK per GPT-2 model; 672 for Llama 3.2 3B; 448 for GPT-J 6B and Gemma 7B; 208 for Gemma-2 2B; 1024 for Phi-3 Mini.
 - **Llama 3.2 3B has the highest σ ratio (1.256)** — the most anisotropic encoding plane, suggesting the helix is more elliptical than circular. Combined with moderate CV (0.312) and the lowest linearity among larger models (0.934), Llama's arithmetic encoding is functional but geometrically impure.
 - **Early-layer arithmetic heads:** Both Llama 3.2 3B (L1) and GPT-J 6B (L3) place their best head in early layers, while Gemma (L9/L14) and Phi-3 (L24) use mid-to-late layers. This may reflect differences in how these architectures distribute computation.
+- **Instruction tuning improves helix geometry:** Llama 3.2 3B-Instruct shows better circular variance (0.255 vs 0.312), improved σ ratio (1.089 vs 1.256), and a shift in SVD dims from (2,6) to (4,6) with both dimensions converging on T=2.0 periodicity, compared to the base model.
 
 ---
 

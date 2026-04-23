@@ -107,6 +107,14 @@ KNOWN_HELIX_CONFIG = {
         "layer_range": range(1, 20),
         "notes": "T=99 + T=2 parity, no modular structure",
     },
+    "meta-llama/Llama-3.2-3B-Instruct": {
+        "helix_layer": 1, "helix_head": 17,
+        "svd_dims": (4, 6),
+        "best_resid_layer": 13,
+        "period": 2.0,
+        "layer_range": range(1, 20),
+        "notes": "CV=0.255, Lin=0.917, T=2.0 parity, instruct-tuned",
+    },
 }
 
 

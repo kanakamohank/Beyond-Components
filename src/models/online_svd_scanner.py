@@ -4557,12 +4557,13 @@ if __name__ == "__main__":
     #google/gemma-7b
     #EleutherAI/pythia-6.9b
     #meta-llama/Llama-3.2-3B
+    #meta-llama/Llama-3.2-3B-Instruct
 
-    #scan_model_on_the_fly("EleutherAI/pythia-6.9b")
+    #scan_model_on_the_fly("meta-llama/Llama-3.2-3B-Instruct")
     #Layer 1, Head 17 (Dims 2,6) | CV: 0.312, Lin: 0.934
 
     #You can run it at the bottom of your script like this:
-    test_output_plane_computation("google/gemma-7b", layer=14, head=2, dim1=2, dim2=5)
+    #test_output_plane_computation("google/gemma-7b", layer=14, head=2, dim1=2, dim2=5)
     #test_output_plane_computation("microsoft/Phi-3-mini-4k-instruct", layer=24, head=28, dim1=3, dim2=7)
 
     # Run it for Gemma 7B:
@@ -4592,7 +4593,7 @@ if __name__ == "__main__":
     #run_sledgehammer_transplant("google/gemma-7b", layer=10)
 
     # Run it!
-    #plot_arithmetic_clock_face("google/gemma-7b", layer=14, head=2, dim1=2, dim2=5)
+    #plot_arithmetic_clock_face("meta-llama/Llama-3.2-3B-Instruct", layer=1, head=17, dim1=4, dim2=6)
 
     # Run it!
     #sweep_svd_planes("google/gemma-7b", layer=14, head=2)
@@ -4600,6 +4601,7 @@ if __name__ == "__main__":
     # Run it!
     #plot_dynamic_clock_face("google/gemma-7b", layer=14, head=2, dim1=2, dim2=5)
     #plot_arithmetic_clock_face("microsoft/Phi-3-mini-4k-instruct", layer=24, head=28, dim1=3, dim2=7)
+    #plot_arithmetic_clock_face("meta-llama/Llama-3.2-3B-Instruct", layer=1, head=17, dim1=4, dim2=6)
 
     # run it at Layer 14 or Layer 21 (right before math ends)
     # plot_arithmetic_distance_matrices("google/gemma-7b", layer=21)
@@ -4641,6 +4643,7 @@ if __name__ == "__main__":
     # run_analysis("google/gemma-7b", layer_range=range(19, 25), n_pairs=50)
     # run_analysis("microsoft/Phi-3-mini-4k-instruct", layer_range=range(20, 27), n_pairs=50)
     # run_analysis("google/gemma-2b", layer_range=range(8, 10), n_pairs=100)
+    run_analysis("meta-llama/Llama-3.2-3B-Instruct", layer_range=range(19, 25), n_pairs=50)
 
 
     # run_final_characterization("google/gemma-7b", key_layer=22, key_neuron=429)
