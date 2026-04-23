@@ -1,0 +1,25 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\@writefile{toc}{\contentsline {section}{\numberline {1}What we set out to do}{1}{section.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Background: what is inside a transformer}{1}{section.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Step 1 --- the scan: does any head have a compass?}{2}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{What "the model outputs'' means here.}{2}{section*.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Step 2 --- are compasses meaningful, or random coincidences?}{2}{section.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{What we found.}{2}{section*.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Note on Llama-3B.}{3}{section*.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{What the tie means.}{3}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Step 3 --- what do these compasses actually encode?}{3}{section.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Llama's SV quirk.}{3}{section*.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Step 4 --- is it causal? (the key test)}{4}{section.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Step 5 --- compare against a known baseline (ActAdd)}{4}{section.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8}Step 6 --- cherry-pick defense}{5}{section.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {9}Step 6.5 --- a taxonomy of pronoun compasses}{5}{section.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {10}Step 7 --- cross-benchmark check (StereoSet)}{6}{section.10}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces \textbf  {Compass scan across four models.} Heatmap cells are \texttt  {(layer, head)} pairs; bright cells mark heads whose top-4 SV planes pass both amplitude and phase tests. In every model, passing planes are rare ($0.2\text  {--}1.9\%$) and cluster at specific layers; Llama-3.2-3B is the sparsest but has the highest-amplitude compass.}}{7}{figure.caption.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces \textbf  {WinoGender $\alpha $-sweep across four models.} Solid teal: compass \texttt  {stereo\_corr}; dashed green: compass \texttt  {stereo\_delta}; orange diamond/star: ActAdd ($\alpha {=}1$) anchor; shaded: PPL $\Delta $ vs baseline (right axis). In all four models, bias drops linearly with $\alpha $, hits zero near $\alpha {=}1.5$, and \emph  {reverses} at $\alpha {=}2$ --- strong causal evidence. PPL barely moves.}}{7}{figure.caption.7}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces \textbf  {Head specificity.} At $\alpha {=}1.0$, only the \emph  {primary} compass head (dark teal) actually debiases; other passing compass heads in the same model (light green) leave \texttt  {stereo\_corr} near baseline. The dissociation rules out cherry-picking and supports a specific functional role for L10~H9 / L28~H1.}}{8}{figure.caption.8}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces \textbf  {Downstream bias reduction.} Top row: WinoGender \texttt  {stereo\_corr} (lower is better; zero is unbiased). Bottom row: StereoSet Gender SS (50 is unbiased). Compass works on all four models for WinoGender (token-level), but only GPT-2 for StereoSet (sentence-level).}}{8}{figure.caption.9}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces \textbf  {StereoSet across three bias domains.} Compass barely moves race or profession SS; the \emph  {gender} compass is domain-specific and does not act as a universal bias knob. This is scientific evidence for specificity, not a bug.}}{9}{figure.caption.10}\protected@file@percent }
+\gdef \@abspage@last{9}

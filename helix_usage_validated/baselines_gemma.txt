@@ -1,0 +1,18 @@
+Model: google/gemma-2-2b   Layer 21  Head 4  dims (0,2)
+tokens: ' he'=693  ' she'=1284
+alphas: [1.0, 3.0, 10.0]   angles: 36
+
+All directions unit-normalized; 1D directions paired with a fixed random orthonormal partner.
+
+method                 A(1)     A(3)    A(10)    slope    phi(1)    phi(3)   phi(10)     Δφ
+------------------------------------------------------------------------------------------------
+compass               0.070    0.198    0.761    0.076     +13.9      -4.2      -0.8   18.1
+linear_probe          0.052    0.144    0.506    0.051      -2.2      +0.6      -0.8    2.8
+actadd                0.062    0.164    0.608    0.061      -2.3      +2.0      +1.4    4.2
+contrastive_grad      0.082    0.273    0.992    0.099      -1.1      +0.6      +0.1    1.8
+fisher_top2           0.028    0.036    0.201    0.020    +163.0    -166.1    -155.9  329.2
+
+Interpretation:
+  A(alpha) growing linearly with alpha => causal plane.
+  Δφ small across alpha => phase-stable (causal).
+  slope = A(10)/10 (direction-pair sensitivity).

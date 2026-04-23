@@ -1,0 +1,31 @@
+\section{Background and Related Work}
+\label{sec:background}
+
+\paragraph{OV circuit.} For a standard decoder attention head, the value and
+output projections compose into a single rank-$d_\text{head}$ map
+$W_{OV} = W_V W_O \in \mathbb{R}^{d_\text{model}\times d_\text{model}}$,
+which acts on the source token's residual stream and adds the result to the
+destination token's residual stream \citep{elhage2021mathematical}. The SVD
+$W_{OV} = U\Sigma V^\top$ factorizes this map into read-in directions $V$ and
+write-out directions $U$ scaled by singular values $\sigma_i$.
+
+\paragraph{Helical and circular features.}
+\citet{engels2024not} show that models encode numerical concepts (days of the
+week, months, integers) in approximate circles or helices within the residual
+stream; probing such structure typically involves training a linear probe on
+cached activations. Our work differs in that compasses are read directly from
+the weight matrix, without a probe and without supervised training.
+
+\paragraph{Linear feature discovery.} DAS \citep{geiger2024das}, the linear
+representation hypothesis \citep{park2024linearrep}, and the geometry of truth
+\citep{marks2024geometry} all seek causal low-dimensional features in
+activation space. These methods search over the \emph{residual stream}
+directly; our compasses localize such features to a \emph{specific
+attention head}, giving a sparser description with the same causal semantics.
+
+\paragraph{Function vectors and rank-1 interventions.} Function vectors
+\citep{todd2024function} and ROME-style rank-1 edits \citep{meng2022rome}
+identify single directions that transport task information. Our compasses
+generalize this picture to a $2$D plane on which every angle is a potential
+steering direction, giving a continuous family of interventions rather than a
+pair of antipodal ones.

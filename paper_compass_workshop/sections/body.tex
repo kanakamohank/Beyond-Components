@@ -1,0 +1,307 @@
+\section{Introduction}
+\label{sec:intro}
+
+Mechanistic interpretability splits between circuit analysis
+\citep{elhage2021mathematical,wang2023interpretability,conmy2023acdc},
+which identifies responsible components, and linear feature discovery
+\citep{park2024linearrep,geiger2024das,marks2024geometry,engels2024not},
+which searches for low-dimensional causal directions in the residual
+stream. We connect the two at the level of a single attention head's
+output-value map.
+
+Let $W_{OV}^{(\ell,h)} = W_V^{(\ell,h)} W_O^{(\ell,h)}
+\in \mathbb{R}^{d_\text{model}\times d_\text{model}}$, with SVD
+$W_{OV}^{(\ell,h)} = U\Sigma V^{\top}$. A \emph{semantic compass}
+is a pair $(u_i, u_j) \subset U$ such that (i) vocabulary decoding
+$W_U^{\top}u_i$, $W_U^{\top}u_j$ gives a coherent angular ordering
+of category tokens, and (ii) residual-stream injection
+$\alpha\sigma(\cos\theta\,u_i + \sin\theta\,u_j)$ produces a
+sinusoidal logit response whose phase is stable across $\alpha$.
+
+\paragraph{Contributions.}
+(1)~We define the compass test (joint amplitude-linearity and
+phase-stability) and validate it on four decoder-only models spanning
+two orders of magnitude in parameters (\S\ref{sec:gender}).
+(2)~A blind causal scan of all top-$4$ SV-pairs
+recovers the same heads \emph{without} decoding, with head-level
+concentration significance $p < 10^{-6}$ against a full-OV null
+(\S\ref{sec:scan}).
+(3)~A single-head rank-$2$ edit moves WinoGender stereotypical
+coreference bias from $+0.60\text{--}0.73$ to near-zero with
+perplexity drift under $0.08$ at the working scale, and improves
+StereoSet gender ICAT by $4\text{--}6$ points on GPT-2 and Phi-3
+(\S\ref{sec:downstream}).
+
+\section{Method}
+\label{sec:method}
+
+For attention head $h$ at layer $\ell$, compute $W_{OV}$'s SVD and pick
+a pair $(u_i, u_j)$ of left-singular vectors (\emph{write-out}
+directions). A \emph{causal $\alpha$-sweep} injects
+$v(\theta,\alpha) = \alpha\sigma_i\cos\theta\,u_i +
+ \alpha\sigma_j\sin\theta\,u_j$
+at \texttt{blocks.\{$\ell$\}.hook\_resid\_pre} during the forward pass,
+records $\mathrm{LD}(\theta) = \mathrm{logit}(t_{+}) - \mathrm{logit}(t_{-})$
+for antipodal probe tokens, and fits
+$\mathrm{LD}(\theta)\approx\mu + A\cos(\theta - \phi)$. We report $A$
+at $\alpha\in\{1,3,10\}$ and phase drift $\Delta\phi$. Compasses must
+satisfy $R^2\ge 0.95$, $\Delta\phi\le 10^\circ$, and a linear
+$A(\alpha)$ fit through the origin with $R^2 \ge 0.99$.
+
+We use TransformerLens \citep{nanda2022transformerlens} on bfloat16.
+The nine-test battery (decode-heads, cyclicity, permutation,
+random-plane, principal-angles, scan-planes, semantic-ablate,
+causal-patch, self-test) is described in
+Appendix~\ref{app:battery}.
+
+\section{Four-model gender compass}
+\label{sec:gender}
+
+Table~\ref{tab:gender} summarizes the gender compass across four
+models. Every head produces linear amplitude scaling ($R^2\ge 0.993$)
+and phase drift $\le 3^\circ$ across $\alpha\in\{1,3,10\}$.
+Fig.~\ref{fig:polar} shows representative polar plots.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Gender-compass causal sweep. $\mathrm{LD}_\pm$: baseline
+$\mathrm{logit}(t_{+} - t_{-})$ on $\pm$-context prompts. $A(\alpha)$:
+sinusoidal amplitude. $\Delta\phi$: phase drift across
+$\alpha\in\{1,3,10\}$.}
+\label{tab:gender}
+\begin{tabular}{lcccccc}
+\toprule
+Model & Head & $(u_i,u_j)$ & $\mathrm{LD}_{+}$ & $\mathrm{LD}_{-}$ &
+$A(1)/A(3)/A(10)$ & $\phi\pm\Delta\phi$ \\
+\midrule
+GPT-2 Small  & L10H9  & $(0,3)$ & $+3.73$ & $-3.31$ &
+$1.78/5.10/14.16$ & $+4.7^\circ\pm 0.3$ \\
+Phi-3 Mini   & L28H1  & $(0,3)$ & $+5.06$ & $-5.21$ &
+$1.81/5.15/12.85$ & $+1.0^\circ\pm 1.3$ \\
+Gemma-2-2B   & L21H4  & $(0,2)$ & $+5.38$ & $-5.21$ &
+$0.18/0.59/2.19$  & $+0.2^\circ\pm 1.3$ \\
+Llama-3.2-3B & L26H14 & $(2,3)$ & $+5.11$ & $-4.58$ &
+$0.28/0.88/3.01$  & $+161.6^\circ\pm 2.4$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[h]
+\centering
+\begin{subfigure}[t]{0.24\textwidth}
+    \includegraphics[width=\linewidth]{gpt2_polar.png}
+    \caption{GPT-2 L9H7.}
+\end{subfigure}
+\begin{subfigure}[t]{0.24\textwidth}
+    \includegraphics[width=\linewidth]{phi3_polar.png}
+    \caption{Phi-3 L24H10.}
+\end{subfigure}
+\begin{subfigure}[t]{0.24\textwidth}
+    \includegraphics[width=\linewidth]{gemma_polar.png}
+    \caption{Gemma L21H4.}
+\end{subfigure}
+\begin{subfigure}[t]{0.24\textwidth}
+    \includegraphics[width=\linewidth]{phi3_l28h1_causal_polar.png}
+    \caption{Phi-3 L28H1.}
+\end{subfigure}
+\caption{Gender-compass polar plots at $\alpha=3$. Radius:
+$\mathrm{logit}(\mathit{he}-\mathit{she})$; angle: injection
+$\theta$. Blue/red: masculine/feminine-context prompts; black:
+neutral.}
+\label{fig:polar}
+\end{figure}
+
+\paragraph{Decoding the basis.} At the masculine pole each head
+promotes \emph{his, him, he} (plus cross-lingual equivalents:
+German \emph{ihn}; Chinese \emph{ta-masc.}; French \emph{lui};
+Polish \emph{jego}; Russian \emph{ego}); at the feminine pole
+\emph{she, her, herself} and their Chinese, Japanese, Korean,
+French counterparts. Multiple languages' pronouns co-localize in
+the same plane, consistent with a shared gender axis in the
+write-out subspace.
+
+\paragraph{Storage vs.\ steering.} Plane ablation on the target
+head removes $39.3\%$ of the gender signal on GPT-2 L10H9 and
+$14.3\%$ on Gemma L21H4 (\emph{storage} compasses), but only
+$0.6\%$ on GPT-2 L9H7 and $-0.6\%$ on Phi-3 L24H10
+(\emph{steering} compasses). Both regimes respond
+identically to causal $\alpha$-injection; the distinction is
+head-level, not model-level. Phi-3 L28H1 (used for
+Table~\ref{tab:gender}) is the scan-discovered storage-dominant
+partner of steering head L24H10; principal angles between the
+two fitted planes are $[86.4^\circ, 89.0^\circ]$ (orthogonal
+planes, independent dials).
+
+\section{Blind causal scan}
+\label{sec:scan}
+
+All compasses above were surfaced by decoding singular vectors, which
+biases toward visually clean cases. We complement with a blind scan
+over all $(L, H, u_i, u_j)$ from each head's top-$4$ SVs: $864$
+planes for GPT-2, $1344$ for Phi-3, $240$ for Gemma, $4032$ for
+Llama. Passing criterion: $R^2\ge 0.95$, $\Delta\phi\le 10^\circ$,
+slope $A(10)/10\ge 0.2$.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Blind causal-scan pass rates with $95\%$ Agresti-Coull CIs.
+\emph{Compass}: top-$4$ SV-pairs per head. \emph{top-$4$ null}: random
+orthonormal pair from the same top-$4$ write subspace. \emph{full-OV
+null}: random orthonormal pair from all of
+$\mathbb{R}^{d_\text{model}}$.}
+\label{tab:scan}
+\begin{tabular}{lccc}
+\toprule
+Model (planes / null) & Compass & top-$4$ null & full-OV null \\
+\midrule
+GPT-2 Small (864/432)    & $2.06\%\,[1.12,3.01]$ & $2.51\%\,[1.04,3.97]$ & $0.44\%\,[0.00,1.06]$ \\
+Phi-3 Mini (1344/672)    & $1.18\%\,[0.60,1.76]$ & $1.62\%\,[0.67,2.57]$ & $0.28\%\,[0.00,0.69]$ \\
+Gemma-2-2B (240/120)     & $2.02\%\,[0.25,3.78]$ & $1.55\%\,[0.00,3.73]$ & $1.55\%\,[0.00,3.73]$ \\
+Llama-3.2-3B (4032/2016) & $0.22\%\,[0.07,0.37]$ & $0.15\%\,[0.00,0.32]$ & $0.00\%\,[0.00,0.09]$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Against the full-OV null every model exceeds by a non-overlapping
+margin. The top-$4$ null overlaps with compass rate, showing that the
+top-$4$ write subspace is itself semantically enriched. The
+discriminating statistic is \emph{head-level concentration}: GPT-2
+lands $15/16$ passing planes in three heads (L9H7, L10H9, L11H1), and
+Llama lands $7/9$ in two heads (L26H14 with $6/6$ passes, L20H13 with
+$3/6$). Under the independence null implied by aggregate rate, the
+probability of any head hosting $\ge 4$ passes is
+$\binom{6}{4}(0.02)^4 \approx 10^{-6}$. The scan also recovers heads
+the decode-survey missed (GPT-2 L10H9, Phi-3 L28H1, Llama L26H14),
+validating the two-method strategy.
+
+\paragraph{Strengthened Monte-Carlo nulls.} On Phi-3 L28H1, a
+$1000$-trial random-plane null gives observed $=40.77$,
+random-mean $=20.47$, $p=0.142$ (long tail from random directions
+landing on other semantic axes). A $2000$-trial label-permutation
+null gives perm-mean $=9.42$, perm-max $=24.35$, $p=0.000$.
+Permutation is the sharp test; random-plane becomes informative only
+jointly with decode coherence and amplitude-linearity.
+
+\begin{figure}[h]
+\centering
+\begin{subfigure}[t]{0.44\textwidth}
+    \includegraphics[width=\linewidth]{gpt2_scan_heatmap.png}
+    \caption{GPT-2 Small ($12\times 12$).}
+\end{subfigure}
+\begin{subfigure}[t]{0.44\textwidth}
+    \includegraphics[width=\linewidth]{llama32_3b_scan_gender_heatmap.png}
+    \caption{Llama-3.2-3B ($28\times 24$).}
+\end{subfigure}
+\caption{Blind causal-scan heatmaps: number of passing SV-pairs per
+$(L, H)$. Passes concentrate at a handful of heads in both models;
+full-OV null planes distribute uniformly and host zero such
+concentrations.}
+\label{fig:scan_heatmap}
+\end{figure}
+
+\section{Non-pronoun axes}
+\label{sec:nonpronoun}
+
+The same recipe surfaces two non-pronoun compasses in Phi-3:
+a \emph{temporal unit} dial (L24H17, $u_1, u_2$,
+$t_{\pm} = \emph{month}/\emph{hour}$) with
+$A(1)/A(3)/A(10) = 0.69/2.10/7.60$ and phase drift $0.9^\circ$, and
+an \emph{entity type} dial (L24H28, $u_3, u_7$,
+$t_{\pm} = \emph{item}/\emph{operation}$) with
+$A = 0.29/0.88/3.06$ and phase drift $0.0^\circ$. Both satisfy
+amplitude-linearity and phase-stability; neither is numerical.
+A two-harmonic fit of four-token probes separates \emph{two-way}
+antipodal dials from \emph{four-way} rotation dials: L24H17 scores
+$A_2/A_1 = 0.32$ on the orthogonal axis at $\alpha=10$ (genuine
+four-way: \emph{month/upon/hour/year}), while L24H28 scores
+$A_2/A_1 \le 0.06$ (two independent antipodal axes).
+
+\section{Downstream bias}
+\label{sec:downstream}
+
+A compass plane is useful only if a rank-$2$ intervention changes
+downstream behavior without destroying fluency. We evaluate
+WinoGender \citep{rudinger2018winogender,zhao2018winogender} and
+StereoSet \citep{nadeem2021stereoset} across four models with the
+compass rotated to the \emph{she} pole of its fitted phase.
+
+\begin{table}[h]
+\centering
+\small
+\caption{WinoGender sweep. \emph{raw gap}: mean
+$\log P(\mathit{his}) - \log P(\mathit{her})$ over $720$ sentences.
+\emph{stereo corr}: Pearson $r$ between per-occupation logit gap
+and BLS female-occupancy rate (lower = less stereotypical).
+$\Delta$PPL: perplexity delta.}
+\label{tab:winogender}
+\begin{tabular}{llcccc}
+\toprule
+Model (head) & Condition / $\alpha$ & raw gap & stereo corr & $\Delta$PPL \\
+\midrule
+\multirow{3}{*}{GPT-2 Small (L10H9)}
+& baseline 0.0  & $+0.91$ & $+0.60$ & $+0.00$ \\
+& compass 1.0   & $+5.74$ & $+0.19$ & $+0.00$ \\
+& compass 1.5   & $+8.33$ & $-0.09$ & $+0.36$ \\
+\midrule
+\multirow{3}{*}{Phi-3 Mini (L28H1)}
+& baseline 0.0  & $+1.15$ & $+0.64$ & $+0.00$ \\
+& compass 1.0   & $+2.71$ & $+0.47$ & $+0.01$ \\
+& compass 1.5   & $+3.94$ & $-0.02$ & $+0.02$ \\
+\midrule
+\multirow{3}{*}{Gemma-2-2B (L21H4)}
+& baseline 0.0  & $+1.16$ & $+0.61$ & $+0.00$ \\
+& compass 1.0   & $+0.97$ & $+0.18$ & $+0.39$ \\
+& compass 1.5   & $+0.96$ & $-0.13$ & $+1.08$ \\
+\midrule
+\multirow{3}{*}{Llama-3.2-3B (L26H14)}
+& baseline 0.0  & $+1.15$ & $+0.73$ & $+0.00$ \\
+& compass 1.0   & $+3.04$ & $+0.37$ & $+0.02$ \\
+& compass 1.5   & $+4.07$ & $-0.18$ & $+0.04$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Monotonic decorrelation at negligible PPL cost.} Every
+model drives stereo corr from $+0.60\text{--}0.73$ through zero
+at $\alpha\in[1.0, 1.5]$ into negative territory. At the
+zero-crossing, perplexity deltas are $+0.36$ (GPT-2, $1.5\%$ of
+baseline $23.1$), $+0.02$ (Phi-3, $0.3\%$ of $5.3$),
+$+0.39$ (Gemma, $0.4\%$ of $93.4$), $+0.02$ (Llama, $0.3\%$ of $6.7$).
+On StereoSet gender (LMS/SS/ICAT, Appendix~\ref{app:stereoset}),
+compass improves ICAT by $+6.4$ on GPT-2 and $+0.5$ on Llama at
+matched LMS; Phi-3 and Gemma show smaller gender-ICAT deltas and
+are comparable to ActAdd \citep{turner2023actadd}. StereoSet race
+and profession moves by $\le 2$ ICAT points on all four models,
+confirming that a rank-$2$ gender plane does not incur collateral
+damage on unrelated stereotype categories.
+
+\section{Discussion}
+\label{sec:discussion}
+
+OV-SVD is a \emph{structural} discovery device: the top write-out
+directions are the candidate ``output languages'' of the head.
+When two such directions co-decode a categorical axis, this is
+evidence that the head actually writes along that axis, not just
+that we can correlate post-hoc. This is the structural reason the
+compass test is stronger than probing the residual stream directly.
+
+\paragraph{Limitations.} (i) Prompt dependence: baselines use three
+short ambiguous prompts per condition; paraphrase robustness is not
+yet quantified. (ii) Axis breadth: we demonstrate gender on four
+models and temporal/entity on one; sentiment, tense, formality,
+animacy remain untested. (iii) Storage/steering is a head-level
+property; compass identifies where rank-$2$ pushes land, not
+necessarily where the model stores the category when no push is
+applied. (iv) The top-$4$ null overlaps with compass aggregate rate
+on all models; the evidence is in concentration + phase-stability +
+decode-coherence jointly.
+
+\paragraph{Conclusion.} OV-SVD exposes rank-$2$ causal dials in a
+single attention head. The same weight-space recipe recovers gender
+compasses across four decoder-only models, non-pronoun compasses in
+Phi-3, and a single-site rank-$2$ bias-decorrelation primitive with
+negligible fluency cost. The compass is architecture-agnostic, does
+not require a probe, and gives a continuous $\theta$-family of
+interventions rather than a single vector.

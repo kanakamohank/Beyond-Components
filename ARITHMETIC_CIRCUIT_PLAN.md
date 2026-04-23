@@ -1,9 +1,681 @@
-# Arithmetic Circuit Discovery — Final Implementation Plan
+# Arithmetic Circuit Discovery — Execution Pipeline
 
-## Goal
+## Overview
+Complete pipeline for discovering and validating the Fourier arithmetic circuit in a new transformer language model. Covers encoding characterization, causal validation, component attribution, computation mechanism verification, and generalization testing.
+
+**Models tested so far**: Gemma 2B, Phi-3 Mini, LLaMA 3.2-3B
+**All scripts live in**: `experiments/`
+**All results go to**: `mathematical_toolkit_results/`
+
+---
+
+# QUICK REFERENCE — Adding a New Model
+
+### Step 0: Register the Model
+
+Add your model to `MODEL_MAP` in `experiments/arithmetic_circuit_scan_updated.py`:
+```python
+MODEL_MAP = {
+    "phi-3":       "microsoft/Phi-3-mini-4k-instruct",
+    "gemma-2b":    "google/gemma-2-2b",
+    "llama-3b":    "meta-llama/Llama-3.2-3B",
+    "your-model":  "org/model-name",   # ← ADD HERE
+}
+```
+
+Also add default layer configs in scripts that use them (e.g., `eigenvector_dft.py`):
+```python
+readout_defaults = {"gemma-2b": 25, "phi-3": 31, "llama-3b": 27, "your-model": XX}
+comp_defaults    = {"gemma-2b": 19, "phi-3": 26, "llama-3b": 20, "your-model": YY}
+```
+
+### Step 0b: Determine Teacher-Forced vs Direct-Answer Mode
+
+- **Teacher-forced** (default): Prompt = `"Calculate 13 + 8 = 2"`, model predicts next token `1`. Works when single-digit answer tokens exist (0-9).
+- **Direct-answer**: Prompt = `"a + b = "`, model predicts full answer as one token. Required if model tokenizes numbers 0-198 as single tokens (e.g., LLaMA 3.2-3B).
+
+Test: run a few prompts manually. If model gets >90% on `"a + b = "` format → use `--direct-answer`. Add `--direct-answer` flag to ALL subsequent commands.
+
+### Key Layer Parameters
+
+You need two layer indices:
+- **comp-layer**: Where the main arithmetic computation happens (identified by Step 1)
+- **readout-layer**: Last layer before output (usually `n_layers - 1`)
+
+These are auto-detected for known models, but must be specified via `--comp-layer` for new models after Step 1.
+
+---
+
+# FULL PIPELINE — 14 Steps in Execution Order
+
+---
+
+## ═══════════════════════════════════════════════════════
+## PHASE A: DISCOVERY — Find the Circuit
+## ═══════════════════════════════════════════════════════
+
+### Step 1: Layer Scan + Unembed Patching (Find comp-layer and readout-layer)
+
+**Script**: `experiments/arithmetic_circuit_scan_updated.py`
+**Purpose**: Identify which layers carry arithmetic information and at what dimensionality
+**THIS MUST RUN FIRST** — determines comp-layer for all subsequent experiments
+
+```bash
+python experiments/arithmetic_circuit_scan_updated.py \
+    --model your-model --device mps --n-per-digit 100 --n-test 150
+# For direct-answer models:
+# --direct-answer
+```
+
+**Key functions**:
+- `run_layer_scan()` → sweeps all layers, patches activations between digit-pairs, measures transfer rate
+- `compute_unembed_basis()` / `compute_unembed_basis_direct_answer()` → SVD of W_U digit columns → 9D unembed-aligned basis
+- `run_patching_experiment()` → patches only a subspace (unembed, Fisher, or random) at each layer
+- `compute_fisher_matrix()` → standard Fisher information matrix from gradients
+- `compute_contrastive_fisher()` → per-digit-class Fisher for digit-discriminative directions
+- `filter_correct_teacher_forced()` / `filter_correct_direct_answer()` → keep only problems the model solves correctly
+
+**Output**: `mathematical_toolkit_results/arithmetic_scan_<model>.json`
+**What to look for**:
+- Layer scan: find the layer where transfer rate first exceeds 80% → this is your **comp-layer**
+- The last layer with ~100% transfer → your **readout-layer**
+- Unembed patching: 9D should capture most transfer at readout (100% for teacher-forced)
+- Fisher patching: effective dimensionality of the arithmetic subspace
+
+**Runtime**: ~30-60 min per model on MPS
+
+---
+
+### Step 2: Eigenvector DFT (Verify Fourier Structure)
+
+**Script**: `experiments/eigenvector_dft.py`
+**Purpose**: Check if the digit encoding at comp-layer and readout-layer forms a **perfect Fourier basis** of ℤ/10ℤ
+
+```bash
+python experiments/eigenvector_dft.py \
+    --model your-model --comp-layer YY --device mps
+```
+
+**Key functions**:
+- `analyze_layer()` → DFT of each SVD direction's 10-element digit score vector
+- `collect_per_digit_means()` → per-digit mean activations at a layer
+- Checks W_U SVD, computation layer SVD, and readout layer SVD
+
+**Output**: `mathematical_toolkit_results/eigenvector_dft_<model>.json`
+**What to look for**:
+- "PERFECT FOURIER BASIS" = each frequency k=1..4 gets exactly 2 directions, k=5 gets 1 (total 9)
+- Mean purity > 50% → strong Fourier structure
+- Dominant frequency assignments: which k dominates (k=5 = parity, k=1 = ordinal)
+
+**Critical gate**: If NOT a perfect Fourier basis → the model may not use Fourier encoding. Check data balance and try more samples before concluding.
+
+**Runtime**: ~15-30 min
+
+---
+
+### Step 3: Fourier Layer Sweep (Track Encoding Across Layers)
+
+**Script**: `experiments/fourier_decomposition.py`
+**Purpose**: Decompose the digit subspace into Fourier components at every layer, track how Fourier energy builds up
+
+```bash
+python experiments/fourier_decomposition.py \
+    --model your-model --layer-sweep "5,6,7,...,N" --device mps
+```
+
+**Key functions**:
+- `build_fourier_basis_functions()` → canonical DFT basis for ℤ/10ℤ (9 functions)
+- `fourier_decomposition()` → project digit-conditional means onto Fourier basis, measure per-frequency energy
+- `per_neuron_fourier_analysis()` → per-MLP-neuron frequency tuning and purity
+- `run_fourier_at_layer()` → full analysis at one layer including optional patching
+
+**Output**: `mathematical_toolkit_results/fourier_decomposition_<model>_L<range>.json`
+**What to look for**:
+- Fourier energy should build up from early layers to comp-layer
+- Per-frequency energy profile: which frequencies dominate at which layers
+- CRT score (Chinese Remainder Theorem alignment)
+
+**Runtime**: ~1-2 hours for full sweep
+
+---
+
+## ═══════════════════════════════════════════════════════
+## PHASE B: CAUSAL VALIDATION — Prove the Circuit Matters
+## ═══════════════════════════════════════════════════════
+
+### Step 4: Causal Fourier Knockout (Necessity Test)
+
+**Script**: `experiments/fourier_knockout.py`
+**Purpose**: Zero out the 9D Fourier subspace at each layer → measure accuracy damage. Proves the subspace is **causally necessary**.
+
+```bash
+python experiments/fourier_knockout.py \
+    --model your-model --comp-layer YY --device mps
+```
+
+**Key functions**:
+- `evaluate_accuracy()` → hook-based ablation at a single layer, measures accuracy
+- `evaluate_accuracy_multi_layer()` → simultaneous ablation across multiple layers
+- `make_random_orthonormal_basis()` → random 9D control (should cause 0% damage)
+- Also runs per-frequency ablation (k=1..5 individually) and progressive ablation (top-1..9 directions)
+
+**Output**: `mathematical_toolkit_results/fourier_knockout_<model>.json`
+**What to look for**:
+- Full 9D ablation should cause significant accuracy damage (11-46% observed)
+- Random 9D ablation should cause ~0% damage (MUST be near zero)
+- Multi-layer ablation (comp→readout) should approach chance level (~10%)
+- Individual frequency ablation reveals redundancy structure
+
+**Runtime**: ~30-60 min
+
+---
+
+### Step 5: Fisher/PCA Phase Shift (Sufficiency Test)
+
+**Script**: `experiments/fisher_phase_shift.py`
+**Purpose**: Rotate activations within the Fisher/PCA subspace by digit-shift amounts. Tests if the subspace is **sufficient** to control digit output.
+
+```bash
+python experiments/fisher_phase_shift.py \
+    --model your-model --layers "YY,ZZ" --device cpu
+# NOTE: Requires gradients → use CPU (MPS gradient bugs)
+```
+
+**Key functions**:
+- `compute_fisher_eigenvectors()` → Fisher information matrix from gradients, returns top eigenvectors
+- `compute_pca_directions()` → PCA/SVD control directions from digit-conditional means
+- `run_causal_intervention_suite()` → scale-sweep of Fisher/PCA subspace interventions
+- `run_phase_shift_experiment()` → rotate within Fisher subspace, measure digit shift
+
+**Output**: `mathematical_toolkit_results/fisher_phase_shift_<model>.json`
+**What to look for**:
+- Fisher 9D knockout transfer rate: how much arithmetic info is in Fisher directions
+- Phase rotation: does rotating within the subspace shift the predicted digit?
+
+**Runtime**: ~1-2 hours (CPU, gradients)
+
+---
+
+### Step 6: Fourier Phase Rotation (Steering Test)
+
+**Script**: `experiments/fourier_phase_rotation.py`
+**Purpose**: Apply coherent Fourier rotation (shift all frequencies by j positions) and test if the output digit shifts by j.
+
+```bash
+python experiments/fourier_phase_rotation.py \
+    --model your-model --layers "YY,ZZ" --device mps --logit-lens
+```
+
+**Key functions**:
+- `compute_digit_fourier_basis()` → hybrid SVD+DFT basis construction (best method)
+- `compute_rotation_delta()` → rotation matrix for shift j in Fourier space
+- `run_fourier_phase_shift()` → apply rotation, measure exact_mod10, target_rank, Δlogit
+- `run_logit_lens_analysis()` → project rotated activations through LN_final + W_U to check logit-space effect (enabled by `--logit-lens`)
+- `sanity_check_basis()` → 6 automated checks on basis quality (orthonormality, freq purity, etc.)
+
+**Output**: `mathematical_toolkit_results/fourier_phase_rotation_<model>.json`
+**What to look for**:
+- exact_mod10 > 10% (chance) means rotation works
+- Large j (backward shifts) often work better than small j (forward)
+- Logit-lens accuracy at comp-layer tells how "ready" the answer is at that layer
+
+**Runtime**: ~20-40 min
+
+---
+
+### Step 7: Steering Improvements (W_U-Informed Steering)
+
+**Script**: `experiments/steering_improvements.py`
+**Purpose**: Bridge the encoding-readout gap with W_U-informed steering vectors
+
+```bash
+python experiments/steering_improvements.py \
+    --model your-model --layer YY --device mps \
+    --scales 1,2,3,5,10 --wu-scales 1,3,5,10,20
+```
+
+**Key functions**:
+- `compute_wu_projector()` → project Fourier basis onto W_U column space
+- `compute_wu_steering_vectors()` → ideal direction = (w_target - w_orig) projected onto Fourier subspace
+- Three methods: `coherent_xN`, `wu_proj_xN`, `wu_steer_xN`
+
+**Output**: `mathematical_toolkit_results/steering_improvements_<model>.log`
+**What to look for**:
+- wu_steer should dramatically improve exact_mod10 (16→70% for Gemma, 14→84% for Phi-3)
+- If plain coherent already works well (>60%), wu_steer may not add much (LLaMA case)
+
+**Runtime**: ~20-30 min
+
+---
+
+## ═══════════════════════════════════════════════════════
+## PHASE C: COMPONENT ATTRIBUTION — Who Does What
+## ═══════════════════════════════════════════════════════
+
+### Step 8: Fourier Head Attribution (Component-Level Analysis)
+
+**Script**: `experiments/fourier_head_attribution.py`
+**Purpose**: For every attention head and MLP in the model, measure (1) how much Fourier power it writes, (2) whether it's causally necessary, (3) which frequencies it handles.
+
+```bash
+python experiments/fourier_head_attribution.py \
+    --model your-model --comp-layer YY --device mps
+```
+
+**Key functions (3 phases)**:
+- **Phase 1** — `compute_writing_scores()`: Direct Linear Attribution (DLA) — measures signed + unsigned Fourier writing for each component
+- **Phase 2** — `causal_patch_top_components()`: Ablates Fourier content from each top component, measures accuracy damage
+- **Phase 3** — `frequency_resolved_attribution()`: Decomposes each component's Fourier writing into per-frequency contributions (k=1..5)
+
+**Sanity checks built in**:
+- S1: Residual stream decomposition (components sum to total)
+- S3: Max writing fractions (no single component dominates unreasonably)
+- S4: Random subspace baseline (DLA ≈ 9/d_model)
+- S5: DLA-damage correlation
+
+**Output**: `mathematical_toolkit_results/fourier_head_attribution_<model>.json`
+**What to look for**:
+- Which components are causally necessary (damage > 0% when ablated)
+- MLP-dominated vs mixed circuit (Gemma/LLaMA = pure MLP, Phi-3 = mixed with L21H30)
+- Per-frequency specialization (e.g., MLP at comp-layer writes k=5 parity)
+
+**Runtime**: ~1-2 hours
+
+---
+
+### Step 9: Neuron Trigonometric Analysis (Per-Neuron Decomposition)
+
+**Script**: `experiments/neuron_trig_analysis.py`
+**Purpose**: DFT analysis of individual residual stream dimensions and MLP neurons to identify frequency-tuned neurons.
+
+```bash
+python experiments/neuron_trig_analysis.py \
+    --model your-model --layer YY --device mps
+```
+
+**Key functions (5 parts)**:
+- **Part 1** — `collect_digit_means()` + `compute_dimension_dft()`: DFT of each residual stream dimension
+- **Part 2** — `collect_mlp_neuron_means()` + `report_mlp_neuron_spectra()`: DFT of each MLP neuron (post-nonlinearity)
+- **Part 3** — `analyze_phase_clustering()`: Circular statistics on phase angles (Rayleigh test)
+- **Part 4** — `compute_component_attribution()`: Fourier power written by each head/MLP
+- **Part 5** — `sparse_steering_test()`: Steering restricted to top-K dimensions by Fourier power
+
+**Output**: `mathematical_toolkit_results/neuron_trig_<model>_L<layer>.log`
+**What to look for**:
+- How many neurons are high-purity (>80%) at each frequency
+- Phase clustering: diffuse (distributed encoding) vs clustered (localized encoding)
+- Sparse steering: how few dimensions are needed for effective rotation
+
+**Runtime**: ~30-60 min
+
+---
+
+## ═══════════════════════════════════════════════════════
+## PHASE D: COMPUTATION MECHANISM — How Addition Works
+## ═══════════════════════════════════════════════════════
+
+### Step 10: CP Tensor Decomposition (Trig Identity Verification)
+
+**Script**: `experiments/cp_tensor_decomposition.py`
+**Purpose**: Verify that the model's computation implements the trigonometric addition identity: cos(k(a+b)) = cos(ka)cos(kb) - sin(ka)sin(kb)
+
+```bash
+python experiments/cp_tensor_decomposition.py \
+    --model your-model --comp-layer YY --device mps
+```
+
+**Key functions**:
+- `build_fourier_matrices()` → theoretical cos⊗cos, sin⊗sin outer-product matrices for each frequency
+- `fit_trig_identity()` → fit constrained trig model to each 10×10 activation matrix (→ trig_score)
+- `cp_decompose_and_analyze()` → CP decomposition of the (10,10,9) activation tensor
+- `validate_on_synthetic()` → validate algorithm on known trig tensor first (MUST PASS)
+- `build_ones_digit_tensor()` → construct (10,10,9) tensor from per-(a,b) activations projected onto 9D basis
+- `collect_activations_and_filter()` → collect activations for all (a,b) pairs at comp-layer
+
+**Output**: `mathematical_toolkit_results/cp_tensor_<model>.json`
+**What to look for**:
+- σ²-weighted trig score > 0.8 → strong angle addition structure
+- Anti-diagonal R² ≈ 1.0 for signal tensor (activations depend on (a+b)%10 only)
+- CP rank-9 fit quality and Fourier factor matching
+- Trig constraint satisfaction: CC ≈ -SS, SC ≈ CS
+
+**Runtime**: ~30-60 min
+
+---
+
+### Step 11: Carry Stratification (Carry vs No-Carry Analysis)
+
+**Script**: `experiments/carry_stratification.py`
+**Purpose**: Split problems into carry (a+b≥10) and no-carry (a+b<9), analyze if the Fourier structure differs.
+
+```bash
+python experiments/carry_stratification.py \
+    --model your-model --comp-layer YY --device mps
+```
+
+**Key functions**:
+- `compute_basis_from_means()` → 9D Fourier basis from per-digit means (for each carry group)
+- `analyze_group_dft()` → DFT analysis on SVD directions, frequency assignment, purity
+- `principal_angles()` → principal angles between carry and no-carry subspaces
+- `analyze_carry_directions()` → carry direction decomposition in Fourier subspace, per-digit projections
+
+**Output**: `mathematical_toolkit_results/carry_stratification_<model>.json`
+**What to look for**:
+- Subspace alignment between carry and no-carry bases (high = shared encoding)
+- Whether carry-conditioned bases are still perfect Fourier
+- k=5 frequency energy difference between carry and no-carry
+
+**Runtime**: ~15-30 min
+
+---
+
+## ═══════════════════════════════════════════════════════
+## PHASE E: GENERALIZATION & VISUALIZATION
+## ═══════════════════════════════════════════════════════
+
+### Step 12: Generalization Tests (Subtraction, Substitution, Multi-Digit)
+
+**Script**: `experiments/generalization_tests.py`
+**Purpose**: Test if the Fourier basis transfers to related tasks
+
+```bash
+python experiments/generalization_tests.py \
+    --model your-model --comp-layer YY --device mps --test all
+```
+
+**Key functions**:
+- `run_substitution_test()` → swap 9D Fourier projection between problems with different answer digits, check if output shifts to donor digit
+- `run_subtraction_test()` → compute Fourier basis from subtraction problems, measure alignment with addition basis
+- `run_multidigit_test()` → check if tens-digit also has Fourier structure at comp-layer
+
+**Output**: `mathematical_toolkit_results/generalization_tests_<model>.log`
+**What to look for**:
+- Substitution transfer > 10% (chance) → Fourier subspace encodes digit identity
+- Subtraction alignment with addition basis → shared vs separate circuits
+
+**Runtime**: ~30-60 min
+
+---
+
+### Step 13: UMAP Visualization
+
+**Script**: `experiments/fourier_umap.py`
+**Purpose**: 2D/3D UMAP of 9D Fourier projections colored by digit class → visual confirmation of circular structure
+
+```bash
+python experiments/fourier_umap.py \
+    --model your-model --comp-layer YY --device mps
+```
+
+**Output**: `mathematical_toolkit_results/fourier_umap_<model>.png`
+**What to look for**: Clean circular arrangement of digits 0-9 in UMAP space
+
+**Runtime**: ~10-20 min
+
+---
+
+### Step 14 (Advanced): Multi-Layer Frequency Ablation
+
+**Script**: `experiments/multilayer_freq_ablation.py`
+**Purpose**: Ablate individual frequencies across multiple layers simultaneously — resolves the "individual frequency paradox" (single-layer k=5 ablation causes 0% damage due to redundancy)
+
+```bash
+python experiments/multilayer_freq_ablation.py \
+    --model your-model --comp-layer YY --readout-layer ZZ --device mps
+```
+
+**Output**: `mathematical_toolkit_results/multilayer_freq_ablation_<model>.json`
+**What to look for**:
+- Multi-layer k=5 ablation should cause significant damage (unlike single-layer)
+- Reveals which frequency channels are most critical when redundancy is blocked
+
+**Runtime**: ~30-60 min
+
+---
+
+## ═══════════════════════════════════════════════════════
+## PHASE F: MULTI-DIGIT CIRCUIT (Gemma-specific, extensible)
+## ═══════════════════════════════════════════════════════
+
+### Step 15 (Optional): Multi-Digit Circuit Discovery
+
+**Script**: `experiments/multidigit_circuit.py`
+**Purpose**: Analyze how the model handles tens-digit computation, carry routing, and operand decomposition
+
+```bash
+python experiments/multidigit_circuit.py \
+    --model your-model --device mps --test A D C B F G H
+```
+
+**Sub-experiments** (selectable via `--test`):
+- **A**: Carry-conditioned tens-digit Fourier basis
+- **B**: Operand digit subspace decomposition (a₀, b₀, a₁, b₁ separate bases)
+- **C**: Carry router head identification (attention to ones-digit operands)
+- **D**: Carry signal causal intervention (add/remove/flip carry direction)
+- **F**: Carry router head ablation (causal)
+- **G**: Tens-digit-native carry direction sweep
+- **H**: End-to-end causal chain validation
+
+**Output**: `mathematical_toolkit_results/multidigit_circuit_<model>.json`
+**This is the most complex experiment** — run F, G, H after A-D to build on findings.
+
+**Runtime**: ~2-4 hours for all sub-experiments
+
+---
+
+# EXECUTION ORDER SUMMARY
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  PHASE A: DISCOVERY                                         │
+│  Step 1:  arithmetic_circuit_scan_updated.py  (MUST BE 1ST) │
+│  Step 2:  eigenvector_dft.py                                │
+│  Step 3:  fourier_decomposition.py --layer-sweep            │
+├─────────────────────────────────────────────────────────────┤
+│  PHASE B: CAUSAL VALIDATION                                 │
+│  Step 4:  fourier_knockout.py                               │
+│  Step 5:  fisher_phase_shift.py          (needs CPU)        │
+│  Step 6:  fourier_phase_rotation.py      --logit-lens       │
+│  Step 7:  steering_improvements.py                          │
+├─────────────────────────────────────────────────────────────┤
+│  PHASE C: COMPONENT ATTRIBUTION                             │
+│  Step 8:  fourier_head_attribution.py    (longest step)     │
+│  Step 9:  neuron_trig_analysis.py                           │
+├─────────────────────────────────────────────────────────────┤
+│  PHASE D: COMPUTATION MECHANISM                             │
+│  Step 10: cp_tensor_decomposition.py                        │
+│  Step 11: carry_stratification.py                           │
+├─────────────────────────────────────────────────────────────┤
+│  PHASE E: GENERALIZATION & VIZ                              │
+│  Step 12: generalization_tests.py                           │
+│  Step 13: fourier_umap.py                                   │
+│  Step 14: multilayer_freq_ablation.py                       │
+├─────────────────────────────────────────────────────────────┤
+│  PHASE F: MULTI-DIGIT (OPTIONAL)                            │
+│  Step 15: multidigit_circuit.py                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Dependencies Between Steps
+
+```
+Step 1 ──→ ALL (provides comp-layer, readout-layer)
+Step 2 ──→ Steps 3-14 (confirms Fourier structure exists)
+Steps 3-7: Independent of each other (can run in parallel)
+Step 8:    Independent (but benefits from Step 2 results)
+Step 9:    Independent
+Step 10:   Independent (but uses comp-layer from Step 1)
+Step 11:   Independent
+Steps 12-14: Independent
+Step 15:   Benefits from Steps 8 (carry router heads), 4 (knockout)
+```
+
+### Parallel Execution Groups (if you have multiple GPUs/terminals)
+
+- **Group 1**: Steps 1 → 2 (sequential, fast)
+- **Group 2**: Steps 3, 4, 6, 7, 9, 10, 11, 12, 13 (all on MPS, independent)
+- **Group 3**: Steps 5 (CPU-only, gradients)
+- **Group 4**: Step 8 (longest, MPS)
+- **Group 5**: Step 14, 15 (after confirming basic results)
+
+---
+
+# TOTAL RUNTIME ESTIMATE (Single Model, Sequential)
+
+| Phase | Steps | Time |
+|-------|-------|------|
+| A: Discovery | 1-3 | ~2-3 hours |
+| B: Causal | 4-7 | ~2-4 hours |
+| C: Attribution | 8-9 | ~2-3 hours |
+| D: Mechanism | 10-11 | ~1-1.5 hours |
+| E: Generalization | 12-14 | ~1-2 hours |
+| F: Multi-digit | 15 | ~2-4 hours |
+| **Total** | | **~10-17 hours** |
+
+---
+
+# RESULTS CHECKLIST — What You Need for a Complete Analysis
+
+For each model, confirm these key results:
+
+- [ ] **Perfect Fourier basis** at comp-layer and readout-layer (Step 2)
+- [ ] **Progressive rotation**: transfer rate increases from comp→readout (Step 1)
+- [ ] **9D ablation causes damage**, random 9D causes 0% (Step 4)
+- [ ] **Multi-layer ablation → near chance** (Step 4)
+- [ ] **Fourier rotation steers digits** above chance (Step 6/7)
+- [ ] **Causally necessary components identified** (Step 8 Phase 2)
+- [ ] **Per-frequency specialization** of key MLPs (Step 8 Phase 3)
+- [ ] **Trig identity verified** (σ²-weighted trig score > 0.8) (Step 10)
+- [ ] **Carry stratification** shows shared encoding (Step 11)
+- [ ] **Cross-model consistency** in circuit architecture (compare with other models)
+
+---
+
+# EXISTING MODEL REFERENCE — Layer Configurations
+
+| Model | HuggingFace ID | comp-layer | readout-layer | Mode | Circuit Type |
+|-------|---------------|------------|---------------|------|-------------|
+| Gemma 2B | google/gemma-2-2b | 19 | 25 | teacher-forced | Pure MLP |
+| Phi-3 Mini | microsoft/Phi-3-mini-4k-instruct | 26 | 31 | teacher-forced | Mixed (L21H30 + MLPs) |
+| LLaMA 3.2-3B | meta-llama/Llama-3.2-3B | 20 | 27 | direct-answer | Pure MLP |
+
+---
+
+# SUPPLEMENTARY SCRIPTS — Not in Main Pipeline but Useful
+
+These scripts provide alternative analyses or theoretical validation. They are **not required** for the main pipeline but can be run for deeper investigation.
+
+### S1: Fisher Patching (Standalone)
+
+**Script**: `experiments/fisher_patching.py`
+**Purpose**: Focused Fisher subspace patching with contrastive v3 (teacher-forced ones-digit targets). More detailed than the Fisher analysis in Step 1.
+
+```bash
+python experiments/fisher_patching.py \
+    --model your-model --layers "YY,ZZ" --n-per-digit 100 --device cpu
+# --direct-answer for direct-answer models
+# --standard-only to skip contrastive Fisher
+```
+
+**Key functions**:
+- `compute_fisher_eigenvectors()` → standard Fisher eigenvectors
+- `compute_contrastive_fisher_v3()` → contrastive Fisher with teacher-forced ones-digit targets (best variant)
+- `run_patching_experiment()` → Fisher subspace patching at multiple dimensionalities (2D, 5D, 9D, 10D, 20D, 50D)
+
+**When to use**: After Step 1, to get more detailed Fisher dimensionality analysis at specific layers. Provides contrastive Fisher v3 which is better than the v1 in Step 1.
+
+---
+
+### S2: CRT Sanity Check
+
+**Script**: `experiments/crt_sanity_check.py`
+**Purpose**: Validate that the Fisher subspace has freq-2 and freq-5 structure consistent with Chinese Remainder Theorem (mod-2 × mod-5 = mod-10).
+
+```bash
+python experiments/crt_sanity_check.py \
+    --model your-model --layer YY --device cpu
+```
+
+**When to use**: After Step 5, to verify CRT-aware rotation predictions (e.g., rotating in freq-2 plane by 2π/5 should shift digit by +6 mod 10).
+
+---
+
+### S3: Probe Steering v2 (Difference-in-Means)
+
+**Script**: `experiments/probe_steering_v2.py`
+**Purpose**: DIM (difference-in-means) steering — simplest possible steering approach using statistical difference between digit class activations.
+
+```bash
+python experiments/probe_steering_v2.py \
+    --model your-model --layers "YY,ZZ" --device mps
+```
+
+**When to use**: As a baseline comparison for Step 7's W_U-informed steering. DIM steering doesn't assume any geometry — purely statistical.
+
+---
+
+### S4: Modular Arithmetic Transformer
+
+**Script**: `experiments/modular_arithmetic.py`
+**Purpose**: Train a small transformer on (a + b) mod p, then analyze its Fourier structure. Theoretical reference showing that the trig identity mechanism is the *correct* solution.
+
+```bash
+python experiments/modular_arithmetic.py
+```
+
+**When to use**: For theoretical grounding — demonstrates the same Fourier/trig mechanism in a controlled setting where it can be verified exactly.
+
+---
+
+### S5: Fourier Circuit Analysis (Old Pipeline)
+
+**Script**: `experiments/analyze_fourier_circuits.py`
+**Purpose**: Phase 4a/4b analysis from the older mask-learning pipeline. Performs SVD direction cos/sin fitting and MLP neuron trig identity analysis.
+
+**Prerequisite**: Requires a trained `MaskedTransformerCircuit` checkpoint from the old pipeline. **Not directly usable** with the current pipeline without adaptation.
+
+**Key functions**:
+- `fit_cosine_sine()` → fit cos/sin to individual SVD directions
+- `analyze_frequency_groups()` → group directions by frequency, check phase coherence
+- `analyze_neuron_trig_identity()` → per-neuron product-of-trig analysis
+- `collect_mlp_hidden_activations()` → collect MLP hidden states for trig analysis
+
+**When to use**: Only if you have a MaskedTransformerCircuit checkpoint. The current pipeline's Step 9 + Step 10 provide equivalent analyses without the mask-learning dependency.
+
+---
+
+# EXPERIMENT COMPLETION STATUS (as of April 2025)
+
+| Experiment | Gemma 2B | Phi-3 Mini | LLaMA 3.2-3B |
+|-----------|----------|-----------|--------------|
+| Step 1: Layer Scan + Unembed | ✅ | ✅ | ✅ |
+| Step 2: Eigenvector DFT | ✅ | ✅ | ✅ |
+| Step 3: Fourier Layer Sweep | ✅ | ✅ | ✅ |
+| Step 4: Fourier Knockout | ✅ | ✅ | ✅ |
+| Step 5: Fisher/PCA Phase Shift | ✅ | ✅ | ✅ |
+| Step 6: Fourier Phase Rotation | ✅ | ✅ | ✅ |
+| Step 7: Steering Improvements | ✅ | ✅ | ✅ |
+| Step 8: Fourier Head Attribution | ✅ | ✅ | ✅ |
+| Step 9: Neuron Trig Analysis | ✅ | ✅ | ✅ |
+| Step 10: CP Tensor Decomposition | ✅ | ✅ | ✅ |
+| Step 11: Carry Stratification | ✅ | ✅ | ✅ |
+| Step 12: Generalization Tests | ✅ | ✅ | ✅ |
+| Step 13: UMAP Visualization | ✅ | ✅ | ✅ |
+| Step 14: Multi-Layer Freq Ablation | ✅ | — | — |
+| Step 15: Multi-Digit Circuit | ✅ | ✅ | ✅ |
+| S1: Fisher Patching (standalone) | ✅ | ✅ | ✅ |
+
+---
+---
+
+# ARCHIVED: Original Implementation Plan (Historical)
+
+*The original plan below is preserved for historical context. The actual pipeline executed is documented above.*
+
+## Original Goal
 Identify the complete mechanistic circuit for integer addition in transformer language models: which components participate, which singular directions carry the computation, and how MLPs transform helical number representations into the answer.
 
-## Methodology
+## Original Methodology
 Combines three approaches:
 1. **Our SVD scan** (online_svd_scanner.py) — bottom-up geometric discovery
 2. **Helix paper** (arXiv 2502.00873) — helical representation fitting + activation patching

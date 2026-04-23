@@ -2065,6 +2065,1335 @@ class HelixUsageInvestigator:
 
         return {"real": real, "scrambled": scrambled, "delta": delta}
 
+    # ── Workshop-paper statistical tests ──────────────────────
+    # These methods quantify how surprising the observed Concept
+    # Compass really is.  They run cheaply because residuals are
+    # cached once per prompt, then random planes / permutations
+    # / rotations are evaluated in NumPy.
+
+    # Template banks — each category is a list of (prefix, suffix)
+    # pairs that we slot into a small set of frame sentences.  The
+    # cartesian product generates ~100 diverse prompts per
+    # category without hand-writing each one.
+    _COMPASS_TEMPLATES = {
+        "Operations / Programs": {
+            "frames": [
+                "The {subj} launched a new {noun}",
+                "The {subj} commenced a major {noun}",
+                "The {subj} completed their latest {noun}",
+                "The {subj} reviewed the ongoing {noun}",
+                "The {subj} expanded the successful {noun}",
+            ],
+            "subjects": [
+                "agency", "team", "unit", "lab", "foundation",
+                "ministry", "startup", "task force", "committee",
+                "institute", "company", "bureau", "consortium",
+                "coalition", "studio", "department", "council",
+                "group", "panel", "commission",
+            ],
+            "nouns": ["program", "experiments", "operations",
+                      "programs", "operation"],
+        },
+        "Teams / Groups": {
+            "frames": [
+                "The {subj} coached both rival {noun}",
+                "The {subj} addressed the assembled {noun}",
+                "The {subj} organized several small {noun}",
+                "The {subj} reviewed performance across all {noun}",
+                "The {subj} cheered for their favorite {noun}",
+            ],
+            "subjects": [
+                "coach", "manager", "captain", "referee", "fan",
+                "scout", "commentator", "trainer", "mentor",
+                "organizer", "commissioner", "director",
+                "teacher", "principal", "analyst", "reporter",
+                "supervisor", "recruiter", "strategist", "leader",
+            ],
+            "nouns": ["teams", "team", "groups", "clubs",
+                      "squads", "crews", "factions"],
+        },
+        "Tools / Components": {
+            "frames": [
+                "The {subj} reached for their {noun}",
+                "The {subj} sharpened their old {noun}",
+                "The {subj} organized the workshop {noun}",
+                "The {subj} carried a heavy box of {noun}",
+                "The {subj} laid out the shiny {noun}",
+            ],
+            "subjects": [
+                "carpenter", "mechanic", "plumber", "electrician",
+                "sculptor", "welder", "gardener", "smith",
+                "technician", "artisan", "builder", "craftsman",
+                "watchmaker", "luthier", "mason", "cobbler",
+                "jeweler", "engineer", "tinsmith", "repairman",
+            ],
+            "nouns": ["tools", "atoms", "tokens", "components",
+                      "instruments", "parts"],
+        },
+        "Areas / Geography": {
+            "frames": [
+                "The {subj} surveyed the vast {noun}",
+                "The {subj} patrolled the border {noun}",
+                "The {subj} mapped the remote {noun}",
+                "The {subj} explored the rugged {noun}",
+                "The {subj} protected the coastal {noun}",
+            ],
+            "subjects": [
+                "explorers", "biologists", "nomads", "geologists",
+                "ranchers", "cartographers", "settlers",
+                "rangers", "scouts", "farmers", "hunters",
+                "botanists", "mountaineers", "anthropologists",
+                "shepherds", "fishermen", "colonists",
+                "seafarers", "trackers", "prospectors",
+            ],
+            "nouns": ["territory", "areas", "regions",
+                      "territories", "lands"],
+        },
+    }
+
+    @classmethod
+    def _build_compass_prompts(cls, per_category=100, seed=0):
+        """Expand templates into a deterministic prompt bank.  We
+        interleave (frame, subject, noun) combinations and dedupe
+        so each category gets ~per_category unique prompts.
+        """
+        rng = random.Random(seed)
+        bank = {}
+        for cat, spec in cls._COMPASS_TEMPLATES.items():
+            combos = []
+            for frame in spec["frames"]:
+                for subj in spec["subjects"]:
+                    for noun in spec["nouns"]:
+                        if "{subj}" in frame:
+                            combos.append(
+                                frame.format(subj=subj, noun=noun))
+                        else:
+                            combos.append(
+                                frame.format(noun=noun))
+            # Deduplicate while preserving order
+            seen, uniq = set(), []
+            for p in combos:
+                if p not in seen:
+                    seen.add(p)
+                    uniq.append(p)
+            rng.shuffle(uniq)
+            bank[cat] = uniq[:per_category]
+        return bank
+
+    # Backwards-compat alias used by older call sites that still
+    # reference _COMPASS_DEFAULT_PROMPTS directly.  Built lazily
+    # on first access via a simple property-like hook.
+    _COMPASS_DEFAULT_PROMPTS = None  # populated on first use
+
+    def _cache_compass_residuals(self, layer, prompts):
+        """Run each prompt once with a hook and cache the final-
+        token residual at hook_resid_pre[layer].  Returns a dict
+        {category: ndarray of shape (n_prompts, d_model)}.
+        """
+        hook_name = f"blocks.{layer}.hook_resid_pre"
+        cached = {}
+        for cat, prompt_list in prompts.items():
+            vecs = []
+            for p in prompt_list:
+                tokens = self.model.to_tokens(p)
+                with torch.no_grad():
+                    _, cache = self.model.run_with_cache(
+                        tokens, names_filter=hook_name)
+                vecs.append(
+                    cache[hook_name][0, -1, :].cpu().float().numpy())
+            cached[cat] = np.stack(vecs)
+        return cached
+
+    @staticmethod
+    def _plane_spread(cached, u1, u2):
+        """Given cached residuals and two unit vectors defining a
+        2D plane, compute per-category arithmetic-mean angle and
+        return the std across categories (same metric as
+        validate_concept_compass).
+        """
+        cat_means = []
+        for arr in cached.values():
+            c1 = arr @ u1
+            c2 = arr @ u2
+            angles = np.degrees(np.arctan2(c2, c1)) % 360.0
+            cat_means.append(angles.mean())
+        return float(np.std(cat_means))
+
+    def compass_random_plane_baseline(self, layer=None, head=None,
+                                       prompts=None, n_trials=1000,
+                                       seed=0,
+                                       output_dir="helix_usage_validated"):
+        """How unusual is the observed angular spread?  Sample
+        n_trials random orthonormal 2D planes in d_model, compute
+        the same spread metric, then report empirical p-value for
+        the real SVD plane.
+        """
+        layer = layer if layer is not None else self.helix_layer
+        head = head if head is not None else self.helix_head
+        if prompts is None:
+            prompts = self._build_compass_prompts(
+                per_category=100, seed=0)
+
+        print(f"\n{'=' * 75}")
+        print(f"COMPASS RANDOM-PLANE BASELINE")
+        print(f"Target: L{layer} H{head}, SVD Dims {self.svd_dims}"
+              f"  |  N_trials={n_trials}")
+        print(f"{'=' * 75}")
+
+        cached = self._cache_compass_residuals(layer, prompts)
+        d_model = next(iter(cached.values())).shape[1]
+
+        # Observed spread on the real SVD plane
+        d1, d2 = self.svd_dims
+        W_V = self.model.W_V[layer, head].detach().float().cpu().numpy()
+        W_O = self.model.W_O[layer, head].detach().float().cpu().numpy()
+        U, _, _ = np.linalg.svd(W_V @ W_O, full_matrices=False)
+        observed = self._plane_spread(cached, U[:, d1], U[:, d2])
+        print(f"  Observed spread (SVD plane dims {d1},{d2}): "
+              f"{observed:.1f}°")
+
+        # Random orthonormal planes
+        rng = np.random.default_rng(seed)
+        spreads = np.zeros(n_trials)
+        for i in range(n_trials):
+            M = rng.standard_normal((d_model, 2)).astype(np.float32)
+            Q, _ = np.linalg.qr(M)
+            spreads[i] = self._plane_spread(
+                cached, Q[:, 0], Q[:, 1])
+
+        p_value = float((spreads >= observed).mean())
+        print(f"  Random-plane spread: mean={spreads.mean():.1f}°"
+              f"  std={spreads.std():.1f}°"
+              f"  max={spreads.max():.1f}°")
+        print(f"  Empirical p-value (spread >= observed): "
+              f"{p_value:.4f}  (n_trials={n_trials})")
+        if p_value < 0.01:
+            print(f"  --> STRONG: observed spread is significantly"
+                  f" higher than random planes")
+        elif p_value < 0.05:
+            print(f"  --> MODERATE: uncommon but not rare")
+        else:
+            print(f"  --> NULL: consistent with a random 2D plane")
+
+        Path(output_dir).mkdir(exist_ok=True)
+        return {
+            "layer": layer, "head": head, "dims": (d1, d2),
+            "observed": observed,
+            "random_mean": float(spreads.mean()),
+            "random_std": float(spreads.std()),
+            "random_max": float(spreads.max()),
+            "p_value": p_value, "n_trials": n_trials,
+        }
+
+    def compass_permutation_test(self, layer=None, head=None,
+                                  prompts=None, n_permutations=2000,
+                                  seed=0,
+                                  output_dir="helix_usage_validated"):
+        """Are categories really driving the angular separation,
+        or would any random partition of prompts show similar
+        spread?  Shuffle category labels n_permutations times and
+        compute empirical p-value for the observed spread.
+        """
+        layer = layer if layer is not None else self.helix_layer
+        head = head if head is not None else self.helix_head
+        if prompts is None:
+            prompts = self._build_compass_prompts(
+                per_category=100, seed=0)
+
+        print(f"\n{'=' * 75}")
+        print(f"COMPASS PERMUTATION TEST")
+        print(f"Target: L{layer} H{head}, SVD Dims {self.svd_dims}"
+              f"  |  N_perms={n_permutations}")
+        print(f"{'=' * 75}")
+
+        cached = self._cache_compass_residuals(layer, prompts)
+
+        d1, d2 = self.svd_dims
+        W_V = self.model.W_V[layer, head].detach().float().cpu().numpy()
+        W_O = self.model.W_O[layer, head].detach().float().cpu().numpy()
+        U, _, _ = np.linalg.svd(W_V @ W_O, full_matrices=False)
+        u1, u2 = U[:, d1], U[:, d2]
+
+        # Flatten into (all_prompts, d_model) and per-prompt angles
+        all_vecs = np.concatenate(list(cached.values()), axis=0)
+        cat_sizes = [v.shape[0] for v in cached.values()]
+        angles = np.degrees(
+            np.arctan2(all_vecs @ u2, all_vecs @ u1)) % 360.0
+
+        def grouped_spread(labels):
+            means = []
+            for c in range(len(cat_sizes)):
+                mask = labels == c
+                if mask.sum() == 0:
+                    return np.nan
+                means.append(angles[mask].mean())
+            return float(np.std(means))
+
+        real_labels = np.concatenate([
+            np.full(sz, i) for i, sz in enumerate(cat_sizes)])
+        observed = grouped_spread(real_labels)
+        print(f"  Observed spread (true labels): {observed:.1f}°")
+
+        rng = np.random.default_rng(seed)
+        perm_spreads = np.zeros(n_permutations)
+        for i in range(n_permutations):
+            shuffled = real_labels.copy()
+            rng.shuffle(shuffled)
+            perm_spreads[i] = grouped_spread(shuffled)
+
+        p_value = float((perm_spreads >= observed).mean())
+        print(f"  Permuted spread: mean={perm_spreads.mean():.1f}°"
+              f"  std={perm_spreads.std():.1f}°"
+              f"  max={perm_spreads.max():.1f}°")
+        print(f"  Empirical p-value: {p_value:.4f}  "
+              f"(n_permutations={n_permutations})")
+        if p_value < 0.01:
+            print(f"  --> STRONG: labels carry real angular signal")
+        elif p_value < 0.05:
+            print(f"  --> MODERATE: suggestive")
+        else:
+            print(f"  --> NULL: any grouping of these prompts "
+                  f"would look similar")
+
+        Path(output_dir).mkdir(exist_ok=True)
+        return {
+            "layer": layer, "head": head, "dims": (d1, d2),
+            "observed": observed,
+            "perm_mean": float(perm_spreads.mean()),
+            "perm_std": float(perm_spreads.std()),
+            "perm_max": float(perm_spreads.max()),
+            "p_value": p_value,
+            "n_permutations": n_permutations,
+        }
+
+    def scan_good_random_planes(self, layer=None, head=None,
+                                  n_trials=2000, top_k=5,
+                                  top_tokens_per_angle=15,
+                                  prompts=None, seed=0,
+                                  output_dir="helix_usage_validated"):
+        """Are there OTHER 2D planes in the residual space that
+        also produce a geometric dial, and if so are they just
+        rotated versions of the SVD plane or genuinely different
+        compasses?
+
+        Procedure:
+          1. Sample n_trials random orthonormal 2D planes in ℝ^d.
+          2. Score each by category angular spread (same metric
+             as compass_random_plane_baseline).
+          3. Pick the top_k highest-spread planes.
+          4. For each top plane, compute the two principal angles
+             against the SVD reference plane (small = same plane,
+             large = independent).
+          5. For the single best random plane, decode top vocab
+             promoted at 0°, 90°, 180°, 270° by projecting the
+             plane vectors through W_U.  If the decode is
+             coherent & distinct per angle, the plane is
+             ALSO a real dial.  If it's noise, spread without
+             meaning is a spurious statistic.
+
+        This directly addresses: "if random-plane p is only ~0.2,
+        should we treat OTHER high-spread planes as compasses
+        too?"
+        """
+        layer = layer if layer is not None else self.helix_layer
+        head = head if head is not None else self.helix_head
+        if prompts is None:
+            prompts = self._build_compass_prompts(
+                per_category=100, seed=0)
+
+        print(f"\n{'=' * 75}")
+        print(f"SCAN GOOD RANDOM PLANES")
+        print(f"Ref: L{layer} H{head}, SVD Dims {self.svd_dims}"
+              f"  |  n_trials={n_trials}, top_k={top_k}")
+        print(f"{'=' * 75}")
+
+        cached = self._cache_compass_residuals(layer, prompts)
+        d_model = next(iter(cached.values())).shape[1]
+
+        # SVD reference plane
+        d1, d2 = self.svd_dims
+        W_V = self.model.W_V[layer, head].detach().float().cpu().numpy()
+        W_O = self.model.W_O[layer, head].detach().float().cpu().numpy()
+        U, _, _ = np.linalg.svd(W_V @ W_O, full_matrices=False)
+        svd_plane = np.stack([U[:, d1], U[:, d2]], axis=1)
+        ref_spread = self._plane_spread(
+            cached, svd_plane[:, 0], svd_plane[:, 1])
+        print(f"  SVD-plane reference spread: {ref_spread:.1f}°")
+
+        # Sample random planes
+        rng = np.random.default_rng(seed)
+        planes = []
+        spreads = np.zeros(n_trials)
+        for i in range(n_trials):
+            M = rng.standard_normal((d_model, 2)).astype(np.float32)
+            Q, _ = np.linalg.qr(M)
+            spreads[i] = self._plane_spread(
+                cached, Q[:, 0], Q[:, 1])
+            planes.append(Q)
+
+        order = np.argsort(-spreads)[:top_k]
+        print(f"  Scanned {n_trials} random planes; "
+              f"top {top_k} spreads: "
+              f"{[f'{spreads[i]:.1f}°' for i in order]}")
+
+        # Compare to SVD plane
+        top_info = []
+        for rank, idx in enumerate(order):
+            P = planes[idx]
+            M = svd_plane.T @ P
+            sv = np.clip(np.linalg.svd(
+                M, compute_uv=False), -1.0, 1.0)
+            angs = np.degrees(np.arccos(sv))
+            tag = ("SAME plane" if angs.max() < 20
+                   else "PARTIAL" if angs.min() < 45
+                   else "INDEPENDENT")
+            print(f"  rank {rank + 1}: spread={spreads[idx]:.1f}°  "
+                  f"principal angles vs SVD=[{angs[0]:5.1f}°,"
+                  f"{angs[1]:5.1f}°]  {tag}")
+            top_info.append({
+                "rank": rank + 1,
+                "spread_deg": float(spreads[idx]),
+                "principal_angles_deg": [float(a) for a in angs],
+                "overlap_tag": tag,
+            })
+
+        # Decode the single best random plane through W_U
+        best_P = planes[order[0]]
+        best_spread = spreads[order[0]]
+        W_U = self.model.W_U.detach().float().cpu().numpy()
+        print(f"\n  Decoding top random plane "
+              f"(spread {best_spread:.1f}°) — "
+              f"top-{top_tokens_per_angle} vocab per angle:")
+        decodes = {}
+        for ang in [0.0, 90.0, 180.0, 270.0]:
+            th = np.radians(ang)
+            v = (np.cos(th) * best_P[:, 0]
+                 + np.sin(th) * best_P[:, 1])
+            # Right side: resid -> vocab via W_U
+            scores = v @ W_U
+            idx = np.argsort(-scores)[:top_tokens_per_angle]
+            toks = [self.model.tokenizer.decode([int(i)])
+                    for i in idx]
+            decodes[ang] = toks
+            print(f"    {ang:>5.0f}°: {toks[:10]}")
+
+        # Decode the SVD plane (Vt rows) for side-by-side comparison
+        print(f"\n  For reference — SVD plane decode at same angles:")
+        _, S, Vt = np.linalg.svd(W_V @ W_O, full_matrices=False)
+        w1 = (S[d1] * Vt[d1, :])
+        w2 = (S[d2] * Vt[d2, :])
+        svd_decodes = {}
+        for ang in [0.0, 90.0, 180.0, 270.0]:
+            th = np.radians(ang)
+            v = np.cos(th) * w1 + np.sin(th) * w2
+            scores = v @ W_U
+            idx = np.argsort(-scores)[:top_tokens_per_angle]
+            toks = [self.model.tokenizer.decode([int(i)])
+                    for i in idx]
+            svd_decodes[ang] = toks
+            print(f"    {ang:>5.0f}°: {toks[:10]}")
+
+        Path(output_dir).mkdir(exist_ok=True)
+        return {
+            "layer": layer, "head": head, "svd_dims": (d1, d2),
+            "n_trials": n_trials, "top_k": top_k,
+            "svd_spread": float(ref_spread),
+            "random_spreads": {
+                "mean": float(spreads.mean()),
+                "std": float(spreads.std()),
+                "max": float(spreads.max()),
+                "top_k": [float(spreads[i]) for i in order],
+            },
+            "top_planes": top_info,
+            "random_plane_decode": decodes,
+            "svd_plane_decode": svd_decodes,
+        }
+
+    def decode_coherence_sweep(self, specs=None, n_angles=36,
+                                top_k=50,
+                                output_dir="helix_usage_validated"):
+        """For each OV-helix candidate, score the COHERENCE of
+        the W_U decode around the full circle:
+          - top1_logit : peak value (bigger = sharper promotion)
+          - margin     : top1 − top10 (separation)
+          - entropy    : Shannon entropy of softmax over top-k
+                         tokens (lower = more focused decode)
+
+        Reported as (mean_over_angles, min, max) per head.  Heads
+        whose circles land in vocabulary space will show lower
+        entropy and larger margins than heads whose circles live
+        in proto-feature space.
+        """
+        if specs is None:
+            specs = [
+                (0,  8, 2, 4),
+                (0,  8, 4, 8),
+                (1, 29, 0, 5),
+                (4,  7, 0, 5),
+                (12, 10, 3, 7),
+                (16, 21, 6, 9),
+                (24, 28, 3, 7),
+            ]
+        print(f"\n{'=' * 75}")
+        print(f"DECODE COHERENCE SWEEP ({n_angles} angles, "
+              f"top_k={top_k})")
+        print(f"{'=' * 75}")
+        print(f"  {'head':<20} {'mean_top1':>10} {'mean_margin':>12}"
+              f"  {'mean_ent':>10}  {'min_ent':>10}")
+
+        W_U = self.model.W_U.detach().float().cpu().numpy()
+        thetas = np.linspace(0, 2 * np.pi, n_angles,
+                             endpoint=False)
+
+        rows = []
+        for (L, H, d1, d2) in specs:
+            W_V = self.model.W_V[L, H].detach().float().cpu().numpy()
+            W_O = self.model.W_O[L, H].detach().float().cpu().numpy()
+            _, S, Vt = np.linalg.svd(W_V @ W_O, full_matrices=False)
+            w1 = S[d1] * Vt[d1, :]
+            w2 = S[d2] * Vt[d2, :]
+
+            top1s, margins, entropies = [], [], []
+            for th in thetas:
+                v = np.cos(th) * w1 + np.sin(th) * w2
+                scores = v @ W_U
+                top_idx = np.argpartition(-scores, top_k)[:top_k]
+                top_scores = scores[top_idx]
+                top_sorted = np.sort(top_scores)[::-1]
+                # Softmax over just the top-k to measure how
+                # concentrated the distribution is on its peak.
+                z = top_sorted - top_sorted.max()
+                p = np.exp(z); p = p / p.sum()
+                ent = float(-np.sum(p * np.log(p + 1e-12)))
+                top1s.append(float(top_sorted[0]))
+                margins.append(float(top_sorted[0]
+                                     - top_sorted[9]))
+                entropies.append(ent)
+
+            head_tag = f"L{L}H{H}({d1},{d2})"
+            print(f"  {head_tag:<20} "
+                  f"{np.mean(top1s):>10.3f} "
+                  f"{np.mean(margins):>12.3f}  "
+                  f"{np.mean(entropies):>10.3f}  "
+                  f"{np.min(entropies):>10.3f}")
+            rows.append({
+                "layer": L, "head": H, "dims": (d1, d2),
+                "mean_top1": float(np.mean(top1s)),
+                "mean_margin": float(np.mean(margins)),
+                "mean_entropy": float(np.mean(entropies)),
+                "min_entropy": float(np.min(entropies)),
+                "max_entropy": float(np.max(entropies)),
+            })
+
+        print(f"\n  Lower entropy + higher margin = more focused "
+              f"decode at that angle.")
+        print(f"  Random planes typically produce mean_entropy "
+              f"near log({top_k})={np.log(top_k):.3f}.")
+        Path(output_dir).mkdir(exist_ok=True)
+        return {"n_angles": n_angles, "top_k": top_k,
+                "log_topk_bound": float(np.log(top_k)),
+                "rows": rows}
+
+    def downstream_patch_decode(self, specs=None,
+                                 carrier_prompt=None,
+                                 angles=None, top_k=15,
+                                 radius_scale=1.0,
+                                 output_dir="helix_usage_validated"):
+        """Inject a compass-plane signal into the residual stream
+        at layer L and let the remaining layers process it.  If
+        the head's circle only becomes vocabulary-aligned after
+        downstream MLP/attn layers, this tuned-lens-style patch
+        will recover interpretable category tokens.
+
+        Procedure per (L, H, d1, d2):
+          1. Run `carrier_prompt` with cache at hook_resid_pre[L].
+          2. Replace the (u1, u2) plane component with
+             radius * (cosθ · u1 + sinθ · u2).
+          3. Continue the forward pass and decode top-k at the
+             final token.
+          4. Compare across angles.
+        """
+        if specs is None:
+            specs = [
+                (12, 10, 3, 7),
+                (16, 21, 6, 9),
+            ]
+        if angles is None:
+            angles = [0.0, 90.0, 180.0, 270.0]
+        if carrier_prompt is None:
+            carrier_prompt = "The following concept is"
+
+        print(f"\n{'=' * 75}")
+        print(f"DOWNSTREAM-PATCH TUNED LENS")
+        print(f"Carrier: {carrier_prompt!r}  |  radius_scale="
+              f"{radius_scale}")
+        print(f"{'=' * 75}")
+
+        results = {}
+        for (L, H, d1, d2) in specs:
+            print(f"\n  [ L{L} H{H}  dims ({d1},{d2}) ]")
+            W_V = self.model.W_V[L, H].detach().float().cpu().numpy()
+            W_O = self.model.W_O[L, H].detach().float().cpu().numpy()
+            U, _, _ = np.linalg.svd(W_V @ W_O,
+                                     full_matrices=False)
+            u1 = torch.tensor(U[:, d1], dtype=torch.float32,
+                              device=self.device)
+            u2 = torch.tensor(U[:, d2], dtype=torch.float32,
+                              device=self.device)
+            # Orthonormalize defensively
+            u2 = u2 - (u2 @ u1) * u1
+            u2 = u2 / u2.norm().clamp_min(1e-8)
+
+            hook_name = f"blocks.{L}.hook_resid_pre"
+            tokens = self.model.to_tokens(carrier_prompt)
+
+            with torch.no_grad():
+                _, cache = self.model.run_with_cache(
+                    tokens, names_filter=hook_name)
+            carrier = cache[hook_name][0, -1, :].to(
+                device=self.device, dtype=torch.float32)
+            c1 = (carrier @ u1).item()
+            c2 = (carrier @ u2).item()
+            r0 = float(np.hypot(c1, c2))
+            r_target = max(r0, 1.0) * radius_scale
+            print(f"    carrier angle={np.degrees(np.arctan2(c2, c1)) % 360:.1f}°"
+                  f"  carrier radius={r0:.3f}  inject radius="
+                  f"{r_target:.3f}")
+
+            head_result = {}
+            for ang in angles:
+                th = np.radians(ang)
+                new_c1 = r_target * np.cos(th)
+                new_c2 = r_target * np.sin(th)
+                dc1 = new_c1 - c1
+                dc2 = new_c2 - c2
+
+                def patch_hook(act, hook,
+                               dc1=dc1, dc2=dc2):
+                    delta = dc1 * u1 + dc2 * u2
+                    act[0, -1, :] = (
+                        act[0, -1, :].to(torch.float32)
+                        + delta).to(act.dtype)
+                    return act
+
+                with torch.no_grad():
+                    logits = self.model.run_with_hooks(
+                        tokens,
+                        fwd_hooks=[(hook_name, patch_hook)],
+                    )[0, -1, :].float().cpu().numpy()
+                idx = np.argsort(-logits)[:top_k]
+                toks = [self.model.tokenizer.decode([int(i)])
+                        for i in idx]
+                head_result[ang] = toks
+                print(f"    {ang:>5.0f}°: {toks[:10]}")
+            results[f"L{L}H{H}_d{d1}_{d2}"] = {
+                "layer": L, "head": H, "dims": (d1, d2),
+                "carrier_radius": r0,
+                "decodes": head_result,
+            }
+
+        Path(output_dir).mkdir(exist_ok=True)
+        return results
+
+    def cyclicity_all_heads(self, specs=None,
+                              output_dir="helix_usage_validated"):
+        """Run the same cyclicity check the paper uses for H28
+        (Jaccard at 0°↔360° and 0°↔180°) on every spec in `specs`.
+        Defaults to the four L24 compass heads.
+        """
+        if specs is None:
+            specs = [
+                (self.helix_layer, self.helix_head,
+                 self.svd_dims[0], self.svd_dims[1]),
+            ]
+        rows = []
+        for (L, H, d1, d2) in specs:
+            r = self.cyclicity_check(layer=L, head=H,
+                                      dim1=d1, dim2=d2,
+                                      output_dir=output_dir)
+            rows.append(r)
+
+        print(f"\n{'=' * 75}")
+        print(f"CYCLICITY SUMMARY — L24 compass heads")
+        print(f"{'=' * 75}")
+        print(f"  {'head':<20} {'J(0,360)':>9} {'J(0,180)':>9}"
+              f"  verdict")
+        for r in rows:
+            head_tag = (f"L{r['layer']}H{r['head']}"
+                        f"({r['dims'][0]},{r['dims'][1]})")
+            print(f"  {head_tag:<20} {r['jaccard_identity']:>9.3f} "
+                  f"{r['jaccard_antipode']:>9.3f}  {r['verdict']}")
+        return {"rows": rows}
+
+    def decode_head_compasses(self, specs=None, angles=None,
+                                top_k=15,
+                                output_dir="helix_usage_validated"):
+        """Print top-k vocab at 0°/90°/180°/270° for each of the
+        four L24 compass heads side-by-side.
+
+        For each (layer, head, dim1, dim2): compute W_OV = W_V W_O,
+        take its SVD, form the writing directions w1 = σ_d1 · Vt[d1],
+        w2 = σ_d2 · Vt[d2], and project (cosθ · w1 + sinθ · w2) @ W_U.
+        """
+        if specs is None:
+            specs = [
+                (self.helix_layer, self.helix_head,
+                 self.svd_dims[0], self.svd_dims[1]),
+            ]
+        if angles is None:
+            angles = [0.0, 90.0, 180.0, 270.0]
+
+        print(f"\n{'=' * 75}")
+        print(f"COMPASS HEAD DECODES (Vt @ W_U)")
+        print(f"{'=' * 75}")
+
+        W_U = self.model.W_U.detach().float().cpu().numpy()
+        all_results = {}
+        for (L, H, d1, d2) in specs:
+            W_V = self.model.W_V[L, H].detach().float().cpu().numpy()
+            W_O = self.model.W_O[L, H].detach().float().cpu().numpy()
+            _, S, Vt = np.linalg.svd(W_V @ W_O, full_matrices=False)
+            w1 = S[d1] * Vt[d1, :]
+            w2 = S[d2] * Vt[d2, :]
+
+            print(f"\n  [ L{L} H{H}  dims ({d1},{d2}) ]")
+            print(f"  σ[{d1}]={S[d1]:.3f}  σ[{d2}]={S[d2]:.3f}  "
+                  f"ratio={S[d1]/S[d2]:.3f}")
+            head_result = {}
+            for ang in angles:
+                th = np.radians(ang)
+                v = np.cos(th) * w1 + np.sin(th) * w2
+                scores = v @ W_U
+                idx = np.argsort(-scores)[:top_k]
+                toks = [self.model.tokenizer.decode([int(i)])
+                        for i in idx]
+                head_result[ang] = toks
+                print(f"    {ang:>5.0f}°: {toks[:10]}")
+            all_results[f"L{L}H{H}_d{d1}_{d2}"] = {
+                "layer": L, "head": H, "dims": (d1, d2),
+                "sigma_ratio": float(S[d1] / S[d2]),
+                "decodes": head_result,
+            }
+
+        Path(output_dir).mkdir(exist_ok=True)
+        return all_results
+
+    def principal_angles_between_heads(self, specs=None,
+                                        output_dir="helix_usage_validated"):
+        """Do different "compass" heads read the SAME 2D subspace
+        (one compass seen through different doors) or DIFFERENT
+        subspaces (multiple independent compasses)?
+
+        specs: list of (layer, head, dim1, dim2).  Defaults to the
+        four probed in phi3_multi_head_compass.txt.
+        For each pair we compute the two principal angles between
+        their 2D OV reading subspaces via SVD(Q_a.T @ Q_b).
+        Small angles (<20°) ⇒ near-identical plane, same compass.
+        """
+        if specs is None:
+            specs = [
+                (self.helix_layer, self.helix_head,
+                 self.svd_dims[0], self.svd_dims[1]),
+            ]
+
+        print(f"\n{'=' * 75}")
+        print(f"PRINCIPAL ANGLES BETWEEN COMPASS SUBSPACES")
+        print(f"Heads: {specs}")
+        print(f"{'=' * 75}")
+
+        def plane(layer, head, d1, d2):
+            W_V = self.model.W_V[layer, head].detach().float().cpu().numpy()
+            W_O = self.model.W_O[layer, head].detach().float().cpu().numpy()
+            U, _, _ = np.linalg.svd(W_V @ W_O, full_matrices=False)
+            Q, _ = np.linalg.qr(np.stack([U[:, d1], U[:, d2]], axis=1))
+            return Q
+
+        planes = {s: plane(*s) for s in specs}
+
+        results = {}
+        for i, a in enumerate(specs):
+            for b in specs[i + 1:]:
+                M = planes[a].T @ planes[b]
+                sv = np.linalg.svd(M, compute_uv=False)
+                sv = np.clip(sv, -1.0, 1.0)
+                angs = np.degrees(np.arccos(sv))
+                key = f"L{a[0]}H{a[1]}({a[2]},{a[3]}) vs " \
+                      f"L{b[0]}H{b[1]}({b[2]},{b[3]})"
+                results[key] = [float(x) for x in angs]
+                tag = ("SAME plane" if angs.max() < 20
+                       else "PARTIAL overlap" if angs.min() < 45
+                       else "ORTHOGONAL")
+                print(f"  {key:<55} angles="
+                      f"[{angs[0]:5.1f}°, {angs[1]:5.1f}°]  {tag}")
+
+        Path(output_dir).mkdir(exist_ok=True)
+        return {"specs": specs, "angles_deg": results}
+
+    def cyclicity_check(self, layer=None, head=None,
+                         dim1=None, dim2=None, top_k=30,
+                         output_dir="helix_usage_validated"):
+        """Is the observed structure a real CIRCLE (closed dial) or
+        just an ARC?  A true circle has two testable properties:
+
+          (1) IDENTITY: the writing direction at 0° and 360° must
+              promote the same vocabulary.  Top-k Jaccard ≈ 1.
+              (This is a sanity check — trivially true for a linear
+              projection of sin/cos — but it also catches bugs.)
+          (2) ANTIPODAL DISTINCTNESS: the 0° and 180° writing
+              directions must promote DIFFERENT vocabularies.
+              Jaccard ≈ 0 confirms opposite poles carry opposite
+              meaning.  If they overlap heavily, the apparent
+              "circle" is really a one-sided arc.
+        """
+        layer = layer if layer is not None else self.helix_layer
+        head = head if head is not None else self.helix_head
+        d1 = dim1 if dim1 is not None else self.svd_dims[0]
+        d2 = dim2 if dim2 is not None else self.svd_dims[1]
+
+        print(f"\n{'=' * 75}")
+        print(f"CYCLICITY CHECK (arc vs. closed dial)")
+        print(f"Target: L{layer} H{head}, SVD Dims ({d1}, {d2})"
+              f"  |  top_k={top_k}")
+        print(f"{'=' * 75}")
+
+        W_V = self.model.W_V[layer, head].detach().float().cpu()
+        W_O = self.model.W_O[layer, head].detach().float().cpu()
+        U, S, Vt = torch.linalg.svd(W_V @ W_O, full_matrices=False)
+        w1 = (S[d1] * Vt[d1, :]).numpy()
+        w2 = (S[d2] * Vt[d2, :]).numpy()
+        W_U = self.model.W_U.detach().float().cpu().numpy()
+
+        def top_tokens(theta_deg):
+            theta = np.radians(theta_deg)
+            v = np.cos(theta) * w1 + np.sin(theta) * w2
+            logits = v @ W_U
+            idx = np.argsort(-logits)[:top_k]
+            return set(int(i) for i in idx), [
+                self.model.tokenizer.decode([int(i)]) for i in idx[:10]]
+
+        t0, p0 = top_tokens(0.0)
+        t360, p360 = top_tokens(360.0)
+        t180, p180 = top_tokens(180.0)
+
+        def jaccard(a, b):
+            if not a and not b:
+                return 1.0
+            return len(a & b) / len(a | b)
+
+        j_identity = jaccard(t0, t360)
+        j_antipode = jaccard(t0, t180)
+
+        print(f"  Top-10 @   0°: {p0}")
+        print(f"  Top-10 @ 180°: {p180}")
+        print(f"  Top-10 @ 360°: {p360}")
+        print(f"  Jaccard(  0°, 360°) = {j_identity:.3f}   "
+              f"(expect ≈1 for a real circle)")
+        print(f"  Jaccard(  0°, 180°) = {j_antipode:.3f}   "
+              f"(expect ≈0 for antipodal distinctness)")
+
+        if j_identity > 0.9 and j_antipode < 0.3:
+            verdict = "CIRCLE: closed and with distinct antipodes"
+        elif j_identity > 0.9 and j_antipode > 0.7:
+            verdict = "ARC / ONE-SIDED: 0° and 180° look similar"
+        else:
+            verdict = "INCONCLUSIVE"
+        print(f"  --> {verdict}")
+
+        Path(output_dir).mkdir(exist_ok=True)
+        return {
+            "layer": layer, "head": head, "dims": (d1, d2),
+            "jaccard_identity": float(j_identity),
+            "jaccard_antipode": float(j_antipode),
+            "top10_0": p0, "top10_180": p180, "top10_360": p360,
+            "verdict": verdict,
+        }
+
+    def causal_compass_patch(self, layer=None, head=None,
+                              dim1=None, dim2=None,
+                              probe_prompts=None,
+                              target_tokens_by_angle=None,
+                              output_dir="helix_usage_validated"):
+        """CAUSAL test: does rotating the residual's compass-plane
+        projection actually steer which token the model promotes?
+
+        For a probe prompt whose natural angle is θ₀, we rotate the
+        in-plane component by Δ ∈ {-180°,-90°,0°,+90°,+180°} and
+        check the final-position logit shift for category-typical
+        target tokens.  A working compass should show logits for
+        category C₁'s tokens rising when we rotate toward C₁'s
+        cluster centroid and falling when we rotate away.
+        """
+        layer = layer if layer is not None else self.helix_layer
+        head = head if head is not None else self.helix_head
+        d1 = dim1 if dim1 is not None else self.svd_dims[0]
+        d2 = dim2 if dim2 is not None else self.svd_dims[1]
+        if probe_prompts is None:
+            probe_prompts = [
+                "The software company launched a new program",
+                "The championship was won by the rival teams",
+                "The explorers mapped out the uncharted territory",
+            ]
+        if target_tokens_by_angle is None:
+            target_tokens_by_angle = {
+                0.0:   [" program", " operations", " experiments"],
+                90.0:  [" teams", " groups", " team"],
+                180.0: [" tools", " atoms", " tokens"],
+                270.0: [" territory", " areas", " regions"],
+            }
+
+        print(f"\n{'=' * 75}")
+        print(f"CAUSAL COMPASS PATCH")
+        print(f"Target: L{layer} H{head}, SVD Dims ({d1}, {d2})")
+        print(f"{'=' * 75}")
+
+        W_V = self.model.W_V[layer, head].detach().float().cpu()
+        W_O = self.model.W_O[layer, head].detach().float().cpu()
+        U, _, _ = torch.linalg.svd(W_V @ W_O, full_matrices=False)
+        u1 = U[:, d1].to(self.device)
+        u2 = U[:, d2].to(self.device)
+
+        # Orthonormalize u1, u2 (they're already near-orthogonal
+        # as columns of U, but enforce to be safe).
+        u2 = u2 - (u2 @ u1) * u1
+        u2 = u2 / u2.norm().clamp_min(1e-8)
+
+        hook_name = f"blocks.{layer}.hook_resid_pre"
+
+        # Pre-convert target tokens to IDs.  Some tokenizers
+        # (e.g. Phi-3 SPM) emit a leading whitespace piece for a
+        # string like " program": [" ", "program"].  Skip the
+        # whitespace piece so we actually match the content token.
+        tok_ids_by_angle = {}
+        for ang, toks in target_tokens_by_angle.items():
+            kept, ids = [], []
+            for t in toks:
+                piece_ids = self.model.to_tokens(
+                    t, prepend_bos=False)[0].tolist()
+                content = [
+                    p for p in piece_ids
+                    if self.model.tokenizer.decode([p]).strip() != ""]
+                if not content:
+                    continue
+                tid = int(content[0])
+                if tid in ids:
+                    continue
+                kept.append(t)
+                ids.append(tid)
+            tok_ids_by_angle[ang] = (kept, ids)
+
+        deltas = [-180.0, -90.0, 0.0, 90.0, 180.0]
+        all_rows = []
+
+        for prompt_str in probe_prompts:
+            tokens = self.model.to_tokens(prompt_str)
+
+            # Baseline (no rotation) logits
+            with torch.no_grad():
+                logits_base = self.model(tokens)[0, -1, :].float().cpu()
+
+            # Capture residual once to measure baseline angle
+            with torch.no_grad():
+                _, cache = self.model.run_with_cache(
+                    tokens, names_filter=hook_name)
+            resid0 = cache[hook_name][0, -1, :].to(
+                device=self.device, dtype=torch.float32)
+            c1 = (resid0 @ u1).item()
+            c2 = (resid0 @ u2).item()
+            r = float(np.hypot(c1, c2))
+            theta0 = float(np.degrees(np.arctan2(c2, c1)) % 360)
+            print(f"\n  Prompt: {prompt_str!r}")
+            print(f"    baseline angle = {theta0:.1f}°, "
+                  f"in-plane radius = {r:.3f}")
+
+            for delta in deltas:
+                th_new = np.radians(theta0 + delta)
+                new_c1 = r * np.cos(th_new)
+                new_c2 = r * np.sin(th_new)
+                dc1 = new_c1 - c1
+                dc2 = new_c2 - c2
+
+                def patch_hook(act, hook,
+                               dc1=dc1, dc2=dc2):
+                    # Only patch the final token's residual
+                    delta_vec = dc1 * u1 + dc2 * u2
+                    act[0, -1, :] = act[0, -1, :] + delta_vec.to(
+                        act.dtype)
+                    return act
+
+                with torch.no_grad():
+                    logits_rot = self.model.run_with_hooks(
+                        tokens,
+                        fwd_hooks=[(hook_name, patch_hook)],
+                    )[0, -1, :].float().cpu()
+
+                for ang_cat, (toks, ids) in tok_ids_by_angle.items():
+                    base_mean = float(logits_base[ids].mean())
+                    rot_mean = float(logits_rot[ids].mean())
+                    all_rows.append({
+                        "prompt": prompt_str,
+                        "theta0": theta0,
+                        "delta": delta,
+                        "new_theta": (theta0 + delta) % 360,
+                        "target_angle": ang_cat,
+                        "target_tokens": toks,
+                        "logit_base": base_mean,
+                        "logit_rot": rot_mean,
+                        "logit_shift": rot_mean - base_mean,
+                    })
+
+        # Aggregate: for each delta, average logit shift grouped by
+        # whether the target tokens' category angle moved closer to
+        # or further from the rotated angle.
+        print(f"\n  {'delta':>6} {'target':>10}  "
+              f"{'mean_shift':>11}  {'n':>3}")
+        print(f"  {'-' * 40}")
+        agg = {}
+        for r in all_rows:
+            key = (r["delta"], r["target_angle"])
+            agg.setdefault(key, []).append(r["logit_shift"])
+        for (delta, ang), shifts in sorted(agg.items()):
+            m = float(np.mean(shifts))
+            print(f"  {delta:>+6.0f} {ang:>10.0f}  "
+                  f"{m:>+11.4f}  {len(shifts):>3}")
+
+        Path(output_dir).mkdir(exist_ok=True)
+        return {
+            "layer": layer, "head": head, "dims": (d1, d2),
+            "rows": all_rows,
+            "summary": {f"{k[0]}_{k[1]}": float(np.mean(v))
+                         for k, v in agg.items()},
+        }
+
+    def semantic_task_ablation(self, layer=None, head=None,
+                                dim1=None, dim2=None,
+                                mlp_layer=None, top_n=20,
+                                output_dir="helix_usage_validated"):
+        """Ablation on a task where the compass is supposed to
+        MATTER — category prediction — rather than arithmetic.
+
+        The arithmetic ablation in phi3_ablation_output.txt showed
+        the circuit is not needed for digit sums (makes sense if
+        the circle is semantic, not numeric).  Here we test
+        whether the SAME neurons matter for picking the right
+        semantic-category continuation.
+        """
+        layer = layer if layer is not None else self.helix_layer
+        head = head if head is not None else self.helix_head
+        d1 = dim1 if dim1 is not None else self.svd_dims[0]
+        d2 = dim2 if dim2 is not None else self.svd_dims[1]
+        mlp_layer = mlp_layer if mlp_layer is not None else layer
+
+        print(f"\n{'=' * 75}")
+        print(f"SEMANTIC-TASK MLP ABLATION")
+        print(f"OV: L{layer} H{head} dims ({d1},{d2}); "
+              f"MLP layer {mlp_layer}")
+        print(f"{'=' * 75}")
+
+        # Prompt bank: each line ends with a strong category cue
+        # so the model should predict a member of that category.
+        cat_prompts = {
+            "operations": [
+                ("She led the deployment of special",      " operations"),
+                ("The lab is famous for its secret",      " program"),
+                ("Students ran dozens of successful",      " experiments"),
+            ],
+            "teams": [
+                ("The coach addressed both rival",         " teams"),
+                ("Managers met with their respective",     " groups"),
+                ("Fans cheered for their home",            " team"),
+            ],
+            "tools": [
+                ("The carpenter reached for his",          " tools"),
+                ("Matter is made of tiny",                 " atoms"),
+                ("Text is split into individual",          " tokens"),
+            ],
+            "geography": [
+                ("Explorers charted the unknown",          " territory"),
+                ("Biologists surveyed the protected",      " areas"),
+                ("Temperatures vary across",               " regions"),
+            ],
+        }
+        all_items = [(p, a) for cat in cat_prompts
+                     for (p, a) in cat_prompts[cat]]
+
+        # Identify candidate neurons via the same angle-selectivity
+        # routine as causal_mlp_ablation.
+        W_V = self.model.W_V[layer, head].detach().float().cpu()
+        W_O = self.model.W_O[layer, head].detach().float().cpu()
+        U, S, Vt = torch.linalg.svd(W_V @ W_O, full_matrices=False)
+        w1 = S[d1] * Vt[d1, :]
+        w2 = S[d2] * Vt[d2, :]
+
+        mlp_module = self.model.blocks[mlp_layer].mlp
+        is_gated = (hasattr(mlp_module, 'W_gate')
+                    and hasattr(mlp_module, 'W_in'))
+        if is_gated:
+            W_gate = mlp_module.W_gate.detach().float().cpu()
+            W_in_mlp = mlp_module.W_in.detach().float().cpu()
+            W_mlp = torch.cat([W_gate, W_in_mlp], dim=1)
+            d_mlp = W_gate.shape[1]
+        else:
+            W_mlp = mlp_module.W_in.detach().float().cpu()
+            d_mlp = W_mlp.shape[1]
+
+        thetas = np.linspace(0, 2 * np.pi, 36, endpoint=False)
+        neuron_acts = np.zeros((36, W_mlp.shape[1]))
+        for i, th in enumerate(thetas):
+            neuron_acts[i] = (
+                (w1 * np.cos(th) + w2 * np.sin(th)) @ W_mlp).numpy()
+        act_ranges = neuron_acts.max(axis=0) - neuron_acts.min(axis=0)
+        top_global = np.argsort(act_ranges)[-top_n:][::-1]
+        target_neurons = sorted(set(
+            [int(i % d_mlp) for i in top_global]))
+        random.seed(99)
+        pool = [n for n in range(d_mlp) if n not in target_neurons]
+        random_neurons = sorted(random.sample(
+            pool, min(len(target_neurons), len(pool))))
+
+        hook_name = f"blocks.{mlp_layer}.mlp.hook_post"
+
+        def measure_accuracy(neurons=None, label=""):
+            correct = 0
+            for prompt_str, expected in all_items:
+                tokens = self.model.to_tokens(prompt_str)
+                piece_ids = self.model.to_tokens(
+                    expected, prepend_bos=False)[0].tolist()
+                # Drop leading whitespace piece (SPM tokenizers)
+                content = [
+                    p for p in piece_ids
+                    if self.model.tokenizer.decode([p]).strip() != ""]
+                if not content:
+                    continue
+                exp_id = int(content[0])
+
+                if neurons is not None:
+                    def hook_fn(acts, hook, _nz=neurons):
+                        acts[:, -1, _nz] = 0.0
+                        return acts
+                    self.model.add_hook(hook_name, hook_fn)
+                try:
+                    with torch.no_grad():
+                        logits = self.model(tokens)[0, -1, :]
+                finally:
+                    if neurons is not None:
+                        self.model.reset_hooks()
+
+                if int(logits.argmax().item()) == exp_id:
+                    correct += 1
+            acc = correct / len(all_items)
+            print(f"    {label}: {acc:.1%} "
+                  f"({correct}/{len(all_items)})")
+            return acc
+
+        print(f"  Target {len(target_neurons)} / "
+              f"Random {len(random_neurons)} of {d_mlp} "
+              f"(gated={is_gated})")
+        print(f"  [1] Baseline...")
+        base = measure_accuracy(None, "Baseline")
+        print(f"  [2] Targeted ablation...")
+        abl = measure_accuracy(target_neurons, "Ablated")
+        print(f"  [3] Random control...")
+        rnd = measure_accuracy(random_neurons, "Random")
+
+        targeted_drop = base - abl
+        random_drop = base - rnd
+        specificity = targeted_drop - random_drop
+        print(f"\n  Baseline={base:.1%}  Ablated={abl:.1%}"
+              f"  Random={rnd:.1%}")
+        print(f"  Targeted drop={targeted_drop:+.1%}  "
+              f"Random drop={random_drop:+.1%}  "
+              f"Specificity={specificity:+.1%}")
+        if specificity > 0.10 and targeted_drop > 0.15:
+            verdict = "semantic_circuit_confirmed"
+        elif targeted_drop > 0.10:
+            verdict = "partial"
+        else:
+            verdict = "resilient"
+        print(f"  --> {verdict}")
+
+        Path(output_dir).mkdir(exist_ok=True)
+        return {
+            "layer": layer, "head": head, "dims": (d1, d2),
+            "mlp_layer": mlp_layer,
+            "n_target_neurons": len(target_neurons),
+            "n_random_neurons": len(random_neurons),
+            "d_mlp": d_mlp, "is_gated": is_gated,
+            "baseline_acc": float(base),
+            "ablated_acc": float(abl),
+            "random_acc": float(rnd),
+            "targeted_drop": float(targeted_drop),
+            "random_drop": float(random_drop),
+            "specificity": float(specificity),
+            "verdict": verdict,
+        }
+
+    # ── Self-tests and orchestrators ──────────────────────────
+
+    def run_self_tests(self):
+        """Fast unit-level checks that don't need a real forward
+        pass.  Verify invariants of the math helpers so that a
+        downstream failure during a long Phi-3 run is attributable
+        to the experiment, not the plumbing.
+        """
+        print(f"\n{'=' * 75}")
+        print(f"SELF-TESTS")
+        print(f"{'=' * 75}")
+        failures = []
+
+        # Test A: random-plane sampling produces orthonormal cols
+        rng = np.random.default_rng(0)
+        for _ in range(5):
+            M = rng.standard_normal((64, 2))
+            Q, _ = np.linalg.qr(M)
+            err = np.abs(Q.T @ Q - np.eye(2)).max()
+            if err > 1e-6:
+                failures.append(f"QR orthonormality error {err:.2e}")
+                break
+        print(f"  [A] Random-plane QR orthonormality: "
+              f"{'PASS' if not failures else 'FAIL'}")
+
+        # Test B: rotation round-trip (+θ then -θ = identity on
+        # the plane)
+        d = 64
+        u1 = rng.standard_normal(d); u1 /= np.linalg.norm(u1)
+        u2 = rng.standard_normal(d)
+        u2 -= (u2 @ u1) * u1; u2 /= np.linalg.norm(u2)
+        resid = rng.standard_normal(d)
+        c1, c2 = resid @ u1, resid @ u2
+        for delta in [0, 30, 90, 180, 270]:
+            th = np.radians(delta)
+            r = np.hypot(c1, c2)
+            theta0 = np.arctan2(c2, c1)
+            new1 = r * np.cos(theta0 + th) - c1
+            new2 = r * np.sin(theta0 + th) - c2
+            rotated = resid + new1 * u1 + new2 * u2
+            # Reversing should bring us back
+            th2 = -th
+            r2 = np.hypot(
+                rotated @ u1, rotated @ u2)
+            theta1 = np.arctan2(rotated @ u2, rotated @ u1)
+            un1 = r2 * np.cos(theta1 + th2) - (rotated @ u1)
+            un2 = r2 * np.sin(theta1 + th2) - (rotated @ u2)
+            back = rotated + un1 * u1 + un2 * u2
+            if np.abs(back - resid).max() > 1e-6:
+                failures.append(
+                    f"rotation round-trip delta={delta}")
+                break
+        print(f"  [B] Rotation round-trip: "
+              f"{'PASS' if len(failures) < 2 else 'FAIL'}")
+
+        # Test C: principal angles between a plane and itself = 0
+        A = rng.standard_normal((64, 2))
+        Qa, _ = np.linalg.qr(A)
+        sv = np.linalg.svd(Qa.T @ Qa, compute_uv=False)
+        ang_self = np.degrees(np.arccos(np.clip(sv, -1, 1))).max()
+        ok_c = ang_self < 1e-4
+        if not ok_c:
+            failures.append(
+                f"principal angles self != 0, got {ang_self}")
+        print(f"  [C] Principal angles identity: "
+              f"{'PASS' if ok_c else 'FAIL'}")
+
+        # Test D: compass spread metric matches the direct
+        # validate_concept_compass metric on a toy example
+        cached = {
+            "A": np.array([[1.0, 0.0, 0.0]]),
+            "B": np.array([[0.0, 1.0, 0.0]]),
+        }
+        u1 = np.array([1.0, 0.0, 0.0])
+        u2 = np.array([0.0, 1.0, 0.0])
+        spread = self._plane_spread(cached, u1, u2)
+        # Means should be 0° and 90°, std = 45
+        ok_d = abs(spread - 45.0) < 1e-6
+        if not ok_d:
+            failures.append(f"plane spread toy expected 45, got {spread}")
+        print(f"  [D] Spread metric on toy input: "
+              f"{'PASS' if ok_d else 'FAIL'}")
+
+        # Test E: hook preflight — confirm that an ablation hook
+        # installed on mlp.hook_post actually changes logits.  If
+        # retention is 100% after zeroing, the hook path is wrong
+        # for this MLP architecture.
+        try:
+            layer = self.helix_layer
+            hook_name = f"blocks.{layer}.mlp.hook_post"
+            d_mlp = self.model.blocks[layer].mlp.W_out.shape[0]
+            tokens = self.model.to_tokens("The quick brown fox")
+            with torch.no_grad():
+                base = self.model(tokens)[0, -1, :].float().cpu()
+
+            def zero_all(acts, hook):
+                acts[:, -1, :] = 0.0
+                return acts
+            self.model.add_hook(hook_name, zero_all)
+            try:
+                with torch.no_grad():
+                    pert = self.model(tokens)[0, -1, :].float().cpu()
+            finally:
+                self.model.reset_hooks()
+            delta_norm = float((base - pert).norm())
+            ok_e = delta_norm > 1e-3
+            print(f"  [E] MLP hook_post path moves logits "
+                  f"(L{layer}, d_mlp={d_mlp}): "
+                  f"||Δ||={delta_norm:.3f} "
+                  f"{'PASS' if ok_e else 'FAIL'}")
+            if not ok_e:
+                failures.append(
+                    "hook_post at target layer has no effect — "
+                    "wrong hook name for this architecture")
+        except Exception as e:
+            print(f"  [E] MLP hook preflight ERROR: {e}")
+            failures.append(f"hook preflight exception: {e}")
+
+        print(f"\n  {'ALL PASS' if not failures else 'FAILURES:'}")
+        for f in failures:
+            print(f"   - {f}")
+        return {"failures": failures, "passed": len(failures) == 0}
+
+    def run_workshop_suite(self,
+                            output_dir="helix_usage_validated"):
+        """Run all must-have workshop-paper tests in sequence and
+        return a combined dict of their result summaries.
+        """
+        print(f"\n{'#' * 75}")
+        print(f"WORKSHOP-PAPER TEST SUITE")
+        print(f"Model: {self.model_name}  Device: {self.device}")
+        print(f"{'#' * 75}")
+
+        results = {}
+        results["random_plane"] = self.compass_random_plane_baseline(
+            output_dir=output_dir)
+        results["permutation"] = self.compass_permutation_test(
+            output_dir=output_dir)
+        results["principal_angles"] = \
+            self.principal_angles_between_heads(
+                output_dir=output_dir)
+        results["cyclicity"] = self.cyclicity_check(
+            output_dir=output_dir)
+        results["causal_patch"] = self.causal_compass_patch(
+            output_dir=output_dir)
+        results["semantic_ablation"] = self.semantic_task_ablation(
+            output_dir=output_dir)
+
+        out_path = Path(output_dir) / "workshop_suite_results.json"
+        # Strip non-JSON values
+        def to_jsonable(o):
+            if isinstance(o, dict):
+                return {k: to_jsonable(v) for k, v in o.items()}
+            if isinstance(o, (list, tuple)):
+                return [to_jsonable(v) for v in o]
+            if isinstance(o, (np.floating,)):
+                return float(o)
+            if isinstance(o, (np.integer,)):
+                return int(o)
+            if isinstance(o, set):
+                return list(o)
+            return o
+        out_path.write_text(json.dumps(
+            to_jsonable(results), indent=2))
+        print(f"\n  Saved workshop suite results to {out_path}")
+        return results
+
     # ── Main pipeline ─────────────────────────────────────────
 
     def run_validated_investigation(self, output_dir: str = "helix_usage_validated"):
@@ -2282,7 +3611,13 @@ def main():
     trace_mode = "--trace" in sys.argv
     ablate_mode = "--ablate" in sys.argv
     compass_mode = "--compass" in sys.argv
-    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    self_test_mode = "--self-test" in sys.argv
+    test_choice = None
+    for i, a in enumerate(sys.argv):
+        if a == "--test" and i + 1 < len(sys.argv):
+            test_choice = sys.argv[i + 1]
+    args = [a for a in sys.argv[1:]
+            if not a.startswith("--") and a != test_choice]
     if args:
         model_name = args[0]
 
@@ -2292,8 +3627,37 @@ def main():
         if a == "--mlp-layer" and i + 1 < len(sys.argv):
             mlp_target_layer = int(sys.argv[i + 1])
 
+    # Parse optional --layer/--head/--dims overrides so a single model
+    # config can be steered to a non-default (layer, head, dim-pair) —
+    # e.g., running the semantic-dial tests on compass heads that are
+    # distinct from the default number-helix head in KNOWN_HELIX_CONFIG.
+    override_layer = None
+    override_head = None
+    override_dims = None
+    for i, a in enumerate(sys.argv):
+        if a == "--layer" and i + 1 < len(sys.argv):
+            override_layer = int(sys.argv[i + 1])
+        elif a == "--head" and i + 1 < len(sys.argv):
+            override_head = int(sys.argv[i + 1])
+        elif a == "--dims" and i + 2 < len(sys.argv):
+            override_dims = (int(sys.argv[i + 1]),
+                             int(sys.argv[i + 2]))
+
     try:
         investigator = HelixUsageInvestigator(model_name)
+        if override_layer is not None:
+            investigator.helix_layer = override_layer
+        if override_head is not None:
+            investigator.helix_head = override_head
+        if override_dims is not None:
+            investigator.svd_dims = override_dims
+        if (override_layer is not None or override_head is not None
+                or override_dims is not None):
+            assert investigator.helix_layer < investigator.model.cfg.n_layers
+            assert investigator.helix_head < investigator.model.cfg.n_heads
+            print(f"  OVERRIDE -> L{investigator.helix_layer} "
+                  f"H{investigator.helix_head} "
+                  f"dims {investigator.svd_dims}")
 
         if sweep_mode:
             print("\n  Running SVD Dim-Pair Sweep + MLP Lens...")
@@ -2340,6 +3704,44 @@ def main():
         elif projection_only:
             print("\n  Running ONLY Subspace Vocabulary Projection...")
             investigator.subspace_vocab_projection()
+        elif self_test_mode:
+            print("\n  Running SELF-TESTS only...")
+            investigator.run_self_tests()
+        elif test_choice is not None:
+            dispatch = {
+                "random-plane":
+                    investigator.compass_random_plane_baseline,
+                "permutation":
+                    investigator.compass_permutation_test,
+                "causal-patch":
+                    investigator.causal_compass_patch,
+                "principal-angles":
+                    investigator.principal_angles_between_heads,
+                "cyclicity":
+                    investigator.cyclicity_check,
+                "semantic-ablate":
+                    investigator.semantic_task_ablation,
+                "scan-planes":
+                    investigator.scan_good_random_planes,
+                "decode-heads":
+                    investigator.decode_head_compasses,
+                "cyclicity-all":
+                    investigator.cyclicity_all_heads,
+                "coherence-sweep":
+                    investigator.decode_coherence_sweep,
+                "downstream-patch":
+                    investigator.downstream_patch_decode,
+                "hook-check":
+                    investigator.run_self_tests,
+                "all-must-have":
+                    investigator.run_workshop_suite,
+            }
+            if test_choice not in dispatch:
+                print(f"\n  Unknown --test {test_choice!r}. "
+                      f"Choices: {sorted(dispatch)}")
+                return False
+            print(f"\n  Running --test {test_choice}...")
+            dispatch[test_choice]()
         else:
             results = investigator.run_validated_investigation()
 

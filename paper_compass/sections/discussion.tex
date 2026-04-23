@@ -1,0 +1,77 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{What a compass is and is not.} A semantic compass is a causal
+feature localized to an attention head: its plane is a $2$D subspace of
+the head's write-out space, and injections along it produce a continuous
+family of behavior changes parameterized by an angle. A compass is
+\emph{not} a claim that the head exclusively computes this axis. Higher
+singular directions in the same head will carry other features; the
+compass picks out one coherent $2$D slice in which a categorical axis is
+readable and steerable.
+
+\paragraph{Why OV-SVD works as a discovery device.} In a transformer
+block, $W_{OV}$ determines the set of directions the head can add to the
+residual stream. Its top SVD directions are therefore the candidate
+``output languages'' of the head. When a pair of such directions
+corresponds to a categorical axis (e.g., masculine vs.\ feminine), it
+must correspond to \emph{something the head actually writes}, not just
+something we can correlate post-hoc. This is the structural reason
+OV-SVD is a stronger discovery method than probing the residual stream
+directly: the feature is tied to a specific weight matrix from the
+start.
+
+\paragraph{Why polar shape differs without implying different
+mechanisms.} Section~\ref{sec:shape} summarized four axes on which the
+polar plots can differ (amplitude, singular-value scale, phase, neutral
+offset). None of them change the underlying fact that the plane is
+causal and sinusoidally-responsive; they only rescale, rotate, and
+translate the picture. Future work should standardize polar plots by
+dividing radii by $A(\alpha)$ so that the three models overlay.
+
+\paragraph{Four-way dials: resolved in \S\ref{sec:harmonic}.} The two-harmonic
+fit of a four-token probe distinguishes three distinct plane topologies
+that are indistinguishable from decode-table inspection alone. Phi-3
+L24H17 is a genuine four-way dial ($A_2 / A_1 = 0.32$), while L24H28
+is two overlapping antipodal axes ($A_2 / A_1 \leq 0.06$). A natural
+direction for future work is to sweep all $(u_i, u_j)$ pairs in a
+model and classify each plane's dial topology automatically.
+
+\paragraph{Limitations.}
+\begin{enumerate}
+    \item \textbf{Prompt dependence.} Baseline logit separations depend
+    on our choice of three neutral / plus / minus prompts. We chose
+    short, ambiguous prompts to minimize baseline bias; robustness to
+    prompt paraphrase remains to be quantified.
+    \item \textbf{Storage vs.\ steering locality.} Our head-ablation
+    study (\S\ref{sec:headshare}) shows that in Gemma-2-2B the compass
+    plane is both storage-local ($14\%$ of signal, $13.5\times$ over
+    any other head) \emph{and} steering-local, whereas in GPT-2 and
+    Phi-3 the compass is steering-local but not storage-local: the
+    signal is distributed redundantly across heads. This is a
+    substantive scope clarification: compass identifies where a rank-$2$
+    causal push lands, not necessarily where the model keeps the
+    category when no push is applied.
+    \item \textbf{Tokenizer constraints.} Phi-3 tokenizes leading-space
+    forms as multi-token; we therefore used bare tokens (\texttt{month},
+    \texttt{hour}) which may subtly shift the logit-difference target.
+    \item \textbf{Limited axis breadth.} We demonstrate gender in three
+    models and temporal/entity in one. Sentiment, tense, formality,
+    and animacy remain untested.
+\end{enumerate}
+
+\paragraph{Future work.} A natural next step is automated compass
+discovery: scan all $(\ell, h, i, j)$ tuples and rank by the joint score
+\emph{amplitude-linearity in $\alpha$ $\times$ phase-stability $\times$
+vocabulary-decoding coherence}. Such a search could surface compasses
+we currently find by reading decode tables manually. A second direction
+is using compasses for lightweight steering: a rank-$2$ angular rotation
+in one head is a $2 d_\text{model}$-parameter edit, far sparser than
+full-vector patching.
+
+\paragraph{Conclusion.} The SVD of an attention head's OV matrix is
+not just a diagnostic object: its top singular planes routinely hold
+causal, low-dimensional semantic features that can be read off directly
+from the weights. The resulting \emph{semantic compass} is a simple,
+architecture-agnostic primitive for mechanistic interpretability that
+complements both circuit-level and feature-level methods.

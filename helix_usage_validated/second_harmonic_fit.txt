@@ -1,0 +1,18 @@
+SECOND-HARMONIC FIT
+LD(theta) = mu + A1 cos(theta - phi1) + A2 cos(2 theta - phi2)
+
+compass                       alpha       mu       A1     phi1       A2     phi2    A2/A1
+------------------------------------------------------------------------------------------------
+
+Phi-3 L24H17 (temporal)         1.0   -1.243    0.628   +172.1    0.020   -116.8    0.032
+Phi-3 L24H17 (temporal)         3.0   -1.375    1.955   +172.1    0.136   -138.2    0.070
+Phi-3 L24H17 (temporal)        10.0   -2.824    8.056   +171.6    0.659   -119.2    0.082
+
+Phi-3 L24H28 (entity)           1.0   +4.835    0.184   -173.9    0.006   -123.9    0.033
+Phi-3 L24H28 (entity)           3.0   +4.819    0.564   -173.7    0.004   +145.3    0.007
+Phi-3 L24H28 (entity)          10.0   +4.702    1.896   -173.2    0.082   +169.3    0.043
+
+Interpretation:
+  A2 / A1 ~ 0       -> pure antipodal dial (two-way categorical)
+  A2 / A1 >~ 0.2    -> meaningful four-way structure (peaks every 90 deg)
+  phi2 encodes the orientation of the four-way cross.

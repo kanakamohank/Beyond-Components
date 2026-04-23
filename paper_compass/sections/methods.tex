@@ -1,0 +1,104 @@
+\section{Methods}
+\label{sec:methods}
+
+\subsection{Compass plane}
+\label{sec:compass_plane}
+
+For attention head $h$ at layer $\ell$, we compute the combined OV map
+\begin{equation}
+    W_{OV}^{(\ell,h)} = W_V^{(\ell,h)}\,W_O^{(\ell,h)}
+    \in \mathbb{R}^{d_\text{model}\times d_\text{model}}
+\end{equation}
+and its singular value decomposition
+$W_{OV}^{(\ell,h)} = U\,\Sigma\,V^\top$ with columns
+$u_1,\dots,u_{d_\text{model}} \in \mathbb{R}^{d_\text{model}}$ and
+singular values $\sigma_1 \geq \sigma_2 \geq \dots \geq 0$. A
+\emph{compass plane} for this head is a pair of columns
+$(u_i, u_j)$ with $i \neq j$; we refer to it as
+$\mathcal{C}^{(\ell,h)}_{i,j} = \mathrm{span}(u_i, u_j)$.
+The write-out directions $U$ are more natural than the read-in
+directions $V$ for causal injection because they correspond to what
+the head \emph{writes} into the residual stream.
+
+A compass is \emph{semantic} when the vocabulary logits induced by unit
+injections along the plane, $(W_U^\top u_i, W_U^\top u_j)$, exhibit a
+consistent angular ordering of tokens that share a categorical axis (for
+example, masculine / feminine pronouns at $0^\circ / 180^\circ$).
+
+\subsection{Causal $\alpha$-sweep}
+\label{sec:alpha_sweep}
+
+The central test is a causal injection that varies both an \emph{angle}
+$\theta$ and a \emph{scale} $\alpha$. Let
+$v(\theta,\alpha) = \alpha\,\sigma_i\,\cos\theta\,u_i + \alpha\,\sigma_j\,\sin\theta\,u_j.$
+For a given prompt $p$ whose final-token residual stream just before
+layer $\ell$ is $r \in \mathbb{R}^{d_\text{model}}$, we run the forward
+pass while replacing $r \gets r + v(\theta,\alpha)$ and record
+$\mathrm{LD}(\theta,\alpha;p) = \mathrm{logit}_{t_{+}} - \mathrm{logit}_{t_{-}}$
+for two antipodal probe tokens $(t_{+}, t_{-})$.
+We average $\mathrm{LD}$ over three neutral prompts, sweep $\theta$ through
+$36$ angles (step $10^\circ$) and $\alpha \in \{1,\,3,\,10\}$.
+
+For each curve we fit a single sinusoid
+$\mathrm{LD}(\theta) \approx \mu + A\cos(\theta - \phi)$
+using the first DFT bin, and record mean $\mu$, amplitude $A$, phase $\phi$,
+and the angles of maximum and minimum response.
+
+\paragraph{Why amplitude--scaling + phase-stability is the key joint test.}
+A random plane would produce neither effect. A plane that merely
+correlates with the target without being read by the model would produce
+some amplitude but no dependence on $\alpha$. A truly causal plane
+produces amplitude that grows linearly with $\alpha$ (the intervention is
+linear, so the logit-response is too, within the model's operating
+range) and phase that is independent of $\alpha$ (the causal direction in
+the plane does not depend on injection magnitude). We report both.
+
+\subsection{Null and falsification tests}
+\label{sec:nulls}
+
+We complement the $\alpha$-sweep with a battery of tests implemented in
+\texttt{investigate\_helix\_usage\_validated.py}:
+
+\begin{itemize}
+    \item \textbf{decode-heads.} Project $u_i, u_j$ through the unembedding
+    $W_U$ and report the top tokens at $0^\circ, 90^\circ, 180^\circ, 270^\circ$.
+    \item \textbf{cyclicity.} Verify that the polar angle of the compass
+    projection wraps smoothly ($2\pi$-periodic) rather than saturating.
+    \item \textbf{permutation.} Randomly permute the token set across the
+    chosen antipodal pair and check that the compass signal vanishes.
+    \item \textbf{random-plane.} Replace $(u_i, u_j)$ with a random pair
+    of orthonormal directions drawn from $U(\mathrm{SO}(d_\text{model}))$
+    and verify that the causal effect disappears.
+    \item \textbf{principal-angles.} Compute principal angles between the
+    compass plane and planes from unrelated heads; non-trivial overlap
+    would indicate the compass is not head-specific.
+    \item \textbf{scan-planes.} Enumerate $(i,j)$ pairs with $i,j \leq 10$
+    and report the one with maximum causal amplitude; the target pair
+    should be the global argmax.
+    \item \textbf{semantic-ablate.} Zero out the projection
+    $P_{\mathcal{C}}\,r$ and confirm that category-conditioned logits
+    collapse toward neutral.
+    \item \textbf{causal-patch.} Swap $P_{\mathcal{C}}\,r$ between a
+    category-$+$ and a category-$-$ prompt and measure the resulting logit
+    shift.
+    \item \textbf{self-test.} End-to-end pipeline check on a fixed prompt
+    to guard against implementation drift.
+\end{itemize}
+
+\subsection{Models and implementation}
+
+We use TransformerLens \citep{nanda2022transformerlens} with
+\texttt{HookedTransformer} on bfloat16. Hooks are installed at
+\texttt{blocks.\{layer\}.hook\_resid\_pre}. Targets:
+
+\begin{itemize}
+    \item \textbf{GPT-2 Small} \citep{radford2019language}: gender L9H7
+    $(u_1, u_2)$ (decode-discovered) and L10H9 $(u_0, u_3)$
+    (scan-discovered).
+    \item \textbf{Phi-3 Mini} \citep{abdin2024phi3}: gender L24H10
+    $(u_0, u_1)$ (steering) and L28H1 $(u_0, u_3)$ (storage, late-layer);
+    temporal L24H17 $(u_1, u_2)$; entity L24H28 $(u_3, u_7)$.
+    \item \textbf{Gemma-2-2B} \citep{team2024gemma}: L21H4, $(u_0, u_2)$.
+    \item \textbf{Llama-3.2-3B} \citep{grattafiori2024llama3}: L26H14,
+    $(u_2, u_3)$ (scan-discovered).
+\end{itemize}

@@ -1,0 +1,11 @@
+Model: microsoft/Phi-3-mini-4k-instruct
+Compass: L28 H1 SV0  sigma=13.670
+alphas: actadd=1.0  compass=1.0
+WinoGender rows: 720
+Baseline PPL (wikitext-2, n_chunks=16): 5.340
+
+condition   raw_gap  stereo_corr      ppl  ppl_delta     n
+------------------------------------------------------------
+baseline      1.151        0.638    5.340     +0.000   720
+actadd        3.506        0.435    5.479     +0.139   720
+compass       2.713        0.468    5.346     +0.006   720

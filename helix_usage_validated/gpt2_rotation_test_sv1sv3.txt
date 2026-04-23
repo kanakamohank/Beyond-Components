@@ -1,0 +1,53 @@
+/Users/mkanaka/Documents/GitHub/Beyond-Components/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/mkanaka/Documents/GitHub/Beyond-Components/.venv/lib/python3.9/site-packages/transformer_lens/HookedTransformerConfig.py:343: UserWarning: MPS backend may produce silently incorrect results (PyTorch 2.8.0). Set TRANSFORMERLENS_ALLOW_MPS=1 to suppress this warning. See: https://github.com/TransformerLensOrg/TransformerLens/issues/1178
+  utils.warn_if_mps(self.device)
+`torch_dtype` is deprecated! Use `dtype` instead!
+/tmp/gpt2_rotation_test.py:61: UserWarning: The operator 'aten::linalg_svd' is not currently supported on the MPS backend and will fall back to run on the CPU. This may have performance implications. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/aten/src/ATen/mps/MPSFallback.mm:15.)
+  U, S, Vt = torch.linalg.svd(W_VO, full_matrices=False)
+Loaded pretrained model gpt2-small into HookedTransformer
+L9H7 SV1, SV3:
+  sigma[1]=8.866  sigma[3]=7.693  <u1,u3>=2.24e-08  (expect near 0)
+
+BASELINE:
+  masc: logit(he-she) = +2.911 +/- 1.053
+  fem : logit(he-she) = -3.070 +/- 0.859
+  gap = +5.981
+
+ROTATION SWEEP (24 angles in (SV1, SV3) plane):
+    deg        masc         fem       gap
+    0.0      +2.911      -3.070    +5.981
+   15.0      +2.906      -3.065    +5.970
+   30.0      +2.900      -3.056    +5.956
+   45.0      +2.893      -3.045    +5.938
+   60.0      +2.886      -3.031    +5.917
+   75.0      +2.879      -3.016    +5.896
+   90.0      +2.873      -3.001    +5.875
+  105.0      +2.868      -2.988    +5.856
+  120.0      +2.865      -2.977    +5.842
+  135.0      +2.863      -2.969    +5.832
+  150.0      +2.863      -2.966    +5.829
+  165.0      +2.865      -2.967    +5.833
+  180.0      +2.869      -2.973    +5.842
+  195.0      +2.874      -2.982    +5.856
+  210.0      +2.880      -2.994    +5.874
+  225.0      +2.886      -3.008    +5.894
+  240.0      +2.893      -3.021    +5.915
+  255.0      +2.900      -3.034    +5.934
+  270.0      +2.906      -3.046    +5.952
+  285.0      +2.911      -3.056    +5.966
+  300.0      +2.914      -3.063    +5.978
+  315.0      +2.916      -3.069    +5.985
+  330.0      +2.916      -3.072    +5.988
+  345.0      +2.914      -3.072    +5.987
+
+Sinusoidal fit of gap vs theta:
+  mean gap = +5.912
+  amplitude = 0.079   (fraction of baseline: 1.33%)
+  phase = -29.0 deg
+
+  masc range: [+2.863, +2.916]  swing = 0.053
+  fem  range: [-3.072, -2.966]  swing = 0.106
+
+  Rotation inverts masc prompt to predict she?  no
+  Rotation inverts fem  prompt to predict he?   no

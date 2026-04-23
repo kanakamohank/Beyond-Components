@@ -1,0 +1,21 @@
+Model: microsoft/Phi-3-mini-4k-instruct   L24H10 SV0,1
+Mode=inject  alpha=20.0  boost=1.0
+theta_plus=210.0 (his)  theta_minus=30.0 (their)
+
+idx ctx  base_top1      steered_top1     base_LD  steer_LD sign_flip? top_flip?
+--------------------------------------------------------------------------------------
+  0 sing the            the               +5.688   -11.656       YES       no
+  1 sing a              a                 +1.000   -14.094       YES       no
+  2 sing the            the               +5.812   -11.062       YES       no
+  3 sing their          their             -0.125   -11.438        no       no
+  4 sing a              a                 -1.000   -14.730        no       no
+  0 plur the            the               -4.000    -0.125        no       no
+  1 plur their          the               -5.812    -1.688        no       no
+  2 plur the            the               -1.312    -4.375        no       no
+  3 plur their          his               -6.562    +2.000       YES       no
+  4 plur $              their             -7.812    -1.250        no       no
+
+SIGN-FLIP (LD crosses 0): 3/5 sing->plur   1/5 plur->sing   TOTAL 4/10
+TOP-1 FLIP (argmax switches): 0/5 sing->plur   0/5 plur->sing   TOTAL 0/10
+sing avg LD: base=+2.275  steered=-12.596  delta=-14.871
+plur avg LD: base=-5.100  steered=-1.087  delta=+4.012

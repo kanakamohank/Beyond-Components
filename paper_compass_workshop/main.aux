@@ -1,0 +1,65 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{elhage2021mathematical,wang2023interpretability,conmy2023acdc}
+\citation{park2024linearrep,geiger2024das,marks2024geometry,engels2024not}
+\citation{nanda2022transformerlens}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\newlabel{sec:intro}{{1}{1}{Introduction}{section.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{Contributions.}{1}{section*.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Method}{1}{section.2}\protected@file@percent }
+\newlabel{sec:method}{{2}{1}{Method}{section.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Four-model gender compass}{2}{section.3}\protected@file@percent }
+\newlabel{sec:gender}{{3}{2}{Four-model gender compass}{section.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Gender-compass causal sweep. $\mathrm  {LD}_\pm $: baseline $\mathrm  {logit}(t_{+} - t_{-})$ on $\pm $-context prompts. $A(\alpha )$: sinusoidal amplitude. $\Delta \phi $: phase drift across $\alpha \in \{1,3,10\}$.}}{2}{table.caption.2}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{tab:gender}{{1}{2}{Gender-compass causal sweep. $\mathrm {LD}_\pm $: baseline $\mathrm {logit}(t_{+} - t_{-})$ on $\pm $-context prompts. $A(\alpha )$: sinusoidal amplitude. $\Delta \phi $: phase drift across $\alpha \in \{1,3,10\}$}{table.caption.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Gender-compass polar plots at $\alpha =3$. Radius: $\mathrm  {logit}(\mathit  {he}-\mathit  {she})$; angle: injection $\theta $. Blue/red: masculine/feminine-context prompts; black: neutral.}}{2}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:polar}{{1}{2}{Gender-compass polar plots at $\alpha =3$. Radius: $\mathrm {logit}(\mathit {he}-\mathit {she})$; angle: injection $\theta $. Blue/red: masculine/feminine-context prompts; black: neutral}{figure.caption.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{Decoding the basis.}{2}{section*.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Storage vs.\ steering.}{2}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Blind causal scan}{2}{section.4}\protected@file@percent }
+\newlabel{sec:scan}{{4}{2}{Blind causal scan}{section.4}{}}
+\citation{rudinger2018winogender,zhao2018winogender}
+\citation{nadeem2021stereoset}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Blind causal-scan pass rates with $95\%$ Agresti-Coull CIs. \emph  {Compass}: top-$4$ SV-pairs per head. \emph  {top-$4$ null}: random orthonormal pair from the same top-$4$ write subspace. \emph  {full-OV null}: random orthonormal pair from all of $\mathbb  {R}^{d_\text  {model}}$.}}{3}{table.caption.6}\protected@file@percent }
+\newlabel{tab:scan}{{2}{3}{Blind causal-scan pass rates with $95\%$ Agresti-Coull CIs. \emph {Compass}: top-$4$ SV-pairs per head. \emph {top-$4$ null}: random orthonormal pair from the same top-$4$ write subspace. \emph {full-OV null}: random orthonormal pair from all of $\mathbb {R}^{d_\text {model}}$}{table.caption.6}{}}
+\@writefile{toc}{\contentsline {paragraph}{Strengthened Monte-Carlo nulls.}{3}{section*.7}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Blind causal-scan heatmaps: number of passing SV-pairs per $(L, H)$. Passes concentrate at a handful of heads in both models; full-OV null planes distribute uniformly and host zero such concentrations.}}{3}{figure.caption.8}\protected@file@percent }
+\newlabel{fig:scan_heatmap}{{2}{3}{Blind causal-scan heatmaps: number of passing SV-pairs per $(L, H)$. Passes concentrate at a handful of heads in both models; full-OV null planes distribute uniformly and host zero such concentrations}{figure.caption.8}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Non-pronoun axes}{3}{section.5}\protected@file@percent }
+\newlabel{sec:nonpronoun}{{5}{3}{Non-pronoun axes}{section.5}{}}
+\citation{turner2023actadd}
+\bibstyle{iclr2026_conference}
+\bibdata{references}
+\bibcite{conmy2023acdc}{{1}{2023}{{Conmy et~al.}}{{Conmy, Mavor-Parker, Lynch, Heimersheim, and Garriga-Alonso}}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Downstream bias}{4}{section.6}\protected@file@percent }
+\newlabel{sec:downstream}{{6}{4}{Downstream bias}{section.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces WinoGender sweep. \emph  {raw gap}: mean $\log P(\mathit  {his}) - \log P(\mathit  {her})$ over $720$ sentences. \emph  {stereo corr}: Pearson $r$ between per-occupation logit gap and BLS female-occupancy rate (lower = less stereotypical). $\Delta $PPL: perplexity delta.}}{4}{table.caption.9}\protected@file@percent }
+\newlabel{tab:winogender}{{3}{4}{WinoGender sweep. \emph {raw gap}: mean $\log P(\mathit {his}) - \log P(\mathit {her})$ over $720$ sentences. \emph {stereo corr}: Pearson $r$ between per-occupation logit gap and BLS female-occupancy rate (lower = less stereotypical). $\Delta $PPL: perplexity delta}{table.caption.9}{}}
+\@writefile{toc}{\contentsline {paragraph}{Monotonic decorrelation at negligible PPL cost.}{4}{section*.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Discussion}{4}{section.7}\protected@file@percent }
+\newlabel{sec:discussion}{{7}{4}{Discussion}{section.7}{}}
+\@writefile{toc}{\contentsline {paragraph}{Limitations.}{4}{section*.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Conclusion.}{4}{section*.12}\protected@file@percent }
+\bibcite{elhage2021mathematical}{{2}{2021}{{Elhage et~al.}}{{Elhage, Nanda, Olsson, Henighan, Joseph, Mann, Askell, et~al.}}}
+\bibcite{engels2024not}{{3}{2024}{{Engels et~al.}}{{Engels, Liao, Michaud, Gurnee, and Tegmark}}}
+\bibcite{geiger2024das}{{4}{2024}{{Geiger et~al.}}{{Geiger, Wu, Potts, Icard, and Goodman}}}
+\bibcite{marks2024geometry}{{5}{2024}{{Marks \& Tegmark}}{{Marks and Tegmark}}}
+\bibcite{nadeem2021stereoset}{{6}{2021}{{Nadeem et~al.}}{{Nadeem, Bethke, and Reddy}}}
+\bibcite{nanda2022transformerlens}{{7}{2022}{{Nanda \& Bloom}}{{Nanda and Bloom}}}
+\bibcite{park2024linearrep}{{8}{2024}{{Park et~al.}}{{Park, Choe, and Veitch}}}
+\bibcite{rudinger2018winogender}{{9}{2018}{{Rudinger et~al.}}{{Rudinger, Naradowsky, Leonard, and Van~Durme}}}
+\bibcite{turner2023actadd}{{10}{2023}{{Turner et~al.}}{{Turner, Thiergart, Udell, Leech, Mini, and MacDiarmid}}}
+\bibcite{wang2023interpretability}{{11}{2023}{{Wang et~al.}}{{Wang, Variengien, Conmy, Shlegeris, and Steinhardt}}}
+\bibcite{zhao2018winogender}{{12}{2018}{{Zhao et~al.}}{{Zhao, Wang, Yatskar, Ordonez, and Chang}}}
+\@writefile{toc}{\contentsline {section}{\numberline {A}Nine-test battery}{5}{appendix.A}\protected@file@percent }
+\newlabel{app:battery}{{A}{5}{Nine-test battery}{appendix.A}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {B}StereoSet across domains}{6}{appendix.B}\protected@file@percent }
+\newlabel{app:stereoset}{{B}{6}{StereoSet across domains}{appendix.B}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces StereoSet gender / race / profession at the compass operating $\alpha $. Higher ICAT is better (LMS $\times $ fairness). ActAdd is tuned to $\alpha =1$.}}{6}{table.caption.14}\protected@file@percent }
+\newlabel{tab:stereoset}{{4}{6}{StereoSet gender / race / profession at the compass operating $\alpha $. Higher ICAT is better (LMS $\times $ fairness). ActAdd is tuned to $\alpha =1$}{table.caption.14}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {C}Reproducibility}{6}{appendix.C}\protected@file@percent }
+\newlabel{app:repro}{{C}{6}{Reproducibility}{appendix.C}{}}
+\gdef \@abspage@last{6}

@@ -1,0 +1,11 @@
+Model: gpt2
+Compass: L10 H9 SV0  sigma=9.148
+alphas: actadd=1.0  compass=1.0
+WinoGender rows: 720
+Baseline PPL (wikitext-2, n_chunks=16): 23.118
+
+condition   raw_gap  stereo_corr      ppl  ppl_delta     n
+------------------------------------------------------------
+baseline      0.913        0.603   23.118     +0.000   720
+actadd        8.932        0.319   23.852     +0.734   720
+compass       5.737        0.185   23.118     +0.000   720

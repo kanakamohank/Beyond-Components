@@ -1,0 +1,48 @@
+This is BibTeX, Version 0.99e (TeX Live 2026)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: main.aux
+The style file: iclr2026_conference.bst
+Database file #1: references.bib
+Warning--empty journal in nanda2022transformerlens
+You've used 12 entries,
+            2773 wiz_defined-function locations,
+            645 strings with 7428 characters,
+and the built_in function-call counts, 6038 in all, are:
+= -- 459
+> -- 512
+< -- 2
++ -- 171
+- -- 159
+* -- 509
+:= -- 966
+add.period$ -- 36
+call.type$ -- 12
+change.case$ -- 88
+chr.to.int$ -- 12
+cite$ -- 25
+duplicate$ -- 266
+empty$ -- 441
+format.name$ -- 175
+if$ -- 1231
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 12
+newline$ -- 68
+num.names$ -- 48
+pop$ -- 204
+preamble$ -- 1
+purify$ -- 76
+quote$ -- 0
+skip$ -- 202
+stack$ -- 0
+substring$ -- 24
+swap$ -- 18
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 132
+warning$ -- 1
+while$ -- 36
+width$ -- 0
+write$ -- 150
+(There was 1 warning)

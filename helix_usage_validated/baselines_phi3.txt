@@ -1,0 +1,18 @@
+Model: microsoft/Phi-3-mini-4k-instruct   Layer 24  Head 10  dims (0,1)
+tokens: 'his'=670  'their'=1009
+alphas: [1.0, 3.0, 10.0]   angles: 36
+
+All directions unit-normalized; 1D directions paired with a fixed random orthonormal partner.
+
+method                 A(1)     A(3)    A(10)    slope    phi(1)    phi(3)   phi(10)     Δφ
+------------------------------------------------------------------------------------------------
+compass               0.104    0.302    0.980    0.098    -151.9    -153.6    -153.0    1.7
+linear_probe          0.011    0.024    0.088    0.009     -13.7      +9.0     +10.1   23.8
+actadd                0.024    0.058    0.197    0.020     -44.5     -67.1     -60.5   22.6
+contrastive_grad      0.215    0.644    2.143    0.214      +0.5      +0.6      +0.3    0.2
+fisher_top2           0.024    0.067    0.225    0.023    -170.3    +171.8    +171.4  342.2
+
+Interpretation:
+  A(alpha) growing linearly with alpha => causal plane.
+  Δφ small across alpha => phase-stable (causal).
+  slope = A(10)/10 (direction-pair sensitivity).

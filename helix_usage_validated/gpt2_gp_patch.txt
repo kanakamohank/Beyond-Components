@@ -1,0 +1,40 @@
+/Users/mkanaka/Documents/GitHub/Beyond-Components/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/mkanaka/Documents/GitHub/Beyond-Components/.venv/lib/python3.9/site-packages/transformer_lens/HookedTransformerConfig.py:343: UserWarning: MPS backend may produce silently incorrect results (PyTorch 2.8.0). Set TRANSFORMERLENS_ALLOW_MPS=1 to suppress this warning. See: https://github.com/TransformerLensOrg/TransformerLens/issues/1178
+  utils.warn_if_mps(self.device)
+`torch_dtype` is deprecated! Use `dtype` instead!
+/tmp/gpt2_gp_patch.py:55: UserWarning: The operator 'aten::linalg_svd' is not currently supported on the MPS backend and will fall back to run on the CPU. This may have performance implications. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/aten/src/ATen/mps/MPSFallback.mm:15.)
+  U, S, Vt = torch.linalg.svd(W_OV, full_matrices=False)
+Loaded pretrained model gpt2-small into HookedTransformer
+  L9.H7.SV1: sigma=8.866  ||a||^2=1.7463  kind=masc
+  L11.H8.SV6: sigma=6.513  ||a||^2=5.4507  kind=masc
+  L10.H9.SV0: sigma=9.145  ||a||^2=6.3336  kind=fem
+  L11.H8.SV9: sigma=5.801  ||a||^2=5.8117  kind=fem
+
+======================================================================
+BASELINE (no intervention)
+======================================================================
+  Masc prompts:  logit(he-she) = +2.911 +/- 1.053   (expect > 0, predicts ' he')
+  Fem  prompts:  logit(he-she) = -3.070 +/- 0.859   (expect < 0, predicts ' she')
+  Gap (masc - fem) = +5.981   (bigger = stronger context effect)
+
+======================================================================
+INTERVENTION: Ablate MASC directions (L9H7.SV1 + L11H8.SV6)
+======================================================================
+  Masc:  +3.151 +/- 0.978   (delta: +0.240)
+  Fem :  -2.401 +/- 0.793   (delta: +0.669)
+  Gap = +5.552   (baseline +5.981, collapse: 7.2%)
+
+======================================================================
+INTERVENTION: Ablate FEM  directions (L10H9.SV0 + L11H8.SV9)
+======================================================================
+  Masc:  +1.755 +/- 0.614   (delta: -1.156)
+  Fem :  -1.846 +/- 0.553   (delta: +1.224)
+  Gap = +3.601   (baseline +5.981, collapse: 39.8%)
+
+======================================================================
+INTERVENTION: Ablate ALL 4 gender directions
+======================================================================
+  Masc:  +2.002 +/- 0.568   (delta: -0.908)
+  Fem :  -1.137 +/- 0.472   (delta: +1.933)
+  Gap = +3.140   (baseline +5.981, collapse: 47.5%)

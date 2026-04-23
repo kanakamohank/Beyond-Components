@@ -1,0 +1,94 @@
+\begin{thebibliography}{12}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Conmy et~al.(2023)Conmy, Mavor-Parker, Lynch, Heimersheim, and
+  Garriga-Alonso]{conmy2023acdc}
+Arthur Conmy, Augustine~N Mavor-Parker, Aengus Lynch, Stefan Heimersheim, and
+  Adri{\`a} Garriga-Alonso.
+\newblock Towards automated circuit discovery for mechanistic interpretability.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2023.
+
+\bibitem[Elhage et~al.(2021)Elhage, Nanda, Olsson, Henighan, Joseph, Mann,
+  Askell, et~al.]{elhage2021mathematical}
+Nelson Elhage, Neel Nanda, Catherine Olsson, Tom Henighan, Nicholas Joseph, Ben
+  Mann, Amanda Askell, et~al.
+\newblock A mathematical framework for transformer circuits.
+\newblock In \emph{Transformer Circuits Thread}, 2021.
+
+\bibitem[Engels et~al.(2024)Engels, Liao, Michaud, Gurnee, and
+  Tegmark]{engels2024not}
+Joshua Engels, Isaac Liao, Eric~J Michaud, Wes Gurnee, and Max Tegmark.
+\newblock Not all language model features are linear.
+\newblock \emph{arXiv preprint arXiv:2405.14860}, 2024.
+
+\bibitem[Geiger et~al.(2024)Geiger, Wu, Potts, Icard, and
+  Goodman]{geiger2024das}
+Atticus Geiger, Zhengxuan Wu, Christopher Potts, Thomas Icard, and Noah~D
+  Goodman.
+\newblock Finding alignments between interpretable causal variables and
+  distributed neural representations.
+\newblock In \emph{Causal Learning and Reasoning (CLeaR)}, 2024.
+
+\bibitem[Marks \& Tegmark(2024)Marks and Tegmark]{marks2024geometry}
+Samuel Marks and Max Tegmark.
+\newblock The geometry of truth: Emergent linear structure in large language
+  model representations of true/false datasets.
+\newblock \emph{Conference on Language Modeling (COLM)}, 2024.
+
+\bibitem[Nadeem et~al.(2021)Nadeem, Bethke, and Reddy]{nadeem2021stereoset}
+Moin Nadeem, Anna Bethke, and Siva Reddy.
+\newblock {StereoSet}: Measuring stereotypical bias in pretrained language
+  models.
+\newblock In \emph{Proceedings of the 59th Annual Meeting of the Association
+  for Computational Linguistics (ACL)}, 2021.
+
+\bibitem[Nanda \& Bloom(2022)Nanda and Bloom]{nanda2022transformerlens}
+Neel Nanda and Joseph Bloom.
+\newblock {TransformerLens}.
+\newblock 2022.
+
+\bibitem[Park et~al.(2024)Park, Choe, and Veitch]{park2024linearrep}
+Kiho Park, Yo~Joong Choe, and Victor Veitch.
+\newblock The linear representation hypothesis and the geometry of large
+  language models.
+\newblock \emph{arXiv preprint arXiv:2311.03658}, 2024.
+
+\bibitem[Rudinger et~al.(2018)Rudinger, Naradowsky, Leonard, and
+  Van~Durme]{rudinger2018winogender}
+Rachel Rudinger, Jason Naradowsky, Brian Leonard, and Benjamin Van~Durme.
+\newblock Gender bias in coreference resolution.
+\newblock In \emph{Proceedings of the 2018 Conference of the North American
+  Chapter of the Association for Computational Linguistics: Human Language
+  Technologies (NAACL-HLT)}, 2018.
+
+\bibitem[Turner et~al.(2023)Turner, Thiergart, Udell, Leech, Mini, and
+  MacDiarmid]{turner2023actadd}
+Alex Turner, Lisa Thiergart, David Udell, Gavin Leech, Ulisse Mini, and Monte
+  MacDiarmid.
+\newblock Steering language models with activation engineering.
+\newblock \emph{arXiv preprint arXiv:2308.10248}, 2023.
+
+\bibitem[Wang et~al.(2023)Wang, Variengien, Conmy, Shlegeris, and
+  Steinhardt]{wang2023interpretability}
+Kevin Wang, Alexandre Variengien, Arthur Conmy, Buck Shlegeris, and Jacob
+  Steinhardt.
+\newblock Interpretability in the wild: a circuit for indirect object
+  identification in gpt-2 small.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2023.
+
+\bibitem[Zhao et~al.(2018)Zhao, Wang, Yatskar, Ordonez, and
+  Chang]{zhao2018winogender}
+Jieyu Zhao, Tianlu Wang, Mark Yatskar, Vicente Ordonez, and Kai-Wei Chang.
+\newblock Gender bias in coreference resolution: Evaluation and debiasing
+  methods.
+\newblock In \emph{Proceedings of the 2018 Conference of the North American
+  Chapter of the Association for Computational Linguistics: Human Language
+  Technologies (NAACL-HLT)}, 2018.
+
+\end{thebibliography}

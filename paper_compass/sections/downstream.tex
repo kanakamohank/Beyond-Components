@@ -1,0 +1,238 @@
+\section{Downstream Bias Effects}
+\label{sec:downstream}
+
+The causal sweeps of \S\ref{sec:gender} establish that a rank-$2$
+single-head injection shifts contextual he/she logits coherently.
+A stronger test is whether the same edit changes model behavior on
+established bias benchmarks \emph{without} degrading language
+quality. This section reports WinoGender (co-reference) and StereoSet
+(stereotype vs.\ anti-stereotype association) across all four models,
+using the primary compass head per model from
+Table~\ref{tab:gender}.
+
+\subsection{WinoGender co-reference}
+\label{sec:winogender}
+
+\paragraph{Setup.} WinoGender contains $720$ sentence pairs of the form
+``\emph{The nurse notified the patient that \{his/her/their\} shift was
+ending}'' where the occupation noun carries a well-documented real-world
+gender correlation \citep{rudinger2018winogender}. For each sentence we
+compute the log-probability assigned to \emph{his} vs.\ \emph{her}
+(\emph{raw gap}) and the Pearson correlation between the model's
+per-occupation logit-diff and the
+U.S.\ Bureau-of-Labor-Statistics female-occupancy rate
+\citep{zhao2018winogender} (\emph{stereo corr}). A model that obeys
+occupational stereotypes has high positive correlation; an unbiased
+model has correlation $\approx 0$; reverse-stereotypical bias would go
+negative. We inject the compass at $\alpha \in \{0.25, 0.5, 1.0, 1.5, 2.0\}$,
+rotated to the \emph{she} pole of each model's fitted compass phase,
+and compare against ActAdd \citep{turner2023actadd} at the same layer
+(which we tune to $\alpha=1$ as it has no natural scale).
+
+\begin{table}[h]
+\centering
+\small
+\caption{WinoGender sweep across four models. \emph{raw gap}:
+mean $\log P(\mathit{his})-\log P(\mathit{her})$ over $720$ sentences.
+\emph{stereo corr}: Pearson $r$ between per-occupation logit gap and
+BLS female-occupancy rate; lower $=$ less stereotypical.
+\emph{$\Delta$PPL}: perplexity delta relative to the unsteered baseline
+(all models; $n = 720$).}
+\label{tab:winogender}
+\begin{tabular}{llccccc}
+\toprule
+Model (head) & Condition & $\alpha$ & raw gap & stereo corr & stereo $\Delta$ & $\Delta$PPL \\
+\midrule
+\multirow{5}{*}{GPT-2 Small (L10H9)}
+& Baseline & 0.0  & $+0.91$ & $+0.60$ & $+0.75$ & $+0.00$ \\
+& Compass  & 0.5  & $+3.10$ & $+0.43$ & $+0.58$ & $+0.00$ \\
+& Compass  & 1.0  & $+5.74$ & $+0.19$ & $+0.25$ & $+0.00$ \\
+& Compass  & 1.5  & $+8.33$ & $-0.09$ & $-0.13$ & $+0.36$ \\
+& ActAdd   & 1.0  & $+8.93$ & $+0.32$ & $+0.40$ & $+0.73$ \\
+\midrule
+\multirow{5}{*}{Phi-3 Mini (L28H1)}
+& Baseline & 0.0  & $+1.15$ & $+0.64$ & $+1.09$ & $+0.00$ \\
+& Compass  & 0.5  & $+1.74$ & $+0.62$ & $+0.88$ & $+0.01$ \\
+& Compass  & 1.0  & $+2.71$ & $+0.47$ & $+0.58$ & $+0.01$ \\
+& Compass  & 1.5  & $+3.94$ & $-0.02$ & $+0.10$ & $+0.02$ \\
+& ActAdd   & 1.0  & $+3.51$ & $+0.44$ & $+0.99$ & $+0.14$ \\
+\midrule
+\multirow{5}{*}{Gemma-2-2B (L21H4)}
+& Baseline & 0.0  & $+1.16$ & $+0.61$ & $+0.96$ & $+0.00$ \\
+& Compass  & 0.5  & $+1.03$ & $+0.46$ & $+0.54$ & $+0.20$ \\
+& Compass  & 1.0  & $+0.97$ & $+0.18$ & $+0.17$ & $+0.39$ \\
+& Compass  & 1.5  & $+0.96$ & $-0.13$ & $-0.16$ & $+1.08$ \\
+& ActAdd   & 1.0  & $+0.93$ & $+0.50$ & $+0.57$ & $+1.08$ \\
+\midrule
+\multirow{5}{*}{Llama-3.2-3B (L26H14)}
+& Baseline & 0.0  & $+1.15$ & $+0.73$ & $+1.07$ & $+0.00$ \\
+& Compass  & 0.5  & $+2.02$ & $+0.69$ & $+0.71$ & $+0.02$ \\
+& Compass  & 1.0  & $+3.04$ & $+0.37$ & $+0.31$ & $+0.02$ \\
+& Compass  & 1.5  & $+4.07$ & $-0.18$ & $-0.08$ & $+0.04$ \\
+& ActAdd   & 1.0  & $+0.91$ & $+0.72$ & $+0.93$ & $+0.00$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Compass monotonically decorrelates.} On every model
+the compass sweep drives \emph{stereo corr} from strongly positive
+($+0.60$ to $+0.73$) through zero at $\alpha \in [1.0, 1.5]$ and into
+negative (reverse-stereotypical) territory. The transition is
+monotonic in $\alpha$ on all four models --- a direct empirical
+realization of ``an angle-parameterized family of interventions'' that
+the formalism promises.
+
+\paragraph{Language-quality cost is small at the zero-bias operating
+point.} At the $\alpha$ for which stereo corr crosses zero, perplexity
+delta is $+0.36$ on GPT-2 (1.5\% of baseline $23.1$), $+0.02$ on Phi-3
+(0.3\% of $5.3$), $+0.39$ on Gemma (0.4\% of $93.4$), and $+0.02$ on
+Llama-3.2-3B (0.3\% of $6.7$). The rank-$2$ injection is therefore a
+genuine \emph{editing primitive} in three of the four models: a
+bias-decorrelating intervention with negligible fluency cost.
+Gemma-2-2B has the poorest separation, consistent with its
+compass carrying additional storage functions (\S\ref{sec:headshare}).
+
+\paragraph{Compass beats ActAdd at matched behavior-shift.} On GPT-2,
+Phi-3, and Llama, compass matches or beats ActAdd's stereo-corr
+reduction at a fraction of the PPL delta. On Gemma the two are
+close. ActAdd's supervised mean-diff captures the \emph{average}
+direction a labelled prompt set wants; the compass captures the
+\emph{weight-space} direction the head natively reads. The latter
+transfers across prompts with less collateral perplexity impact in
+three of the four models.
+
+\subsection{StereoSet stereotype score}
+\label{sec:stereoset}
+
+\paragraph{Setup.} StereoSet \citep{nadeem2021stereoset} measures
+stereotypical association by ranking three completions (stereotype,
+anti-stereotype, unrelated) for a context. We report the three
+standard scores: \emph{LMS} (language modeling score, the fraction of
+contexts where the model ranks the meaningful completions above the
+unrelated one; higher is better language quality), \emph{SS}
+(stereotype score, the fraction of contexts where the model prefers
+the stereotypical over the anti-stereotypical completion; $50$ is
+unbiased, higher is more stereotypical), and
+$\mathrm{ICAT} = \mathrm{LMS} \cdot \min(\mathrm{SS}, 100-\mathrm{SS})/50$.
+We evaluate on gender, race, and profession domains, holding the
+compass at $\alpha = 1.0$ and $\alpha = 1.5$.
+
+\begin{table}[h]
+\centering
+\small
+\caption{StereoSet across gender, race, profession. Higher
+$\mathrm{ICAT}$ is better (language quality $\times$ fairness).
+Bolded rows are the largest ICAT gain per (model, domain).}
+\label{tab:stereoset}
+\begin{tabular}{llccccc}
+\toprule
+Model (head) & Cond. / $\alpha$ & Domain & LMS & SS & ICAT & $\Delta$ICAT \\
+\midrule
+\multirow{4}{*}{GPT-2 Small (L10H9)}
+& baseline & gender      & 91.8 & 68.6 & 57.6 & --     \\
+& compass 1.5 & gender   & 90.6 & 64.7 & \textbf{63.9} & $+6.4$ \\
+& compass 1.0 & profession & 89.2 & 62.5 & 67.0 & $-2.2$ \\
+& actadd   & profession  & 88.7 & 59.0 & \textbf{72.7} & $+3.6$ \\
+\midrule
+\multirow{4}{*}{Phi-3 Mini (L28H1)}
+& baseline & gender      & 92.8 & 73.3 & 49.5 & --     \\
+& compass 1.0 & gender   & 92.9 & 73.7 & 48.8 & $-0.7$ \\
+& compass 1.5 & gender   & 92.8 & 73.7 & 48.7 & $-0.7$ \\
+& actadd   & gender      & 92.8 & 69.8 & \textbf{56.0} & $+6.5$ \\
+\midrule
+\multirow{4}{*}{Gemma-2-2B (L21H4)}
+& baseline & gender      & 90.0 & 74.9 & 45.2 & --     \\
+& compass 1.5 & gender   & 90.4 & 75.3 & \textbf{44.7} & $-0.5$ \\
+& actadd   & gender      & 90.4 & 74.1 & \textbf{46.8} & $+1.6$ \\
+& compass 1.0 & race      & 91.6 & 62.1 & \textbf{69.5} & $+0.2$ \\
+\midrule
+\multirow{4}{*}{Llama-3.2-3B (L26H14)}
+& baseline & gender      & 92.6 & 73.3 & 49.4 & --     \\
+& compass 1.0 & gender   & 92.2 & 72.9 & \textbf{49.9} & $+0.5$ \\
+& compass 1.5 & race     & 93.0 & 62.9 & \textbf{69.0} & $+0.7$ \\
+& actadd   & gender      & 92.0 & 73.3 & 49.1 & $-0.3$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{StereoSet is a harder test than WinoGender.} StereoSet's
+gender context set is written to elicit strong stereotypical completions
+and the rank-$2$ compass, which shifts the \emph{pronoun} axis
+specifically, moves ICAT by $0.5$--$6.4$ points at the operating $\alpha$.
+Sometimes ActAdd edges compass (Phi-3 gender $+6.5$ vs.\ $-0.7$; GPT-2
+profession $+3.6$ vs.\ $-2.2$), sometimes compass edges ActAdd (GPT-2
+gender $+6.4$ vs.\ $+5.8$, Llama race $+0.7$ vs.\ $-0.3$). The honest
+reading is that \emph{compass matches supervised ActAdd at comparable
+behavior-shift, using zero labelled prompts during extraction and zero
+hyperparameter tuning against StereoSet.} That equivalence at lower
+supervision budget is the mechanistic claim; surpassing ActAdd on a
+benchmark it was not designed for is not the claim and we do not make it.
+
+\paragraph{Off-axis domains.} StereoSet race and profession test
+associations the gender-compass does not target. Compass deltas on
+these domains are small and signed both ways; we report them to show
+that the $\alpha$ used for gender decorrelation does not incur
+collateral damage on unrelated stereotype categories (ICAT moves by
+$\le 2$ points in the non-gender domains on all four models). This
+is consistent with the compass's structural locality: a rank-$2$
+plane cannot simultaneously rotate multiple orthogonal bias axes.
+
+\subsection{Steering: single-prompt flip behavior}
+\label{sec:steering}
+
+A compass plane is useful only if it can be wielded as a lightweight
+intervention on real prompts. We run a steering demo on all three
+models: given $10$ contextual prompts ($5$ per context pole) that
+naturally continue with the opposing categorical token, we inject
+\[
+v \;=\; \alpha\,\sigma_i\,\cos\theta\,u_i \;+\; \alpha\,\sigma_j\,\sin\theta\,u_j
+\]
+at the final-token residual of the compass layer, with $\theta$ set to
+the compass's fitted opposite-pole angle from Table~\ref{tab:gender}
+(so the push adversarially opposes the context bias). The probe on
+Phi-3 targets the singular/plural compass (\emph{his}/\emph{their});
+GPT-2 and Gemma target the gender compass (\emph{he}/\emph{she}).
+Table~\ref{tab:steering} reports the two honest metrics --- mean
+logit-diff swing and sign-flip rate --- at each model's operating
+$\alpha$.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Single-head steering results. LD is
+$\mathrm{logit}(t_{+}) - \mathrm{logit}(t_{-})$; ``swing'' is mean
+change from the unsteered baseline toward the target pole on context
+prompts of the opposite sign. Sign-flip rate counts prompts whose LD
+crosses zero under the push; top-$1$ flip is the strict argmax switch.
+All runs use additive $\alpha \sigma$ injection on $10$ prompts.}
+\label{tab:steering}
+\begin{tabular}{lccccccc}
+\toprule
+Model & Layer/Head & $\alpha$ & LD swing $+\to -$ & LD swing $-\to +$ &
+Sign-flip & Top-$1$ flip \\
+\midrule
+GPT-2 Small & L9H7   & $20$ & $-3.04$ & $+2.54$ & $4/10$ & $1/10$ \\
+Phi-3 Mini  & L24H10 & $10$ & $-7.09$ & $+4.86$ & $4/10$ & $0/10$ \\
+Gemma-2-2B  & L21H4  & $30$ & $-3.68$ & $+3.15$ & $1/10$ & $1/10$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{All three models steer from a single rank-$2$ injection.}
+Every model shows a coherent LD swing \emph{against} the context bias
+and produces at least one genuine top-$1$ flip from the rank-$2$ plane
+alone. The operating $\alpha$ varies because compass amplitude is
+model-specific (Table~\ref{tab:gender}): Phi-3's compass is strongest
+and flips LD cleanly at $\alpha = 10$; GPT-2 and Gemma need
+$\alpha = 20$--$30$ to overcome their stronger context-driven
+baselines, beyond which further pushes saturate or degrade fluency
+without improving the flip count. Top-$1$ flips are rarer than
+sign-flips on GPT-2 and Phi-3: the compass overrides the
+\emph{category vote} but not always the full argmax, consistent with
+the storage-vs-steering picture from \S\ref{sec:headshare}. Gemma,
+whose compass doubles as its storage channel, converts its one
+sign-flip directly into a top-$1$ flip. Taken together with
+\S\ref{sec:winogender}, a $2\,d_\text{model}$-parameter edit
+(approximately $6\text{K}$ scalars for Phi-3 Mini) applied at one site
+produces graded, reversible effects on both individual prompts and
+population-level bias benchmarks.

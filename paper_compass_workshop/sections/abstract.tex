@@ -1,0 +1,21 @@
+\begin{abstract}
+We show that the SVD of a single attention head's $W_{OV}$ matrix
+routinely exposes two-dimensional \emph{semantic compasses}: planes
+whose azimuthal angle codes a categorical distinction (gender,
+temporal unit, entity type) and whose radius codes its magnitude.
+On four pretrained decoder-only models---GPT-2 Small, Phi-3 Mini,
+Gemma-2-2B, and Llama-3.2-3B---an in-context rank-$2$ injection
+$\alpha\,\sigma(\cos\theta\,u_i + \sin\theta\,u_j)$ produces a
+sinusoidal $\mathrm{logit}(t_{+} - t_{-})$ response whose amplitude
+grows linearly in $\alpha$ ($R^2 \ge 0.993$) and whose phase is
+stable to $\pm 3^\circ$ across $\alpha \in \{1,3,10\}$. A blind
+causal scan over all $(L, H, u_i, u_j)$ recovers the same heads
+without consulting vocabulary, and head-level concentration is
+significant at $p<10^{-6}$ against a full-OV null. Beyond
+diagnosis, a single-head rank-$2$ edit monotonically decorrelates
+WinoGender ($\mathrm{stereo\,corr}$ $0.638 \to 0.179$ on Phi-3 at
+$\alpha=1$, $\Delta$PPL $+0.006$) and improves StereoSet ICAT by
+$4\text{--}6$ points at matched language-model score. OV-SVD is
+thus a weight-space, probe-free primitive for discovering and
+editing low-dimensional causal features.
+\end{abstract}

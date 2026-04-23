@@ -1,0 +1,35 @@
+Model: google/gemma-2-2b
+Target: L21 H4 dims (0,2)
+tokens: ' he'=693  ' she'=1284
+
+BASELINE   LD_plus=+4.125  LD_minus=-3.750  signal=+7.875
+
+TARGET PLANE-ONLY ABLATION L21 H4 dims (0,2): LD_plus=+3.750  LD_minus=-3.000  signal=+6.750  drop=+1.125  (+14.3% of baseline)
+TARGET FULL-HEAD ABLATION L21 H4: LD_plus=+3.167  LD_minus=-1.958  signal=+5.125  drop=+2.750  (+34.9% of baseline)
+PLANE SHARE OF HEAD: +40.9%
+
+SAME-LAYER SWEEP (layer 21, plane = top-2 OV-SVD of each head):
+   head      LD+      LD-   signal     drop   % of tgt
+  -------------------------------------------------------
+       0   +4.125   -3.708   +7.833   +0.042      +3.7%
+       1   +4.125   -3.708   +7.833   +0.042      +3.7%
+       2   +4.167   -3.750   +7.917   -0.042      -3.7%
+       3   +4.167   -3.750   +7.917   -0.042      -3.7%
+  *    4   +3.625   -2.875   +6.500   +1.375    +122.2%
+       5   +4.125   -3.750   +7.875   +0.000      +0.0%
+       6   +4.125   -3.750   +7.875   +0.000      +0.0%
+       7   +4.167   -3.792   +7.958   -0.083      -7.4%
+
+OTHER-LAYER SWEEP (head 4, top-2 plane):
+   layer      LD+      LD-   signal     drop   % of tgt
+  -------------------------------------------------------
+       19   +4.125   -3.750   +7.875   +0.000      +0.0%
+       20   +4.167   -3.750   +7.917   -0.042      -3.7%
+       22   +4.125   -3.792   +7.917   -0.042      -3.7%
+       23   +4.125   -3.708   +7.833   +0.042      +3.7%
+
+SUMMARY
+  target head drop               = +1.125  (+14.3% of baseline)
+  max other-head drop (layer L)  = -0.083
+  median |other-head drop|       = +0.042
+  target / max-other ratio       = 13.50x

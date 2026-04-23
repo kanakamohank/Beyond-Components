@@ -1,0 +1,22 @@
+StereoSet multi-probe scan summary (google/gemma-2-2b)
+Probes total: 876
+Planes scanned (causal): 144 / 1248
+(plane,probe) tests: 552
+Scan rows: 552
+Thresholds: R2>=0.95  dphi<=10.0  slope>=0.2
+Alphas: [3.0, 10.0]  angles: 12  decode_topk: 2000
+
+Top 30 (L,H) by total passes across probes:
+    L   H  gender    race  profes  religi   TOTAL
+   21   4       0       0      18       0      18
+
+Total distinct heads with >=1 pass: 1
+Total distinct probes with >=1 pass: 6/876
+
+Top 60 probes by how many planes they pass in:
+  profession                   his / her                 3
+  profession                    he / she                 3
+  profession                   him / her                 3
+  profession                   her / his                 3
+  profession                    He / She                 3
+  profession                   she / he                  3

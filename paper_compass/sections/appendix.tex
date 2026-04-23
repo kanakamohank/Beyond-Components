@@ -1,0 +1,254 @@
+\section{Prompt lists}
+\label{app:prompts}
+
+All causal sweeps average over three prompts per condition. Prompts are
+chosen to be short and semantically ambiguous so baseline logit
+separations reflect category priming rather than syntactic constraint.
+
+\paragraph{Gender (GPT-2, Phi-3, Gemma).}
+Neutral: \emph{``The person said that''}, \emph{``Then they said that''},
+\emph{``Afterwards, the speaker said that''}.
+Masculine-context: \emph{``The man laced up his boots because''}, etc.
+Feminine-context: \emph{``The woman laced up her boots because''}, etc.
+Full prompt lists in \texttt{investigate\_helix\_usage\_validated.py}.
+
+\paragraph{Temporal (Phi-3 L24H17, tokens \emph{month}/\emph{hour}).}
+Neutral (3): \emph{``The event took about one''},
+\emph{``They waited nearly one''},
+\emph{``The project finished within one''}.
+Plus (month-biasing): \emph{``The rent is due every''},
+\emph{``Pregnancy lasts about nine''},
+\emph{``The magazine arrives once a''}.
+Minus (hour-biasing): \emph{``The meeting lasts exactly one''},
+\emph{``The drive takes roughly one''},
+\emph{``She slept for a single''}.
+
+\paragraph{Entity (Phi-3 L24H28, tokens \emph{item}/\emph{operation}).}
+Neutral (3): \emph{``The list contained a single''},
+\emph{``He removed exactly one''},
+\emph{``The inventory showed one''}.
+Plus (item-biasing): \emph{``On the shelf sat a small''},
+\emph{``The box held only one''},
+\emph{``She picked up a single''}.
+Minus (operation-biasing): \emph{``The surgeon completed a complex''},
+\emph{``The factory ran one more''},
+\emph{``The team executed a risky''}.
+
+\section{Full logit-difference curves}
+\label{app:curves}
+
+Figures~\ref{fig:gpt2_curves}--\ref{fig:phi3_entity_curves} show the raw
+$\mathrm{LD}(\theta)$ curves at $\alpha \in \{1, 3, 10\}$ for each
+(model, axis) pair.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\linewidth]{gpt2_curves.png}
+\caption{GPT-2 Small, L9H7 gender compass, $\mathrm{LD}(\theta)$.}
+\label{fig:gpt2_curves}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\linewidth]{phi3_curves.png}
+\caption{Phi-3 Mini, L24H10 gender compass, $\mathrm{LD}(\theta)$.}
+\label{fig:phi3_curves}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\linewidth]{gemma_curves.png}
+\caption{Gemma-2-2B, L21H4 gender compass, $\mathrm{LD}(\theta)$.}
+\label{fig:gemma_curves}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\linewidth]{phi3_temporal_curves.png}
+\caption{Phi-3 Mini, L24H17 temporal compass, $\mathrm{LD}(\theta)$.}
+\label{fig:phi3_temporal_curves}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\linewidth]{phi3_entity_curves.png}
+\caption{Phi-3 Mini, L24H28 entity compass, $\mathrm{LD}(\theta)$.}
+\label{fig:phi3_entity_curves}
+\end{figure}
+
+\section{Reproducibility}
+\label{app:repro}
+
+All experiments use the following scripts. Seeds are fixed in the
+pipeline; the $\alpha$-sweep is deterministic for fixed prompts.
+
+\begin{itemize}
+    \item \texttt{experiments/compass\_causal\_sweep.py} --- causal
+    $\alpha$-sweep and polar / curves / linearity figures.
+    \item \texttt{investigate\_helix\_usage\_validated.py} --- nine-test
+    battery (\texttt{--test decode-heads} through \texttt{--self-test},
+    with \texttt{--layer / --head / --dims} overrides).
+    \item \texttt{src/models/online\_svd\_scanner.py} --- head survey and
+    plane enumeration (\texttt{analyze\_helix}).
+    \item \texttt{experiments/baseline\_comparison.py} --- five-method
+    causal-sweep table (compass, linear probe, ActAdd, contrastive
+    gradient, Fisher top-$2$) on a shared unit-normalized harness.
+    \item \texttt{experiments/head\_ablation\_comparison.py} --- head
+    and plane ablation sweep for the gender axis across all heads in
+    the target layer and matching heads in nearby layers.
+    \item \texttt{experiments/fourway\_probe.py} --- four-token probe
+    with two-harmonic fit for distinguishing two-way vs.\ four-way
+    compass topology.
+    \item \texttt{experiments/steering\_demo.py} --- rank-$2$ additive
+    injection on contextual prompts; reports logit-diff swing and
+    sign-flip rate.
+\end{itemize}
+
+All raw outputs are stored in \texttt{helix\_usage\_validated/}; the
+script \texttt{experiments/compass\_causal\_sweep.py} regenerates the
+compass figures in \texttt{paper\_compass/figures/}.
+
+\paragraph{Downstream-bias scripts.}
+\begin{itemize}
+    \item \texttt{experiments/winogender\_eval.py} /
+    \texttt{winogender\_sweep.py} --- WinoGender sweep across models and
+    $\alpha \in \{0.25, 0.5, 1.0, 1.5, 2.0\}$.
+    \item \texttt{experiments/stereoset\_eval.py} --- StereoSet LMS/SS/ICAT
+    across domains.
+    \item \texttt{experiments/phi3\_l28h1\_tests.py} --- principal-angles
+    and decode tests for the late-layer Phi-3 head.
+    \item \texttt{experiments/scan\_ci\_summary.py} --- Agresti-Coull CI
+    aggregation for scan pass rates (Table~\ref{tab:scan}).
+    \item \texttt{experiments/run\_llama\_suite.sh} --- end-to-end reproduction
+    of Llama-3.2-3B blind scan, compass, and WinoGender/StereoSet runs.
+\end{itemize}
+
+\section{Full baseline comparison table}
+\label{app:baselines}
+
+\begin{table}[h]
+\centering
+\small
+\caption{Baseline comparison on the gender axis, under equal-push
+unit-normalized injection. $A(\alpha)$: sinusoidal fit amplitude; slope:
+$A(10)/10$; $\Delta\phi$: phase drift across $\alpha\in\{1,3,10\}$.
+\emph{Bold} entries are phase-stable ($\Delta\phi < 10^\circ$).
+Gemma Compass row uses unit-normalized injection; native $\alpha\sigma$
+injection (Table~\ref{tab:gender}) recovers $\Delta\phi=1.3^\circ$ on
+the same plane.}
+\label{tab:baselines}
+\begin{tabular}{llcccc}
+\toprule
+Model & Method & $A(1)$ & $A(3)$ & $A(10)$ & $\Delta\phi$ \\
+\midrule
+\multirow{5}{*}{GPT-2 Small}
+& Compass            & \textbf{0.08} & \textbf{0.25} & \textbf{0.75} & \textbf{3.2}$^\circ$ \\
+& Linear probe       & \textbf{0.14} & \textbf{0.41} & \textbf{1.29} & \textbf{3.4}$^\circ$ \\
+& ActAdd             & \textbf{0.15} & \textbf{0.43} & \textbf{1.36} & \textbf{3.3}$^\circ$ \\
+& Contrastive grad   & \textbf{0.23} & \textbf{0.69} & \textbf{2.23} & \textbf{0.4}$^\circ$ \\
+& Fisher top-2       & \textbf{0.10} & \textbf{0.30} & \textbf{0.86} & \textbf{5.2}$^\circ$ \\
+\midrule
+\multirow{5}{*}{Phi-3 Mini}
+& Compass            & \textbf{0.10} & \textbf{0.30} & \textbf{0.98} & \textbf{1.7}$^\circ$ \\
+& Linear probe       & 0.01 & 0.02 & 0.09 & 23.8$^\circ$ \\
+& ActAdd             & 0.02 & 0.06 & 0.20 & 22.6$^\circ$ \\
+& Contrastive grad   & \textbf{0.22} & \textbf{0.64} & \textbf{2.14} & \textbf{0.2}$^\circ$ \\
+& Fisher top-2       & 0.02 & 0.07 & 0.23 & 342.2$^\circ$ \\
+\midrule
+\multirow{5}{*}{Gemma-2-2B}
+& Compass            & 0.07 & 0.20 & 0.76 & 18.1$^\circ$ \\
+& Linear probe       & \textbf{0.05} & \textbf{0.14} & \textbf{0.51} & \textbf{2.8}$^\circ$ \\
+& ActAdd             & \textbf{0.06} & \textbf{0.16} & \textbf{0.61} & \textbf{4.2}$^\circ$ \\
+& Contrastive grad   & \textbf{0.08} & \textbf{0.27} & \textbf{0.99} & \textbf{1.8}$^\circ$ \\
+& Fisher top-2       & 0.03 & 0.04 & 0.20 & 329.2$^\circ$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Linearity of amplitude vs.\ $\alpha$}
+\label{app:linearity}
+
+\begin{figure}[h]
+\centering
+\begin{subfigure}[t]{0.32\textwidth}
+    \includegraphics[width=\linewidth]{gpt2_linearity.png}
+    \caption{GPT-2 Small, L9H7.}
+\end{subfigure}
+\begin{subfigure}[t]{0.32\textwidth}
+    \includegraphics[width=\linewidth]{phi3_linearity.png}
+    \caption{Phi-3 Mini, L24H10.}
+\end{subfigure}
+\begin{subfigure}[t]{0.32\textwidth}
+    \includegraphics[width=\linewidth]{gemma_linearity.png}
+    \caption{Gemma-2-2B, L21H4.}
+\end{subfigure}
+\caption{Amplitude $A(\alpha)$ of the fitted sinusoid as a function of
+injection scale. Linear through the origin $\Rightarrow$ causal plane.
+L10H9 slope $=1.42$; L9H7 $=1.25$; L24H10 $=0.54$; L21H4 $=0.22$;
+L26H14 $=0.30$; L28H1 $=1.28$ (values from Table~\ref{tab:gender}).
+Slope tracks head-specific write strength rather than layer-to-readout
+depth across models.}
+\label{fig:gender_linearity}
+\end{figure}
+
+\section{Two-harmonic fits}
+\label{app:harmonic}
+
+\begin{table}[h]
+\centering
+\small
+\caption{Two-harmonic fit of four-token probes in Phi-3 at
+$\alpha \in \{1,3,10\}$. $g = \ell_{0^\circ}-\ell_{180^\circ}$ and
+$h = \ell_{90^\circ}-\ell_{270^\circ}$. Temporal L24H17 $h$-axis
+$A_2/A_1$ grows $0.09 \to 0.20 \to 0.32$ with $\alpha$, confirming a
+genuine four-way dial; Entity L24H28 remains $\le 0.06$ throughout.}
+\label{tab:harmonic}
+\begin{tabular}{llccccc}
+\toprule
+Compass & $\alpha$ & $g\ A_1$ & $g\ A_2/A_1$ & $h\ A_1$ & $h\ A_2/A_1$ & Verdict \\
+\midrule
+\multirow{3}{*}{L24H17 (temporal)}
+& 1   & $0.63$ & $0.03$ & $0.36$ & $0.09$ & approaching four-way \\
+& 3   & $1.96$ & $0.07$ & $1.02$ & $0.20$ & four-way \\
+& 10  & $8.06$ & $0.08$ & $3.36$ & $\mathbf{0.32}$ & four-way \\
+\midrule
+\multirow{3}{*}{L24H28 (entity)}
+& 1   & $0.18$ & $0.03$ & $0.17$ & $0.04$ & two $2$-way \\
+& 3   & $0.56$ & $0.01$ & $0.54$ & $0.05$ & two $2$-way \\
+& 10  & $1.90$ & $0.04$ & $1.64$ & $0.06$ & two $2$-way \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Full scan results}
+\label{app:scan}
+
+Table~\ref{tab:llama_top_planes} lists the top-ranked passing planes
+from the blind causal scan on Llama-3.2-3B (full table in
+\texttt{helix\_usage\_validated/llama32\_3b\_scan\_gender\_scan.txt}).
+L26H14 dominates with six of its six top-$4$ SV-pairs passing; L20H13
+adds three near-orthogonal pairs consistent with a second scan site.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Top passing planes from the Llama-3.2-3B blind scan.
+$A_{lo}/A_{hi}$: amplitude at $\alpha = 3/10$; \emph{slope}: $A_{hi}/10$;
+$\Delta\phi$: phase drift across $\alpha$.}
+\label{tab:llama_top_planes}
+\begin{tabular}{cccccccc}
+\toprule
+Rank & L & H & SVs & $A_{lo}$ & $A_{hi}$ & slope & $\Delta\phi$ \\
+\midrule
+1 & 26 & 14 & (2,3) & 3.01 & 9.36 & 0.94 & 2.4$^\circ$ \\
+2 & 26 & 14 & (1,2) & 2.86 & 9.25 & 0.93 & 0.1$^\circ$ \\
+3 & 26 & 14 & (0,2) & 2.85 & 9.11 & 0.91 & 6.4$^\circ$ \\
+4 & 20 & 13 & (0,1) & 2.61 & 5.14 & 0.51 & 0.0$^\circ$ \\
+5 & 20 & 13 & (0,3) & 2.36 & 4.48 & 0.45 & 2.7$^\circ$ \\
+6 & 20 & 13 & (1,3) & 1.40 & 3.35 & 0.33 & 6.7$^\circ$ \\
+7 & 26 & 14 & (1,3) & 0.80 & 2.98 & 0.30 & 0.2$^\circ$ \\
+8 & 26 & 14 & (0,3) & 0.79 & 2.79 & 0.28 & 5.4$^\circ$ \\
+9 & 16 & 20 & (0,2) & 1.00 & 2.09 & 0.21 & 0.6$^\circ$ \\
+\bottomrule
+\end{tabular}
+\end{table}
