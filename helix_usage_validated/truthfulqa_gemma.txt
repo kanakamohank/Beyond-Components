@@ -1,0 +1,12 @@
+Model: google/gemma-2-2b
+Ensemble: K=4  alphas=[20.0]
+Ensemble heads:
+   L20H5  SV(0,2) phi=+2.6  slope=0.158  passed=True
+   L21H4  SV(0,1) phi=-11.7  slope=0.359  passed=True
+   L16H2  SV(1,2) phi=-77.2  slope=0.115  passed=True
+   L20H2  SV(1,2) phi=-56.9  slope=0.089  passed=True
+
+cond                    alpha  MC1_acc      n   corr
+----------------------------------------------------
+baseline                 0.00    17.75    817    145
+ensemble_K4             20.00    17.75    817    145

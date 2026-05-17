@@ -1,0 +1,12 @@
+Model: gpt2
+Ensemble: K=4  alphas=[1.5]
+Ensemble heads:
+   L 9H7  SV(1,3) phi=-79.0  slope=0.470  passed=True
+   L10H9  SV(0,3) phi=+4.9  slope=1.484  passed=True
+   L11H1  SV(1,3) phi=-27.8  slope=0.819  passed=True
+   L 7H6  SV(1,2) phi=-3.7  slope=0.973  passed=True
+
+cond                    alpha  MC1_acc      n   corr
+----------------------------------------------------
+baseline                 0.00    24.36    817    199
+ensemble_K4              1.50    25.09    817    205

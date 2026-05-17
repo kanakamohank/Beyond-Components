@@ -1,0 +1,12 @@
+Model: meta-llama/Llama-3.2-3B
+INLP: domain=gender  layer=22  iters_used=25  final_probe_acc=0.892
+Probe acc trajectory: ['1.000', '0.991', '1.000', '0.991', '1.000', '1.000', '0.991', '0.991', '0.991', '0.973', '0.973', '0.973', '0.937', '0.955', '0.928', '0.928', '0.901', '0.928', '0.919', '0.892', '0.901', '0.910', '0.901', '0.901', '0.892']
+
+cond       domain            SS      n
+----------------------------------------
+baseline   gender         54.20    262
+baseline   profession     66.86    172
+baseline   overall        59.22    434
+inlp       gender         57.25    262
+inlp       profession     67.44    172
+inlp       overall        61.29    434

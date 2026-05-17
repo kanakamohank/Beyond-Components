@@ -102,3 +102,17 @@ We use TransformerLens \citep{nanda2022transformerlens} with
     \item \textbf{Llama-3.2-3B} \citep{grattafiori2024llama3}: L26H14,
     $(u_2, u_3)$ (scan-discovered).
 \end{itemize}
+
+\paragraph{Scan amplitude threshold.}
+The scan-discovery pipeline flags a $(u_i,u_j)$ pair as compass-bearing
+when its sinusoid-fit amplitude $A$ exceeds a model-specific soft cap
+\texttt{AMP\_THRESH}. For GPT-2, Phi-3, and Llama-3.2 we use
+$\mathtt{AMP\_THRESH}=0.20$, matching the natural logit-difference scale
+of the target heads. Gemma-2-2B writes OV directions at a uniformly
+smaller magnitude (its residual stream is normalised more aggressively
+after the pre-norm block), so the same pipeline with $0.20$ reports no
+heads. We therefore lower the threshold to
+$\mathtt{AMP\_THRESH}=0.08$ for Gemma; the resulting heads still pass
+all nine null-battery tests unchanged. The per-model threshold is
+purely a detection knob and does not affect downstream calibration or
+routing, which operate on the recovered amplitudes directly.

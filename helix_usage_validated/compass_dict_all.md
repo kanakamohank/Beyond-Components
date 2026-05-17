@@ -1,4 +1,4 @@
-# Compass Dictionary (across GPT-2, Phi-3, Gemma-2)
+# Compass Dictionary (across GPT-2, Phi-3, Gemma-2, Llama-3.2-3B)
 
 Decoded via W_U @ V^T_k with per-row centering of W_U.
 Top tokens along +v/-v for the top 4 SV axes of each passing compass head.
@@ -79,3 +79,27 @@ Axes per head: at least 4, extended until cumulative σ² ≥ 0.9, capped at 8.
 | gemma | L21H4 | 5 | 1.14 | 0.32 | vocês, Their, vuestro, endif, 彼らの, InitVars, TagMode, berdua | its, Its, Its, 它們, its, ones, 它们, celles |
 | gemma | L21H4 | 6 | 1.03 | 0.34 | you, your, your, you, yourself, Your, youre, You | we, my, our, We, We, kami, нами, 我們 |
 | gemma | L21H4 | 7 | 0.93 | 0.35 | elles, ellas, Elles, Elles, girls, ISupport, fjspx, sisters | suoi, its, quelli, /"), $"), "), '"), ceux |
+| llama | L26H14 | 0 | 2.87 | 0.27 | elon, ocate, rosse, oldown, alles, atrix, ための, voke | unb, nev, eph, enth, or, un, mus, Version |
+| llama | L26H14 | 1 | 1.48 | 0.35 | iese, elay, roups, apture, htub, recess, сяч, ronic | 903, */, auto, wk, 913, uri, BCM, RDD |
+| llama | L26H14 | 2 | 1.14 | 0.39 | she, her, herself, hers, she, .She, 她, 她的 | his, 他, his, himself, he, 他的, him, jego |
+| llama | L26H14 | 3 | 0.97 | 0.42 | his, himself, him, his, he, 他的, 他, him | عمال, &apos, فس, šlo, 它们, ":, ovalo, « |
+| llama | L26H14 | 4 | 0.96 | 0.45 | '', ``, */, -‐, */, „, )*/, */ | himself, his, him, his, he, 他, him, 他的 |
+| llama | L26H14 | 5 | 0.91 | 0.48 | ``, ``(, .version, lik, incom, "I, -version, cach | istle, eya, alma, subpackage, marvin, qrt, arith, 老 |
+| llama | L26H14 | 6 | 0.84 | 0.50 | ', ", '', 's, 'S, ', ', ' | …", "', ", ', 's, 'd, 'll, 't |
+| llama | L26H14 | 7 | 0.80 | 0.53 | (blank), �, (blank), \x85, (blank), «, (blank), (blank) | ﻿, ﻿, –, ', –, ',, ​​, ​ |
+| llama | L20H13 | 0 | 1.01 | 0.07 | his, himself, his, 他的, His, HIS, His, 그의 | her, herself, haar, její, its, 她的, Its, Its |
+| llama | L20H13 | 1 | 1.00 | 0.14 | their, Their, themselves, their, Their, THEIR, leur, leurs | its, Its, Its, its, itself, оно, jego, ITS |
+| llama | L20H13 | 2 | 0.89 | 0.19 | its, their, Their, Their, Its, their, Its, THEIR | her, herself, hers, she, /her, himself, his, 她 |
+| llama | L20H13 | 3 | 0.69 | 0.23 | her, its, herself, his, její, Its, hers, Its | your, your, yourself, Your, 你的, Your, YOUR, myself |
+| llama | L20H13 | 4 | 0.62 | 0.25 | from, from, ooter, from, by, ates, từ, by | kepada, 到, unto, 到, zum, إلى, zur, đến |
+| llama | L20H13 | 5 | 0.56 | 0.28 | your, your, Your, yourself, Your, YOUR, yourselves, 你的 | our, my, myself, ourselves, 我的, abych, unseren, our |
+| llama | L20H13 | 6 | 0.53 | 0.29 | from, FROM, from, dari, from, From, -from, från | onto, with, with, With, WITH, _with, onto, with |
+| llama | L20H13 | 7 | 0.52 | 0.31 | with, with, avec, with, With, WITH, dengan, _with | upon, Against, against, Upon, Against, against, onto, on |
+| llama | L16H20 | 0 | 0.70 | 0.05 | Their, Their, their, their, THEIR, theirs, loro, they | his, himself, his, him, 他的, 他, he, 。他 |
+| llama | L16H20 | 1 | 0.66 | 0.09 | Its, its, Its, its, 它, оно, ，它, itself | They, they, their, they, loro, They, 他们, Their |
+| llama | L16H20 | 2 | 0.61 | 0.13 | its, Its, Its, jeho, его, оно, jego, his | herself, she, her, 。她, .She, hers, 그녀는, she |
+| llama | L16H20 | 3 | 0.57 | 0.16 | yourselves, yourself, ikler, ourselves, šlo, ของค, ınıza, оно | her, she, 她, herself, 她的, hers, she, 彼女 |
+| llama | L16H20 | 4 | 0.50 | 0.19 | them, 它们, its, Them, Its, them, they, Its | imax, WP, organisations, Heavy, aths, nable, vehicles, tolerant |
+| llama | L16H20 | 5 | 0.48 | 0.21 | ittle, Muss, belt, /archive, chan, rog, 欲, antan | 它们, ihrer, onus, Spo, them, portion, Borough, chúng |
+| llama | L16H20 | 6 | 0.47 | 0.23 | your, 你的, свои, свою, your, hal, alls, своей | she, she, herself, .She, 她, ，她, 。她, hers |
+| llama | L16H20 | 7 | 0.45 | 0.25 | patients, pacientes, upil, clients, clients, client, 学生, meu | herself, she, her, 她, Nack, /her, �, she |

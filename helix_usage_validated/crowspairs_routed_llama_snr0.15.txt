@@ -1,0 +1,36 @@
+Model: meta-llama/Llama-3.2-3B
+Routed ensemble: K=4 per domain  alphas=per-domain (calibrated): {'gender': 6.08306394230744, 'race': 5.339611022335504, 'profession': 5.174117694076995, 'religion': 6.993752762476704}
+Per-domain heads (best-probe within that domain):
+  gender:
+    L22H12 SV(1,2) phi=+120.0  slope=0.452  passed=True
+    L22H14 SV(0,2) phi=+36.3  slope=0.432  passed=True
+    L26H23 SV(0,1) phi=+39.4  slope=0.452  passed=True
+    L23H20 SV(1,3) phi=+105.1  slope=0.235  passed=True
+  race:
+    L22H12 SV(2,3) phi=+13.2  slope=0.461  passed=True
+    L22H14 SV(0,3) phi=+52.0  slope=0.446  passed=True
+    L26H21 SV(0,1) phi=-43.9  slope=0.396  passed=True
+    L26H23 SV(0,2) phi=-24.2  slope=0.429  passed=True
+  profession:
+    L22H12 SV(1,2) phi=-78.3  slope=0.452  passed=True
+    L22H14 SV(0,1) phi=+123.5  slope=0.401  passed=True
+    L26H14 SV(2,3) phi=+161.6  slope=0.936  passed=True
+    L20H13 SV(0,1) phi=-27.5  slope=0.761  passed=True
+  religion: [FALLBACK]
+    L22H12 SV(1,2) phi=+108.4  slope=0.377  passed=True
+    L26H20 SV(0,3) phi=+111.7  slope=0.188  passed=False
+    L23H14 SV(0,3) phi=-138.5  slope=0.140  passed=False
+    L22H13 SV(0,3) phi=+83.5  slope=0.112  passed=False
+
+cond                    alpha domain            SS      n
+------------------------------------------------------------
+baseline                 0.00 race           50.97    516
+baseline                 0.00 profession     66.86    172
+baseline                 0.00 gender         54.20    262
+baseline                 0.00 religion       74.29    105
+baseline                 0.00 overall        56.68   1055
+routed_calib             5.34 race           42.83    516
+routed_calib             5.17 profession     56.98    172
+routed_calib             6.08 gender         55.34    262
+routed_calib             6.99 religion       72.38    105
+routed_calib            -1.00 overall        51.18   1055

@@ -1,0 +1,211 @@
+% COMPASS poster --- one panel per A3 page, for individual printouts.
+% Build from paper_compass/poster/:
+%   pdflatex -interaction=nonstopmode poster_panels.tex
+% Output: poster_panels.pdf  (10 pages: title + 8 panels + take-home)
+
+\documentclass[12pt]{article}
+\usepackage[a3paper, landscape, margin=1.2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{amsmath, amssymb}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{parskip}
+
+\definecolor{accentA}{HTML}{2E5EAA}
+\definecolor{accentB}{HTML}{C0392B}
+\definecolor{panelbg}{HTML}{FFFFFF}
+\definecolor{pageBG}{HTML}{FAFAFA}
+\definecolor{muted}{HTML}{666666}
+
+\pagecolor{pageBG}
+\pagestyle{empty}
+
+\newcommand{\paneltitle}[2]{%
+  {\noindent\color{accentA}\Huge\bfseries #1}\\[0.1em]
+  {\color{muted}\LARGE\itshape #2}\par\vspace{0.3em}
+  \textcolor{accentA}{\rule{\linewidth}{1.2pt}}\par\vspace{0.6em}}
+
+\newcommand{\panelbigimg}[2][0.62\textheight]{%
+  \begin{center}\includegraphics[height=#1,width=\linewidth,keepaspectratio]{#2}\end{center}}
+
+\newenvironment{panelbullets}{%
+  \par\vspace{0.2em}\large\begin{itemize}\setlength{\itemsep}{0.35em}}{\end{itemize}}
+
+\begin{document}
+
+% ============================== TITLE PAGE ==============================
+\begin{center}
+\vspace*{2cm}
+{\color{accentA}\fontsize{48pt}{56pt}\selectfont\bfseries
+  COMPASS}\\[0.6cm]
+{\fontsize{36pt}{44pt}\selectfont\bfseries
+  Two-Dimensional Semantic Dials Inside a Single Attention Head}\\[1.2cm]
+{\Large\itshape
+  A rank-2 causal editing tool that reads, writes, and routes\\
+  per-domain bias.}\\[0.8cm]
+{\LARGE GPT-2 \ $\cdot$ \ Phi-3-mini \ $\cdot$ \ Gemma-2-2B \ $\cdot$ \ Llama-3.2-3B}\\[2cm]
+{\Large Author \quad\textperiodcentered\quad Affiliation \quad\textperiodcentered\quad ICLR 2026 (under review)}\\[3cm]
+{\large
+  \begin{tabular}{rl}
+    \textbf{Pages 2--9:} & one poster panel per page, A3 landscape.\\
+    \textbf{Page 10:}    & take-home message.\\
+    \textbf{Build:}      & \texttt{pdflatex poster\_panels.tex}\\
+  \end{tabular}}
+\end{center}
+\clearpage
+
+% ============================== PANEL 1 ==============================
+\paneltitle{1. What is a compass?}{OV-SVD $\rightarrow$ rank-2 dial}
+
+\begin{panelbullets}
+\item For head $h$ at layer $\ell$, factor
+  $W_{OV} = W_V W_O = U\Sigma V^\top$.
+\item A \textbf{compass plane} is two right-singular vectors
+  $(u_i, u_j)$. Inject along it:
+  \[
+    v(\theta, \alpha) \;=\; \alpha\sigma_i\cos\theta\,u_i \;+\;
+                              \alpha\sigma_j\sin\theta\,u_j.
+  \]
+\item If the plane is causal, the logit-difference swings
+  \textbf{sinusoidally} in $\theta$ and \textbf{linearly} in $\alpha$;
+  if it is just correlational, random planes and label permutations
+  reproduce the same numbers.
+\item The rest of this deck shows that (i) the sinusoidal +
+  linear response really holds, (ii) compasses exist in every model we
+  looked at, and (iii) they can drive a debiasing stack.
+\end{panelbullets}
+\clearpage
+
+% ============================== PANEL 2 ==============================
+\paneltitle{2. Sinusoidal response}{Phi-3 Mini L28H1 gender compass}
+
+\panelbigimg{../../helix_usage_validated/phi3_l28h1_causal_polar.png}
+
+{\large Radius = logit$(he - she)$; angle = injection $\theta$.
+Poles at $0^\circ / 180^\circ$ decode to
+\emph{he / his / him} vs.\ \emph{she / her / hers}. Blue sector:
+$he$-context; red sector: $she$-context; black: neutral.}
+\clearpage
+
+% ============================== PANEL 3 ==============================
+\paneltitle{3. Linearity + phase stability}{Two-pillar causal test}
+
+\panelbigimg[0.55\textheight]{../figures/phi3_linearity.png}
+
+\begin{panelbullets}
+\item Amplitude grows \textbf{linearly} with $\alpha$
+  ($R^2 \geq 0.993$).
+\item Phase drift $\leq 3^\circ$ across $\alpha \in \{1,3,10\}$.
+\item Random planes and permuted labels kill both signals ---
+  so the plane is not a geometric accident.
+\end{panelbullets}
+\clearpage
+
+% ============================== PANEL 4 ==============================
+\paneltitle{4. Not just gender}{Same recipe, different axis}
+
+\panelbigimg{../figures/phi3_polar.png}
+
+{\large The same two-vector recipe finds \emph{his / their} (number)
+and temporal (\emph{was / is}) planes in the same heads. Compasses
+are \textbf{not} a pronoun-specific artifact --- gender, race, number,
+tense, and entity all show up as rank-2 planes.}
+\clearpage
+
+% ============================== PANEL 5 ==============================
+\paneltitle{5. Pipeline}{From raw weights to a routed debiasing dial}
+
+\panelbigimg[0.35\textheight]{images/pipeline_schematic.png}
+
+\begin{panelbullets}
+\item \textbf{OV-SVD} per head $\rightarrow$
+      \textbf{$\alpha$-sweep + 9 null tests} $\rightarrow$
+      \textbf{route by pass-count} $\rightarrow$
+      \textbf{calibrate} $\alpha_d = \tau / \overline{\mathrm{SNR}}_d$.
+\item Blind-scan pass rates vs.\ full-OV null (95\% CI):
+      GPT-2 2.06\%, Phi-3 1.18\%, Gemma 2.02\%, Llama 0.22\% ---
+      all significantly above the null.
+\item Nine null tests knock out correlational planes: permuted labels,
+      random planes (1000 MC), full-OV ablate, semantic-ablate,
+      principal-angles, causal-patch, self-test, decode-heads,
+      cyclicity.
+\end{panelbullets}
+\clearpage
+
+% ============================== PANEL 6 ==============================
+\paneltitle{6. Four models, same structure}{Gender compass summary}
+
+\begin{center}\Large
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{lccc}
+  \toprule
+  Model & head & $A(10)$ & $\Delta\phi$ \\
+  \midrule
+  GPT-2 Small  & L10H9  & 14.16 & $\phantom{-}0.3^\circ$ \\
+  Phi-3 Mini   & L28H1  & 12.85 & $\phantom{-}1.3^\circ$ \\
+  Gemma-2-2B   & L21H4  &  2.19 & $\phantom{-}1.3^\circ$ \\
+  Llama-3.2-3B & L26H14 &  3.01 & $\phantom{-}2.4^\circ$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{0.8em}
+\begin{panelbullets}
+\item Amplitudes differ by $\sim 5\times$ across families (GPT-2 $\to$ Gemma).
+\item Phase is stable everywhere --- the dial is always sharp.
+\item Same two-pillar recipe discovers the plane independently of
+      depth, width, vocab size.
+\end{panelbullets}
+\clearpage
+
+% ============================== PANEL 7 ==============================
+\paneltitle{7. Head--domain routing}{Heads specialize by bias type}
+
+\panelbigimg{../../helix_usage_validated/head_domain_heatmap_phi3.png}
+
+{\large Each passing Phi-3 head concentrates on exactly one of
+\{gender, race, profession, religion\}. We inject only on rows whose
+\texttt{bias\_type} matches, at an SNR-calibrated per-domain
+$\alpha_d = \tau / \overline{\mathrm{SNR}}_d$ --- one dial per axis,
+not one global scale.}
+\clearpage
+
+% ============================== PANEL 8 ==============================
+\paneltitle{8. Debiasing beats INLP / SentenceDebias}{CrowS-Pairs $|SS-50|$ (lower is better)}
+
+\panelbigimg[0.5\textheight]{images/crowspairs_compare.png}
+
+\begin{panelbullets}
+\item Gender + race, 4 models $\times$ 5 methods.
+\item \textbf{routed + matched-strength} (red) beats \textbf{INLP} on
+      7/8 cells and \textbf{SentenceDebias} on 6/8.
+\item TruthfulQA MC1 moves by $\leq \pm 3$ pts --- capability preserved.
+\end{panelbullets}
+\clearpage
+
+% ============================== TAKE-HOME ==============================
+\paneltitle{Take-home}{Three things to walk away with}
+
+\vspace{1em}
+\begin{panelbullets}
+\item[\textbf{1.}] Any attention head that writes a categorical axis
+  contains a \textcolor{accentA}{\textbf{2D compass plane}} you can
+  find by looking at \emph{one SVD}.
+\item[\textbf{2.}] The plane is
+  \textcolor{accentB}{\textbf{causal, linear, and phase-stable}} ---
+  not just a correlation.
+\item[\textbf{3.}] Routing + per-domain $\alpha$ turns these planes
+  into a \textbf{debiasing dial} that matches or beats INLP /
+  SentenceDebias while preserving capability.
+\end{panelbullets}
+
+\vspace{1.5em}
+\textcolor{accentA}{\rule{\linewidth}{0.8pt}}\par\vspace{0.5em}
+{\Large\itshape
+Code, scripts, and every CSV behind these tables:\\
+\url{https://github.com/<your-account>/Beyond-Components}}
+
+\end{document}

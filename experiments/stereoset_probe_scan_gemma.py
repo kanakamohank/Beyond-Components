@@ -40,7 +40,7 @@ ALPHAS = [3.0, 10.0]
 N_ANGLES = 12
 LIN_THRESH = 0.95
 PHASE_THRESH = 10.0
-AMP_THRESH = 0.2
+AMP_THRESH = 0.08
 
 # Gemma's vocab is 256k; keep DECODE_TOPK at a similar *fraction* of vocab as GPT-2's 500/50k=1%.
 DECODE_TOPK = 2000

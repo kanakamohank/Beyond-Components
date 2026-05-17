@@ -1,0 +1,10 @@
+Model: microsoft/Phi-3-mini-4k-instruct
+INLP: domain=race  layer=24  iters_used=25  final_probe_acc=0.742
+Probe acc trajectory: ['0.955', '0.924', '0.924', '0.909', '0.909', '0.909', '0.924', '0.894', '0.909', '0.909', '0.697', '0.742', '0.788', '0.818', '0.803', '0.803', '0.788', '0.758', '0.742', '0.803', '0.788', '0.667', '0.636', '0.742', '0.742']
+
+cond       domain            SS      n
+----------------------------------------
+baseline   race           52.52    516
+baseline   overall        52.52    516
+inlp       race           50.39    516
+inlp       overall        50.39    516

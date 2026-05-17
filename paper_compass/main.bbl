@@ -1,4 +1,4 @@
-\begin{thebibliography}{18}
+\begin{thebibliography}{22}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -45,6 +45,20 @@ Aaron Grattafiori and Llama Team.
 \newblock The {L}lama 3 herd of models.
 \newblock \emph{arXiv preprint arXiv:2407.21783}, 2024.
 
+\bibitem[Liang et~al.(2020)Liang, Li, Zheng, Lim, Salakhutdinov, and
+  Morency]{liang2020sentdebias}
+Paul~Pu Liang, Irene~Mengze Li, Emily Zheng, Yao~Chong Lim, Ruslan
+  Salakhutdinov, and Louis-Philippe Morency.
+\newblock Towards debiasing sentence representations.
+\newblock In \emph{Proceedings of the 58th Annual Meeting of the Association
+  for Computational Linguistics (ACL)}, 2020.
+
+\bibitem[Lin et~al.(2022)Lin, Hilton, and Evans]{lin2022truthfulqa}
+Stephanie Lin, Jacob Hilton, and Owain Evans.
+\newblock {TruthfulQA}: Measuring how models mimic human falsehoods.
+\newblock In \emph{Proceedings of the 60th Annual Meeting of the Association
+  for Computational Linguistics (ACL)}, 2022.
+
 \bibitem[Marks \& Tegmark(2024)Marks and Tegmark]{marks2024geometry}
 Samuel Marks and Max Tegmark.
 \newblock The geometry of truth: Emergent linear structure in large language
@@ -69,6 +83,14 @@ Neel Nanda and Joseph Bloom.
 \newblock {TransformerLens}.
 \newblock 2022.
 
+\bibitem[Nangia et~al.(2020)Nangia, Vania, Bhalerao, and
+  Bowman]{nangia2020crowspairs}
+Nikita Nangia, Clara Vania, Rasika Bhalerao, and Samuel~R Bowman.
+\newblock {CrowS-Pairs}: A challenge dataset for measuring social biases in
+  masked language models.
+\newblock In \emph{Proceedings of the 2020 Conference on Empirical Methods in
+  Natural Language Processing (EMNLP)}, 2020.
+
 \bibitem[Park et~al.(2024)Park, Choe, and Veitch]{park2024linearrep}
 Kiho Park, Yo~Joong Choe, and Victor Veitch.
 \newblock The linear representation hypothesis and the geometry of large
@@ -81,6 +103,14 @@ Alec Radford, Jeff Wu, Rewon Child, David Luan, Dario Amodei, and Ilya
   Sutskever.
 \newblock Language models are unsupervised multitask learners.
 \newblock \emph{OpenAI technical report}, 2019.
+
+\bibitem[Ravfogel et~al.(2020)Ravfogel, Elazar, Gonen, Twiton, and
+  Goldberg]{ravfogel2020inlp}
+Shauli Ravfogel, Yanai Elazar, Hila Gonen, Michael Twiton, and Yoav Goldberg.
+\newblock Null it out: Guarding protected attributes by iterative nullspace
+  projection.
+\newblock In \emph{Proceedings of the 58th Annual Meeting of the Association
+  for Computational Linguistics (ACL)}, 2020.
 
 \bibitem[Rudinger et~al.(2018)Rudinger, Naradowsky, Leonard, and
   Van~Durme]{rudinger2018winogender}

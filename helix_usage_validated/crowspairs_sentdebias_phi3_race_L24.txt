@@ -1,0 +1,10 @@
+Model: microsoft/Phi-3-mini-4k-instruct
+SentenceDebias: domain=race  layer=24  k=1
+Subspace singular values: ['1026.41']
+
+cond         domain            SS      n
+----------------------------------------
+baseline     race           52.52    516
+baseline     overall        52.52    516
+sentdebias   race           50.97    516
+sentdebias   overall        50.97    516

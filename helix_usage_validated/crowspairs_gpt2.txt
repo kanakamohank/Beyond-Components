@@ -1,0 +1,25 @@
+Model: gpt2
+Ensemble: K=4  alphas=[0.75, 1.5]
+Ensemble heads:
+   L 9H7  SV(1,3) phi=-79.0  slope=0.470  passed=True
+   L10H9  SV(0,3) phi=+4.9  slope=1.484  passed=True
+   L11H1  SV(1,3) phi=-27.8  slope=0.819  passed=True
+   L 7H6  SV(1,2) phi=-3.7  slope=0.973  passed=True
+
+cond                    alpha domain            SS      n  skip
+------------------------------------------------------------
+baseline                 0.00 race           50.00    516     0
+baseline                 0.00 profession     61.63    172     0
+baseline                 0.00 gender         48.47    262     0
+baseline                 0.00 religion       60.00    105     0
+baseline                 0.00 overall        52.51   1055     0
+ensemble_K4              0.75 race           50.00    516     0
+ensemble_K4              0.75 profession     63.95    172     0
+ensemble_K4              0.75 gender         64.50    262     0
+ensemble_K4              0.75 religion       60.95    105     0
+ensemble_K4              0.75 overall        56.97   1055     0
+ensemble_K4              1.50 race           52.52    516     0
+ensemble_K4              1.50 profession     66.28    172     0
+ensemble_K4              1.50 gender         69.47    262     0
+ensemble_K4              1.50 religion       58.10    105     0
+ensemble_K4              1.50 overall        59.53   1055     0

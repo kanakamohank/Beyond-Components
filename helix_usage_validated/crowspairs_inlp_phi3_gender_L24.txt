@@ -1,0 +1,12 @@
+Model: microsoft/Phi-3-mini-4k-instruct
+INLP: domain=gender  layer=24  iters_used=25  final_probe_acc=0.694
+Probe acc trajectory: ['0.991', '0.973', '0.991', '0.973', '0.955', '0.973', '0.973', '0.910', '0.982', '0.910', '0.892', '0.838', '0.829', '0.784', '0.721', '0.730', '0.730', '0.640', '0.658', '0.730', '0.559', '0.793', '0.613', '0.640', '0.694']
+
+cond       domain            SS      n
+----------------------------------------
+baseline   gender         57.63    262
+baseline   profession     57.56    172
+baseline   overall        57.60    434
+inlp       gender         63.74    262
+inlp       profession     60.47    172
+inlp       overall        62.44    434

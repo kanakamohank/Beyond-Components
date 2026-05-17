@@ -1,0 +1,7 @@
+condition,domain,ss,n,skipped
+baseline,gender,48.47328244274809,262,0
+baseline,profession,61.627906976744185,172,0
+baseline,overall,53.68663594470046,434,0
+inlp,gender,61.06870229007634,262,0
+inlp,profession,63.372093023255815,172,0
+inlp,overall,61.9815668202765,434,0

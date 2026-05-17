@@ -1,0 +1,179 @@
+\section{Nine-Test Battery}
+\label{app:battery}
+
+A compass must pass all nine of the following. Verdicts in
+parentheses are the \emph{expected} outcomes ($\checkmark$:
+signal preserved; $\times$: signal killed by the null or
+ablation, which is the desired falsification).
+
+\begin{itemize}
+    \item \textbf{decode-heads} ($\checkmark$): $W_U^{\top} u_i$
+    promotes readable categorical tokens at $0^\circ, 90^\circ,
+    180^\circ, 270^\circ$.
+    \item \textbf{cyclicity} ($\checkmark$): the polar angle of
+    the compass projection wraps smoothly, $2\pi$-periodic,
+    without saturation.
+    \item \textbf{permutation null} ($\times$): shuffling the
+    $\pm$-context token set across prompts kills the compass
+    signal.
+    \item \textbf{random-plane null} ($\times$): random
+    orthonormal directions from $U(\mathrm{SO}(d_{\text{model}}))$
+    remove the causal effect.
+    \item \textbf{principal-angles} ($\checkmark$): the fitted
+    plane is not co-planar with planes from unrelated heads.
+    \item \textbf{scan-planes} ($\checkmark$): the target
+    $(i, j)$ is the $\arg\max$ over $(i, j)$ pairs with
+    $i, j \le 10$.
+    \item \textbf{semantic-ablate} ($\times$): zeroing
+    $P_{\mathcal{C}} r$ collapses category-conditioned logits
+    toward neutral.
+    \item \textbf{causal-patch} ($\checkmark$): swapping
+    $P_{\mathcal{C}} r$ between $+$-context and $-$-context
+    prompts flips the logit sign.
+    \item \textbf{self-test} ($\checkmark$): end-to-end pipeline
+    reproducibility on a fixed prompt.
+\end{itemize}
+
+All four models pass all nine tests for the gender compass;
+Phi-3 additionally passes for the temporal and entity compasses.
+
+\section{Prompt Lists}
+\label{app:prompts}
+
+All causal sweeps average over three prompts per condition.
+Prompts are short and semantically ambiguous to minimize baseline
+bias.
+
+\paragraph{Gender (GPT-2, Phi-3, Gemma, Llama).}
+\emph{Neutral}: ``The person said that'', ``Then they said
+that'', ``Afterwards, the speaker said that''.
+\emph{Masculine-context}: ``The man laced up his boots
+because\ldots'' (and analogous variants).
+\emph{Feminine-context}: ``The woman laced up her boots
+because\ldots'' (and analogous variants).
+
+\paragraph{Temporal (Phi-3 L24H17, tokens \emph{month}/\emph{hour}).}
+\emph{Neutral}: ``The event took about one'', ``They waited
+nearly one'', ``The project finished within one''.
+\emph{Plus (month-biasing)}: ``The rent is due every'',
+``Pregnancy lasts about nine'', ``The magazine arrives once
+a''.
+\emph{Minus (hour-biasing)}: ``The meeting lasts exactly one'',
+``The drive takes roughly one'', ``She slept for a single''.
+
+\paragraph{Entity (Phi-3 L24H28, tokens \emph{item}/\emph{operation}).}
+\emph{Neutral}: ``The list contained a single'', ``He removed
+exactly one'', ``The inventory showed one''.
+\emph{Plus (item-biasing)}: ``On the shelf sat a small'', ``The
+box held only one'', ``She picked up a single''.
+\emph{Minus (operation-biasing)}: ``The surgeon completed a
+complex'', ``The factory ran one more'', ``The team executed a
+risky''.
+
+\paragraph{GP task (Stage-$1$, GPT-2 Small).}
+$150$ he-prompts and $156$ she-prompts drawn from the Gender
+Pronoun coreference benchmark. Example: ``The person who was
+sleeping in their car told the cop that''. The model must
+predict the target pronoun as the next token.
+
+\paragraph{Occupation prompts (Stage-$1$ $\to$ Stage-$2$ transfer).}
+$36$ prompts of the form ``The [occupation] said that''.
+\emph{Masculine-coded} ($12$): doctor, engineer, scientist,
+lawyer, CEO, architect, pilot, surgeon, professor, programmer,
+executive, mechanic. \emph{Feminine-coded} ($12$): nurse,
+receptionist, babysitter, housekeeper, assistant, secretary,
+hairdresser, librarian, caretaker, maid, nanny, florist.
+\emph{Neutral} ($12$): teacher, writer, manager, student,
+artist, journalist, accountant, therapist, consultant,
+designer, analyst, photographer.
+
+\section{Learnable-Mask Training Hyperparameters}
+\label{app:bc_train}
+
+Stage-$1$ direction discovery (\cref{sec:bc_mask}) on GPT-2 Small:
+
+\begin{itemize}
+    \item Model: GPT-2 Small ($124$M parameters, $12$ layers,
+    $12$ heads, $d_{\text{model}} = 768$).
+    \item Batch size: $64$. Epochs: $2$.
+    \item Learning rate: $0.02$. Weight decay: $0$.
+    \item L1 weight: $1.95 \times 10^{-4}$.
+    \item Temperature: $1.0$. Evaluation interval: $50$ steps.
+    Validation interval: $20$ steps.
+    \item Early-stopping patience: $5$ epochs.
+    Minimum learning rate: $1 \times 10^{-6}$.
+    Learning-rate reduction factor: $0.5$.
+    \item Target KL divergence: $0.10$. Target L1 sparsity:
+    $3500$.
+    \item Mask initialization value: $0.99$. Sparsity threshold:
+    $1.0 \times 10^{-3}$. Maximum iterations per batch: $15$.
+\end{itemize}
+
+\section{Stage-$1$ Full Results Table}
+\label{app:bc_results}
+
+\begin{table}[h]
+\centering
+\small
+\caption{Complete scalar-steering results on the GP task
+(GPT-2 Small). \emph{Sweep}: continuous scalar steering.
+\emph{Smart all}: mean-swap on all five directions.
+\emph{Smart masc only}: mean-swap on masculine directions.
+\emph{Smart fem only}: mean-swap on feminine directions.
+\emph{Sigma $\times 2.0$}: $\sigma$-amplified smart ablation.}
+\label{tab:bc_full}
+\begin{tabular}{lcccccc}
+\toprule
+Condition         & Gender & Acc (\%) & Target LD & \emph{they} logit & Flips \\
+\midrule
+Baseline          & HE     & $84.00$ & $+2.525$ & $11.691$ & $0$  \\
+Baseline          & SHE    & $70.51$ & $+2.840$ & $11.886$ & $0$  \\
+Sweep strongest   & HE     & $32.67$ & $+0.228$ & $7.672$  & $48$ \\
+Sweep strongest   & SHE    & $53.21$ & $+1.480$ & $7.256$  & $12$ \\
+Smart all         & HE     & $10.67$ & $-0.768$ & $7.300$  & $52$ \\
+Smart all         & SHE    & $46.79$ & $+1.487$ & $7.503$  & $4$  \\
+Smart masc only   & HE     & $45.33$ & $+0.770$ & $7.222$  & $24$ \\
+Smart fem only    & SHE    & $57.05$ & $+2.232$ & $7.423$  & $2$  \\
+Sigma $\times 2.0$& HE     & $0.00$  & $-2.143$ & $5.891$  & $75$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Feminine-Pole Calibration Sweep}
+\label{app:fem_calib}
+
+\begin{table}[h]
+\centering
+\small
+\caption{Per-direction calibration results for the feminine-pole
+rotation of the GPT-2 L10H9 $(u_0, u_3)$ compass
+(\cref{sec:calib}). \emph{GP flips}: she$\to$he flips on the $150$
+GP she-context prompts. \emph{Transfer}: flip rate on the $36$
+occupation prompts. \emph{GP acc}: accuracy on the original GP
+she-context prompts.}
+\label{tab:fem_calib}
+\begin{tabular}{lcccc}
+\toprule
+$\alpha$ & GP flips & Transfer (\%) & GP acc (\%) & \emph{they} logit \\
+\midrule
+$0.25$ & $17$ & $52.78$ & $37.33$ & $7.39$ \\
+$0.50$ & $18$ & $55.56$ & $36.67$ & $7.35$ \\
+$0.75$ & $18$ & $55.56$ & $36.67$ & $7.31$ \\
+$1.00$ & $19$ & $55.56$ & $36.67$ & $7.27$ \\
+$1.25$ & $19$ & $58.33$ & $36.67$ & $7.21$ \\
+$1.40$ & $19$ & $58.33$ & $36.67$ & $7.18$ \\
+$1.55$ & $19$ & $58.33$ & $36.67$ & $7.14$ \\
+$1.70$ & $20$ & $58.33$ & $36.00$ & $7.10$ \\
+$2.00$ & $20$ & $58.33$ & $36.00$ & $7.02$ \\
+$2.15$ & $21$ & $61.11$ & $35.33$ & $6.98$ \\
+$2.30$ & $21$ & $61.11$ & $35.33$ & $6.94$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The plateau breaks at $\alpha = 1.70$ ($20 / 150$ GP flips) and
+again at $\alpha = 2.15$ ($21 / 150$). The bend point at
+$\alpha = 2.00$ defines the \emph{balanced} operating point used
+for the transfer numbers in \cref{sec:transfer}; beyond it, GP
+accuracy on original she-context prompts begins softening,
+marking the \emph{aggressive} regime ($\alpha = 2.30$).

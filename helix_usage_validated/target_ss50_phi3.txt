@@ -1,0 +1,24 @@
+Model: microsoft/Phi-3-mini-4k-instruct
+Calib α source: helix_usage_validated/per_domain_alpha_phi3_snr0.08.json
+Per-domain α (M=1.0 reference): {'gender': 5.103819979415661, 'race': 5.153455079419499, 'profession': 3.799127805969393, 'religion': 5.336812513857484}
+
+domain         mult    alpha      SS   |Δ50|     n
+--------------------------------------------------
+gender         0.00    0.000   57.63    7.63   262
+gender         0.25    1.276   49.62    0.38   262
+gender         0.50    2.552   47.33    2.67   262
+gender         0.75    3.828   46.95    3.05   262
+gender         1.00    5.104   45.80    4.20   262
+gender         1.25    6.380   45.80    4.20   262
+gender         1.50    7.656   46.95    3.05   262
+race           0.00    0.000   52.52    2.52   516
+race           0.25    1.288   45.16    4.84   516
+race           0.50    2.577   41.47    8.53   516
+race           0.75    3.865   37.02   12.98   516
+race           1.00    5.153   34.30   15.70   516
+race           1.25    6.442   32.17   17.83   516
+race           1.50    7.730   31.01   18.99   516
+
+Best multiplier per domain:
+  gender: M*=0.25  α*=1.276  SS*=49.62  |Δ50|=0.38
+  race: M*=0.00  α*=0.000  SS*=52.52  |Δ50|=2.52

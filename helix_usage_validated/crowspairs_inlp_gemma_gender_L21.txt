@@ -1,0 +1,12 @@
+Model: google/gemma-2-2b
+INLP: domain=gender  layer=21  iters_used=25  final_probe_acc=0.739
+Probe acc trajectory: ['1.000', '0.991', '1.000', '1.000', '0.991', '0.982', '0.964', '1.000', '0.991', '0.973', '0.964', '0.955', '0.946', '0.928', '0.955', '0.901', '0.865', '0.847', '0.928', '0.874', '0.856', '0.883', '0.901', '0.856', '0.739']
+
+cond       domain            SS      n
+----------------------------------------
+baseline   gender         51.15    262
+baseline   profession     63.95    172
+baseline   overall        56.22    434
+inlp       gender         58.78    262
+inlp       profession     64.53    172
+inlp       overall        61.06    434

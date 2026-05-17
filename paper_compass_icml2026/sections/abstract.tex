@@ -1,0 +1,33 @@
+\begin{abstract}
+We ask what the atomic functional unit of a transformer attention
+head really is. Starting from the observation that individual OV
+singular directions in GPT-2 Small causally control the
+Gender-Pronoun (GP) task---a sparse set of five directions
+recovered by learnable masking drives GP accuracy from $84\%$ to
+$32.67\%$ under scalar steering, and to a full $100\%$ flip at
+$\sigma\!\times\!2.0$---we show that these directions are not
+isolated $1$D axes but live inside a coherent $2$D geometry. For an
+attention head whose combined OV map has SVD
+$W_{OV} = U\Sigma V^{\top}$, pairs of columns $(u_i, u_j)$ span
+\emph{semantic compass planes} whose azimuthal angle codes a
+categorical distinction and whose radius codes its magnitude. An
+in-context rank-$2$ injection
+$\alpha\sigma(\cos\theta\,u_i + \sin\theta\,u_j)$ produces a
+sinusoidal logit-difference response whose amplitude grows linearly
+in $\alpha$ ($R^2 \ge 0.993$) and whose phase is stable to
+$\pm 3^\circ$ across $\alpha \in \{1,3,10\}$, in every one of four
+pretrained decoder-only models---GPT-2 Small, Phi-3 Mini,
+Gemma-2-2B, and Llama-3.2-3B. A blind causal scan over
+$864$--$4032$ $(L,H,u_i,u_j)$ candidates per model recovers the
+same heads without decoding, with head-level concentration
+significant at $p < 10^{-6}$ against a full-OV null, and the scan
+surfaces additional non-pronoun compasses in Phi-3 (month vs.\ hour,
+item vs.\ operation). The downstream GP-to-occupation transfer and
+the masculine-vs-feminine control asymmetry first observed at the
+$1$D direction level both persist in the rank-$2$ setting and are
+partially but not fully closed by per-direction calibration.
+Together, this positions OV-SVD as an architecture-agnostic,
+weight-space primitive: singular directions carry causal content,
+and singular pairs carry a continuous $\theta$-family of
+interventions.
+\end{abstract}

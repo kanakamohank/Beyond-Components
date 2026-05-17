@@ -1,0 +1,12 @@
+Model: meta-llama/Llama-3.2-3B
+SentenceDebias: domain=gender  layer=22  k=1
+Subspace singular values: ['129.34']
+
+cond         domain            SS      n
+----------------------------------------
+baseline     gender         54.20    262
+baseline     profession     66.86    172
+baseline     overall        59.22    434
+sentdebias   gender         51.53    262
+sentdebias   profession     66.86    172
+sentdebias   overall        57.60    434

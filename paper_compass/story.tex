@@ -6,11 +6,24 @@
 \usepackage{booktabs}
 \usepackage{xcolor}
 \usepackage{tcolorbox}
+\tcbuselibrary{breakable}
 \usepackage{hyperref}
 \usepackage{enumitem}
 \usepackage{caption}
 
 \hypersetup{colorlinks=true, linkcolor=teal, urlcolor=teal}
+
+% --- image-free build: replace figures with labelled placeholders ---
+\makeatletter
+\renewcommand{\includegraphics}[2][]{%
+  \begingroup
+  \setlength{\fboxsep}{6pt}%
+  \fbox{\parbox{0.88\linewidth}{\centering
+    \textbf{[figure placeholder --- image omitted]}\\[2pt]
+    \texttt{\detokenize{#2}}}}%
+  \endgroup
+}
+\makeatother
 
 \tcbset{
   techbox/.style={

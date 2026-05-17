@@ -1,0 +1,36 @@
+Model: microsoft/Phi-3-mini-4k-instruct
+Routed ensemble: K=4 per domain  alphas=per-domain (calibrated): {'gender': 5.103819979415661, 'race': 5.153455079419499, 'profession': 3.799127805969393, 'religion': 5.336812513857484}
+Per-domain heads (best-probe within that domain):
+  gender:
+    L24H14 SV(0,2) phi=-51.6  slope=0.399  passed=True
+    L28H26 SV(1,2) phi=-132.5  slope=0.456  passed=True
+    L30H4  SV(0,1) phi=-24.8  slope=0.396  passed=True
+    L26H22 SV(0,1) phi=-100.6  slope=0.234  passed=True
+  race:
+    L24H14 SV(0,3) phi=-141.8  slope=0.371  passed=True
+    L27H6  SV(1,2) phi=+110.2  slope=0.436  passed=True
+    L28H26 SV(0,1) phi=-157.6  slope=0.560  passed=False
+    L26H24 SV(2,3) phi=+24.0  slope=0.650  passed=True
+  profession:
+    L24H14 SV(1,2) phi=+106.8  slope=0.371  passed=True
+    L28H1  SV(0,3) phi=-0.2  slope=1.284  passed=True
+    L26H24 SV(2,3) phi=-155.4  slope=0.498  passed=True
+    L27H16 SV(0,2) phi=-139.9  slope=0.228  passed=True
+  religion: [FALLBACK]
+    L28H26 SV(1,2) phi=+57.7  slope=0.330  passed=True
+    L24H14 SV(0,3) phi=+38.2  slope=0.371  passed=True
+    L29H9  SV(0,3) phi=+42.5  slope=0.399  passed=True
+    L30H6  SV(0,3) phi=+115.5  slope=0.193  passed=False
+
+cond                    alpha domain            SS      n
+------------------------------------------------------------
+baseline                 0.00 race           52.52    516
+baseline                 0.00 profession     57.56    172
+baseline                 0.00 gender         57.63    262
+baseline                 0.00 religion       59.05    105
+baseline                 0.00 overall        55.26   1055
+routed_calib             5.15 race           34.30    516
+routed_calib             3.80 profession     58.72    172
+routed_calib             5.10 gender         45.80    262
+routed_calib             5.34 religion       61.90    105
+routed_calib            -1.00 overall        43.89   1055

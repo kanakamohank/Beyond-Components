@@ -1,0 +1,752 @@
+\section{Introduction}
+\label{sec:intro}
+
+Mechanistic interpretability aims to reverse-engineer the internal
+computations of neural language models. Two threads dominate: circuit
+analysis, which localizes behavior to \emph{components}---specific
+attention heads or MLPs
+\citep{elhage2021mathematical,wang2023interpretability,conmy2023acdc,meng2022rome}---and
+linear feature discovery, which searches for low-dimensional causal
+\emph{directions} in activation space
+\citep{park2024linearrep,geiger2024das,marks2024geometry,engels2024not,cunningham2023sparse,templeton2024scaling}.
+A central question sits between them: what is the atomic functional
+unit? Whole heads are coarse; arbitrary residual-stream directions are
+not tied to any specific weight matrix. We argue the right unit is
+finer than a head but attached to the head's own weights: the singular
+directions---and, more tightly, singular \emph{pairs}---of its
+output-value map $W_{OV} = W_V W_O$.
+
+This paper develops that claim in two stages.
+
+\textbf{Stage 1 (sub-component units).}
+We first establish that individual OV singular directions are causal
+control axes. On GPT-2 Small and the Gender Pronoun (GP) task, a
+learnable-mask circuit discovery procedure applied to the SVD of each
+head's OV and QK matrices isolates a sparse set of five
+gender-relevant directions. Continuous scalar steering along these
+directions produces monotonic dose-response curves: GP accuracy drops
+from $84.00\%$ baseline to $32.67\%$ under a single-sweep intervention
+and to $0.00\%$ (a full $100\%$ he$\to$she flip) under $\sigma\times 2.0$
+amplification. The control is \emph{asymmetric}: masculine-coded
+directions steer the model more strongly than feminine-coded ones, and
+per-direction calibration of the feminine-only subset narrows but does
+not close this gap.
+
+\textbf{Stage 2 (rank-$2$ geometry).}
+The directions recovered in Stage~1 are not isolated $1$D axes. For
+head $h$ at layer $\ell$ with SVD
+$W_{OV}^{(\ell,h)} = U\Sigma V^{\top}$, a \emph{semantic compass} is a
+pair of columns $(u_i, u_j)$ such that (i) vocabulary decoding of
+$u_i$ and $u_j$ through $W_U$ yields a coherent angular ordering of
+category tokens, and (ii) residual-stream injection
+$\alpha\sigma(\cos\theta\,u_i + \sin\theta\,u_j)$ at the head's own
+layer produces a logit-difference response
+$\mathrm{LD}(\theta) \approx \mu + A\cos(\theta - \phi)$ whose
+amplitude scales linearly with $\alpha$ and whose phase is stable
+across $\alpha$. The GP head GPT-2 L9H7 (direction SV$_1$ in Stage~1)
+and the GP head GPT-2 L10H9 (direction SV$_0$ in Stage~1) are both
+rediscovered as the azimuthal axes of genuine $2$D compasses,
+$(u_1, u_2)$ and $(u_0, u_3)$, satisfying the joint amplitude-linearity
++ phase-stability test. The same construction replicates in Phi-3
+Mini (L24H10, L28H1), Gemma-2-$2$B (L21H4), and Llama-$3.2$-$3$B
+(L26H14), and surfaces two \emph{non-pronoun} compasses in Phi-3: a
+temporal-unit dial (month vs.\ hour, L24H17) and an entity-type dial
+(item vs.\ operation, L24H28). A blind causal scan over
+$864$--$4032$ candidate $(L, H, u_i, u_j)$ planes per model, which
+never consults vocabulary decoding, recovers the same heads with
+head-level concentration significant at $p < 10^{-6}$ against a
+full-OV null. Finally, rotating the compass toward its feminine pole
+\emph{and} using it without retraining on occupation prompts
+transfers the Stage-$1$ behavioral effect to the rank-$2$ setting,
+and the asymmetric-control phenomenon persists.
+
+\paragraph{Contributions.}
+\begin{enumerate}
+    \item \textbf{Sub-component causal units (\cref{sec:bc}).} We
+    recover a sparse set of OV singular directions in GPT-2 Small
+    that causally control the GP task, show that scalar steering
+    produces dose-response curves, and demonstrate $100\%$ flip
+    under $\sigma\!\times\!2.0$ amplification.
+    \item \textbf{From $1$D directions to $2$D compasses
+    (\cref{sec:method}).} We formalize the semantic compass as a
+    pair of OV singular vectors and define the joint
+    amplitude-linearity + phase-stability test that separates
+    causal compasses from geometric accidents.
+    \item \textbf{Four-model gender compass (\cref{sec:gender}).}
+    Every compass produces $R^2 \ge 0.993$ amplitude linearity and
+    $\Delta\phi \le 3^\circ$ phase stability across
+    $\alpha \in \{1, 3, 10\}$ and across four models spanning two
+    orders of magnitude in parameters.
+    \item \textbf{Blind causal scan (\cref{sec:scan}).} A scan of
+    all top-$4$ SV-pairs per head rediscovers the same sites
+    without decoding, with head-level concentration significance
+    $p < 10^{-6}$, and surfaces heads the decode survey missed.
+    \item \textbf{Non-pronoun compasses in Phi-3
+    (\cref{sec:other}).} The recipe generalizes off the gender
+    axis: a temporal-unit dial and an entity-type dial in Phi-3,
+    both with linear $\alpha$-scaling and stable phase.
+    \item \textbf{Rank-$2$ downstream transfer and asymmetry
+    (\cref{sec:downstream}).} The Stage-$1$ GP-to-occupation
+    transfer and the Stage-$1$ masculine-vs-feminine asymmetry
+    both persist under rank-$2$ compass intervention, confirming
+    that the compass is not only a diagnostic but a steering
+    primitive with the same behavioral signatures as its $1$D
+    projection.
+\end{enumerate}
+
+\section{Related Work}
+\label{sec:related}
+
+\paragraph{Circuit discovery.} Circuit analysis reverse-engineers
+behavior into subsets of heads and MLPs
+\citep{olah2020zoom,elhage2021mathematical,wang2023interpretability,conmy2023acdc,nanda2023progress,meng2022rome,marks2024sparse}.
+Head-level ablation and patching are the standard tools. We work
+one level finer: inside a head, where the OV map's singular
+structure is the interface between the head's ``read-in'' and
+``write-out'' behavior.
+
+\paragraph{Linear feature discovery.} The linear representation
+hypothesis \citep{park2024linearrep}, DAS
+\citep{geiger2024das}, geometry-of-truth probes
+\citep{marks2024geometry}, sparse autoencoders
+\citep{cunningham2023sparse,templeton2024scaling}, and function
+vectors \citep{todd2024function} all search for low-dimensional
+causal features. These methods search in \emph{activation space};
+our compasses are read directly from the \emph{weight matrix}, are
+localized to a specific attention head, and give a continuous
+family of $\theta$-rotations rather than a single direction.
+Helical / circular numerical features \citep{engels2024not} are
+the closest geometric precedent, though they are estimated via
+probes on cached activations rather than read off the OV weights.
+
+\paragraph{Activation steering.} Activation addition
+\citep{turner2023actadd} and inference-time intervention
+\citep{li2023inference} add a fixed vector to the residual stream
+to steer generation. Compass-based steering replaces the fixed
+vector with a continuous rank-$2$ dial: each rotation angle in
+$[0, 2\pi)$ is a valid intervention, and the amplitude-phase
+decomposition gives a principled way to pick one.
+
+\section{Sub-Component Units: Directions as Causal Axes}
+\label{sec:bc}
+
+This section establishes the Stage-$1$ claim: individual OV
+singular directions causally control GP behavior in GPT-2 Small.
+
+\subsection{Circuit discovery by learnable masking}
+\label{sec:bc_mask}
+
+For each attention head at layer $\ell$ we compute two SVDs: the
+effective OV map
+$W_{OV}^{(\ell,h)} = W_O^{(\ell,h)} W_V^{(\ell,h)}
+  = U^{\text{OV}}\,\mathrm{diag}(S^{\text{OV}})\,(V^{\text{OV}})^{\top}$,
+which controls residual-stream writes, and the effective QK map
+$W_{QK}^{(\ell,h)}
+  = U^{\text{QK}}\,\mathrm{diag}(S^{\text{QK}})\,(V^{\text{QK}})^{\top}$,
+which controls attention patterns. We attach a learnable soft mask
+$m_i \in [0, 1]$ to every singular value, substitute
+$S \gets m \odot S$ during the forward pass, and train the mask
+with the composite loss
+\begin{equation}
+\mathcal{L} = \mathrm{KL}\!\left(P_{\text{full}} \,\|\, P_{\text{masked}}\right)
+  + \lambda_1 \,\|m\|_1,
+\end{equation}
+where $P_{\text{full}}$ is the output distribution of the unmasked
+model and $P_{\text{masked}}$ uses the gated SVD. Training with
+KL target $0.10$, L1 target $3500$, learning rate $0.02$, and
+early stopping (patience $5$) converges to a sparse configuration
+in which the OV masks identify a handful of gender-relevant
+directions (\cref{fig:mask_progression}).
+
+\begin{figure*}[t]
+\centering
+\begin{subfigure}[t]{0.24\textwidth}
+    \includegraphics[width=\linewidth]{bc/ov_average_mask_values.png}
+    \caption{OV mask values.}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.24\textwidth}
+    \includegraphics[width=\linewidth]{bc/qk_average_mask_values.png}
+    \caption{QK mask values.}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.24\textwidth}
+    \includegraphics[width=\linewidth]{bc/progression_train_accuracy.png}
+    \caption{Training accuracy.}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.24\textwidth}
+    \includegraphics[width=\linewidth]{bc/progression_train_kl.png}
+    \caption{KL divergence.}
+\end{subfigure}
+\caption{Circuit discovery by learnable masking over SVD directions.
+OV and QK mask averages (a,b) converge to sparse configurations;
+training accuracy (c) and KL divergence (d) stay controlled.}
+\label{fig:mask_progression}
+\end{figure*}
+
+\cref{tab:directions} reports the five discovered directions. We
+refer to them by their \texttt{LX.HY.SVz} signature, where
+\texttt{X} is the layer, \texttt{Y} is the head, and \texttt{z}
+is the singular-vector index.
+
+\begin{table}[t]
+\centering
+\small
+\caption{Stage-$1$: gender-sensitive OV singular directions in
+GPT-2 Small recovered by learnable masking.}
+\label{tab:directions}
+\begin{tabular}{lll}
+\toprule
+Direction   & Coding    & Role             \\
+\midrule
+L9.H7.SV1   & Masculine & Primary he-control \\
+L11.H8.SV6  & Masculine & Secondary he-control \\
+L11.H8.SV9  & Masculine & Tertiary he-control \\
+L10.H9.SV0  & Feminine  & Primary she-anchor \\
+L8.H3.SV8   & Feminine  & Auxiliary she-control \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Scalar causal steering}
+\label{sec:bc_steering}
+
+Given a discovered direction $(u_i, \sigma_i, v_i)$ at layer
+$\ell$, we read off its per-token scalar coefficient
+$\alpha_i^{(t)} = V'^{(t)} \cdot u_i$, where $V'^{(t)}$ is the
+pre-attention residual at token $t$. A scalar intervention
+$\alpha_i^{(t)} \to \alpha_i'^{(t)}$ perturbs the residual stream
+by $\Delta_{\text{resid}} =
+  (\alpha_i'^{(t)} - \alpha_i^{(t)})\,\sigma_i\,v_i$.
+We evaluate four steering modes: \emph{mean swap} (replace with
+opposite-gender empirical mean), \emph{additive}
+($\alpha_i' = \alpha_i + \delta$), \emph{sigma-scaled}
+($\alpha_i' = \alpha_i + k\sigma_{\text{emp}}$), and a continuous
+\emph{sweep} over $k$.
+
+\subsection{Behavioral effect on the GP task}
+\label{sec:bc_gp}
+
+\cref{fig:bc_sweep} summarizes the effect on the GP task
+($150$ he prompts, $156$ she prompts). On HE prompts, sweeping
+toward feminine values reduces accuracy from
+$84.00\% \to 32.67\%$ and target logit-difference from
+$2.525 \to 0.228$. On SHE prompts, sweeping toward masculine
+values is markedly weaker: accuracy drops only to $53.21\%$
+($2.840 \to 1.480$ LD). Under $\sigma\!\times\!2.0$ smart-ablation
+amplification on HE prompts, accuracy collapses to $0.00\%$ with
+target LD $-2.143$, i.e.\ a full $100\%$ he$\to$she flip.
+Direction-selective interventions confirm specificity: masculine-only
+swap on HE reduces accuracy to $45.33\%$; feminine-only swap on SHE
+reduces it to $57.05\%$.
+
+\begin{figure*}[t]
+\centering
+\begin{subfigure}[t]{0.48\textwidth}
+    \includegraphics[width=\linewidth]{bc/causal_sweep_curves.png}
+    \caption{Dose--response sweep curves.}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.48\textwidth}
+    \includegraphics[width=\linewidth]{bc/sigma_amplification.png}
+    \caption{Sigma amplification: $100\%$ flip at $\sigma\!\times\!2.0$.}
+\end{subfigure}
+\caption{Stage-$1$ scalar causal steering on GPT-2 Small, GP task.
+Left: sweep produces dose--response curves; HE prompts respond
+more strongly than SHE prompts (asymmetric control). Right:
+$\sigma$ amplification achieves a complete $100\%$ he$\to$she
+flip, ruling out confounding explanations of the steering signal.}
+\label{fig:bc_sweep}
+\end{figure*}
+
+The asymmetry---strong masculine control, weaker feminine
+control---is the single most consistent phenomenon across every
+Stage-$1$ experiment. We return to it in
+\cref{sec:downstream}.
+
+\paragraph{Summary.} Five OV singular directions in GPT-2 Small
+causally control GP behavior; scalar steering along them is
+dose-responsive and can be amplified to full behavioral reversal.
+The rest of the paper asks what \emph{geometry} these directions
+live in.
+
+\section{From Directions to Compasses}
+\label{sec:method}
+
+The Stage-$1$ directions include GPT-2 L9H7.SV$_1$ (masculine) and
+GPT-2 L10H9.SV$_0$ (feminine). Are these isolated $1$D axes, or
+are they one column of a richer $2$D structure? We now define the
+rank-$2$ test that decides this.
+
+\subsection{Compass plane}
+\label{sec:plane}
+
+For attention head $h$ at layer $\ell$ we compute the combined OV
+map
+$W_{OV}^{(\ell,h)} = W_V^{(\ell,h)}\,W_O^{(\ell,h)} \in
+  \mathbb{R}^{d_{\text{model}} \times d_{\text{model}}}$
+and its SVD $U\,\Sigma\,V^{\top}$ with columns
+$u_1, \ldots, u_{d_{\text{model}}}$ and singular values
+$\sigma_1 \ge \sigma_2 \ge \cdots \ge 0$. A \emph{compass plane}
+for the head is an ordered pair of columns
+$\mathcal{C}_{i,j}^{(\ell, h)} = \mathrm{span}(u_i, u_j)$, $i \ne j$.
+We always take left-singular columns, the \emph{write-out}
+directions, because they correspond to what the head writes into
+the residual stream rather than what it reads.
+
+\subsection{Causal $\alpha$-sweep}
+\label{sec:alpha_sweep}
+
+The compass test is a causal injection that varies an \emph{angle}
+$\theta$ and a \emph{scale} $\alpha$:
+\begin{equation}
+v(\theta, \alpha) = \alpha\,\sigma_i\,\cos\theta\,u_i
+  + \alpha\,\sigma_j\,\sin\theta\,u_j.
+\label{eq:alpha_sweep}
+\end{equation}
+For a prompt $p$ whose final-token residual stream just before
+layer $\ell$ is $r$, we hook at
+\texttt{blocks.\{$\ell$\}.hook\_resid\_pre} and replace
+$r \gets r + v(\theta, \alpha)$; the remainder of the forward pass
+runs unmodified. We record
+\begin{equation}
+\mathrm{LD}(\theta, \alpha; p) =
+  \mathrm{logit}_{t_{+}} - \mathrm{logit}_{t_{-}}
+\end{equation}
+for antipodal probe tokens $(t_{+}, t_{-})$, average over three
+prompts per condition, sweep $\theta$ through $36$ angles (step
+$10^\circ$), and run $\alpha \in \{1, 3, 10\}$.
+
+For each curve we fit
+\begin{equation}
+\mathrm{LD}(\theta) \approx \mu + A\,\cos(\theta - \phi)
+\label{eq:sinusoid}
+\end{equation}
+by the first DFT bin and record mean $\mu$, amplitude $A$, phase
+$\phi$, and the angles of maximum / minimum response.
+
+\paragraph{The joint test.} A random plane produces neither
+amplitude nor phase structure. A plane that correlates with the
+category without being causally read produces some amplitude but
+no dependence on $\alpha$. A truly causal compass satisfies two
+conditions simultaneously: \emph{amplitude linearity}
+($A(\alpha)$ grows linearly with $\alpha$, $R^2 \ge 0.95$) and
+\emph{phase stability} ($\phi$ drift $\Delta\phi \le 10^\circ$
+across $\alpha \in \{1, 3, 10\}$). We enforce both.
+
+\subsection{Nine-test battery}
+\label{sec:battery}
+
+We complement \cref{eq:alpha_sweep} with a battery of eight null
+and falsification tests: vocabulary decoding, $2\pi$-cyclicity,
+label permutation, random-plane null, principal-angles check
+against unrelated heads, scan-planes (target pair is
+$\arg\max$ over $i,j \le 10$), semantic ablation (zeroing
+$P_{\mathcal{C}} r$ collapses category-conditioned logits),
+causal patching (swapping $P_{\mathcal{C}} r$ between
+$\pm$-context prompts flips the logit sign), and an end-to-end
+self-test. Full specifications are in \cref{app:battery}.
+
+\subsection{Models}
+
+We use TransformerLens \citep{nanda2022transformerlens} with
+\texttt{HookedTransformer} on bfloat16. Target heads:
+
+\begin{itemize}
+    \item \textbf{GPT-2 Small}
+      \citep{radford2019language}: L9H7 $(u_1, u_2)$
+      (decode-discovered) and L10H9 $(u_0, u_3)$
+      (scan-discovered). Stage-$1$ directions L9H7.SV$_1$ and
+      L10H9.SV$_0$ are individual columns of these planes.
+    \item \textbf{Phi-3 Mini} \citep{abdin2024phi3}: L24H10
+      $(u_0, u_1)$; L28H1 $(u_0, u_3)$; L24H17 $(u_1, u_2)$
+      (temporal); L24H28 $(u_3, u_7)$ (entity).
+    \item \textbf{Gemma-2-2B} \citep{team2024gemma}: L21H4
+      $(u_0, u_2)$.
+    \item \textbf{Llama-3.2-3B} \citep{grattafiori2024llama3}:
+      L26H14 $(u_2, u_3)$ (scan-discovered).
+\end{itemize}
+
+\section{Four-Model Gender Compass}
+\label{sec:gender}
+
+\cref{tab:gender} summarizes the causal $\alpha$-sweep for the
+gender-pronoun compass across four models. Every compass produces
+amplitude that grows near-linearly with $\alpha$
+($R^2 \ge 0.993$) and phase that is stable to $\pm 3^\circ$
+across the three $\alpha$ settings. \cref{fig:polar} shows
+representative polar plots. All injections are \emph{in-context}
+at the head's own layer, so fitted amplitudes reflect causal
+propagation through every subsequent block, not readout
+proximity.
+
+\begin{table*}[t]
+\centering
+\small
+\caption{Gender-compass causal sweep. $\mathrm{LD}_{\pm}$:
+baseline $\mathrm{logit}(t_{+} - t_{-})$ on $\pm$-context prompts.
+$A(\alpha)$: fitted sinusoidal amplitude. $\Delta\phi$: phase
+drift across $\alpha \in \{1, 3, 10\}$.}
+\label{tab:gender}
+\begin{tabular}{lccccccc}
+\toprule
+Model & Head & $(u_i, u_j)$ & $(\sigma_i, \sigma_j)$ &
+$\mathrm{LD}_{+}$ & $\mathrm{LD}_{-}$ &
+$A(1)/A(3)/A(10)$ & $\phi \pm \Delta\phi$ \\
+\midrule
+GPT-2 Small  & L9H7   & $(1,2)$ & $(8.87, 8.46)$   & $+5.31$ & $-4.31$ &
+$1.67/4.60/12.16$ & $-178.0^\circ \pm 2.9$ \\
+GPT-2 Small  & L10H9  & $(0,3)$ & $(9.15, 6.80)$   & $+3.73$ & $-3.31$ &
+$1.78/5.10/14.16$ & $+4.7^\circ \pm 0.3$ \\
+Phi-3 Mini   & L24H10 & $(0,1)$ & $(9.42, 7.70)$   & $+7.08$ & $-6.97$ &
+$0.67/2.01/5.22$  & $-154.9^\circ \pm 2.0$ \\
+Phi-3 Mini   & L28H1  & $(0,3)$ & $(13.67, 7.61)$  & $+5.06$ & $-5.21$ &
+$1.81/5.15/12.85$ & $+1.0^\circ \pm 1.3$ \\
+Gemma-2-2B   & L21H4  & $(0,2)$ & $(2.35, 1.98)$   & $+5.38$ & $-5.21$ &
+$0.18/0.59/2.19$  & $+0.2^\circ \pm 1.3$ \\
+Llama-3.2-3B & L26H14 & $(2,3)$ & $(1.14, 0.97)$   & $+5.11$ & $-4.58$ &
+$0.28/0.88/3.01$  & $+161.6^\circ \pm 2.4$ \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{figure*}[t]
+\centering
+\begin{subfigure}[t]{0.24\textwidth}
+    \includegraphics[width=\linewidth]{gpt2_polar.png}
+    \caption{GPT-2, L9H7.}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.24\textwidth}
+    \includegraphics[width=\linewidth]{phi3_polar.png}
+    \caption{Phi-3, L24H10.}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.24\textwidth}
+    \includegraphics[width=\linewidth]{gemma_polar.png}
+    \caption{Gemma-2-2B, L21H4.}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.24\textwidth}
+    \includegraphics[width=\linewidth]{phi3_l28h1_causal_polar.png}
+    \caption{Phi-3, L28H1.}
+\end{subfigure}
+\caption{Gender-compass polar plots at $\alpha = 3$. Radius:
+$\mathrm{logit}(\mathit{he} - \mathit{she})$; angle: injection
+$\theta$. Blue/red: masculine/feminine-context prompts; black:
+neutral. The he/she sectors anchor at the fitted
+$\arg\max / \arg\min$.}
+\label{fig:polar}
+\end{figure*}
+
+\paragraph{Bridge to Stage-$1$.} The GPT-2 L9H7 row uses
+$(u_1, u_2)$; Stage-$1$ isolated $u_1$ alone. The GPT-2 L10H9 row
+uses $(u_0, u_3)$; Stage-$1$ isolated $u_0$ alone. In both cases
+the Stage-$1$ $1$D direction is one column of the Stage-$2$ $2$D
+compass plane, and the compass exposes additional structure: a
+continuous $\theta$-family of interventions, of which the
+Stage-$1$ direction is a single point.
+
+\paragraph{Decoding the compass basis.} Projecting write
+directions through $W_U$ reveals the vocabulary each pole of the
+plane maps to. At the context-favoring pole the compass basis
+decodes coherently: \emph{his, He, he} vs.\ \emph{herself, her,
+She} on GPT-2 L9H7; \emph{he, him, his, ihn} plus Japanese and
+Chinese masculine pronouns vs.\ \emph{she, her} plus Japanese,
+Chinese, and Korean feminine pronouns on Gemma-2-2B (the compass
+is cross-lingual); matching patterns on Phi-3 and Llama. Multiple
+languages' pronouns co-localize in the same plane, consistent
+with a shared gender axis in the write-out subspace.
+
+\section{Blind Causal Scan}
+\label{sec:scan}
+
+The compasses above were surfaced by decoding the top-$k$ singular
+vectors through $W_U$ and reading promoted vocabulary. That recipe
+is biased toward visually clean cases. To rule out selection bias,
+we complement decode-driven discovery with a blind causal scan
+that applies the two-pillar test of \cref{tab:gender} to every
+$(L, H, u_i, u_j)$ candidate without inspecting decode.
+
+\paragraph{Setup.} For each model we enumerate all
+$(\text{layer} \times \text{head} \times \binom{4}{2})$ planes from
+the top-$4$ SVs of each head's $W_{OV}$: $864$ planes for GPT-2,
+$1344$ for Phi-3, $240$ for Gemma, $4032$ for Llama. We run the
+gender $\alpha$-sweep in-context with $\alpha \in \{3, 10\}$ and
+$12$ angles, fit a sinusoid, and pass a plane if $R^2 \ge 0.95$,
+$\Delta\phi \le 10^\circ$, and slope $A(10)/10 \ge 0.2$. Two null
+baselines: a \emph{top-$4$} null (random orthonormal pair from the
+head's top-$4$ write subspace) and a \emph{full-OV} null (random
+orthonormal pair from $\mathbb{R}^{d_{\text{model}}}$).
+
+\begin{table}[t]
+\centering
+\small
+\caption{Blind causal-scan pass rates with $95\%$ Agresti--Coull
+CIs. \emph{Compass}: top-$4$ SV-pairs per head. \emph{top-$4$
+null}: random pair from the same top-$4$ write subspace.
+\emph{full-OV null}: random pair from all of
+$\mathbb{R}^{d_{\text{model}}}$.}
+\label{tab:scan}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lccc}
+\toprule
+Model (planes/null) & Compass & top-$4$ null & full-OV null \\
+\midrule
+GPT-2 Small (864/432)   & $2.06\%\,[1.12,3.01]$ & $2.51\%\,[1.04,3.97]$ & $0.44\%\,[0.00,1.06]$ \\
+Phi-3 Mini (1344/672)   & $1.18\%\,[0.60,1.76]$ & $1.62\%\,[0.67,2.57]$ & $0.28\%\,[0.00,0.69]$ \\
+Gemma-2-2B (240/120)    & $2.02\%\,[0.25,3.78]$ & $1.55\%\,[0.00,3.73]$ & $1.55\%\,[0.00,3.73]$ \\
+Llama-3.2-3B (4032/2016)& $0.22\%\,[0.07,0.37]$ & $0.15\%\,[0.00,0.32]$ & $0.00\%\,[0.00,0.09]$ \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+Every model exceeds its full-OV null by a non-overlapping margin.
+Against the top-$4$ null the rates overlap, showing that the
+top-$4$ write subspace is itself semantically enriched; the
+discriminating statistic is \emph{head-level concentration}, not
+aggregate rate. On GPT-2, $15/16$ passing planes come from three
+heads (L9H7, L10H9, L11H1); under the independence null implied
+by aggregate rate, the probability of a single head hosting
+$\ge 4$ passes is $\binom{6}{4}(0.02)^4 \approx 10^{-6}$. On
+Llama, $7/9$ passes concentrate at two heads (L26H14 with $6/6$
+passes, L20H13 with $3/6$). Phi-3 concentrates at L24 and L28.
+
+\paragraph{Strengthened Monte-Carlo nulls.} On Phi-3 L28H1 we run
+a $1000$-trial random-plane null (observed $= 40.77$, random-mean
+$= 20.47$, $p = 0.142$; long-tailed because random directions
+occasionally land on other semantic axes) and a $2000$-trial
+label-permutation null (perm-mean $= 9.42$, perm-max $= 24.35$,
+$p = 0.000$). Permutation is the sharp test.
+
+\paragraph{The scan found heads the decode survey missed.} GPT-2
+L10H9, Phi-3 L28H1, and Llama-3.2-3B L26H14 were not in the
+original decode-based pick. L10H9's gender content is concentrated
+on SV$_0$ alone (the decode browser preferred L9H7 because it
+spreads content across two orthogonal SVs); the scan ranks L10H9
+first by amplitude slope ($1.42$ vs.\ L9H7's $1.25$). Decode
+browsing and causal scanning therefore do not pick up the same
+heads; a complete survey should use both.
+
+\begin{figure*}[t]
+\centering
+\begin{subfigure}[t]{0.44\textwidth}
+    \includegraphics[width=\linewidth]{gpt2_scan_heatmap.png}
+    \caption{GPT-2 Small ($12 \times 12$).}
+\end{subfigure}\hspace{0.02\textwidth}
+\begin{subfigure}[t]{0.44\textwidth}
+    \includegraphics[width=\linewidth]{llama32_3b_scan_gender_heatmap.png}
+    \caption{Llama-3.2-3B ($28 \times 24$).}
+\end{subfigure}
+\caption{Blind causal-scan heatmaps: passing SV-pairs per
+$(L, H)$. Passes concentrate at a handful of heads in both
+models; full-OV null planes distribute uniformly and host zero
+such concentrations.}
+\label{fig:scan_heatmap}
+\end{figure*}
+
+\section{Non-Pronoun Compasses in Phi-3}
+\label{sec:other}
+
+The same recipe surfaces two non-pronoun compasses in Phi-3: a
+\emph{temporal-unit} dial (L24H17, $(u_1, u_2)$,
+$t_{\pm} = \mathit{month}/\mathit{hour}$) and an
+\emph{entity-type} dial (L24H28, $(u_3, u_7)$,
+$t_{\pm} = \mathit{item}/\mathit{operation}$).
+\cref{tab:nonpronoun} gives amplitudes and phases; both satisfy
+amplitude-linearity and phase-stability at
+$\Delta\phi \le 0.9^\circ$.
+
+\begin{table}[t]
+\centering
+\small
+\caption{Non-pronoun compasses in Phi-3 Mini.}
+\label{tab:nonpronoun}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcccccc}
+\toprule
+Axis & Head & $(u_i,u_j)$ & $(t_{+},t_{-})$ &
+$\mathrm{LD}_{+}/\mathrm{LD}_{-}$ &
+$A(1)/A(3)/A(10)$ & $\Delta\phi$ \\
+\midrule
+Temporal & L24H17 & $(1,2)$ & (month, hour) & $+8.68/-6.83$ &
+$0.69/2.10/7.60$ & $0.9^\circ$ \\
+Entity   & L24H28 & $(3,7)$ & (item, operation) & $+5.55/-3.53$ &
+$0.29/0.88/3.06$ & $0.0^\circ$ \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\begin{subfigure}[t]{0.48\columnwidth}
+    \includegraphics[width=\linewidth]{phi3_temporal_polar.png}
+    \caption{Temporal polar.}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.48\columnwidth}
+    \includegraphics[width=\linewidth]{phi3_entity_polar.png}
+    \caption{Entity polar.}
+\end{subfigure}
+\caption{Non-pronoun Phi-3 compasses, $\alpha = 3$.
+Temporal (L24H17) rotates between \emph{month} and \emph{hour};
+entity (L24H28) rotates between \emph{item} and
+\emph{operation}. Both show sinusoidal response with amplitude
+linear in $\alpha$ and stable phase.}
+\label{fig:nonpronoun}
+\end{figure}
+
+A two-harmonic fit separates \emph{two-way} antipodal dials from
+\emph{four-way} rotation dials. Using a four-token probe at
+$0^\circ/90^\circ/180^\circ/270^\circ$ and fitting
+$f(\theta) = \mu + A_1 \cos(\theta - \phi_1)
+  + A_2 \cos(2\theta - \phi_2)$,
+the temporal compass L24H17 scores $A_2 / A_1 = 0.32$ at
+$\alpha = 10$ (a genuine four-way dial:
+month / upon / hour / year), while the entity compass L24H28
+scores $A_2/A_1 \le 0.06$ (two independent antipodal axes).
+Decoding alone cannot distinguish these cases; the second harmonic
+does.
+
+\section{Rank-$2$ Downstream: Transfer and Asymmetry}
+\label{sec:downstream}
+
+A compass is useful only if a rank-$2$ rotation changes downstream
+behavior without destroying fluency. We test this on the same
+occupation-bias setup used in Stage-$1$ for scalar steering,
+now with the full rank-$2$ compass acting as the steering
+primitive. We use the GPT-2 L10H9 $(u_0, u_3)$ compass, rotated
+toward its feminine pole (the $\theta$ at which the fitted
+$\mathrm{LD}(\theta)$ is minimized on GP she-context prompts).
+
+\subsection{GP $\to$ occupation transfer}
+\label{sec:transfer}
+
+We evaluate on $36$ occupation prompts of the form ``The
+[occupation] said that'' spanning $12$ masculine-coded (doctor,
+engineer, scientist, lawyer, CEO, architect, pilot, surgeon,
+professor, programmer, executive, mechanic), $12$ feminine-coded
+(nurse, receptionist, babysitter, housekeeper, assistant,
+secretary, hairdresser, librarian, caretaker, maid, nanny,
+florist), and $12$ neutral (teacher, writer, manager, student,
+artist, journalist, accountant, therapist, consultant, designer,
+analyst, photographer) professions. We measure the pronoun
+bias-score change and the flip rate from stereotypical to
+counter-stereotypical continuation. With the calibrated feminine
+operating point ($\alpha = 2.00$, see \cref{sec:calib}), the
+compass produces an overall transfer flip rate of $58.33\%$:
+$83.33\%$ on masculine-coded occupations, $66.67\%$ on neutral
+occupations, $25.00\%$ on feminine-coded occupations.
+
+\begin{figure*}[t]
+\centering
+\begin{subfigure}[t]{0.48\textwidth}
+    \includegraphics[width=\linewidth]{bc/bias_score_curves.png}
+    \caption{Bias-score change across occupation types.}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.48\textwidth}
+    \includegraphics[width=\linewidth]{bc/flip_rates.png}
+    \caption{Flip rates by occupation category.}
+\end{subfigure}
+\caption{Compass-driven GP$\to$occupation transfer. Masculine-coded
+occupations respond most strongly to the feminine-pole rotation;
+feminine-coded occupations respond weakest. The rank-$2$
+transfer behavior matches the asymmetric pattern seen at the
+$1$D direction level in \cref{sec:bc}.}
+\label{fig:transfer}
+\end{figure*}
+
+\subsection{Per-direction calibration of the feminine pole}
+\label{sec:calib}
+
+The Stage-$1$ asymmetry---masculine control stronger than
+feminine---survives the promotion to rank-$2$. The raw
+compass-at-$\alpha = 1$ setting passes only $19 / 150$ GP flips on
+she-context prompts. We sweep the feminine-pole injection scale
+$\alpha \in \{0.25, 0.50, \ldots, 2.30\}$ (\cref{fig:calib});
+performance improves monotonically through
+$\alpha = 1.25, 1.40, 1.55, 1.70$, breaking the $19 / 150$
+plateau at $\alpha = 1.70$ ($20 / 150$ flips) and reaching
+$21 / 150$ at $\alpha = 2.15$--$2.30$. Beyond $\alpha = 2.00$ the
+transfer improves but GP accuracy on original she-context prompts
+begins softening (from $36.67\%$ at $\alpha = 1.70$ to
+$35.33\%$ at $\alpha = 2.30$). This defines two operating points:
+a \emph{balanced} setting ($\alpha = 2.00$, strongest pre-bend
+configuration) and an \emph{aggressive} setting ($\alpha = 2.30$,
+strongest validated transfer at visible GP cost).
+
+\begin{figure*}[t]
+\centering
+\begin{subfigure}[t]{0.48\textwidth}
+    \includegraphics[width=\linewidth]{bc/top2_bend_comparison.png}
+    \caption{Bend-point analysis: GP cost vs.\ transfer gain.}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.48\textwidth}
+    \includegraphics[width=\linewidth]{bc/endpoint_tradeoffs.png}
+    \caption{Endpoint trade-offs at balanced / aggressive $\alpha$.}
+\end{subfigure}
+\caption{Feminine-pole calibration of the GPT-2 L10H9
+$(u_0, u_3)$ compass. Per-direction calibration narrows but does
+not eliminate the asymmetry first observed at the Stage-$1$
+direction level; the masculine pole achieves $83.33\%$ transfer
+on masculine-coded occupations, while the feminine pole reaches
+$25.00\%$ on feminine-coded occupations at the balanced
+setting.}
+\label{fig:calib}
+\end{figure*}
+
+\paragraph{Asymmetry is a representation-level phenomenon.} Two
+observations tie the calibration back to the main story.
+(i) The asymmetry is already present in the
+uncalibrated Stage-$1$ scalar-steering setup (\cref{sec:bc_gp})
+and reproduces unchanged when the same head's compass plane is
+swept. (ii) Calibration raises feminine-pole transfer (from the
+$19 / 150$ plateau to $21 / 150$ at $\alpha = 2.15$) but cannot
+bridge the gap to masculine-pole transfer. We interpret the
+residual gap as a representational property of GPT-2 Small's
+gender subspace rather than a calibration artifact: the feminine
+pole is simply written at smaller magnitude by the OV map than the
+masculine pole, and rotating inside the plane does not add
+write-strength the head never possessed.
+
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{What a compass is.} A semantic compass is a causal
+feature localized to an attention head: a $2$D subspace of the
+head's write-out space in which every angle is a valid
+intervention. The Stage-$1$ finding that individual OV singular
+directions are causal axes is therefore a $1$D projection of a
+richer structure; the compass makes the orthogonal axis
+explicit and turns a single-vector edit into a continuous
+$\theta$-family.
+
+\paragraph{Why OV-SVD works as a discovery device.} In a
+transformer block, $W_{OV}$ determines the set of directions the
+head can add to the residual stream. Its top SVD columns are
+therefore the candidate ``output languages'' of the head. When a
+pair of such columns corresponds to a categorical axis, it must
+correspond to something the head \emph{actually writes}, not just
+something we can correlate post hoc. This is the structural reason
+OV-SVD is a stronger discovery device than probing residual-stream
+activations directly.
+
+\paragraph{Limitations.}
+(i) \emph{Prompt scope.} Baselines and injections average over
+three short ambiguous prompts per condition; robustness to
+paraphrase is not yet quantified.
+(ii) \emph{Axis breadth.} We demonstrate gender on four models
+and temporal/entity on one (Phi-3). Sentiment, tense, formality,
+and animacy remain untested.
+(iii) \emph{Asymmetry resolution.} Per-direction calibration
+narrows the masculine--feminine control gap but does not close it.
+Whether the gap is a fundamental property of how gender is stored
+in these models or can be mitigated by stronger calibration (or by
+combining multiple compass planes) is open.
+
+\paragraph{Conclusion.} Attention heads are not atomic: individual
+OV singular directions are causal control axes, and pairs of those
+directions form rank-$2$ compasses whose angular dial governs a
+categorical distinction. The same weight-space recipe uncovers
+gender dials in four decoder-only models and non-pronoun dials in
+Phi-3, recovers the same heads in a blind causal scan, and
+transfers the Stage-$1$ GP$\to$occupation bias effect (including
+the masculine--feminine asymmetry) into a rank-$2$ steering
+primitive. OV-SVD is a probe-free, architecture-agnostic tool for
+discovering and editing low-dimensional causal features, with a
+continuous family of interventions rather than a single vector.

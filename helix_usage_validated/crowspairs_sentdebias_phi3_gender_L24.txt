@@ -1,0 +1,12 @@
+Model: microsoft/Phi-3-mini-4k-instruct
+SentenceDebias: domain=gender  layer=24  k=1
+Subspace singular values: ['994.36']
+
+cond         domain            SS      n
+----------------------------------------
+baseline     gender         57.63    262
+baseline     profession     57.56    172
+baseline     overall        57.60    434
+sentdebias   gender         53.05    262
+sentdebias   profession     58.14    172
+sentdebias   overall        55.07    434

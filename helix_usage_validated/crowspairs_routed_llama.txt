@@ -1,0 +1,41 @@
+Model: meta-llama/Llama-3.2-3B
+Routed ensemble: K=4 per domain  alphas=[10.0, 20.0]
+Per-domain heads (best-probe within that domain):
+  gender:
+    L22H12 SV(1,2) phi=+120.0  slope=0.452  passed=True
+    L22H14 SV(0,2) phi=+36.3  slope=0.432  passed=True
+    L26H23 SV(0,1) phi=+39.4  slope=0.452  passed=True
+    L23H20 SV(1,3) phi=+105.1  slope=0.235  passed=True
+  race:
+    L22H12 SV(2,3) phi=+13.2  slope=0.461  passed=True
+    L22H14 SV(0,3) phi=+52.0  slope=0.446  passed=True
+    L26H21 SV(0,1) phi=-43.9  slope=0.396  passed=True
+    L26H23 SV(0,2) phi=-24.2  slope=0.429  passed=True
+  profession:
+    L22H12 SV(1,2) phi=-78.3  slope=0.452  passed=True
+    L22H14 SV(0,1) phi=+123.5  slope=0.401  passed=True
+    L26H14 SV(2,3) phi=+161.6  slope=0.936  passed=True
+    L20H13 SV(0,1) phi=-27.5  slope=0.761  passed=True
+  religion: [FALLBACK]
+    L22H12 SV(1,2) phi=+108.4  slope=0.377  passed=True
+    L26H20 SV(0,3) phi=+111.7  slope=0.188  passed=False
+    L23H14 SV(0,3) phi=-138.5  slope=0.140  passed=False
+    L22H13 SV(0,3) phi=+83.5  slope=0.112  passed=False
+
+cond                    alpha domain            SS      n
+------------------------------------------------------------
+baseline                 0.00 race           50.97    516
+baseline                 0.00 profession     66.86    172
+baseline                 0.00 gender         54.20    262
+baseline                 0.00 religion       74.29    105
+baseline                 0.00 overall        56.68   1055
+routed_K4               10.00 race           38.76    516
+routed_K4               10.00 profession     50.00    172
+routed_K4               10.00 gender         54.58    262
+routed_K4               10.00 religion       72.38    105
+routed_K4               10.00 overall        47.87   1055
+routed_K4               20.00 race           30.04    516
+routed_K4               20.00 profession     49.42    172
+routed_K4               20.00 gender         54.58    262
+routed_K4               20.00 religion       60.00    105
+routed_K4               20.00 overall        42.27   1055

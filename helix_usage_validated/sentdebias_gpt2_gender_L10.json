@@ -1,0 +1,10 @@
+{
+  "model": "gpt2",
+  "domain": "gender",
+  "layer": 10,
+  "k": 1,
+  "subspace_singular_values": [
+    650.14501953125
+  ],
+  "n_items": 552
+}

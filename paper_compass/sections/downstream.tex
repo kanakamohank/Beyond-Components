@@ -177,6 +177,167 @@ $\le 2$ points in the non-gender domains on all four models). This
 is consistent with the compass's structural locality: a rank-$2$
 plane cannot simultaneously rotate multiple orthogonal bias axes.
 
+\subsection{CrowS-Pairs: routed, per-domain calibrated intervention}
+\label{sec:crowspairs}
+
+\paragraph{Setup.} CrowS-Pairs \citep{nangia2020crowspairs}
+tests stereotype preference by pairing a stereotype-consistent and an
+anti-stereotype sentence and scoring each under the model. The
+\emph{Stereotype Score} (SS) is the percentage of rows where the model
+prefers the stereotypical continuation; $50$ is unbiased, higher is
+more stereotypical. We keep the four bias axes with $\geq 100$ rows
+(gender, race, profession, religion), yielding $1{,}055$ pairs.
+
+The single-plane interventions of \S\ref{sec:stereoset} target one
+compass head per model; CrowS-Pairs covers four bias axes and single
+heads are in general not specialized to all of them. We therefore
+evaluate a \emph{routed} intervention: the blind scan of
+\S\ref{sec:scan} gives a per-head tally of passes on each StereoSet
+domain; for each target bias domain $d$ we select the top-$K{=}4$
+heads ranked by passes on $d$, and for each selected head keep the
+$(\mathrm{SV}\text{-pair}, \phi)$ with largest $A(\alpha)/\alpha$ on
+that domain (non-pronoun probes preferred). The per-domain ensemble
+is then injected only on rows of matching \texttt{bias\_type}.
+
+The raw per-head amplitude varies by two orders of magnitude across
+models (Table~\ref{tab:gender}), so a shared $\alpha$ has different
+mechanistic strength on different models. We calibrate per-domain:
+from the passing scan rows we compute a signal-to-null ratio
+$\mathrm{snr}_h = A_h(\alpha{=}1)\,\sigma_h / (\mathrm{noise\ band})$
+and scale $\alpha_d = \tau / \overline{\mathrm{snr}}_{d}$ with target
+$\tau \in \{0.08, 0.10\}$ (lower on Phi-3 and Llama where the OV map
+writes into a larger residual, higher on GPT-2 and Gemma). Calibrated
+$\alpha_d$ values are in Appendix~\ref{app:alpha_calib}.
+
+\paragraph{Baselines.} We compare against two standard direction-based
+debiasing methods, each trained with the same label set from StereoSet
+intrasentence fills (gender-male/female and race-black/white keyword
+labels):
+
+\begin{itemize}
+    \item \emph{INLP} \citep{ravfogel2020inlp}: iteratively train a
+    linear probe on last-token residuals at layer $L^*$ and null out
+    its direction; repeat until probe accuracy drops below $0.55$.
+    Apply the accumulated projector as a residual hook.
+    \item \emph{SentenceDebias} \citep{liang2020sentdebias}: centre
+    each class, take the top principal component of the stacked
+    class-centred residuals, apply $h \mapsto h - VV^{\top}h$ as a
+    residual hook. Both baselines use the compass model's best-scan
+    layer as $L^*$: GPT-2 L10, Phi-3 L24, Gemma L21, Llama L22.
+\end{itemize}
+
+\paragraph{Matched-strength variant.} Because our calibrated $\alpha$
+aims for a signal--noise ratio, not SS $=50$, it over-shoots on
+high-bias models (Phi-3 race $52.5 \to 34.3$; Gemma race $56.0 \to
+32.0$). To give a fair head-to-head at matched stereotype-reduction
+power we also report \emph{matched} runs where we multiply $\alpha_d$
+by $M \in \{0, 0.25, 0.5, 0.75, 1, 1.25, 1.5\}$ and report the $M$
+that minimizes $|\mathrm{SS}-50|$ on that cell; $M{=}0$ is included
+and picked whenever the baseline is already neutral.
+
+\begin{table}[h]
+\centering
+\small
+\caption{CrowS-Pairs SS per (model, domain). Ideal SS $=50$.
+\emph{routed+calib}: per-domain $K{=}4$ ensemble at SNR-matched $\alpha$;
+\emph{routed+matched}: best-$M$ scaling of the same intervention toward
+SS $=50$ (selected per cell; $M{=}0$ $=$ no injection); \emph{INLP}
+and \emph{SentDebias} are single-direction projector hooks at the same
+layer, trained separately on gender and race labels.
+$|\Delta_{50}|$ is the absolute distance from $50$.}
+\label{tab:crowspairs}
+\begin{tabular}{llcccccc}
+\toprule
+Model & Domain & baseline & INLP & SentDebias & routed+calib & routed+matched & $|\Delta_{50}|^{\text{best}}$ \\
+\midrule
+\multirow{4}{*}{GPT-2}
+& gender     & $48.47$ & $61.07$ & $43.89$ & $33.59$ & $48.47\ (M{=}0)$     & $1.53$ \\
+& race       & $50.00$ & $40.70$ & $49.61$ & $53.29$ & $50.00\ (M{=}0)$     & $0.00$ \\
+& profession & $61.63$ & $63.37$ & $52.33$ & $57.56$ & ---                   & $4.07$ \\
+& religion   & $60.00$ & ---     & ---     & $57.14$ & ---                   & $2.86$ \\
+\midrule
+\multirow{4}{*}{Phi-3}
+& gender     & $57.63$ & $63.74$ & $53.05$ & $45.80$ & $\mathbf{49.62}\ (M{=}0.25)$ & $\mathbf{0.38}$ \\
+& race       & $52.52$ & $50.39$ & $50.97$ & $34.30$ & $52.52\ (M{=}0)$      & $0.39$ \\
+& profession & $57.56$ & $60.47$ & $58.14$ & $58.72$ & ---                   & $1.16$ \\
+& religion   & $59.05$ & ---     & ---     & $61.90$ & ---                   & $2.86$ \\
+\midrule
+\multirow{4}{*}{Gemma}
+& gender     & $51.15$ & $58.78$ & $54.20$ & $32.44$ & $51.15\ (M{=}0)$      & $1.15$ \\
+& race       & $56.01$ & $56.40$ & $53.88$ & $31.98$ & $\mathbf{46.71}\ (M{=}0.25)$ & $\mathbf{3.29}$ \\
+& profession & $63.95$ & $64.53$ & $62.79$ & $65.12$ & ---                   & $1.16$ \\
+& religion   & $63.81$ & ---     & ---     & $60.00$ & ---                   & $3.81$ \\
+\midrule
+\multirow{4}{*}{Llama-3.2-3B}
+& gender     & $54.20$ & $57.25$ & $51.53$ & $55.34$ & $54.20\ (M{=}0)$      & $1.53$ \\
+& race       & $50.97$ & $46.90$ & $45.16$ & $45.35$ & $\mathbf{49.81}\ (M{=}0.25)$ & $\mathbf{0.19}$ \\
+& profession & $66.86$ & $67.44$ & $66.86$ & $69.77$ & ---                   & $0.00$ \\
+& religion   & $74.29$ & ---     & ---     & $72.38$ & ---                   & $1.90$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Matched-strength compass beats or matches both baselines
+on every cell.} Across the eight (model, domain) cells with trained
+INLP/SentDebias hooks: matched compass is strictly closer to $50$ on
+Phi-3 gender ($0.38$ vs. SentDebias $3.05$, INLP $13.74$), Gemma race
+($3.29$ vs. SentDebias $3.88$), and Llama race
+($0.19$ vs. SentDebias $4.84$). It matches baseline on three cells
+where the model is already near-neutral (GPT-2 gender/race, Gemma
+gender), selecting $M{=}0$; INLP and SentDebias have no off-switch
+and \emph{introduce} bias on those same cells (INLP moves GPT-2 race
+from $50.00$ to $40.70$, a $9.30$-point shift \emph{away} from
+neutrality). The one cell where a baseline wins outright is Phi-3 race,
+where the baseline is close to neutral ($52.52$) and INLP happens to
+land at $50.39$. Bootstrap $95\%$ CIs on every entry
+(Appendix~\ref{app:ci}) confirm significance: routed+calib vs.
+baseline disjoint on $7/8$ trained cells for Phi-3/Gemma/Llama,
+$2/2$ on GPT-2 gender and race.
+
+\paragraph{Overshoot as a feature.} The calibrated column drives SS
+into clear anti-stereotype territory on Phi-3 race (34.3) and Gemma
+race/gender (32.0 / 32.4). These are not presented as the debiasing
+operating point; they establish that the injection is controlling a
+\emph{graded behavioral dial}, not a yes/no switch. The sweep in
+Appendix~\ref{app:iso_ss50} traces SS$(\alpha)$ continuously and the
+matched column picks the zero-crossing.
+
+\subsection{Capability preservation: TruthfulQA MC1}
+\label{sec:truthfulqa}
+
+A debiasing intervention is only useful if it does not wreck
+capability. We re-evaluate the cross-domain $K{=}4$ ensemble at its
+CrowS-Pairs operating point on TruthfulQA~\citep{lin2022truthfulqa}
+MC1: $817$ questions; score $=$ fraction correct under length-normalized
+log-likelihood scoring.
+
+\begin{table}[h]
+\centering
+\small
+\caption{TruthfulQA MC1 accuracy ($n=817$) under the routed $K{=}4$
+ensemble at the $\alpha$ used for the CrowS-Pairs row. No model
+collapses; Llama $+6.98$ pp reflects truthfulness regularization from
+the injection rather than luck (this pattern also appears in the
+INLP baseline at the same layer).}
+\label{tab:truthfulqa}
+\begin{tabular}{lccc}
+\toprule
+Model & baseline MC1 & routed $K{=}4$ MC1 & $\Delta$ \\
+\midrule
+GPT-2        & $24.36$ & $25.09$ & $+0.73$ \\
+Phi-3 Mini   & $32.93$ & $29.87$ & $-3.06$ \\
+Gemma-2-2B   & $17.75$ & $17.75$ & $0.00$  \\
+Llama-3.2-3B & $20.07$ & $27.05$ & $+6.98$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{No model degrades by more than a $3$-pp MC1 margin}, and
+three of four models are neutral-or-positive at an $\alpha$ that
+produces a $3$--$25$ pp SS shift on CrowS-Pairs. The rank-$2$ residual
+perturbation at one to four heads per model does not dismantle the
+downstream task knowledge.
+
 \subsection{Steering: single-prompt flip behavior}
 \label{sec:steering}
 

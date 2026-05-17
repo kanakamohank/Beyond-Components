@@ -1,0 +1,110 @@
+%%%%%%%% ICML 2026 SUBMISSION %%%%%%%%%%%%%%%%%
+% Beyond Components: From Singular Directions to Rank-2 Semantic Compasses
+%
+
+\documentclass{article}
+
+% Recommended packages for figures and better typesetting:
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{multirow}
+
+\usepackage{hyperref}
+
+% Attempt to make hyperref and algorithmic work together better:
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+% Preprint version (shows author names).
+% For blind submission use: \usepackage{icml2026}
+% For camera-ready use:     \usepackage[accepted]{icml2026}
+\usepackage[preprint]{icml2026}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{xcolor}
+
+\usepackage[capitalize,noabbrev]{cleveref}
+
+\graphicspath{{figures/}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% THEOREMS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% Running title (shorter than main title):
+\icmltitlerunning{Beyond Components: From Singular Directions to Rank-2 Compasses}
+
+\begin{document}
+
+\twocolumn[
+  \icmltitle{Beyond Components: \\
+    From Singular Directions to Rank-$2$ Semantic Compasses}
+
+  \icmlsetsymbol{equal}{*}
+
+  \begin{icmlauthorlist}
+    \icmlauthor{Sai Bharadwaj Avvari}{iiith}
+    \icmlauthor{Karthik Mikkilineni}{iiith}
+    \icmlauthor{Mohan Kanaka}{iiith}
+  \end{icmlauthorlist}
+
+  \icmlaffiliation{iiith}{KMS Team, International Institute of
+    Information Technology, Hyderabad, India}
+
+  \icmlcorrespondingauthor{Sai Bharadwaj Avvari}{s.avvari@research.iiit.ac.in}
+
+  \icmlkeywords{mechanistic interpretability, attention heads,
+    singular value decomposition, causal steering, gender bias,
+    language models}
+
+  \vskip 0.3in
+]
+
+\printAffiliationsAndNotice{}  % no special notice
+
+\input{sections/abstract}
+\input{sections/body}
+
+\section*{Impact Statement}
+
+This paper advances mechanistic interpretability by locating
+causal low-dimensional features to specific attention heads and
+showing that rotations within such a plane produce continuous,
+controllable changes in downstream behavior. The same rank-$2$
+intervention that \emph{reduces} stereotypical occupation
+continuations can, by rotating to the opposite pole, \emph{inject}
+them: the primitive is dual-use. We restrict all downstream
+evaluations in this work to the Gender Pronoun task and a public
+set of occupation prompts, and we do not release steering planes
+tuned to harm any demographic group. The persistent
+masculine--feminine control asymmetry we document is itself a
+finding about how current pretrained models represent gender and
+should be accounted for before compass-style interventions are
+used as a bias-mitigation tool in deployed systems.
+
+\bibliographystyle{icml2026}
+\bibliography{references}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% APPENDIX
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\appendix
+\onecolumn
+\input{sections/appendix}
+
+\end{document}

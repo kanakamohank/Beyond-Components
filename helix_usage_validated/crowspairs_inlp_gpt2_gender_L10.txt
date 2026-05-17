@@ -1,0 +1,12 @@
+Model: gpt2
+INLP: domain=gender  layer=10  iters_used=25  final_probe_acc=0.838
+Probe acc trajectory: ['1.000', '0.991', '0.991', '0.982', '0.982', '0.991', '0.982', '0.991', '0.937', '0.937', '0.937', '0.919', '0.955', '0.919', '0.892', '0.910', '0.883', '0.883', '0.883', '0.865', '0.856', '0.892', '0.874', '0.883', '0.838']
+
+cond       domain            SS      n
+----------------------------------------
+baseline   gender         48.47    262
+baseline   profession     61.63    172
+baseline   overall        53.69    434
+inlp       gender         61.07    262
+inlp       profession     63.37    172
+inlp       overall        61.98    434
