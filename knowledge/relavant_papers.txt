@@ -1,0 +1,5 @@
+https://arxiv.org/html/2508.02513 - ✅ Summarized in summary_modular_digit_arithmetic.md (2026-05-31). Deep comparison with repo's Fourier paper in comparison_modular_digit_vs_repo.md.
+Modular Arithmetic: Language Models Solve Math Digit by Digit
+https://arxiv.org/pdf/2406.03445 -
+Pre-trained Large Language Models Use Fourier Features
+to Compute Addition

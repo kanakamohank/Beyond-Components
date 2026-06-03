@@ -1,0 +1,73 @@
+\section{Background and related work}
+\label{sec:background}
+
+\paragraph{OV circuit and singular-direction analysis.}
+For a decoder head, $W_{OV} = W_V W_O \in \mathbb{R}^{d_{\text{model}}
+\times d_{\text{model}}}$ \citep{elhage2021mathematical}. With
+residuals as row vectors the head adds $r W_{OV}$ to the
+destination token; taking $W_{OV} = U \Sigma V^\top$ gives
+$r W_{OV} = r U \Sigma V^\top$, so the rows of $V^\top$ are the
+write-out directions in residual coordinates. We let
+$u_i := V^\top_{[i,:]}$. \citet{millidge2022svd} document that
+these singular directions are often individually interpretable
+through $W_U$. \citet{ahmad2025beyond} extract sparse rank-1
+direction-level circuits via learnable masks on the singular
+values for the GP, IOI, and Greater-Than tasks.
+
+We extend the analysis from individual directions to the 2D plane
+they span. The plane supports a continuous-angle injection
+$\alpha\sigma(\cos\theta\, u_i + \sin\theta\, u_j)$, which we
+characterise by phase stability across $\alpha$ together with a
+second-harmonic test that separates two-way antipodal axes from
+four-way categorical structure (\S\ref{sec:results:harmonic}).
+
+\paragraph{Linear features in activation space.}
+The linear representation hypothesis \citep{park2024linearrep}, DAS
+\citep{geiger2024das}, geometry-of-truth probes
+\citep{marks2024geometry}, sparse autoencoders
+\citep{cunningham2023sparse,templeton2024scaling}, and function
+vectors \citep{todd2024function} all search activation space for
+low-dimensional causal features. We search the weight matrix
+instead, which buys head-locality and removes probe training. The
+trade is that we cannot find features the head does not natively
+write through $W_{OV}$. DAS in particular is the closest neighbor:
+both methods identify a 2D rotation underlying behavior; DAS
+\emph{learns} the rotation under causal abstraction objectives, the
+compass \emph{reads} it from the OV SVD. We do not run DAS as a
+baseline; doing so would discipline our claim that the SVD-derived
+plane is the right one.
+
+\paragraph{Helices and circular features.}
+\citet{engels2024not} show LMs encode certain numerical concepts as
+approximate helices in the residual, recovered by trained probes.
+Our temporal dial in Phi-3 L24H17 (\S\ref{sec:results:harmonic}) is
+a categorical analog read from weights without probe training; an
+explicit head-to-head---do Engels' months/days helix and our L24H17
+plane occupy the same subspace?---would settle whether we are
+finding a different object or a re-derivation of the same one.
+
+\paragraph{Steering primitives.}
+ROME \citep{meng2022rome}, ActAdd \citep{turner2023actadd}, and
+Inference-Time Intervention \citep{li2023inference} are 1D additive
+steering directions. The compass is a rank-2 generalization with a
+continuous-$\theta$ family, but---per the random-plane null
+result---we do not yet have evidence the rank-2 dial supports
+qualitatively new affordances over scalar 1D steering. The
+storage--steering dissociation (\S\ref{sec:results:storage})
+suggests one place where it might.
+
+\paragraph{Bias-evaluation context.}
+We evaluate downstream behaviour on WinoGender
+\citep{rudinger2018winogender,zhao2018winogender}, intra-sentence
+StereoSet \citep{nadeem2021stereoset}, and CrowS-Pairs
+\citep{nangia2020crowspairs}, with INLP \citep{ravfogel2020inlp}
+and SentenceDebias \citep{liang2020sentdebias} as the natural
+direction-based debiasing baselines. Two methodological caveats
+shape our reporting: \citet{gonen2019lipstick} show linear-direction
+debiasing can move surface metrics while leaving downstream signals
+in nearby clusters, and \citet{blodgett2021stereotyping} document
+annotation noise in StereoSet and CrowS-Pairs of order a few SS
+points. We therefore present compass rotation as a graded
+steering primitive with an off-switch (\S\ref{sec:downstream:crows})
+rather than as a debiasing method, and read movement magnitudes
+in light of the benchmark noise floor.

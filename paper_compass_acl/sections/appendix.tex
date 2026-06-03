@@ -1,0 +1,431 @@
+\section{Prompt Lists}
+\label{app:prompts}
+
+All causal $\alpha$-sweeps average over three prompts per condition;
+prompts are short and semantically ambiguous to keep baseline logit
+separations small.
+
+\paragraph{Gender (GPT-2, Phi-3, Gemma, Llama).}
+Neutral: \emph{``The person said that''}, \emph{``Then they said that''},
+\emph{``Afterwards, the speaker said that''}.
+$+$-context (masculine): \emph{``The man laced up his boots because''},
+\emph{``The father waved to the crowd and''}, \emph{``The king announced that''}.
+$-$-context (feminine): \emph{``The woman laced up her boots because''},
+\emph{``The mother waved to the crowd and''}, \emph{``The queen announced that''}.
+
+\paragraph{Temporal (Phi-3 L24H17, $t_+$ = \emph{month}, $t_-$ = \emph{hour}).}
+Neutral: \emph{``The event took about one''}, \emph{``They waited
+nearly one''}, \emph{``The project finished within one''}.
+$+$ (month-biasing): \emph{``The rent is due every''}, \emph{``Pregnancy
+lasts about nine''}, \emph{``The magazine arrives once a''}.
+$-$ (hour-biasing): \emph{``The meeting lasts exactly one''}, \emph{``The
+drive takes roughly one''}, \emph{``She slept for a single''}.
+
+\paragraph{Entity (Phi-3 L24H28, $t_+$ = \emph{item}, $t_-$ = \emph{operation}).}
+Neutral: \emph{``The list contained a single''}, \emph{``He removed
+exactly one''}, \emph{``The inventory showed one''}.
+$+$ (item-biasing): \emph{``On the shelf sat a small''}, \emph{``The
+box held only one''}, \emph{``She picked up a single''}.
+$-$ (operation-biasing): \emph{``The surgeon completed a complex''},
+\emph{``The factory ran one more''}, \emph{``The team executed a risky''}.
+
+\section{Battery Implementation}
+\label{app:battery_details}
+
+\paragraph{Random-plane null.} For each primary head, we draw $1000$
+random orthonormal pairs $(u_i', u_j')$ from
+$\mathbb{R}^{d_{\text{model}}}$ via QR decomposition of Gaussian
+matrices, recompute the discriminative statistic
+$D = \overline{\mathrm{LD}_{+}} - \overline{\mathrm{LD}_{-}}$ at
+$\alpha = 1$, and report the empirical $p = \Pr(D_{\text{rand}} \ge
+D_{\text{obs}})$.
+
+\paragraph{Permutation null.} For each head we permute the
+$\{+,-\}$ context label across prompts $2000$ times and compute the
+same $D$. The permutation null tests whether the signal could come
+from random label assignment; it returns $p < 0.001$ for every primary
+head we test.
+
+\paragraph{Cyclicity.} We project $u_i + i u_j$ onto the unit circle
+in $\mathbb{C}$ and read off the top-$10$ tokens at $\theta =
+0, \pi/2, \pi, 3\pi/2, 2\pi$ via $W_U^\top$. The verdict
+\emph{CIRCLE: closed and with distinct antipodes} requires Jaccard
+identity at $\theta = 0$ and $\theta = 2\pi$, and Jaccard zero
+between $\theta = 0$ and $\theta = \pi$. All five primary heads
+satisfy this.
+
+\paragraph{Causal-patch.} For a probe prompt, we cache the residual
+at the head's layer, project onto the compass plane, rotate the
+in-plane projection by $\Delta \in \{\pm 90^\circ, \pm 180^\circ\}$
+preserving the magnitude, and replace the residual with the rotated
+version on the last token only. We report the maximum absolute
+logit shift across rotations.
+
+\section{Two-pillar thresholds}
+\label{app:thresholds}
+
+The blind scan applies three thresholds: $R^2 \ge 0.95$ on the
+linearity fit, $\Delta\phi \le 10^\circ$ on the phase across
+$\alpha \in \{3, 10\}$, and $A_{\text{slope}} = A(10)/10 \ge 0.20$.
+For Gemma-2-2B, we lower $A_{\text{slope}}$ to $0.08$ because the
+post-pre-norm residual at the layer of interest is normalized to a
+larger magnitude than in the other three models, so the per-unit
+$\alpha$ writes a smaller fraction of the residual; the natural
+$\alpha\sigma$ injection (rather than unit-norm injection) recovers
+the same compass at the higher slope. The threshold change does not
+add or remove heads from the four-model story.
+
+\section{Non-pronoun compasses in Phi-3}
+\label{app:nonpronoun}
+
+\Cref{tab:nonpronoun} reports the $\alpha$-sweep numbers for the
+Phi-3 temporal and entity compasses.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Non-pronoun compasses in Phi-3 Mini.}
+\label{tab:nonpronoun}
+\begin{tabular}{lcccc}
+\toprule
+Axis & Head & $(u_i, u_j)$ & $A(1)/A(3)/A(10)$ & $\Delta\phi$ \\
+\midrule
+Temporal & L24H17 & $(1, 2)$ & $0.69/2.10/7.60$ & $0.9^\circ$ \\
+Entity   & L24H28 & $(3, 7)$ & $0.29/0.88/3.06$ & $0.0^\circ$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+A two-harmonic fit
+$f(\theta) = \mu + A_1 \cos(\theta - \phi_1) + A_2 \cos(2\theta -
+\phi_2)$ on a four-token probe at $0^\circ/90^\circ/180^\circ/270^\circ$
+distinguishes two-way antipodal dials from genuine four-way categorical
+structure. Phi-3 L24H17 (temporal) scores $A_2/A_1 = 0.32$ at
+$\alpha = 10$ on the orthogonal axis, indicating four-way structure
+(month / upon / hour / year); Phi-3 L24H28 (entity) scores
+$\le 0.06$, consistent with two superposed antipodal axes.
+
+\section{Polar plots for the remaining models}
+\label{app:polar_extra}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{phi3_polar.png}
+\caption{Phi-3 Mini, L24H10 gender compass, $\alpha = 3$.}
+\label{fig:phi3_polar}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{gemma_polar.png}
+\caption{Gemma-2-2B, L21H4 gender compass, $\alpha = 3$.}
+\label{fig:gemma_polar}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{phi3_l28h1_causal_polar.png}
+\caption{Phi-3 Mini, L28H1 gender compass, $\alpha = 3$.}
+\label{fig:phi3_l28h1_polar}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{phi3_temporal_polar.png}
+\caption{Phi-3 Mini, L24H17 temporal compass, $\alpha = 3$
+(month vs.\ hour).}
+\label{fig:phi3_temporal_polar}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{phi3_entity_polar.png}
+\caption{Phi-3 Mini, L24H28 entity compass, $\alpha = 3$
+(item vs.\ operation).}
+\label{fig:phi3_entity_polar}
+\end{figure}
+
+\section{Decode tables (top-10 tokens per pole)}
+\label{app:decode}
+
+For each primary head, top-$10$ vocabulary tokens at the two compass
+poles via $W_U^\top u_i$:
+
+\paragraph{GPT-2 L9H7 $(u_1, u_2)$.}
+Pole-$0$: \emph{herself, her, She, she, Her, she, hers, She, hers, her}.
+Pole-$\pi$: \emph{His, his, his, His, He, He, he, himself, his, He}.
+
+\paragraph{Phi-3 L28H1 $(u_0, u_3)$.}
+Pole-$0$: \emph{his, his, himself, lui (French), him, him, he, His,
+ego (Russian transliterated), \'anico}.
+Pole-$\pi$: \emph{her, she, hers, herself, she, elle (French), She,
+ella (Spanish), ela (Portuguese), her}.
+
+\paragraph{Phi-3 L24H10 $(u_0, u_1)$.}
+Pole-$0$: \emph{their, they, Their, loro, they, They, They, leur, leurs, them}.
+Pole-$\pi$: \emph{Its, its, him, itself, suoi, its, ihm, jego, lui, ihm}.
+This plane decodes plural pronouns vs.\ mixed singular masculine
+forms with possessives in five languages; the contrast is more
+plural-vs-singular than masculine-vs-feminine, but the
+$\alpha$-sweep on a he/she probe still passes the two-pillar test.
+
+\paragraph{Gemma L21H4 $(u_0, u_2)$.}
+Pole-$0$: \emph{him, kare, he, his, ihn, lui, his, him, his, He}
+(Japanese \emph{kare} = ``he''; German \emph{ihn}; French \emph{lui}).
+Pole-$\pi$: \emph{she, her, she, She, herself, hers, She, her, she, geunyeo}
+(Korean \emph{geunyeo} = ``she'').
+
+\paragraph{Llama L26H14 $(u_2, u_3)$.}
+Pole-$0$: \emph{she, her, herself, hers, she, she, she, She, her, she}.
+Pole-$\pi$: \emph{his, t\=a, his, himself, he, his, He, his, he, he}
+(Mandarin \emph{t\=a} written transliterated; the underlying token in
+the unembedding vocabulary is the orthographic third-person pronoun).
+
+\section{Per-axis decode for primary heads}
+\label{app:full_decode}
+
+For each primary compass head we list the top-$8$ vocabulary
+tokens at the positive and negative poles of its first few
+singular axes, decoded via $W_U^\top u_k$ with per-row centering
+of $W_U$. Reading axes individually gives an incomplete picture:
+e.g.\ Phi-3 L24H10 SV0 decodes to plural-vs-mixed-singular and
+SV2 to feminine-vs-masculine, but only the joint plane gives the
+gender axis the $\alpha$-sweep finds. Non-Latin tokens are
+transliterated (Japanese \emph{kare wa}, Korean \emph{geunyeo},
+Mandarin \emph{ta}, Russian \emph{shla}/\emph{ono}, Portuguese
+\emph{ela}, French \emph{lui}/\emph{elle}/\emph{mois}, Italian
+\emph{loro}/\emph{egli}, German \emph{ihn}/\emph{ihm},
+Indonesian \emph{mereka}, Polish \emph{jego}).
+
+\paragraph{GPT-2 Small.}
+\textbf{L9H7.} SV$_0$ ($\sigma{=}9.23$): \emph{their, Their, they,
+themselves} vs.\ \emph{his, He, him, His}. SV$_1$ ($8.87$):
+\emph{herself, her, She, she, Her} vs.\ \emph{His, his, He, he,
+himself}. SV$_2$ ($8.46$): \emph{Its, its, itself, it, It} vs.\
+\emph{He, His, himself, his, herself}. SV$_3$ ($7.69$):
+non-categorical (token-fragment noise).
+
+\textbf{L10H9.} SV$_0$ ($9.15$): \emph{His, his, He, he, himself}
+vs.\ \emph{her, she, She, herself, Her, hers}. SV$_1$ ($7.87$):
+\emph{her, she, herself, She, haar} vs.\ \emph{their, Their, they,
+They, THEIR}. SV$_2$ ($7.27$): \emph{She, herself, her, she, hers,
+Her} vs.\ \emph{Its, ITS, itself, it, It}.
+
+\paragraph{Phi-3 Mini.}
+\textbf{L28H1.} SV$_0$ ($13.67$): \emph{his, himself, lui, him,
+he, His} vs.\ \emph{her, she, hers, herself, elle, ella} ---
+clean masculine/feminine. SV$_1$ ($10.04$): \emph{his, him,
+himself, lui, ihm} vs.\ \emph{Their, loro, leurs, themselves,
+Its}. SV$_2$ ($9.27$): \emph{our, ourselves, notre, nous, ours}
+vs.\ \emph{my, mys, My, myself}. SV$_3$ ($7.61$): \emph{your,
+Your, yourself, yours} vs.\ \emph{my, mys, My, our} --- four
+orthogonal pronoun axes the same head writes through.
+
+\textbf{L24H10.} SV$_0$ ($9.42$): \emph{their, they, Their, loro,
+leur} vs.\ \emph{Its, its, him, itself, suoi, jego} ---
+plural-vs-singular. SV$_1$ ($7.70$): \emph{its, Its, itself,
+Their, their} vs.\ \emph{his, him, himself, ihn, ta (Mandarin)}.
+SV$_2$ ($6.94$): \emph{she, elle, shla, ella, her} vs.\ \emph{him,
+his, lui, himself, ihm, ihn} --- the gender axis. SV$_3$ ($6.60$):
+non-categorical vs.\ \emph{she, hers, her, herself, ella, elle}.
+
+\textbf{L24H17 (temporal).} SV$_1$: \emph{month, months, mois}
+vs.\ \emph{hour, hours, evening, afternoon}. SV$_2$: \emph{year,
+years, days} (orthogonal axis).
+
+\textbf{L24H28 (entity).} SV$_3$: \emph{items, atoms, objects,
+particles} vs.\ \emph{operations, experiments, programs}.
+SV$_7$: \emph{teams, committees, authorities} (independent axis).
+
+\paragraph{Gemma-2-2B L21H4.}
+SV$_0$ ($2.35$): \emph{him, kare wa, he, his, ihn, kare ga} vs.\
+\emph{she, her, herself, geunyeo}. SV$_1$ ($2.07$): \emph{him, he,
+his, onun, her, ihm} vs.\ \emph{they, mereka}. SV$_2$ ($1.98$):
+\emph{him, he, his, egli, kare wa} vs.\ \emph{its, ono, ta
+(Mandarin)} --- animate vs.\ inanimate. SV$_3$ ($1.52$):
+non-categorical vs.\ \emph{she, him, his, her, he}.
+
+\paragraph{Llama-3.2-3B L26H14.}
+SV$_2$ ($1.14$): \emph{she, her, herself, hers} vs.\ \emph{his, ta
+(Mandarin), himself, he}. SV$_3$ ($0.97$): \emph{he, His, his, him,
+himself} vs.\ \emph{her, herself, hers, ela}.
+
+\section{Direction-based projector baselines on CrowS-Pairs}
+\label{app:projector_baselines}
+
+\Cref{tab:projector} reports INLP \citep{ravfogel2020inlp} and
+SentenceDebias \citep{liang2020sentdebias} alongside the routed
+compass at the $M^* = 1$ ($\alpha = \alpha_d$) operating point, on
+gender and race domains. INLP and SentDebias are trained on
+StereoSet intra-sentence labels at one layer per model; both projectors
+are applied as residual hooks. Neither has an off-switch; both modify
+already-neutral cells.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Projector baselines on CrowS-Pairs SS.}
+\label{tab:projector}
+\begin{tabular}{llcccc}
+\toprule
+Model & Domain & baseline & INLP & SentDeb. & compass \\
+\midrule
+GPT-2  & gender & $48.47$ & $61.07$ & $43.89$ & $33.59$ \\
+GPT-2  & race   & $50.00$ & $40.70$ & $49.61$ & $53.29$ \\
+Phi-3  & gender & $57.63$ & $63.74$ & $53.05$ & $45.80$ \\
+Phi-3  & race   & $52.52$ & $50.39$ & $50.97$ & $34.30$ \\
+Gemma  & gender & $51.15$ & $58.78$ & $54.20$ & $32.44$ \\
+Gemma  & race   & $56.01$ & $56.40$ & $53.88$ & $31.98$ \\
+Llama  & gender & $54.20$ & $57.25$ & $51.53$ & $55.34$ \\
+Llama  & race   & $50.97$ & $46.90$ & $45.16$ & $45.35$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The compass column is the in-sample $M = 1$ result, before the
+held-out multiplier sweep of \cref{tab:crows_holdout}. The
+held-out evaluation is the more honest read.
+
+\section{Per-model $\alpha$-sweep curves and linearity}
+\label{app:curves}
+
+The per-model curves below show $\mathrm{LD}(\theta)$ for all
+three $\alpha$ values, paired with the $A(\alpha)$ linearity plot.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{gpt2_curves.png}
+\caption{GPT-2 Small, L9H7 gender compass: $\mathrm{LD}(\theta)$
+across $\alpha \in \{1, 3, 10\}$.}
+\label{fig:gpt2_curves}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{phi3_curves.png}
+\caption{Phi-3 Mini, L24H10 gender compass: $\mathrm{LD}(\theta)$
+across $\alpha \in \{1, 3, 10\}$.}
+\label{fig:phi3_curves}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{gemma_curves.png}
+\caption{Gemma-2-2B, L21H4 gender compass: $\mathrm{LD}(\theta)$
+across $\alpha \in \{1, 3, 10\}$.}
+\label{fig:gemma_curves}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{llama32_3b_compass_causal_curves.png}
+\caption{Llama-3.2-3B, L26H14 gender compass:
+$\mathrm{LD}(\theta)$ across $\alpha$.}
+\label{fig:llama_curves}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{phi3_temporal_curves.png}
+\caption{Phi-3 Mini, L24H17 temporal compass (month vs.\ hour):
+$\mathrm{LD}(\theta)$ across $\alpha$.}
+\label{fig:phi3_temporal_curves}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{phi3_entity_curves.png}
+\caption{Phi-3 Mini, L24H28 entity compass (item vs.\ operation):
+$\mathrm{LD}(\theta)$ across $\alpha$.}
+\label{fig:phi3_entity_curves}
+\end{figure}
+
+\section{Llama-3.2-3B compass polar}
+\label{app:llama_polar}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{llama32_3b_compass_causal_polar.png}
+\caption{Llama-3.2-3B, L26H14 gender compass at $\alpha = 3$.}
+\label{fig:llama_polar}
+\end{figure}
+
+\section{Blind-scan heatmaps and routing}
+\label{app:scan_heatmaps}
+
+The blind causal scan produces a $(\text{layer}, \text{head})$
+heatmap of passing planes per model. \cref{fig:scan_heatmap} (in the
+main paper) shows GPT-2; \cref{fig:phi3_scan,fig:gemma_scan,fig:llama_scan}
+report the other three models. \cref{fig:routing} reports the
+multi-domain routing density used by the held-out CrowS-Pairs
+intervention.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{phi3_scan_gender_heatmap.png}
+\caption{Phi-3 Mini blind-scan heatmap, gender domain.}
+\label{fig:phi3_scan}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{gemma_scan_gender_heatmap.png}
+\caption{Gemma-2-2B blind-scan heatmap, gender domain
+($A_{\mathrm{slope}} \geq 0.08$).}
+\label{fig:gemma_scan}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{llama32_3b_scan_gender_heatmap.png}
+\caption{Llama-3.2-3B blind-scan heatmap, gender domain.}
+\label{fig:llama_scan}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{head_domain_heatmap_gpt2.png}
+\caption{GPT-2: per-head pass count across the four CrowS-Pairs
+domains (gender, race, profession, religion). Heads passing on
+multiple domains are routed by domain specialisation in
+\S\ref{sec:downstream:crows}.}
+\label{fig:routing}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{head_domain_heatmap_phi3.png}
+\caption{Phi-3 Mini: per-head pass count across CrowS-Pairs
+domains.}
+\label{fig:routing_phi3}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{head_domain_heatmap_gemma.png}
+\caption{Gemma-2-2B: per-head pass count across CrowS-Pairs
+domains.}
+\label{fig:routing_gemma}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{head_domain_heatmap_llama.png}
+\caption{Llama-3.2-3B: per-head pass count across CrowS-Pairs
+domains.}
+\label{fig:routing_llama}
+\end{figure}
+
+\section{Per-domain $\alpha$ calibration}
+\label{app:alpha_calib}
+
+We calibrate $\alpha_d = \tau / \overline{\mathrm{snr}}_h$ where
+$\mathrm{snr}_h = \|v_h\| / \|r_{\text{pre}}\|$ at the head's layer
+on a neutral prompt, and $\tau$ is a model-specific target SNR. The
+calibrated $\alpha_d$ values used for $M = 1$ in \cref{tab:crows_holdout}
+are: GPT-2 ($\tau = 0.20$): $1.89/1.80/1.37/1.87$ for
+gender/race/profession/religion. Phi-3 ($\tau = 0.08$):
+$5.10/5.15/3.80/5.34$. Gemma ($\tau = 0.08$):
+$55.26/81.36/29.73/31.19$ (Gemma's smaller singular values require
+larger $\alpha$ to match SNR). Llama ($\tau = 0.10$):
+$4.06/3.56/3.45/4.66$.

@@ -10,14 +10,25 @@ For each (model, domain) in {phi3, gemma} x {gender, race}, we:
      M * α_d for M in MULTIPLIERS.
   3. Pick the M* that minimizes |SS - 50|, report both SS and M*.
 
+Held-out mode (--holdout):
+  Splits each domain's rows 50/50 deterministically by --holdout_seed.
+  Sweep all M on the dev half, pick best M, then evaluate that frozen
+  M on the disjoint test half. Addresses R1/R2/R4: per-cell M selection
+  on the same data being scored is in-sample tuning.
+
 Usage
 -----
+  # Original in-sample sweep:
   python -u experiments/target_ss50_sweep.py --model phi3
-  python -u experiments/target_ss50_sweep.py --model gemma
+
+  # Held-out (rebuttal-grade) sweep:
+  python -u experiments/target_ss50_sweep.py --model gpt2 --holdout
 
 Outputs:
-  helix_usage_validated/target_ss50_{model}.csv
+  helix_usage_validated/target_ss50_{model}.csv  (in-sample)
   helix_usage_validated/target_ss50_{model}.txt
+  helix_usage_validated/target_ss50_{model}_holdout.csv  (held-out)
+  helix_usage_validated/target_ss50_{model}_holdout.txt
 """
 from __future__ import annotations
 
@@ -25,6 +36,7 @@ import argparse
 import csv
 import json
 import os
+import random
 import sys
 import time
 import warnings
@@ -58,6 +70,17 @@ DEFAULT_ALPHA_JSON = {
 MULTIPLIERS = [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5]
 
 
+def split_dev_test(rows, seed):
+    """Deterministic 50/50 split by index. Returns (dev_rows, test_rows)."""
+    n = len(rows)
+    idx = list(range(n))
+    random.Random(seed).shuffle(idx)
+    half = n // 2
+    dev_idx = sorted(idx[:half])
+    test_idx = sorted(idx[half:])
+    return [rows[i] for i in dev_idx], [rows[i] for i in test_idx]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model",
@@ -67,6 +90,10 @@ def main():
                     default="gender,race",
                     help="comma-separated subset")
     ap.add_argument("--K", type=int, default=4)
+    ap.add_argument("--holdout", action="store_true",
+                    help="Run held-out variant: pick M on dev half, "
+                         "report SS on disjoint test half.")
+    ap.add_argument("--holdout_seed", type=int, default=0)
     args = ap.parse_args()
 
     hf_name, scan_tag = MODEL_SPECS[args.model]
@@ -100,66 +127,142 @@ def main():
                 by_domain[CROWS_DOMAINS[row["bias_type"]]].append(row)
 
     runs = []
+    holdout_summary = []  # one row per domain with chosen_M + test SS
     for d in target_domains:
         rows = by_domain[d]
-        print(f"[{time.time()-t0:6.1f}s] === domain={d} n={len(rows)} ===",
-              flush=True)
 
-        # Include baseline once (M=0.0 == no hooks).
-        base = compute_ss(model, rows, None)
-        runs.append(dict(domain=d, multiplier=0.0, alpha=0.0,
-                         ss=base["ss"], n=base["n"],
-                         dist50=abs(base["ss"] - 50.0)))
-        print(f"    baseline          SS={base['ss']:6.2f}  "
-              f"|Δ50|={abs(base['ss']-50):.2f}", flush=True)
+        if args.holdout:
+            dev_rows, test_rows = split_dev_test(rows, args.holdout_seed)
+            print(f"[{time.time()-t0:6.1f}s] === domain={d} n={len(rows)}  "
+                  f"dev={len(dev_rows)} test={len(test_rows)} "
+                  f"(seed={args.holdout_seed}) ===", flush=True)
 
-        for m in MULTIPLIERS:
-            if m == 0.0:
-                continue
-            a = m * per_domain_alpha[d]
-            hooks = build_domain_hooks(model, routed[d]["heads"],
-                                       a, device, dtype)
-            met = compute_ss(model, rows, hooks)
-            dist = abs(met["ss"] - 50.0)
-            runs.append(dict(domain=d, multiplier=m, alpha=a,
-                             ss=met["ss"], n=met["n"], dist50=dist))
-            print(f"    M={m:4.2f}  a={a:7.3f}  SS={met['ss']:6.2f}  "
-                  f"|Δ50|={dist:.2f}", flush=True)
+            # Sweep all M on the dev half.
+            base = compute_ss(model, dev_rows, None)
+            runs.append(dict(domain=d, split="dev", multiplier=0.0, alpha=0.0,
+                             ss=base["ss"], n=base["n"],
+                             dist50=abs(base["ss"] - 50.0)))
+            print(f"    dev baseline          SS={base['ss']:6.2f}  "
+                  f"|Δ50|={abs(base['ss']-50):.2f}", flush=True)
+
+            for m in MULTIPLIERS:
+                if m == 0.0:
+                    continue
+                a = m * per_domain_alpha[d]
+                hooks = build_domain_hooks(model, routed[d]["heads"],
+                                           a, device, dtype)
+                met = compute_ss(model, dev_rows, hooks)
+                dist = abs(met["ss"] - 50.0)
+                runs.append(dict(domain=d, split="dev", multiplier=m, alpha=a,
+                                 ss=met["ss"], n=met["n"], dist50=dist))
+                print(f"    dev M={m:4.2f} a={a:7.3f} SS={met['ss']:6.2f}  "
+                      f"|Δ50|={dist:.2f}", flush=True)
+
+            # Pick best M on dev (lowest |Δ50|).
+            dev_runs = [r for r in runs if r["domain"] == d
+                        and r["split"] == "dev"]
+            best_dev = min(dev_runs, key=lambda r: r["dist50"])
+            chosen_M = best_dev["multiplier"]
+            chosen_alpha = best_dev["alpha"]
+
+            # Score frozen M on the test half.
+            if chosen_M == 0.0:
+                test_met = compute_ss(model, test_rows, None)
+            else:
+                hooks = build_domain_hooks(model, routed[d]["heads"],
+                                           chosen_alpha, device, dtype)
+                test_met = compute_ss(model, test_rows, hooks)
+            test_dist = abs(test_met["ss"] - 50.0)
+            runs.append(dict(domain=d, split="test", multiplier=chosen_M,
+                             alpha=chosen_alpha, ss=test_met["ss"],
+                             n=test_met["n"], dist50=test_dist))
+            print(f"    >>> chosen M*={chosen_M:.2f} on dev "
+                  f"(dev SS={best_dev['ss']:.2f})  ->  "
+                  f"test SS={test_met['ss']:.2f}  "
+                  f"|Δ50|={test_dist:.2f}", flush=True)
+            holdout_summary.append(dict(
+                domain=d, n_dev=len(dev_rows), n_test=len(test_rows),
+                chosen_M=chosen_M, chosen_alpha=chosen_alpha,
+                ss_dev=best_dev["ss"], ss_test=test_met["ss"],
+                dist50_test=test_dist))
+        else:
+            print(f"[{time.time()-t0:6.1f}s] === domain={d} n={len(rows)} ===",
+                  flush=True)
+            # Include baseline once (M=0.0 == no hooks).
+            base = compute_ss(model, rows, None)
+            runs.append(dict(domain=d, split="all", multiplier=0.0, alpha=0.0,
+                             ss=base["ss"], n=base["n"],
+                             dist50=abs(base["ss"] - 50.0)))
+            print(f"    baseline          SS={base['ss']:6.2f}  "
+                  f"|Δ50|={abs(base['ss']-50):.2f}", flush=True)
+
+            for m in MULTIPLIERS:
+                if m == 0.0:
+                    continue
+                a = m * per_domain_alpha[d]
+                hooks = build_domain_hooks(model, routed[d]["heads"],
+                                           a, device, dtype)
+                met = compute_ss(model, rows, hooks)
+                dist = abs(met["ss"] - 50.0)
+                runs.append(dict(domain=d, split="all", multiplier=m, alpha=a,
+                                 ss=met["ss"], n=met["n"], dist50=dist))
+                print(f"    M={m:4.2f}  a={a:7.3f}  SS={met['ss']:6.2f}  "
+                      f"|Δ50|={dist:.2f}", flush=True)
 
     OUT_DIR.mkdir(exist_ok=True)
-    csv_path = OUT_DIR / f"target_ss50_{args.model}.csv"
+    suffix = "_holdout" if args.holdout else ""
+    csv_path = OUT_DIR / f"target_ss50_{args.model}{suffix}.csv"
     with csv_path.open("w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=["domain", "multiplier", "alpha",
-                                          "ss", "n", "dist50"])
+        w = csv.DictWriter(f, fieldnames=["domain", "split", "multiplier",
+                                          "alpha", "ss", "n", "dist50"])
         w.writeheader()
         for r in runs:
             w.writerow(r)
 
-    # Pick best multiplier per domain.
+    # Pick best multiplier per domain (in-sample mode only; held-out
+    # already records its chosen M in holdout_summary).
     best_by_dom = {}
-    for r in runs:
-        d = r["domain"]
-        if d not in best_by_dom or r["dist50"] < best_by_dom[d]["dist50"]:
-            best_by_dom[d] = r
+    if not args.holdout:
+        for r in runs:
+            d = r["domain"]
+            if d not in best_by_dom or r["dist50"] < best_by_dom[d]["dist50"]:
+                best_by_dom[d] = r
 
     lines = [
         f"Model: {hf_name}",
         f"Calib α source: {alpha_json}",
         f"Per-domain α (M=1.0 reference): {per_domain_alpha}",
-        "",
-        f"{'domain':<12} {'mult':>6} {'alpha':>8} {'SS':>7} "
+    ]
+    if args.holdout:
+        lines += [f"Held-out: 50/50 split (seed={args.holdout_seed})", ""]
+    else:
+        lines += [""]
+    lines += [
+        f"{'domain':<12} {'split':>5} {'mult':>6} {'alpha':>8} {'SS':>7} "
         f"{'|Δ50|':>7} {'n':>5}",
-        "-" * 50,
+        "-" * 60,
     ]
     for r in runs:
-        lines.append(f"{r['domain']:<12} {r['multiplier']:>6.2f} "
+        lines.append(f"{r['domain']:<12} {r['split']:>5} "
+                     f"{r['multiplier']:>6.2f} "
                      f"{r['alpha']:>8.3f} {r['ss']:>7.2f} "
                      f"{r['dist50']:>7.2f} {r['n']:>5}")
-    lines += ["", "Best multiplier per domain:"]
-    for d, r in best_by_dom.items():
-        lines.append(f"  {d}: M*={r['multiplier']:.2f}  α*={r['alpha']:.3f}  "
-                     f"SS*={r['ss']:.2f}  |Δ50|={r['dist50']:.2f}")
-    txt_path = OUT_DIR / f"target_ss50_{args.model}.txt"
+    if args.holdout:
+        lines += ["", "Held-out summary (M chosen on dev, scored on test):"]
+        for s in holdout_summary:
+            lines.append(f"  {s['domain']}: M*={s['chosen_M']:.2f}  "
+                         f"α*={s['chosen_alpha']:.3f}  "
+                         f"SS_dev={s['ss_dev']:.2f}  "
+                         f"SS_test={s['ss_test']:.2f}  "
+                         f"|Δ50|_test={s['dist50_test']:.2f}  "
+                         f"(n_dev={s['n_dev']}, n_test={s['n_test']})")
+    else:
+        lines += ["", "Best multiplier per domain (in-sample):"]
+        for d, r in best_by_dom.items():
+            lines.append(f"  {d}: M*={r['multiplier']:.2f}  "
+                         f"α*={r['alpha']:.3f}  "
+                         f"SS*={r['ss']:.2f}  |Δ50|={r['dist50']:.2f}")
+    txt_path = OUT_DIR / f"target_ss50_{args.model}{suffix}.txt"
     txt_path.write_text("\n".join(lines))
     print(f"[{time.time()-t0:6.1f}s] wrote {csv_path}  {txt_path}",
           flush=True)

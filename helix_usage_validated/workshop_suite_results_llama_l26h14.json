@@ -1,0 +1,1040 @@
+{
+  "random_plane": {
+    "layer": 26,
+    "head": 14,
+    "dims": [
+      2,
+      3
+    ],
+    "observed": 55.083126068115234,
+    "random_mean": 29.987645748257638,
+    "random_std": 18.819032404751702,
+    "random_max": 117.75175476074219,
+    "p_value": 0.107,
+    "n_trials": 1000
+  },
+  "permutation": {
+    "layer": 26,
+    "head": 14,
+    "dims": [
+      2,
+      3
+    ],
+    "observed": 55.083126068115234,
+    "perm_mean": 6.022425310075283,
+    "perm_std": 2.5215356886621674,
+    "perm_max": 14.972975730895996,
+    "p_value": 0.0,
+    "n_permutations": 2000
+  },
+  "principal_angles": {
+    "specs": [
+      [
+        26,
+        14,
+        2,
+        3
+      ]
+    ],
+    "angles_deg": {}
+  },
+  "cyclicity": {
+    "layer": 26,
+    "head": 14,
+    "dims": [
+      2,
+      3
+    ],
+    "jaccard_identity": 1.0,
+    "jaccard_antipode": 0.0,
+    "top10_0": [
+      " she",
+      " her",
+      " herself",
+      " hers",
+      "she",
+      ".She",
+      "\u5979",
+      "\u5979\u7684",
+      " She",
+      "\u3002\u5979"
+    ],
+    "top10_180": [
+      " his",
+      "\u4ed6",
+      "his",
+      " himself",
+      " he",
+      "\u4ed6\u7684",
+      " him",
+      " jego",
+      "\u3001\u5f7c",
+      " jeho"
+    ],
+    "top10_360": [
+      " she",
+      " her",
+      " herself",
+      " hers",
+      "she",
+      ".She",
+      "\u5979",
+      "\u5979\u7684",
+      " She",
+      "\u3002\u5979"
+    ],
+    "verdict": "CIRCLE: closed and with distinct antipodes"
+  },
+  "causal_patch": {
+    "layer": 26,
+    "head": 14,
+    "dims": [
+      2,
+      3
+    ],
+    "rows": [
+      {
+        "prompt": "The software company launched a new program",
+        "theta0": 319.6217645523513,
+        "delta": -180.0,
+        "new_theta": 139.6217645523513,
+        "target_angle": 0.0,
+        "target_tokens": [
+          " program",
+          " operations",
+          " experiments"
+        ],
+        "logit_base": 5.453125,
+        "logit_rot": 5.453125,
+        "logit_shift": 0.0
+      },
+      {
+        "prompt": "The software company launched a new program",
+        "theta0": 319.6217645523513,
+        "delta": -180.0,
+        "new_theta": 139.6217645523513,
+        "target_angle": 90.0,
+        "target_tokens": [
+          " teams",
+          " groups",
+          " team"
+        ],
+        "logit_base": 6.59375,
+        "logit_rot": 6.604166507720947,
+        "logit_shift": 0.010416507720947266
+      },
+      {
+        "prompt": "The software company launched a new program",
+        "theta0": 319.6217645523513,
+        "delta": -180.0,
+        "new_theta": 139.6217645523513,
+        "target_angle": 180.0,
+        "target_tokens": [
+          " tools",
+          " atoms",
+          " tokens"
+        ],
+        "logit_base": 2.5833332538604736,
+        "logit_rot": 2.58984375,
+        "logit_shift": 0.006510496139526367
+      },
+      {
+        "prompt": "The software company launched a new program",
+        "theta0": 319.6217645523513,
+        "delta": -180.0,
+        "new_theta": 139.6217645523513,
+        "target_angle": 270.0,
+        "target_tokens": [
+          " territory",
+          " areas",
+          " regions"
+        ],
+        "logit_base": 3.5520832538604736,
+        "logit_rot": 3.5364582538604736,
+        "logit_shift": -0.015625
+      },
+      {
+        "prompt": "The software company launched a new program",
+        "theta0": 319.6217645523513,
+        "delta": -90.0,
+        "new_theta": 229.6217645523513,
+        "target_angle": 0.0,
+        "target_tokens": [
+          " program",
+          " operations",
+          " experiments"
+        ],
+        "logit_base": 5.453125,
+        "logit_rot": 5.447916507720947,
+        "logit_shift": -0.005208492279052734
+      },
+      {
+        "prompt": "The software company launched a new program",
+        "theta0": 319.6217645523513,
+        "delta": -90.0,
+        "new_theta": 229.6217645523513,
+        "target_angle": 90.0,
+        "target_tokens": [
+          " teams",
+          " groups",
+          " team"
+        ],
+        "logit_base": 6.59375,
+        "logit_rot": 6.583333492279053,
+        "logit_shift": -0.010416507720947266
+      },
+      {
+        "prompt": "The software company launched a new program",
+        "theta0": 319.6217645523513,
+        "delta": -90.0,
+        "new_theta": 229.6217645523513,
+        "target_angle": 180.0,
+        "target_tokens": [
+          " tools",
+          " atoms",
+          " tokens"
+        ],
+        "logit_base": 2.5833332538604736,
+        "logit_rot": 2.56640625,
+        "logit_shift": -0.016927003860473633
+      },
+      {
+        "prompt": "The software company launched a new program",
+        "theta0": 319.6217645523513,
+        "delta": -90.0,
+        "new_theta": 229.6217645523513,
+        "target_angle": 270.0,
+        "target_tokens": [
+          " territory",
+          " areas",
+          " regions"
+        ],
+        "logit_base": 3.5520832538604736,
+        "logit_rot": 3.5416667461395264,
+        "logit_shift": -0.010416507720947266
+      },
+      {
+        "prompt": "The software company launched a new program",
+        "theta0": 319.6217645523513,
+        "delta": 0.0,
+        "new_theta": 319.6217645523513,
+        "target_angle": 0.0,
+        "target_tokens": [
+          " program",
+          " operations",
+          " experiments"
+        ],
+        "logit_base": 5.453125,
+        "logit_rot": 5.453125,
+        "logit_shift": 0.0
+      },
+      {
+        "prompt": "The software company launched a new program",
+        "theta0": 319.6217645523513,
+        "delta": 0.0,
+        "new_theta": 319.6217645523513,
+        "target_angle": 90.0,
+        "target_tokens": [
+          " teams",
+          " groups",
+          " team"
+        ],
+        "logit_base": 6.59375,
+        "logit_rot": 6.59375,
+        "logit_shift": 0.0
+      },
+      {
+        "prompt": "The software company launched a new program",
+        "theta0": 319.6217645523513,
+        "delta": 0.0,
+        "new_theta": 319.6217645523513,
+        "target_angle": 180.0,
+        "target_tokens": [
+          " tools",
+          " atoms",
+          " tokens"
+        ],
+        "logit_base": 2.5833332538604736,
+        "logit_rot": 2.5833332538604736,
+        "logit_shift": 0.0
+      },
+      {
+        "prompt": "The software company launched a new program",
+        "theta0": 319.6217645523513,
+        "delta": 0.0,
+        "new_theta": 319.6217645523513,
+        "target_angle": 270.0,
+        "target_tokens": [
+          " territory",
+          " areas",
+          " regions"
+        ],
+        "logit_base": 3.5520832538604736,
+        "logit_rot": 3.5520832538604736,
+        "logit_shift": 0.0
+      },
+      {
+        "prompt": "The software company launched a new program",
+        "theta0": 319.6217645523513,
+        "delta": 90.0,
+        "new_theta": 49.621764552351294,
+        "target_angle": 0.0,
+        "target_tokens": [
+          " program",
+          " operations",
+          " experiments"
+        ],
+        "logit_base": 5.453125,
+        "logit_rot": 5.458333492279053,
+        "logit_shift": 0.005208492279052734
+      },
+      {
+        "prompt": "The software company launched a new program",
+        "theta0": 319.6217645523513,
+        "delta": 90.0,
+        "new_theta": 49.621764552351294,
+        "target_angle": 90.0,
+        "target_tokens": [
+          " teams",
+          " groups",
+          " team"
+        ],
+        "logit_base": 6.59375,
+        "logit_rot": 6.625,
+        "logit_shift": 0.03125
+      },
+      {
+        "prompt": "The software company launched a new program",
+        "theta0": 319.6217645523513,
+        "delta": 90.0,
+        "new_theta": 49.621764552351294,
+        "target_angle": 180.0,
+        "target_tokens": [
+          " tools",
+          " atoms",
+          " tokens"
+        ],
+        "logit_base": 2.5833332538604736,
+        "logit_rot": 2.6028645038604736,
+        "logit_shift": 0.01953125
+      },
+      {
+        "prompt": "The software company launched a new program",
+        "theta0": 319.6217645523513,
+        "delta": 90.0,
+        "new_theta": 49.621764552351294,
+        "target_angle": 270.0,
+        "target_tokens": [
+          " territory",
+          " areas",
+          " regions"
+        ],
+        "logit_base": 3.5520832538604736,
+        "logit_rot": 3.5625,
+        "logit_shift": 0.010416746139526367
+      },
+      {
+        "prompt": "The software company launched a new program",
+        "theta0": 319.6217645523513,
+        "delta": 180.0,
+        "new_theta": 139.6217645523513,
+        "target_angle": 0.0,
+        "target_tokens": [
+          " program",
+          " operations",
+          " experiments"
+        ],
+        "logit_base": 5.453125,
+        "logit_rot": 5.453125,
+        "logit_shift": 0.0
+      },
+      {
+        "prompt": "The software company launched a new program",
+        "theta0": 319.6217645523513,
+        "delta": 180.0,
+        "new_theta": 139.6217645523513,
+        "target_angle": 90.0,
+        "target_tokens": [
+          " teams",
+          " groups",
+          " team"
+        ],
+        "logit_base": 6.59375,
+        "logit_rot": 6.604166507720947,
+        "logit_shift": 0.010416507720947266
+      },
+      {
+        "prompt": "The software company launched a new program",
+        "theta0": 319.6217645523513,
+        "delta": 180.0,
+        "new_theta": 139.6217645523513,
+        "target_angle": 180.0,
+        "target_tokens": [
+          " tools",
+          " atoms",
+          " tokens"
+        ],
+        "logit_base": 2.5833332538604736,
+        "logit_rot": 2.58984375,
+        "logit_shift": 0.006510496139526367
+      },
+      {
+        "prompt": "The software company launched a new program",
+        "theta0": 319.6217645523513,
+        "delta": 180.0,
+        "new_theta": 139.6217645523513,
+        "target_angle": 270.0,
+        "target_tokens": [
+          " territory",
+          " areas",
+          " regions"
+        ],
+        "logit_base": 3.5520832538604736,
+        "logit_rot": 3.5364582538604736,
+        "logit_shift": -0.015625
+      },
+      {
+        "prompt": "The championship was won by the rival teams",
+        "theta0": 203.2821048091731,
+        "delta": -180.0,
+        "new_theta": 23.28210480917309,
+        "target_angle": 0.0,
+        "target_tokens": [
+          " program",
+          " operations",
+          " experiments"
+        ],
+        "logit_base": 2.9192707538604736,
+        "logit_rot": 2.9322917461395264,
+        "logit_shift": 0.013020992279052734
+      },
+      {
+        "prompt": "The championship was won by the rival teams",
+        "theta0": 203.2821048091731,
+        "delta": -180.0,
+        "new_theta": 23.28210480917309,
+        "target_angle": 90.0,
+        "target_tokens": [
+          " teams",
+          " groups",
+          " team"
+        ],
+        "logit_base": 7.989583492279053,
+        "logit_rot": 8.0,
+        "logit_shift": 0.010416507720947266
+      },
+      {
+        "prompt": "The championship was won by the rival teams",
+        "theta0": 203.2821048091731,
+        "delta": -180.0,
+        "new_theta": 23.28210480917309,
+        "target_angle": 180.0,
+        "target_tokens": [
+          " tools",
+          " atoms",
+          " tokens"
+        ],
+        "logit_base": 1.1302083730697632,
+        "logit_rot": 1.1223958730697632,
+        "logit_shift": -0.0078125
+      },
+      {
+        "prompt": "The championship was won by the rival teams",
+        "theta0": 203.2821048091731,
+        "delta": -180.0,
+        "new_theta": 23.28210480917309,
+        "target_angle": 270.0,
+        "target_tokens": [
+          " territory",
+          " areas",
+          " regions"
+        ],
+        "logit_base": 2.7135417461395264,
+        "logit_rot": 2.7135417461395264,
+        "logit_shift": 0.0
+      },
+      {
+        "prompt": "The championship was won by the rival teams",
+        "theta0": 203.2821048091731,
+        "delta": -90.0,
+        "new_theta": 113.28210480917309,
+        "target_angle": 0.0,
+        "target_tokens": [
+          " program",
+          " operations",
+          " experiments"
+        ],
+        "logit_base": 2.9192707538604736,
+        "logit_rot": 2.9270832538604736,
+        "logit_shift": 0.0078125
+      },
+      {
+        "prompt": "The championship was won by the rival teams",
+        "theta0": 203.2821048091731,
+        "delta": -90.0,
+        "new_theta": 113.28210480917309,
+        "target_angle": 90.0,
+        "target_tokens": [
+          " teams",
+          " groups",
+          " team"
+        ],
+        "logit_base": 7.989583492279053,
+        "logit_rot": 8.0,
+        "logit_shift": 0.010416507720947266
+      },
+      {
+        "prompt": "The championship was won by the rival teams",
+        "theta0": 203.2821048091731,
+        "delta": -90.0,
+        "new_theta": 113.28210480917309,
+        "target_angle": 180.0,
+        "target_tokens": [
+          " tools",
+          " atoms",
+          " tokens"
+        ],
+        "logit_base": 1.1302083730697632,
+        "logit_rot": 1.1276041269302368,
+        "logit_shift": -0.002604246139526367
+      },
+      {
+        "prompt": "The championship was won by the rival teams",
+        "theta0": 203.2821048091731,
+        "delta": -90.0,
+        "new_theta": 113.28210480917309,
+        "target_angle": 270.0,
+        "target_tokens": [
+          " territory",
+          " areas",
+          " regions"
+        ],
+        "logit_base": 2.7135417461395264,
+        "logit_rot": 2.7083332538604736,
+        "logit_shift": -0.005208492279052734
+      },
+      {
+        "prompt": "The championship was won by the rival teams",
+        "theta0": 203.2821048091731,
+        "delta": 0.0,
+        "new_theta": 203.2821048091731,
+        "target_angle": 0.0,
+        "target_tokens": [
+          " program",
+          " operations",
+          " experiments"
+        ],
+        "logit_base": 2.9192707538604736,
+        "logit_rot": 2.9192707538604736,
+        "logit_shift": 0.0
+      },
+      {
+        "prompt": "The championship was won by the rival teams",
+        "theta0": 203.2821048091731,
+        "delta": 0.0,
+        "new_theta": 203.2821048091731,
+        "target_angle": 90.0,
+        "target_tokens": [
+          " teams",
+          " groups",
+          " team"
+        ],
+        "logit_base": 7.989583492279053,
+        "logit_rot": 7.989583492279053,
+        "logit_shift": 0.0
+      },
+      {
+        "prompt": "The championship was won by the rival teams",
+        "theta0": 203.2821048091731,
+        "delta": 0.0,
+        "new_theta": 203.2821048091731,
+        "target_angle": 180.0,
+        "target_tokens": [
+          " tools",
+          " atoms",
+          " tokens"
+        ],
+        "logit_base": 1.1302083730697632,
+        "logit_rot": 1.1302083730697632,
+        "logit_shift": 0.0
+      },
+      {
+        "prompt": "The championship was won by the rival teams",
+        "theta0": 203.2821048091731,
+        "delta": 0.0,
+        "new_theta": 203.2821048091731,
+        "target_angle": 270.0,
+        "target_tokens": [
+          " territory",
+          " areas",
+          " regions"
+        ],
+        "logit_base": 2.7135417461395264,
+        "logit_rot": 2.7135417461395264,
+        "logit_shift": 0.0
+      },
+      {
+        "prompt": "The championship was won by the rival teams",
+        "theta0": 203.2821048091731,
+        "delta": 90.0,
+        "new_theta": 293.2821048091731,
+        "target_angle": 0.0,
+        "target_tokens": [
+          " program",
+          " operations",
+          " experiments"
+        ],
+        "logit_base": 2.9192707538604736,
+        "logit_rot": 2.9296875,
+        "logit_shift": 0.010416746139526367
+      },
+      {
+        "prompt": "The championship was won by the rival teams",
+        "theta0": 203.2821048091731,
+        "delta": 90.0,
+        "new_theta": 293.2821048091731,
+        "target_angle": 90.0,
+        "target_tokens": [
+          " teams",
+          " groups",
+          " team"
+        ],
+        "logit_base": 7.989583492279053,
+        "logit_rot": 8.0,
+        "logit_shift": 0.010416507720947266
+      },
+      {
+        "prompt": "The championship was won by the rival teams",
+        "theta0": 203.2821048091731,
+        "delta": 90.0,
+        "new_theta": 293.2821048091731,
+        "target_angle": 180.0,
+        "target_tokens": [
+          " tools",
+          " atoms",
+          " tokens"
+        ],
+        "logit_base": 1.1302083730697632,
+        "logit_rot": 1.140625,
+        "logit_shift": 0.010416626930236816
+      },
+      {
+        "prompt": "The championship was won by the rival teams",
+        "theta0": 203.2821048091731,
+        "delta": 90.0,
+        "new_theta": 293.2821048091731,
+        "target_angle": 270.0,
+        "target_tokens": [
+          " territory",
+          " areas",
+          " regions"
+        ],
+        "logit_base": 2.7135417461395264,
+        "logit_rot": 2.71875,
+        "logit_shift": 0.005208253860473633
+      },
+      {
+        "prompt": "The championship was won by the rival teams",
+        "theta0": 203.2821048091731,
+        "delta": 180.0,
+        "new_theta": 23.28210480917312,
+        "target_angle": 0.0,
+        "target_tokens": [
+          " program",
+          " operations",
+          " experiments"
+        ],
+        "logit_base": 2.9192707538604736,
+        "logit_rot": 2.9322917461395264,
+        "logit_shift": 0.013020992279052734
+      },
+      {
+        "prompt": "The championship was won by the rival teams",
+        "theta0": 203.2821048091731,
+        "delta": 180.0,
+        "new_theta": 23.28210480917312,
+        "target_angle": 90.0,
+        "target_tokens": [
+          " teams",
+          " groups",
+          " team"
+        ],
+        "logit_base": 7.989583492279053,
+        "logit_rot": 8.0,
+        "logit_shift": 0.010416507720947266
+      },
+      {
+        "prompt": "The championship was won by the rival teams",
+        "theta0": 203.2821048091731,
+        "delta": 180.0,
+        "new_theta": 23.28210480917312,
+        "target_angle": 180.0,
+        "target_tokens": [
+          " tools",
+          " atoms",
+          " tokens"
+        ],
+        "logit_base": 1.1302083730697632,
+        "logit_rot": 1.1223958730697632,
+        "logit_shift": -0.0078125
+      },
+      {
+        "prompt": "The championship was won by the rival teams",
+        "theta0": 203.2821048091731,
+        "delta": 180.0,
+        "new_theta": 23.28210480917312,
+        "target_angle": 270.0,
+        "target_tokens": [
+          " territory",
+          " areas",
+          " regions"
+        ],
+        "logit_base": 2.7135417461395264,
+        "logit_rot": 2.7135417461395264,
+        "logit_shift": 0.0
+      },
+      {
+        "prompt": "The explorers mapped out the uncharted territory",
+        "theta0": 222.90205795865015,
+        "delta": -180.0,
+        "new_theta": 42.90205795865015,
+        "target_angle": 0.0,
+        "target_tokens": [
+          " program",
+          " operations",
+          " experiments"
+        ],
+        "logit_base": 4.239583492279053,
+        "logit_rot": 4.265625,
+        "logit_shift": 0.026041507720947266
+      },
+      {
+        "prompt": "The explorers mapped out the uncharted territory",
+        "theta0": 222.90205795865015,
+        "delta": -180.0,
+        "new_theta": 42.90205795865015,
+        "target_angle": 90.0,
+        "target_tokens": [
+          " teams",
+          " groups",
+          " team"
+        ],
+        "logit_base": 5.635416507720947,
+        "logit_rot": 5.666666507720947,
+        "logit_shift": 0.03125
+      },
+      {
+        "prompt": "The explorers mapped out the uncharted territory",
+        "theta0": 222.90205795865015,
+        "delta": -180.0,
+        "new_theta": 42.90205795865015,
+        "target_angle": 180.0,
+        "target_tokens": [
+          " tools",
+          " atoms",
+          " tokens"
+        ],
+        "logit_base": 1.8580728769302368,
+        "logit_rot": 1.8958333730697632,
+        "logit_shift": 0.03776049613952637
+      },
+      {
+        "prompt": "The explorers mapped out the uncharted territory",
+        "theta0": 222.90205795865015,
+        "delta": -180.0,
+        "new_theta": 42.90205795865015,
+        "target_angle": 270.0,
+        "target_tokens": [
+          " territory",
+          " areas",
+          " regions"
+        ],
+        "logit_base": 8.395833015441895,
+        "logit_rot": 8.395833015441895,
+        "logit_shift": 0.0
+      },
+      {
+        "prompt": "The explorers mapped out the uncharted territory",
+        "theta0": 222.90205795865015,
+        "delta": -90.0,
+        "new_theta": 132.90205795865015,
+        "target_angle": 0.0,
+        "target_tokens": [
+          " program",
+          " operations",
+          " experiments"
+        ],
+        "logit_base": 4.239583492279053,
+        "logit_rot": 4.229166507720947,
+        "logit_shift": -0.010416984558105469
+      },
+      {
+        "prompt": "The explorers mapped out the uncharted territory",
+        "theta0": 222.90205795865015,
+        "delta": -90.0,
+        "new_theta": 132.90205795865015,
+        "target_angle": 90.0,
+        "target_tokens": [
+          " teams",
+          " groups",
+          " team"
+        ],
+        "logit_base": 5.635416507720947,
+        "logit_rot": 5.65625,
+        "logit_shift": 0.020833492279052734
+      },
+      {
+        "prompt": "The explorers mapped out the uncharted territory",
+        "theta0": 222.90205795865015,
+        "delta": -90.0,
+        "new_theta": 132.90205795865015,
+        "target_angle": 180.0,
+        "target_tokens": [
+          " tools",
+          " atoms",
+          " tokens"
+        ],
+        "logit_base": 1.8580728769302368,
+        "logit_rot": 1.8723958730697632,
+        "logit_shift": 0.014322996139526367
+      },
+      {
+        "prompt": "The explorers mapped out the uncharted territory",
+        "theta0": 222.90205795865015,
+        "delta": -90.0,
+        "new_theta": 132.90205795865015,
+        "target_angle": 270.0,
+        "target_tokens": [
+          " territory",
+          " areas",
+          " regions"
+        ],
+        "logit_base": 8.395833015441895,
+        "logit_rot": 8.395833015441895,
+        "logit_shift": 0.0
+      },
+      {
+        "prompt": "The explorers mapped out the uncharted territory",
+        "theta0": 222.90205795865015,
+        "delta": 0.0,
+        "new_theta": 222.90205795865015,
+        "target_angle": 0.0,
+        "target_tokens": [
+          " program",
+          " operations",
+          " experiments"
+        ],
+        "logit_base": 4.239583492279053,
+        "logit_rot": 4.239583492279053,
+        "logit_shift": 0.0
+      },
+      {
+        "prompt": "The explorers mapped out the uncharted territory",
+        "theta0": 222.90205795865015,
+        "delta": 0.0,
+        "new_theta": 222.90205795865015,
+        "target_angle": 90.0,
+        "target_tokens": [
+          " teams",
+          " groups",
+          " team"
+        ],
+        "logit_base": 5.635416507720947,
+        "logit_rot": 5.635416507720947,
+        "logit_shift": 0.0
+      },
+      {
+        "prompt": "The explorers mapped out the uncharted territory",
+        "theta0": 222.90205795865015,
+        "delta": 0.0,
+        "new_theta": 222.90205795865015,
+        "target_angle": 180.0,
+        "target_tokens": [
+          " tools",
+          " atoms",
+          " tokens"
+        ],
+        "logit_base": 1.8580728769302368,
+        "logit_rot": 1.8580728769302368,
+        "logit_shift": 0.0
+      },
+      {
+        "prompt": "The explorers mapped out the uncharted territory",
+        "theta0": 222.90205795865015,
+        "delta": 0.0,
+        "new_theta": 222.90205795865015,
+        "target_angle": 270.0,
+        "target_tokens": [
+          " territory",
+          " areas",
+          " regions"
+        ],
+        "logit_base": 8.395833015441895,
+        "logit_rot": 8.395833015441895,
+        "logit_shift": 0.0
+      },
+      {
+        "prompt": "The explorers mapped out the uncharted territory",
+        "theta0": 222.90205795865015,
+        "delta": 90.0,
+        "new_theta": 312.9020579586502,
+        "target_angle": 0.0,
+        "target_tokens": [
+          " program",
+          " operations",
+          " experiments"
+        ],
+        "logit_base": 4.239583492279053,
+        "logit_rot": 4.265625,
+        "logit_shift": 0.026041507720947266
+      },
+      {
+        "prompt": "The explorers mapped out the uncharted territory",
+        "theta0": 222.90205795865015,
+        "delta": 90.0,
+        "new_theta": 312.9020579586502,
+        "target_angle": 90.0,
+        "target_tokens": [
+          " teams",
+          " groups",
+          " team"
+        ],
+        "logit_base": 5.635416507720947,
+        "logit_rot": 5.645833492279053,
+        "logit_shift": 0.010416984558105469
+      },
+      {
+        "prompt": "The explorers mapped out the uncharted territory",
+        "theta0": 222.90205795865015,
+        "delta": 90.0,
+        "new_theta": 312.9020579586502,
+        "target_angle": 180.0,
+        "target_tokens": [
+          " tools",
+          " atoms",
+          " tokens"
+        ],
+        "logit_base": 1.8580728769302368,
+        "logit_rot": 1.8736978769302368,
+        "logit_shift": 0.015625
+      },
+      {
+        "prompt": "The explorers mapped out the uncharted territory",
+        "theta0": 222.90205795865015,
+        "delta": 90.0,
+        "new_theta": 312.9020579586502,
+        "target_angle": 270.0,
+        "target_tokens": [
+          " territory",
+          " areas",
+          " regions"
+        ],
+        "logit_base": 8.395833015441895,
+        "logit_rot": 8.40625,
+        "logit_shift": 0.010416984558105469
+      },
+      {
+        "prompt": "The explorers mapped out the uncharted territory",
+        "theta0": 222.90205795865015,
+        "delta": 180.0,
+        "new_theta": 42.902057958650175,
+        "target_angle": 0.0,
+        "target_tokens": [
+          " program",
+          " operations",
+          " experiments"
+        ],
+        "logit_base": 4.239583492279053,
+        "logit_rot": 4.265625,
+        "logit_shift": 0.026041507720947266
+      },
+      {
+        "prompt": "The explorers mapped out the uncharted territory",
+        "theta0": 222.90205795865015,
+        "delta": 180.0,
+        "new_theta": 42.902057958650175,
+        "target_angle": 90.0,
+        "target_tokens": [
+          " teams",
+          " groups",
+          " team"
+        ],
+        "logit_base": 5.635416507720947,
+        "logit_rot": 5.666666507720947,
+        "logit_shift": 0.03125
+      },
+      {
+        "prompt": "The explorers mapped out the uncharted territory",
+        "theta0": 222.90205795865015,
+        "delta": 180.0,
+        "new_theta": 42.902057958650175,
+        "target_angle": 180.0,
+        "target_tokens": [
+          " tools",
+          " atoms",
+          " tokens"
+        ],
+        "logit_base": 1.8580728769302368,
+        "logit_rot": 1.8958333730697632,
+        "logit_shift": 0.03776049613952637
+      },
+      {
+        "prompt": "The explorers mapped out the uncharted territory",
+        "theta0": 222.90205795865015,
+        "delta": 180.0,
+        "new_theta": 42.902057958650175,
+        "target_angle": 270.0,
+        "target_tokens": [
+          " territory",
+          " areas",
+          " regions"
+        ],
+        "logit_base": 8.395833015441895,
+        "logit_rot": 8.395833015441895,
+        "logit_shift": 0.0
+      }
+    ],
+    "summary": {
+      "-180.0_0.0": 0.013020833333333334,
+      "-180.0_90.0": 0.017361005147298176,
+      "-180.0_180.0": 0.012152830759684244,
+      "-180.0_270.0": -0.005208333333333333,
+      "-90.0_0.0": -0.002604325612386068,
+      "-90.0_90.0": 0.006944497426350911,
+      "-90.0_180.0": -0.0017360846201578777,
+      "-90.0_270.0": -0.005208333333333333,
+      "0.0_0.0": 0.0,
+      "0.0_90.0": 0.0,
+      "0.0_180.0": 0.0,
+      "0.0_270.0": 0.0,
+      "90.0_0.0": 0.013888915379842123,
+      "90.0_90.0": 0.017361164093017578,
+      "90.0_180.0": 0.015190958976745605,
+      "90.0_270.0": 0.00868066151936849,
+      "180.0_0.0": 0.013020833333333334,
+      "180.0_90.0": 0.017361005147298176,
+      "180.0_180.0": 0.012152830759684244,
+      "180.0_270.0": -0.005208333333333333
+    }
+  },
+  "semantic_ablation": {
+    "layer": 26,
+    "head": 14,
+    "dims": [
+      2,
+      3
+    ],
+    "mlp_layer": 26,
+    "n_target_neurons": 13,
+    "n_random_neurons": 13,
+    "d_mlp": 8192,
+    "is_gated": true,
+    "baseline_acc": 0.16666666666666666,
+    "ablated_acc": 0.16666666666666666,
+    "random_acc": 0.16666666666666666,
+    "targeted_drop": 0.0,
+    "random_drop": 0.0,
+    "specificity": 0.0,
+    "verdict": "resilient"
+  }
+}

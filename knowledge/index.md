@@ -11,11 +11,13 @@
 | [clock_pizza](./summary_clock_pizza.md) | The Clock and the Pizza: Two Stories in Mechanistic Explanation | 2306.17844 | 2026-03-04 | ✅ Complete |
 | [trigonometry_addition](./summary_trigonometry_addition.md) | Language Models Use Trigonometry to Do Addition | 2502.00873 | 2026-03-04 | ✅ Complete |
 | [singular_vectors_features](./summary_singular_vectors_features.md) | Singular Vectors of Attention Heads Align with Features | 2602.13524 | 2026-03-04 | ✅ Complete |
+| [modular_digit_arithmetic](./summary_modular_digit_arithmetic.md) | Modular Arithmetic: LMs Solve Math Digit by Digit | 2508.02513 | 2026-05-31 | ✅ Deep Read |
+| [comparison_2508_vs_repo](./comparison_modular_digit_vs_repo.md) | Deep comparison: 2508.02513 vs. repo's Fourier paper | — | 2026-05-31 | ✅ Complete |
 
 ## Usage Statistics
 
-- **Total Papers Processed:** 9
-- **Last Updated:** 2026-03-12
+- **Total Papers Processed:** 10 (+ 1 cross-paper comparison)
+- **Last Updated:** 2026-05-31
 - **Categories Covered:** [mechanistic-interpretability, svd-decomposition, transformer-circuits, grokking, arithmetic-reasoning, fourier-analysis, causal-mediation, geometric-interpretability, superposition, feature-interference]
 
 ## Quick Access
@@ -24,7 +26,7 @@
 - **Mechanistic Interpretability:** beyond_components, toy_superposition, grokking_mechanistic, arithmetic_reasoning, clock_pizza
 - **SVD Methods:** beyond_components, singular_vectors_features
 - **Transformer Circuits:** beyond_components, arithmetic_circuits, modular_polynomials
-- **Mathematical Reasoning:** arithmetic_circuits, arithmetic_reasoning, trigonometry_addition, modular_polynomials
+- **Mathematical Reasoning:** arithmetic_circuits, arithmetic_reasoning, trigonometry_addition, modular_polynomials, modular_digit_arithmetic
 - **Grokking & Training Dynamics:** grokking_mechanistic, modular_polynomials
 - **Geometric Interpretability:** trigonometry_addition, singular_vectors_features, toy_superposition
 - **Causal Analysis:** arithmetic_reasoning
