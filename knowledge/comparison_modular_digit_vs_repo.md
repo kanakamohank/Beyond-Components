@@ -1,7 +1,8 @@
-# Deep Comparison: Modular Digit-Position Circuits (2508.02513) vs. The Repo's Fourier Arithmetic Work
+# Deep Comparison: Two External Arithmetic Papers vs. The Repo's Fourier Arithmetic Work
 
 **Papers under comparison:**
-- **External:** Baeumel et al. 2025, *Modular Arithmetic: Language Models Solve Math Digit by Digit* (arXiv:2508.02513). See `summary_modular_digit_arithmetic.md`.
+- **External A:** Zhou, Fu, Sharan, Jia 2024, *Pre-trained Large Language Models Use Fourier Features to Compute Addition* (arXiv:2406.03445, NeurIPS 2024). See `summary_fourier_features_addition.md`.
+- **External B:** Baeumel et al. 2025, *Modular Arithmetic: Language Models Solve Math Digit by Digit* (arXiv:2508.02513). See `summary_modular_digit_arithmetic.md`.
 - **Internal:** `paper/main.tex` — *The Fourier Basis of Digit Arithmetic: Mechanistic Interpretability of Addition Circuits in Language Models*. Plus `ARITHMETIC_CIRCUIT_PLAN.md` and the implementation under `experiments/` and `mathematical_toolkit_results/`.
 - **Adjacent context:** `summary_arithmetic_reasoning.md` (Stolfo et al. 2305.15054), `summary_trigonometry_addition.md` (Kantamneni & Tegmark 2502.00873 "helix"), `summary_arithmetic_circuits.md` (2402.02619), `summary_grokking_mechanistic.md` (Nanda et al. 2301.05217).
 
@@ -9,21 +10,22 @@
 
 ## 1. Bird's-Eye View
 
-| Axis | 2508.02513 (Baeumel et al.) | Repo paper (Fourier basis) |
-|---|---|---|
-| **Question** | *Which neurons own which digit position?* | *What subspace and what algorithm encodes a digit?* |
-| **Granularity** | MLP neuron sets per (model, op, position) | 9-D Fourier subspace of `ℤ/10ℤ` per layer |
-| **Discovery tool** | Fisher Score on neuron activations (univariate) | SVD of per-digit means + DFT labeling (subspace) |
-| **Causal tool** | Interchange intervention via pyvene | Subspace patching (Fisher / unembed-aligned / random) + Fourier knockout + phase rotation |
-| **Models** | LLaMA 3 8B/70B, OLMo 2 7B, Gemma 2 9B | Gemma 2B, Phi-3 Mini, LLaMA 3.2-3B |
-| **Operands** | 3-digit, **no carry** | 1-2 digit, ones digit only (with separate carry/multi-digit experiments) |
-| **Operations** | Addition + subtraction | Addition (subtraction tested as generalization) |
-| **Headline finding** | Three position-specific MLP circuits (~60% of neurons each, <2% overlap) | A 9-D Fourier subspace, identical to irreducible reps of `ℤ/10ℤ`, that is necessary, sufficient, and specific |
-| **Mechanism claim** | Modular *parallelism* across positions | Modular parallelism + **trig-identity angle addition** (CP tensor decomposition, σ²-weighted score 0.964 on Gemma) |
-| **Causal triangle** | Necessity-only (intervention shifts probabilities) | Necessity (multi-layer knockout → ≤19% accuracy) + Sufficiency (Fisher 9-D transfers ≥83%) + Specificity (random 9-D = 0% effect) |
-| **Steering / control** | Not attempted | Fourier phase rotation + W_U-informed steering: 70–88% exact digit shift |
+| Axis | Zhou et al. (2406.03445) | Baeumel et al. (2508.02513) | Repo paper (Fourier basis) |
+|---|---|---|---|
+| **Question** | *What computational primitive does addition use?* | *Which neurons own which digit position?* | *What subspace and what algorithm encodes a digit?* |
+| **Granularity** | Per-frequency Fourier components in logit space | MLP neuron sets per (model, op, position) | 9-D Fourier subspace of `ℤ/10ℤ` per layer |
+| **Discovery tool** | DFT of per-module logits (`W^U · Attn^{(ℓ)}`, `W^U · MLP^{(ℓ)}`) | Fisher Score on neuron activations (univariate) | SVD of per-digit means + DFT labeling (subspace) |
+| **Causal tool** | Fourier-band filter `F(h; Γ)` (low-pass / high-pass per module) | Interchange intervention via pyvene | Subspace patching (Fisher / unembed-aligned / random) + Fourier knockout + phase rotation |
+| **Models** | GPT-2-XL primary, GPT-2-small, GPT-J, Phi-2, GPT-3.5/4, PaLM-2 | LLaMA 3 8B/70B, OLMo 2 7B, Gemma 2 9B | Gemma 2B, Phi-3 Mini, LLaMA 3.2-3B |
+| **Operands** | Single-token integers, `a, b ≤ 260`, no carry framing | 3-digit, **no carry** | 1-2 digit, ones digit only (with separate carry/multi-digit experiments) |
+| **Operations** | Addition (multiplication in appendix) | Addition + subtraction | Addition (subtraction tested as generalization) |
+| **Headline finding** | **Approximation/MLP/low-freq** vs. **classification/Attn/high-freq** division of labor | Three position-specific MLP circuits (~60% of neurons each, <2% overlap) | A 9-D Fourier subspace, identical to irreducible reps of `ℤ/10ℤ`, that is necessary, sufficient, and specific |
+| **Mechanism claim** | Two-mechanism logit construction (smooth bump × comb) | Modular *parallelism* across positions | Modular parallelism + **trig-identity angle addition** (CP tensor decomposition, σ²-weighted score 0.964 on Gemma) |
+| **Causal triangle** | Frequency-band ablation establishes necessity per (module, band); no specificity control | Necessity-only (intervention shifts probabilities) | Necessity (multi-layer knockout → ≤19% accuracy) + Sufficiency (Fisher 9-D transfers ≥83%) + Specificity (random 9-D = 0% effect) |
+| **Origin claim** | Fourier features inherited from pre-trained `W^E`; freezing it alone gives 100% on GPT-2-small | Not addressed | Cross-architecture convergence; pre-training origin not directly tested |
+| **Steering / control** | Not attempted | Not attempted | Fourier phase rotation + W_U-informed steering: 70–88% exact digit shift |
 
-The two papers point at *the same phenomenon*. The repo paper goes substantially deeper on *what's actually happening inside the circuit*.
+All three papers point at *the same underlying phenomenon* — Fourier-domain digit representation in pretrained LLMs — at three different levels of abstraction. The repo paper sits at the **subspace/mechanism** level and is strictly more granular than either external paper.
 
 ---
 
@@ -48,8 +50,49 @@ This is the same negative result, found independently, with two completely diffe
 ### 2.4 Single-token vs. multi-token tokenization matters
 - 2508.02513: Gemma 2 9B (single-digit tokenization) collapses to a dominant **hundreds** circuit only — because the model emits one token at a time and the next token *is* the hundreds digit.
 - Repo paper: LLaMA 3.2-3B requires `--direct-answer` mode for the same reason; the repo handles this with mode switching.
+- 2406.03445: explicitly *requires* single-token integers (`a, b ≤ 260`) for the entire mechanism to be visible — its Fourier basis is defined on ℤ/(p−1)ℤ where p = 521 is the single-token range +1.
 
-Both papers identified the same structural consequence of tokenization. The repo paper's pipeline encodes it as a switch (`teacher-forced` vs. `direct-answer`) — this is operationally cleaner.
+Three independent papers converge on tokenization as a structural prerequisite. The repo paper's mode-switching pipeline is the cleanest operational handling of this.
+
+---
+
+## 2bis. Where Zhou et al. (2406.03445) Sits in This Picture
+
+Zhou et al. is the **canonical reference** for "Fourier features in pretrained LLMs do arithmetic" and predates both 2508.02513 and the repo paper. Its position relative to the repo paper is different from Baeumel et al.'s — Zhou et al. is **more aligned in framework** but **less rigorous in causal evidence**.
+
+### 2bis.1 Where Zhou et al. and the repo paper agree precisely
+- **Fourier features are real.** Both papers see outlier components at periods 2, 2.5, 5, 10 in the same kinds of spectra. The repo paper formalizes this as the irreducible representations of `ℤ/10ℤ` (k = 1..5 frequencies giving 9 dimensions); Zhou et al. observes the same outliers empirically without identifying them as the rep-theoretic basis.
+- **MLPs do the heavy lifting.** Zhou et al.'s ablation: removing low-freq from MLP drops 99.74 → 35.89%. Repo paper's Step 4 (`fourier_knockout.py`): multi-layer MLP-dominated Fourier ablation drops to 12–19%. Same conclusion via different methodology.
+- **The mechanism lives in pre-training.** Zhou et al.'s frozen-`W^E` GPT-2-small (random other layers → 100% addition) is the cleanest "inductive bias is in the embeddings" demonstration. The repo paper's cross-architecture convergence (3 model families all show the same 9-D structure) is consistent with this; it's circumstantial vs. Zhou et al.'s direct test.
+
+### 2bis.2 Where Zhou et al. is genuinely stronger than the repo paper
+- **Pre-training origin claim is causal.** The frozen-`W^E` GPT-2-small experiment is a clean dissociation that the repo paper has no analog for. The repo paper's "different architectures converge on the same Fourier structure" is suggestive but not causal evidence about *where* the bias lives.
+- **Module-level division of labor is named.** Zhou et al. crisply states: MLPs ≈ approximation (low-freq), Attention ≈ classification (high-freq). The repo paper's framing is "MLPs dominate computation, attention routes" — less mechanistic. The repo paper *could* extract a Zhou-style frequency-band-by-module ablation directly from its `fourier_head_attribution.py` (Step 8 Phase 3 already does per-frequency component attribution), but does not currently report attention-vs-MLP at the frequency-band level.
+- **The error-mode prediction.** Zhou et al. predicts and verifies that low-freq-MLP-ablation produces off-by-10/50/100 errors and high-freq-Attn-ablation produces off-by-<6 errors. The repo paper's ablations measure accuracy but do not characterize *the shape of the residual errors* this way. This is a missed opportunity — would directly support the repo's mechanism story.
+
+### 2bis.3 Where the repo paper is strictly stronger than Zhou et al.
+- **Specificity control.** Zhou et al.'s Fourier filter `F(h; Γ)` zeros out a frequency band from a module — that's *necessity*. There is no random-band control showing that an *arbitrary* band of the same size has zero effect. The repo paper's matched-dimension random-subspace ablation (0% effect) is the missing piece.
+- **Sufficiency.** Zhou et al. shows that *removing* a frequency band damages performance. It does not show that *patching only* that band's worth of activation transfers digit information from a clean to a corrupted run. The repo paper's Fisher 9-D patching transfer (83–100%) is the missing positive direction.
+- **Subspace structure.** Zhou et al. analyzes one frequency at a time. The repo paper identifies the **9-dimensional subspace** as a single object — a perfect Fourier basis of the irreducible reps of `ℤ/10ℤ` — and treats it as the unit of intervention. This generalizes Zhou et al.'s per-frequency picture into a coherent algebraic object.
+- **Mechanism: trig-identity angle addition.** Zhou et al. says low-freq + high-freq combine to produce the answer. *How* they combine is left implicit (the paper says low-freq picks magnitude, high-freq picks unit digit — this is correct but operational, not mechanistic). The repo paper's CP tensor decomposition (σ²-trig score 0.964 on Gemma) verifies that the underlying operation is `cos(α)cos(β) − sin(α)sin(β) = cos(α+β)` — angle addition in the Fourier basis. This is a strictly stronger mechanism claim.
+- **Progressive rotation.** Zhou et al. observes that the model "first approximates, then refines" via the logit lens. The repo paper formalizes this as the Fourier subspace **progressively rotating** to align with `W_U` — going from 30% unembed-aligned at compute layers to 100% at readout. This converts an observation into a quantitative geometric claim.
+- **Modern models, larger scale.** Zhou et al.'s primary model is GPT-2-XL (1.5B, 2019-era). Repo paper covers Gemma 2B, Phi-3 Mini, LLaMA 3.2-3B (2024-era). Zhou et al.'s extension to Phi-2 / GPT-J / closed-source is partially behavioral. The repo paper does the full subspace analysis on three modern open-weight models.
+
+### 2bis.4 The k=5 paradox (repo) reframes the Zhou et al. picture
+Zhou et al. presents the period-2/2.5/5/10 outliers as *the mechanism* — they're large in the spectrum, therefore they matter. The repo paper's k=5 paradox shows that **the largest Fourier component (k=5, parity, period 2) in Gemma is causally inert**: ablating it alone causes 0.4–1.0% damage. The load-bearing frequencies are k=1 (ordinal) and k=2 (mod-5).
+
+This is a problem for Zhou et al.'s framing too. The high-freq attention components Zhou et al. identifies as "doing modular classification" likely include some that are observationally prominent but causally redundant. Zhou et al.'s ablation lumps all high frequencies together (`k ≥ 50`) and so cannot detect this. The repo paper's frequency-by-frequency multi-layer ablation (Step 14) is required to make the distinction.
+
+**Practical implication:** if the repo paper rerun Zhou et al.'s style frequency-band ablation but at single-frequency granularity, it would likely find that some outlier frequencies in Zhou et al.'s GPT-2-XL spectrum are also epiphenomenal. This is a one-day experiment that would be a clean methodological finding.
+
+### 2bis.5 Combined critique of both Zhou et al. and Baeumel et al.
+
+Both external papers share a methodological gap: **observational prominence vs. causal use** is not properly separated.
+
+- Zhou et al. picks "outlier" frequencies by inspecting spectra → ablates them → confirms they matter. But *outlier-ness* and *causal load* are correlated, not equivalent. The repo paper's k=5 paradox shows they can dissociate.
+- Baeumel et al. picks "high Fisher Score" neurons → patches them → confirms they shift outputs. Fisher Score measures selectivity, which again correlates with but does not equal causal load. Same paradox waiting to bite.
+
+The repo paper's full triangle (necessity + sufficiency + specificity) and frequency-by-frequency ablation are the only methodology in this corner of the literature that resists this confound.
 
 ---
 
