@@ -23,10 +23,13 @@ data/data_main.zip
 data_main
 data_main.zip
 *_results/*
-# ...but the paper's figures must be tracked so paper/ compiles.
+# ...but these two must stay tracked: the paper's figures, and the
+# recorded Fourier discovery outputs (tracked in the source repo too).
 !mathematical_toolkit_results/
 !mathematical_toolkit_results/paper_plots/
 !mathematical_toolkit_results/paper_plots/**
+!fourier_results/
+!fourier_results/**
 *_models/*
 svd_logs/*
 

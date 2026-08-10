@@ -115,4 +115,62 @@ for repo in REPOS:
     else:
         print(f"latex figures   : {n_refs}/{n_refs} resolve")
 
+
+# ---- 5. every materialized file actually survives `git add` ----
+# A .gitignore rule inherited from the source repo can silently swallow files
+# that were tracked there. Compare the manifest's expectation against what git
+# would really track.
+import subprocess
+from collections import Counter
+
+rows = [l.split("\t") for l in (ROOT / "SPLIT_MANIFEST.tsv").read_text().splitlines()[1:]]
+counts = Counter(b for _, b, _ in rows)
+NEW_FILES = {"README.md", "SPLIT_NOTES.md", "SPLIT_MANIFEST.tsv"}
+
+print(f"\n{'=' * 64}\ngit-tracking survival\n{'=' * 64}")
+for repo, bucket in ((ROOT / "semantic-compass", "compass"),
+                     (ROOT / "arithmetic-circuit-discovery", "arithmetic")):
+    expected = {p for p, b, _ in rows if b in (bucket, "both")}
+    ignored = sorted(
+        p for p in expected
+        if subprocess.run(["git", "check-ignore", "-q", f"{repo.name}/{p}"],
+                          cwd=ROOT).returncode == 0
+    )
+    n_exp = len(expected) + len(NEW_FILES)
+    if ignored:
+        failed = True
+        print(f"{repo.name}: {len(ignored)} file(s) SWALLOWED by .gitignore")
+        for p in ignored[:10]:
+            print(f"   IGNORED {p}")
+    else:
+        print(f"{repo.name}: all {len(expected)} manifest files tracked "
+              f"(+{len(NEW_FILES)} new = {n_exp} expected)")
+
+# ---- 6. every figure a paper needs has a producer in the SAME repo ----
+# Referencing a figure is not enough: the repo must also contain the script
+# that writes it, or the paper can never be rebuilt from this repo alone.
+print(f"\n{'=' * 64}\nfigure producers\n{'=' * 64}")
+for repo in REPOS:
+    needed = set()
+    for tex in repo.rglob("*.tex"):
+        if "acl-style-files" in str(tex):
+            continue  # template placeholders, not real figures
+        for ref in re.findall(r"\\includegraphics(?:\[[^\]]*\])?\{([^}]+)\}",
+                              tex.read_text(errors="replace")):
+            needed.add(Path(ref).name)
+    orphans = []
+    for fig in sorted(needed):
+        if any((repo / "images").rglob(fig)) or list(repo.rglob(f"**/figures/{fig}")):
+            continue  # figure is committed; no producer required
+        if not any(fig in f.read_text(errors="replace")
+                   for f in repo.rglob("experiments/*.py")):
+            orphans.append(fig)
+    if orphans:
+        failed = True
+        print(f"{repo.name}: {len(orphans)} figure(s) with NO producer script")
+        for f in orphans:
+            print(f"   ORPHAN {f}")
+    else:
+        print(f"{repo.name}: every referenced figure is committed or has a producer")
+
 sys.exit(1 if failed else 0)

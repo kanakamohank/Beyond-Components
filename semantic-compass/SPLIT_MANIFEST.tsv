@@ -24,7 +24,7 @@ configs/arithmetic_phi3_config.yaml	arithmetic	arithmetic training config
 configs/arithmetic_pythia_config.yaml	arithmetic	arithmetic training config
 configs/gp_config.yaml	both	Gender Pronoun; compass Stage-1 + shared training
 configs/gt_config.yaml	drop	Beyond Components Greater-Than task
-configs/ioi_config.yaml	drop	Beyond Components IOI task
+configs/ioi_config.yaml	arithmetic	BC-lineage but named in ARITHMETIC_CIRCUIT_PLAN.md Phase 0
 data/README.md	both	shared dataset loader / docs
 data/__init__.py	both	shared dataset loader / docs
 data/data_loader.py	both	shared dataset loader / docs
@@ -74,8 +74,8 @@ experiments/fourier_phase_rotation.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLA
 experiments/fourier_umap.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
 experiments/fourway_probe.py	compass	named in COMPASS_COOKBOOK.md
 experiments/generalization_tests.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
-experiments/generate_missing_plots.py	compass	named in COMPASS_COOKBOOK.md
-experiments/generate_paper_plots.py	compass	named in COMPASS_COOKBOOK.md
+experiments/generate_missing_plots.py	both	emits ablation_curves/neuron_frequency_tuning/layer_scan_curves for paper/; also listed in COMPASS_COOKBOOK.md
+experiments/generate_paper_plots.py	both	emits layer_scan_curves/fourier_heatmap_cross_model/energy_explosion for paper/; also listed in COMPASS_COOKBOOK.md
 experiments/head_ablation_comparison.py	compass	named in COMPASS_COOKBOOK.md
 experiments/inlp_debias.py	compass	named in COMPASS_COOKBOOK.md
 experiments/introspect_compass_scale.py	compass	named in COMPASS_COOKBOOK.md
@@ -304,7 +304,7 @@ helix_usage_validated/gpt2_sweep_output.txt	both	cross-model helix scan output (
 helix_usage_validated/gpt2_trace_output.txt	both	cross-model helix scan output (shared scanner)
 helix_usage_validated/gpt2medium_sweep_output.txt	both	cross-model helix scan output (shared scanner)
 helix_usage_validated/gpt2medium_trace_output.txt	both	cross-model helix scan output (shared scanner)
-helix_usage_validated/gptj6b_compass_output.txt	both	cross-model helix scan output (shared scanner)
+helix_usage_validated/gptj6b_compass_output.txt	compass	compass experiment artifact
 helix_usage_validated/gptj6b_sweep_output.txt	both	cross-model helix scan output (shared scanner)
 helix_usage_validated/gptneo125m_sweep_output.txt	both	cross-model helix scan output (shared scanner)
 helix_usage_validated/head_ablation_gemma.txt	compass	compass experiment artifact
@@ -623,7 +623,7 @@ knowledge/A_Mechanistic_Interpretability_Analysis_of_Grokking.ipynb	arithmetic	r
 knowledge/COMPREHENSIVE_PAPER_ANALYSIS.md	both	research note, routed by topic
 knowledge/beyond_components_deep_analysis.md	both	research note, routed by topic
 knowledge/comparison_modular_digit_vs_repo.md	arithmetic	research note, routed by topic
-knowledge/index.md	both	research note, routed by topic
+knowledge/index.md	arithmetic	research note, routed by topic
 knowledge/relavant_papers.txt	both	research note, routed by topic
 knowledge/summary_arithmetic_circuits.md	arithmetic	research note, routed by topic
 knowledge/summary_arithmetic_reasoning.md	arithmetic	research note, routed by topic

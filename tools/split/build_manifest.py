@@ -10,9 +10,17 @@ from pathlib import Path
 
 ROOT = Path("/home/user/Beyond-Components")
 
-files = subprocess.run(
-    ["git", "ls-files"], cwd=ROOT, capture_output=True, text=True, check=True
-).stdout.splitlines()
+# Products of the split itself are not inputs to it: skip the two generated
+# trees, the split tooling, and the manifest, so re-running stays idempotent.
+GENERATED = ("semantic-compass/", "arithmetic-circuit-discovery/", "tools/split/")
+
+files = [
+    f
+    for f in subprocess.run(
+        ["git", "ls-files"], cwd=ROOT, capture_output=True, text=True, check=True
+    ).stdout.splitlines()
+    if not f.startswith(GENERATED) and f != "SPLIT_MANIFEST.tsv"
+]
 
 # ---------------------------------------------------------------- cookbook refs
 compass_cb = (ROOT / "COMPASS_COOKBOOK.md").read_text(errors="replace")
@@ -52,6 +60,10 @@ EXP_EXTRA = {
     "experiments/steering_residual_vector.py": ("arithmetic", "residual steering on the arithmetic bus"),
     "experiments/validate_unembed_fix.py": ("arithmetic", "validates compute_unembed_basis_direct_answer"),
     "experiments/visualize_toolkit_results.py": ("arithmetic", "plots for mathematical_toolkit.py"),
+    # --- shared: listed in COMPASS_COOKBOOK.md, but they emit the ARITHMETIC
+    # paper's figures into mathematical_toolkit_results/paper_plots/ ---
+    "experiments/generate_paper_plots.py": ("both", "emits layer_scan_curves/fourier_heatmap_cross_model/energy_explosion for paper/; also listed in COMPASS_COOKBOOK.md"),
+    "experiments/generate_missing_plots.py": ("both", "emits ablation_curves/neuron_frequency_tuning/layer_scan_curves for paper/; also listed in COMPASS_COOKBOOK.md"),
     # --- Beyond Components only ---
     "experiments/analyze_checkpoint.py": ("drop", "Beyond Components mask-checkpoint inspector"),
     "experiments/ablation/comprehensive_sigma_test.py": ("drop", "Beyond Components sigma amplification"),
@@ -108,7 +120,7 @@ ROOT_FILES = {
 
 CONFIGS = {
     "configs/gp_config.yaml": ("both", "Gender Pronoun; compass Stage-1 + shared training"),
-    "configs/ioi_config.yaml": ("drop", "Beyond Components IOI task"),
+    "configs/ioi_config.yaml": ("arithmetic", "BC-lineage but named in ARITHMETIC_CIRCUIT_PLAN.md Phase 0"),
     "configs/gt_config.yaml": ("drop", "Beyond Components Greater-Than task"),
 }
 
@@ -117,7 +129,7 @@ KNOWLEDGE = {
     "knowledge/COMPREHENSIVE_PAPER_ANALYSIS.md": "both",
     "knowledge/beyond_components_deep_analysis.md": "both",
     "knowledge/comparison_modular_digit_vs_repo.md": "arithmetic",
-    "knowledge/index.md": "both",
+    "knowledge/index.md": "arithmetic",
     "knowledge/relavant_papers.txt": "both",
     "knowledge/summary_arithmetic_circuits.md": "arithmetic",
     "knowledge/summary_arithmetic_reasoning.md": "arithmetic",
@@ -134,7 +146,7 @@ KNOWLEDGE = {
 
 # helix_usage_validated/: outputs of the shared helix scanner go to both repos;
 # everything else in there is a compass artifact.
-HELIX_SHARED = re.compile(r"(_sweep_output|_trace_output)|^(gptj6b|gptneo125m|gemma7b|gpt2medium)_")
+HELIX_SHARED = re.compile(r"_sweep_output|_trace_output")
 
 
 def classify(p: str):

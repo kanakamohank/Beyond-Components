@@ -1,12 +1,13 @@
-# Split notes — arithmetic-circuit-discovery
+#!/usr/bin/env python3
+"""Emit a per-repo SPLIT_NOTES.md documenting provenance of the split."""
+from collections import Counter
+from pathlib import Path
 
-This repository was split out of the combined `Beyond-Components` research
-repository, which held three papers in one tree. This repository contains the
-**Fourier Basis of Digit Arithmetic** paper and its implementation:
-173 arithmetic-specific files plus 43 shared files.
+ROOT = Path("/home/user/Beyond-Components")
+rows = [l.split("\t") for l in (ROOT / "SPLIT_MANIFEST.tsv").read_text().splitlines()[1:]]
+counts = Counter(b for _, b, _ in rows)
 
-The compass half lives in `semantic-compass`.
-
+COMMON = """
 ## How the split was decided
 
 The source repository carried three papers' worth of material in one flat tree.
@@ -23,8 +24,8 @@ order:
    compass cookbook but write the *arithmetic* paper's figures into
    `mathematical_toolkit_results/paper_plots/`. Trusting the cookbook alone put
    them on the wrong side; they are shared.
-3. **LaTeX figure references** (`\includegraphics`, resolved through each
-   document's `\graphicspath`) for the figure directories.
+3. **LaTeX figure references** (`\\includegraphics`, resolved through each
+   document's `\\graphicspath`) for the figure directories.
 4. **The import graph**, for shared `src/` modules.
 5. **Module docstrings**, for the 27 scripts neither cookbook names.
 6. **Filename conventions**, for the artifact directories only.
@@ -37,20 +38,20 @@ split repositories, so any classification can be audited from either side.
 
 | Bucket | Files | Meaning |
 |---|---:|---|
-| `compass` | 593 | Semantic Compasses only |
-| `arithmetic` | 173 | Fourier digit arithmetic only |
-| `both` | 43 | Genuinely shared — duplicated into both repositories |
-| `drop` | 64 | Beyond Components only — in neither repository |
-| **total** | **873** | |
+| `compass` | {compass} | Semantic Compasses only |
+| `arithmetic` | {arithmetic} | Fourier digit arithmetic only |
+| `both` | {both} | Genuinely shared — duplicated into both repositories |
+| `drop` | {drop} | Beyond Components only — in neither repository |
+| **total** | **{total}** | |
 
 Each repository additionally carries three files that exist in neither source
 nor manifest: its own `README.md`, this `SPLIT_NOTES.md`, and a copy of
-`SPLIT_MANIFEST.tsv`. So `git ls-files | wc -l` gives 639 for
-`semantic-compass` and 219 for `arithmetic-circuit-discovery`.
+`SPLIT_MANIFEST.tsv`. So `git ls-files | wc -l` gives {compass_tracked} for
+`semantic-compass` and {arith_tracked} for `arithmetic-circuit-discovery`.
 
 ### What is shared, and why
 
-43 files are duplicated rather than assigned to one side:
+{both} files are duplicated rather than assigned to one side:
 
 - `src/models/masked_transformer_circuit.py`, `src/utils/`,
   `src/data/data_loader.py`, `experiments/train.py`, `configs/gp_config.yaml` —
@@ -70,7 +71,7 @@ nor manifest: its own `README.md`, this `SPLIT_NOTES.md`, and a copy of
 
 ### What was left behind
 
-64 files belong to **Beyond Components: Singular Vector-Based
+{drop} files belong to **Beyond Components: Singular Vector-Based
 Interpretability of Transformer Circuits** ([arXiv:2511.20273](https://arxiv.org/abs/2511.20273))
 and appear in neither repository: the original `README.md`, the Greater-Than
 task config, `svd_logs/` (a 42 MB IOI circuit-discovery run),
@@ -114,7 +115,7 @@ the split.
 | Intra-repo `src.*` / `experiments.*` imports | all resolve, no split-induced breakage |
 | Files survive `git add` | no manifest file swallowed by an inherited ignore rule |
 | Every referenced figure is committed or has a producer script | passes in both |
-| LaTeX `\includegraphics` | compass 45/48 resolve; the 3 misses are `example-image-*` placeholders from the ACL template |
+| LaTeX `\\includegraphics` | compass 45/48 resolve; the 3 misses are `example-image-*` placeholders from the ACL template |
 | Test suite (arithmetic repo only) | 224 passed — identical to the same run on the source repository |
 
 `semantic-compass` has no `tests/` directory: the source repo's entire test
@@ -147,3 +148,43 @@ These were carried over unchanged rather than silently repaired:
   single commit. The source repository remains the historical record — and the
   only place holding `tools/split/`, so re-auditing or regenerating the
   manifest is done from there, not from either split repository.
+"""
+
+HEADERS = {
+    "semantic-compass": """# Split notes — semantic-compass
+
+This repository was split out of the combined `Beyond-Components` research
+repository, which held three papers in one tree. This repository contains the
+**Semantic Compasses** paper and its implementation: {compass} compass-specific
+files plus {both} shared files.
+
+The arithmetic half lives in `arithmetic-circuit-discovery`.
+""",
+    "arithmetic-circuit-discovery": """# Split notes — arithmetic-circuit-discovery
+
+This repository was split out of the combined `Beyond-Components` research
+repository, which held three papers in one tree. This repository contains the
+**Fourier Basis of Digit Arithmetic** paper and its implementation:
+{arithmetic} arithmetic-specific files plus {both} shared files.
+
+The compass half lives in `semantic-compass`.
+""",
+}
+
+fields = dict(
+    compass=counts["compass"],
+    arithmetic=counts["arithmetic"],
+    both=counts["both"],
+    drop=counts["drop"],
+    total=sum(counts.values()),
+    compass_tracked=counts['compass'] + counts['both'] + 3,
+    arith_tracked=counts['arithmetic'] + counts['both'] + 3,
+)
+
+for repo, header in HEADERS.items():
+    (ROOT / repo / "SPLIT_NOTES.md").write_text(
+        header.format(**fields) + COMMON.format(**fields)
+    )
+    # the audit table travels with both repos
+    (ROOT / repo / "SPLIT_MANIFEST.tsv").write_text((ROOT / "SPLIT_MANIFEST.tsv").read_text())
+    print("wrote", repo + "/SPLIT_NOTES.md")
