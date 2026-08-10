@@ -1,0 +1,69 @@
+\section{Introduction}
+\label{sec:intro}
+
+Mechanistic interpretability aims to explain what individual components of a
+neural language model compute. Two dominant methodologies have emerged:
+\emph{circuit analysis} \citep{elhage2021mathematical,wang2023interpretability,conmy2023acdc}, which
+identifies subsets of attention heads and MLPs responsible for a specific
+behavior, and \emph{linear probing / distributed alignment}
+\citep{park2024linearrep,geiger2024das,marks2024geometry}, which searches for
+low-dimensional causal features inside the residual stream. The first has
+component-level granularity but seldom describes what a circuit
+\emph{represents}; the second has feature-level granularity but seldom
+localizes the feature to a specific weight matrix.
+
+We show that these two goals meet naturally in the SVD of a single attention
+head's output-value matrix. Let $W_{OV}^{(l,h)} = W_V^{(l,h)} W_O^{(l,h)}
+\in \mathbb{R}^{d_\text{model} \times d_\text{model}}$ be the compressed
+per-head OV map, and let $W_{OV}^{(l,h)} = U\,\Sigma\,V^\top$ be its SVD.
+Pairs of column directions $(u_i, u_j)$ of $U$ span two-dimensional planes
+in the output (residual-stream) space. We call such a plane a \emph{semantic
+compass} when (i) vocabulary projection onto the plane yields a smooth
+angular ordering of semantically related tokens and (ii) residual-stream
+injection along $\cos\theta\,u_i + \sin\theta\,u_j$ shifts the model's next-token
+logits sinusoidally as a function of $\theta$, with phase stable across
+injection scales.
+
+\paragraph{Contributions.}
+\begin{enumerate}
+    \item \textbf{Compass definition and test battery.} We formalize the
+    semantic compass as a low-rank OV projection and describe a nine-test
+    battery---decoding, cyclicity, permutation, random-plane, principal-angles,
+    scan-planes, semantic-ablate, causal-patch, self-test---that isolates
+    causal compasses from geometric accidents (\S\ref{sec:methods}).
+    \item \textbf{Four-model replication for gender.} We identify
+    gender-pronoun compasses in GPT-2 Small (L9H7, L10H9), Phi-3 Mini
+    (L24H10, L28H1), Gemma-2-2B (L21H4), and Llama-3.2-3B (L26H14), and
+    show that a causal $\alpha$-sweep produces a sinusoidal response whose
+    amplitude scales linearly with $\alpha$ in every model
+    (\S\ref{sec:gender}). A blind causal scan of all top-$4$ SV-pairs in
+    each model ($864$--$4032$ planes per model) recovers the same heads
+    without using decoded vocabulary, with per-head concentration
+    significance of $p < 10^{-6}$ against a full-OV null
+    (\S\ref{sec:scan}).
+    \item \textbf{Two non-pronoun compasses in Phi-3.} We surface a temporal-unit
+    compass (\emph{month} vs.\ \emph{hour}, L24H17) and an entity-type compass
+    (\emph{item} vs.\ \emph{operation}, L24H28), again with linear $\alpha$-scaling
+    and stable phase (\S\ref{sec:other}). Neither axis is numerical;
+    both use the same extraction recipe as the gender compass, and the
+    temporal plane is a genuine four-way dial with second-harmonic
+    amplitude ratio $A_2/A_1 = 0.32$ (\S\ref{sec:harmonic}).
+    \item \textbf{Downstream bias effects.} A single-site rank-$2$
+    compass injection monotonically reduces WinoGender stereotypical
+    co-reference correlation from $0.638\to 0.179$ on Phi-3 at $\alpha=1$
+    with perplexity delta $+0.006$ (Table~\ref{tab:winogender}), and
+    improves StereoSet gender ICAT by $4\text{--}6$ points at matched
+    LMS (\S\ref{sec:stereoset}). The compass is therefore not only a
+    diagnostic; it is an editing primitive with measurable,
+    language-quality-neutral downstream effect.
+    \item \textbf{Storage vs.\ steering regimes.} A rank-$2$ plane can
+    be \emph{causally pushable} without being where the model \emph{stores}
+    the category. GPT-2 hosts both regimes in adjacent layers (L9H7 steering,
+    L10H9 storage); Gemma's L21H4 is storage; Phi-3's L24H10 is pure
+    steering (\S\ref{sec:headshare}). The storage/steering distinction
+    is a head-level property, not a model-level one.
+    \item \textbf{Discussion of architecture differences.} We explain why
+    polar-plot shapes differ across models (signal-to-noise on neutral
+    prompts, singular-value scale, SVD sign ambiguity) without requiring
+    different underlying mechanisms (\S\ref{sec:discussion}).
+\end{enumerate}

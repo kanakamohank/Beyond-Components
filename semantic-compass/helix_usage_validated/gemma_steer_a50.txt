@@ -1,0 +1,21 @@
+Model: google/gemma-2-2b   L21H4 SV0,2
+Mode=inject  alpha=50.0  boost=1.0
+theta_plus=0.0 ( he)  theta_minus=180.0 ( she)
+
+idx ctx  base_top1      steered_top1     base_LD  steer_LD sign_flip? top_flip?
+--------------------------------------------------------------------------------------
+  0 masc he             he                +5.875    +1.625        no       no
+  1 masc he             he                +3.250    +1.250        no       no
+  2 masc he             she               +6.500    -0.125       YES      YES
+  3 masc ,              ,                 +5.500    +1.125        no       no
+  4 masc ,              ,                 +1.125    +1.000        no       no
+  0 fem  she            she               -3.625    -0.625        no       no
+  1 fem  she            she               -2.500    -0.250        no       no
+  2 fem  she            he                -5.000    +1.500       YES      YES
+  3 fem  ,              ,                 -5.625    -0.125        no       no
+  4 fem  ,              ,                 -2.875    -2.625        no       no
+
+SIGN-FLIP (LD crosses 0): 1/5 masc->fem   1/5 fem->masc   TOTAL 2/10
+TOP-1 FLIP (argmax switches): 1/5 masc->fem   1/5 fem->masc   TOTAL 2/10
+masc avg LD: base=+4.450  steered=+0.975  delta=-3.475
+fem avg LD: base=-3.925  steered=-0.425  delta=+3.500

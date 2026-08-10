@@ -1,0 +1,279 @@
+/Users/mkanaka/Documents/GitHub/Beyond-Components/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct requires setting trust_remote_code=True
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct state dict requires setting trust_remote_code=True
+`torch_dtype` is deprecated! Use `dtype` instead!
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:`flash-attention` package not found, consider installing for better performance: No module named 'flash_attn'.
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:Current `flash-attention` does not support `window_size`. Either upgrade or use `attn_implementation='eager'`.
+Loading microsoft/Phi-3-mini-4k-instruct...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 24.50it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model microsoft/Phi-3-mini-4k-instruct into HookedTransformer
+  Model loaded: 32L, 32H, d=3072
+  Target: L24 H28, SVD dims (3, 7), resid L25, T=11.74
+  Sanity checks...
+  Sanity OK  (activation shape (1, 6, 3072))
+
+=== CYCLICITY (all) ===
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L24 H20, SVD Dims (1, 2)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: [",'", ".'", ',’', "'''", ")'", "',\r", "')", "',", "?'", "'),"]
+  Top-10 @ 180°: ['"].', '“.', '"])', '"]', '“)', '“,', '").', '"))', '"],', '”.']
+  Top-10 @ 360°: [",'", ".'", ',’', "'''", ")'", "',\r", "')", "',", "?'", "'),"]
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L24 H18, SVD Dims (0, 1)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: ['deren', 'him', 'hers', 'lui', 'ihm', 'dessen', 'him', 'iv', 'them', 'ook']
+  Top-10 @ 180°: ['Mr', 'BeanFactory', 'Bald', 'Elisabeth', 'Mrs', 'Sarah', 'UNT', 'ail', 'Bear', 'Clay']
+  Top-10 @ 360°: ['deren', 'him', 'hers', 'lui', 'ihm', 'dessen', 'him', 'iv', 'them', 'ook']
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L24 H24, SVD Dims (0, 1)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: ['sigu', 'alberga', 'ân', 'ânt', 'pass', 'ofic', 'ی', 'már', 'nome', 'profess']
+  Top-10 @ 180°: ['pobla', 'ología', 'añ', 'ión', 'los', 'y', 'una', 'iones', 'ificación', 'mayor']
+  Top-10 @ 360°: ['sigu', 'alberga', 'ân', 'ânt', 'pass', 'ofic', 'ی', 'már', 'nome', 'profess']
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L24 H31, SVD Dims (0, 1)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: ['Charlotte', 'Yam', 'Xcode', 'Jup', 'man', 'Tig', 'Phoenix', 'apolis', 'Lan', 'Miami']
+  Top-10 @ 180°: ['Italy', 'France', 'Germany', 'Australia', 'Spain', 'France', 'Canada', 'India', 'Italian', 'Britain']
+  Top-10 @ 360°: ['Charlotte', 'Yam', 'Xcode', 'Jup', 'man', 'Tig', 'Phoenix', 'apolis', 'Lan', 'Miami']
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L24 H0, SVD Dims (0, 1)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: ['azy', 'ump', 'ama', 'ences', 'Gol', 'rom', 'nak', 'pes', 'öh', 'eren']
+  Top-10 @ 180°: ['they', 'them', 'They', 'they', 'They', 'ihnen', 'loro', 'Their', 'ils', 'their']
+  Top-10 @ 360°: ['azy', 'ump', 'ama', 'ences', 'Gol', 'rom', 'nak', 'pes', 'öh', 'eren']
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L24 H25, SVD Dims (3, 7)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: ['refs', 'hans', 'wik', 'fert', 'developers', 'BUG', 'zew', 'istoire', 'phia', 'theless']
+  Top-10 @ 180°: ['$', '£', '$-', '€', '($', '${', '~', '\\$', '{$', '$[']
+  Top-10 @ 360°: ['refs', 'hans', 'wik', 'fert', 'developers', 'BUG', 'zew', 'istoire', 'phia', 'theless']
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L24 H9, SVD Dims (0, 3)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: ['.</', '.\r', '}}', '.»', 'vice', '.}', '_.', '!...', '.~', '。']
+  Top-10 @ 180°: ['afin', 'чтобы', 'inos', 'éter', 'thereby', 'sr', '来', 'clud', 'ën', 'aci']
+  Top-10 @ 360°: ['.</', '.\r', '}}', '.»', 'vice', '.}', '_.', '!...', '.~', '。']
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L24 H19, SVD Dims (0, 3)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: ['fewer', 'numerous', 'significant', 'immediate', 'thousands', 'segments', 'few', 'things', 'tons', 'lots']
+  Top-10 @ 180°: ['years', 'Years', 'fois', 'weeks', 'year', 'months', 'ways', 'days', 'way', 'way']
+  Top-10 @ 360°: ['fewer', 'numerous', 'significant', 'immediate', 'thousands', 'segments', 'few', 'things', 'tons', 'lots']
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L24 H1, SVD Dims (1, 2)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: ['Plus', 'plus', 'Plus', 'plus', 'followed', 'whereas', 'tandis', 'ätter', 'while', 'whilst']
+  Top-10 @ 180°: ['-', '-.', '-%', '-,', '-$', '-)', '-(', '‑', '-\\', '-}']
+  Top-10 @ 360°: ['Plus', 'plus', 'Plus', 'plus', 'followed', 'whereas', 'tandis', 'ätter', 'while', 'whilst']
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L24 H21, SVD Dims (1, 2)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: ['involving', 'containing', 'Contains', 'contains', 'contain', 'involves', 'involve', 'contains', 'happening', 'conten']
+  Top-10 @ 180°: ['=.', 'zero', '=-', '>=', 'equal', '>', '≥', 'Zero', '%.', '>=']
+  Top-10 @ 360°: ['involving', 'containing', 'Contains', 'contains', 'contain', 'involves', 'involve', 'contains', 'happening', 'conten']
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L24 H22, SVD Dims (3, 4)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: ['SR', 'SR', 'SD', 'SB', 'SD', 'SA', 'SS', 'S', 'SS', 'SC']
+  Top-10 @ 180°: ['PF', 'FP', 'FC', 'Pf', 'CP', 'Finland', 'PC', 'WF', 'pc', 'P']
+  Top-10 @ 360°: ['SR', 'SR', 'SD', 'SB', 'SD', 'SA', 'SS', 'S', 'SS', 'SC']
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L24 H10, SVD Dims (0, 1)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: ['their', 'they', 'Their', 'loro', 'they', 'They', 'They', 'leur', 'leurs', 'them']
+  Top-10 @ 180°: ['Its', 'its', 'him', 'itself', 'suoi', 'its', 'його', 'jego', 'lui', 'ihm']
+  Top-10 @ 360°: ['their', 'they', 'Their', 'loro', 'they', 'They', 'They', 'leur', 'leurs', 'them']
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CYCLICITY SUMMARY — L24 compass heads
+===========================================================================
+  head                  J(0,360)  J(0,180)  verdict
+  L24H20(1,2)              1.000     0.000  CIRCLE: closed and with distinct antipodes
+  L24H18(0,1)              1.000     0.000  CIRCLE: closed and with distinct antipodes
+  L24H24(0,1)              1.000     0.000  CIRCLE: closed and with distinct antipodes
+  L24H31(0,1)              1.000     0.000  CIRCLE: closed and with distinct antipodes
+  L24H0(0,1)               1.000     0.000  CIRCLE: closed and with distinct antipodes
+  L24H25(3,7)              1.000     0.000  CIRCLE: closed and with distinct antipodes
+  L24H9(0,3)               1.000     0.000  CIRCLE: closed and with distinct antipodes
+  L24H19(0,3)              1.000     0.000  CIRCLE: closed and with distinct antipodes
+  L24H1(1,2)               1.000     0.000  CIRCLE: closed and with distinct antipodes
+  L24H21(1,2)              1.000     0.000  CIRCLE: closed and with distinct antipodes
+  L24H22(3,4)              1.000     0.000  CIRCLE: closed and with distinct antipodes
+  L24H10(0,1)              1.000     0.000  CIRCLE: closed and with distinct antipodes
+
+=== DECODE COHERENCE SWEEP ===
+
+===========================================================================
+DECODE COHERENCE SWEEP (36 angles, top_k=50)
+===========================================================================
+  head                  mean_top1  mean_margin    mean_ent     min_ent
+  L24H20(1,2)               4.231        0.781       3.721       3.342
+  L24H18(0,1)               1.478        0.327       3.903       3.891
+  L24H24(0,1)               2.840        0.762       3.851       3.716
+  L24H31(0,1)               2.451        0.372       3.880       3.786
+  L24H0(0,1)                3.815        1.177       3.523       2.782
+  L24H25(3,7)               2.259        0.592       3.854       3.676
+  L24H9(0,3)                2.393        0.826       3.847       3.608
+  L24H19(0,3)               2.394        0.830       3.856       3.737
+  L24H1(1,2)                5.732        2.390       2.797       0.378
+  L24H21(1,2)               2.433        0.572       3.840       3.694
+  L24H22(3,4)               3.045        0.593       3.858       3.760
+  L24H10(0,1)              12.352        5.925       1.724       0.686
+
+  Lower entropy + higher margin = more focused decode at that angle.
+  Random planes typically produce mean_entropy near log(50)=3.912.
+
+=== DECODE HEAD COMPASSES ===
+
+===========================================================================
+COMPASS HEAD DECODES (Vt @ W_U)
+===========================================================================
+
+  [ L24 H20  dims (1,2) ]
+  σ[1]=4.484  σ[2]=4.448  ratio=1.008
+        0°: [",'", ".'", ',’', "'''", ")'", "',\r", "')", "',", "?'", "'),"]
+       90°: ['“.', '.“', '"].', '"]', '“)', '"];', '"])', '“', '"],', '“,']
+      180°: ['"].', '“.', '"])', '"]', '“)', '“,', '").', '"))', '"],', '”.']
+      270°: [",'", "'),", "',", ',’', "')", "'''", "');\r", "','", "',\r", "')."]
+
+  [ L24 H18  dims (0,1) ]
+  σ[0]=4.269  σ[1]=3.910  ratio=1.092
+        0°: ['deren', 'him', 'hers', 'lui', 'ihm', 'dessen', 'him', 'iv', 'them', 'ook']
+       90°: ['irse', 'ierra', 'LED', 'atra', 'amar', 'chanson', 'enz', 'his', 'Einzeln', 'iphone']
+      180°: ['Mr', 'BeanFactory', 'Bald', 'Elisabeth', 'Mrs', 'Sarah', 'UNT', 'ail', 'Bear', 'Clay']
+      270°: ['Mr', 'Scott', 'Sarah', 'Robert', 'Singh', 'hner', 'Dennis', '�', 'Alex', 'Werner']
+
+  [ L24 H24  dims (0,1) ]
+  σ[0]=5.146  σ[1]=4.281  ratio=1.202
+        0°: ['sigu', 'alberga', 'ân', 'ânt', 'pass', 'ofic', 'ی', 'már', 'nome', 'profess']
+       90°: ['und', 'der', 'sch', 'die', 'mit', 'sch', 'von', 'aus', 'vor', 'bis']
+      180°: ['pobla', 'ología', 'añ', 'ión', 'los', 'y', 'una', 'iones', 'ificación', 'mayor']
+      270°: ['kunst', 'Außer', 'Zür', 'Stutt', 'Fich', 'vorm', 'Gemeins', 'eben', 'samt', 'tät']
+
+  [ L24 H31  dims (0,1) ]
+  σ[0]=3.997  σ[1]=3.681  ratio=1.086
+        0°: ['Charlotte', 'Yam', 'Xcode', 'Jup', 'man', 'Tig', 'Phoenix', 'apolis', 'Lan', 'Miami']
+       90°: ['India', 'Brazil', 'Japan', 'Germany', 'France', 'Australia', 'Norway', 'Indones', 'Argentina', 'Italy']
+      180°: ['Italy', 'France', 'Germany', 'Australia', 'Spain', 'France', 'Canada', 'India', 'Italian', 'Britain']
+      270°: ['provin', '(†', 'cean', 'eor', 'parlament', 'brothers', 'ktop', 'duch', 'cpu', 'filme']
+
+  [ L24 H0  dims (0,1) ]
+  σ[0]=6.957  σ[1]=5.055  ratio=1.376
+        0°: ['azy', 'ump', 'ama', 'ences', 'Gol', 'rom', 'nak', 'pes', 'öh', 'eren']
+       90°: ['their', 'Their', 'loro', 'leur', 'lui', 'leurs', 'him', 'his', 'ih', 'his']
+      180°: ['they', 'them', 'They', 'they', 'They', 'ihnen', 'loro', 'Their', 'ils', 'their']
+      270°: ['it', 'Its', 'yours', 'ones', 'its', 'It', 'its', 'It', 'davon', ')->']
+
+  [ L24 H25  dims (3,7) ]
+  σ[3]=4.449  σ[7]=3.733  ratio=1.192
+        0°: ['refs', 'hans', 'wik', 'fert', 'developers', 'BUG', 'zew', 'istoire', 'phia', 'theless']
+       90°: ['called', '`/', '`', "`'", 'genannt', '/', 'called', "('", '`"', '"/']
+      180°: ['$', '£', '$-', '€', '($', '${', '~', '\\$', '{$', '$[']
+      270°: ['depending', '>(', 'cuador', 'femmes', 'iah', 'fifteen', 'circa', '+(', 'éb', '>\r']
+
+  [ L24 H9  dims (0,3) ]
+  σ[0]=6.507  σ[3]=4.764  ratio=1.366
+        0°: ['.</', '.\r', '}}', '.»', 'vice', '.}', '_.', '!...', '.~', '。']
+       90°: ['covering', 'repeating', 'specifying', 'ningen', 'tarde', 'blocking', 'aden', 'urd', 'Champion', 'repeated']
+      180°: ['afin', 'чтобы', 'inos', 'éter', 'thereby', 'sr', '来', 'clud', 'ën', 'aci']
+      270°: ['afin', 'into', 'чтобы', 'insert', 'INTO', 'inserted', 'Insert', 'embedded', 'into', 'to']
+
+  [ L24 H19  dims (0,3) ]
+  σ[0]=4.548  σ[3]=3.734  ratio=1.218
+        0°: ['years', 'Years', 'fois', 'weeks', 'year', 'months', 'ways', 'days', 'way', 'way']
+       90°: ['%,', '%,', '%', 'majority', 'percent', 'percentage', "%'", 'percent', 'half', '%']
+      180°: ['fewer', 'numerous', 'significant', 'immediate', 'thousands', 'segments', 'few', 'things', 'tons', 'lots']
+      270°: ['years', 'Years', 'numerous', 'multiple', 'months', 'dozen', 'años', 'weeks', 'multiple', 'Year']
+
+  [ L24 H1  dims (1,2) ]
+  σ[1]=6.770  σ[2]=6.555  ratio=1.033
+        0°: ['-', '-.', '-%', '-,', '-$', '-)', '-(', '‑', '-\\', '-}']
+       90°: ['and', 'AND', 'ands', 'andis', 'while', 'And', '并', 'AND', '&&', 'whilst']
+      180°: ['Plus', 'plus', 'Plus', 'plus', 'followed', 'whereas', 'tandis', 'ätter', 'while', 'whilst']
+      270°: ['nor', 'Nor', 'nor', 'sondern', 'neither', 'except', 'although', 'except', 'but', 'but']
+
+  [ L24 H21  dims (1,2) ]
+  σ[1]=4.227  σ[2]=4.056  ratio=1.042
+        0°: ['involving', 'containing', 'Contains', 'contains', 'contain', 'involves', 'involve', 'contains', 'happening', 'conten']
+       90°: ['responsible', 'able', 'willing', 'who', 'aware', 'operating', 'particip', 'losing', 'possess', 'whom']
+      180°: ['=.', 'zero', '=-', '>=', 'equal', '>', '≥', 'Zero', '%.', '>=']
+      270°: ['consisting', 'exceed', 'consisted', 'consists', 'contained', 'contains', 'contain', 'contains', 'containing', 'Contains']
+
+  [ L24 H22  dims (3,4) ]
+  σ[3]=4.652  σ[4]=4.626  ratio=1.006
+        0°: ['SR', 'SR', 'SD', 'SB', 'SD', 'SA', 'SS', 'S', 'SS', 'SC']
+       90°: ['RC', 'OC', 'RS', 'RC', 'O', 'R', 'OF', 'RT', 'O', 'OW']
+      180°: ['PF', 'FP', 'FC', 'Pf', 'CP', 'Finland', 'PC', 'WF', 'pc', 'P']
+      270°: ['E', 'EP', 'E', 'EP', 'EL', 'EM', 'EL', 'LP', 'EB', 'ES']
+
+  [ L24 H10  dims (0,1) ]
+  σ[0]=9.415  σ[1]=7.702  ratio=1.222
+        0°: ['their', 'they', 'Their', 'loro', 'they', 'They', 'They', 'leur', 'leurs', 'them']
+       90°: ['its', 'Its', 'its', 'itself', 'Their', 'their', 'it', 'loro', 'шло', 'sua']
+      180°: ['Its', 'its', 'him', 'itself', 'suoi', 'its', 'його', 'jego', 'lui', 'ihm']
+      270°: ['his', 'him', 'himself', 'his', 'ihn', 'him', 'he', '他', 'ourselves', 'His']

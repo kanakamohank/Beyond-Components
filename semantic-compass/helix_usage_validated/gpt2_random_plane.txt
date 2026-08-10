@@ -1,0 +1,27 @@
+/Users/mkanaka/Documents/GitHub/Beyond-Components/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+`torch_dtype` is deprecated! Use `dtype` instead!
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+=================================================================
+VALIDATED HELIX USAGE INVESTIGATION
+=================================================================
+Loading gpt2-small...
+Loaded pretrained model gpt2-small into HookedTransformer
+  Model loaded: 12L, 12H, d=768
+  Target: L10 H2, SVD dims (2, 7), resid L10, T=99.0
+  Sanity checks...
+  Sanity OK  (activation shape (1, 4, 768))
+  OVERRIDE -> L9 H7 dims (1, 2)
+
+  Running --test random-plane...
+
+===========================================================================
+COMPASS RANDOM-PLANE BASELINE
+Target: L9 H7, SVD Dims (1, 2)  |  N_trials=1000
+===========================================================================
+  Observed spread (SVD plane dims 1,2): 25.5°
+  Random-plane spread: mean=26.6°  std=21.8°  max=116.8°
+  Empirical p-value (spread >= observed): 0.3800  (n_trials=1000)
+  --> NULL: consistent with a random 2D plane
+
+  Investigation completed successfully.

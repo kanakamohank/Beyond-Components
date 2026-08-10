@@ -1,0 +1,33 @@
+/Users/mkanaka/Documents/GitHub/Beyond-Components/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct requires setting trust_remote_code=True
+/Users/mkanaka/Documents/GitHub/Beyond-Components/.venv/lib/python3.9/site-packages/transformer_lens/HookedTransformerConfig.py:343: UserWarning: MPS backend may produce silently incorrect results (PyTorch 2.8.0). Set TRANSFORMERLENS_ALLOW_MPS=1 to suppress this warning. See: https://github.com/TransformerLensOrg/TransformerLens/issues/1178
+  utils.warn_if_mps(self.device)
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct state dict requires setting trust_remote_code=True
+`torch_dtype` is deprecated! Use `dtype` instead!
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:`flash-attention` package not found, consider installing for better performance: No module named 'flash_attn'.
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:Current `flash-attention` does not support `window_size`. Either upgrade or use `attn_implementation='eager'`.
+Loading Phi-3 on mps...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 33.10it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model microsoft/Phi-3-mini-4k-instruct into HookedTransformer
+  Loaded: 32L, 32H, d=3072
+L24H10 plane (SV0, SV1):  sigma_0=9.415  sigma_1=7.702
+  tokens: ' his'=670  ' their'=1009
+
+BASELINE logit(' his' - ' their'):
+  neutral: -0.331
+  masc:    +7.094   (expect > 0, 'his')
+  plural:  -6.950   (expect < 0, 'their')
+running alpha=1.0...
+running alpha=3.0...
+running alpha=10.0...
+  saved helix_usage_validated/phi3_compass_causal_curves.png
+  saved helix_usage_validated/phi3_compass_causal_polar.png
+  saved helix_usage_validated/phi3_compass_causal_linearity.png
+
+All three Phi-3 plots saved.
+  alpha=1.0: amp=1.443  phase=-153.2 deg  argmin=30.0 deg  argmax=210.0 deg
+  alpha=3.0: amp=4.329  phase=-153.1 deg  argmin=30.0 deg  argmax=210.0 deg
+  alpha=10.0: amp=14.374  phase=-153.1 deg  argmin=30.0 deg  argmax=210.0 deg

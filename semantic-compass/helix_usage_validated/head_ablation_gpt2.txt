@@ -1,0 +1,39 @@
+Model: gpt2
+Target: L9 H7 dims (1,2)
+tokens: ' he'=339  ' she'=673
+
+BASELINE   LD_plus=+3.729  LD_minus=-3.312  signal=+7.042
+
+TARGET PLANE-ONLY ABLATION L9 H7 dims (1,2): LD_plus=+3.729  LD_minus=-3.271  signal=+7.000  drop=+0.042  (+0.6% of baseline)
+TARGET FULL-HEAD ABLATION L9 H7: LD_plus=+3.188  LD_minus=-2.896  signal=+6.083  drop=+0.958  (+13.6% of baseline)
+PLANE SHARE OF HEAD: +4.3%
+
+SAME-LAYER SWEEP (layer 9, plane = top-2 OV-SVD of each head):
+   head      LD+      LD-   signal     drop   % of tgt
+  -------------------------------------------------------
+       0   +3.771   -3.312   +7.083   -0.042    -100.0%
+       1   +3.750   -3.312   +7.062   -0.021     -50.0%
+       2   +3.729   -3.271   +7.000   +0.042    +100.0%
+       3   +3.771   -3.375   +7.146   -0.104    -250.0%
+       4   +3.708   -3.312   +7.021   +0.021     +50.0%
+       5   +3.750   -3.333   +7.083   -0.042    -100.0%
+       6   +3.771   -3.292   +7.062   -0.021     -50.0%
+  *    7   +3.750   -3.250   +7.000   +0.042    +100.0%
+       8   +3.708   -3.333   +7.042   -0.000      -0.0%
+       9   +3.750   -3.312   +7.062   -0.021     -50.0%
+      10   +3.771   -3.312   +7.083   -0.042    -100.0%
+      11   +3.750   -3.292   +7.042   +0.000      +0.0%
+
+OTHER-LAYER SWEEP (head 7, top-2 plane):
+   layer      LD+      LD-   signal     drop   % of tgt
+  -------------------------------------------------------
+        7   +3.729   -3.312   +7.042   +0.000      +0.0%
+        8   +3.792   -3.312   +7.104   -0.062    -150.0%
+       10   +3.750   -3.271   +7.021   +0.021     +50.0%
+       11   +3.729   -3.312   +7.042   +0.000      +0.0%
+
+SUMMARY
+  target head drop               = +0.042  (+0.6% of baseline)
+  max other-head drop (layer L)  = -0.104
+  median |other-head drop|       = +0.021
+  target / max-other ratio       = 0.40x

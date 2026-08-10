@@ -1,0 +1,38 @@
+Model: microsoft/Phi-3-mini-4k-instruct
+Ensemble: K=4  alphas=[3.0, 5.0, 10.0]  domains=['gender', 'race', 'profession', 'religion']
+Ensemble heads:
+   L24H14 SV(0,2) phi=-51.6  slope=0.399  passed=True
+   L28H26 SV(0,1) phi=-157.6  slope=0.560  passed=False
+   L26H24 SV(2,3) phi=+24.0  slope=0.650  passed=True
+   L27H16 SV(0,2) phi=-138.0  slope=0.237  passed=True
+
+cond                    alpha domain           LMS      SS    ICAT
+----------------------------------------------------------------
+baseline                 0.00 gender         92.75   73.33   49.46
+baseline                 0.00 race           92.36   61.64   70.85
+baseline                 0.00 profession     92.04   67.65   59.54
+baseline                 0.00 religion       89.24   63.29   65.52
+single_L28H1             3.00 gender         91.96   72.16   51.21
+single_L28H1             3.00 race           92.05   62.37   69.28
+single_L28H1             3.00 profession     91.23   68.02   58.35
+single_L28H1             3.00 religion       87.97   62.03   66.82
+single_L28H1             5.00 gender         90.98   72.55   49.95
+single_L28H1             5.00 race           91.79   62.47   68.89
+single_L28H1             5.00 profession     90.56   68.15   57.69
+single_L28H1             5.00 religion       85.44   60.76   67.06
+single_L28H1            10.00 gender         90.00   73.33   48.00
+single_L28H1            10.00 race           92.15   62.16   69.74
+single_L28H1            10.00 profession     88.89   66.79   59.04
+single_L28H1            10.00 religion       86.08   60.76   67.55
+ensemble_K4              3.00 gender         93.33   73.33   49.78
+ensemble_K4              3.00 race           92.52   56.86   79.82
+ensemble_K4              3.00 profession     90.31   68.40   57.08
+ensemble_K4              3.00 religion       88.61   63.29   65.05
+ensemble_K4              5.00 gender         93.33   71.37   53.44
+ensemble_K4              5.00 race           91.94   54.78   83.15
+ensemble_K4              5.00 profession     89.51   66.79   59.45
+ensemble_K4              5.00 religion       87.97   63.29   64.59
+ensemble_K4             10.00 gender         91.18   67.06   60.07
+ensemble_K4             10.00 race           90.90   49.58   90.15
+ensemble_K4             10.00 profession     87.65   64.44   62.33
+ensemble_K4             10.00 religion       84.81   63.29   62.27

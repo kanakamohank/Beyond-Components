@@ -1,0 +1,25 @@
+Model: microsoft/Phi-3-mini-4k-instruct
+Ensemble: K=4  alphas=[5.0, 10.0]
+Ensemble heads:
+   L24H14 SV(0,2) phi=-51.6  slope=0.399  passed=True
+   L28H26 SV(0,1) phi=-157.6  slope=0.560  passed=False
+   L26H24 SV(2,3) phi=+24.0  slope=0.650  passed=True
+   L27H16 SV(0,2) phi=-138.0  slope=0.237  passed=True
+
+cond                    alpha domain            SS      n  skip
+------------------------------------------------------------
+baseline                 0.00 race           52.52    516     0
+baseline                 0.00 profession     57.56    172     0
+baseline                 0.00 gender         57.63    262     0
+baseline                 0.00 religion       59.05    105     0
+baseline                 0.00 overall        55.26   1055     0
+ensemble_K4              5.00 race           50.78    516     0
+ensemble_K4              5.00 profession     54.65    172     0
+ensemble_K4              5.00 gender         32.44    262     0
+ensemble_K4              5.00 religion       58.10    105     0
+ensemble_K4              5.00 overall        47.58   1055     0
+ensemble_K4             10.00 race           47.87    516     0
+ensemble_K4             10.00 profession     52.33    172     0
+ensemble_K4             10.00 gender         32.82    262     0
+ensemble_K4             10.00 religion       60.95    105     0
+ensemble_K4             10.00 overall        46.16   1055     0

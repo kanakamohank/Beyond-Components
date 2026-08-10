@@ -1,0 +1,29 @@
+\begin{abstract}
+We show that the Singular Value Decomposition (SVD) of a single attention
+head's output-value matrix $W_{OV}$ routinely exposes two-dimensional
+\emph{semantic compasses}: planes in the residual stream whose azimuthal
+angle codes a categorical distinction (gender, temporal unit, entity type)
+and whose radius codes its magnitude. We validate this claim on four
+pretrained models---GPT-2 Small, Phi-3 Mini, Gemma-2-2B, and
+Llama-3.2-3B---using a nine-test battery: vocabulary decoding of the
+compass basis; cyclicity, permutation, and random-plane null controls
+with $1000$/$2000$ trial Monte-Carlo $p$-values; principal-angles
+comparison against unrelated heads; and a causal $\alpha$-sweep that
+injects $\alpha\,\sigma\,(\cos\theta\,u_1 + \sin\theta\,u_2)$ into the
+residual stream and measures $\mathrm{logit}(t_{+} - t_{-})$ across
+$36$ injection angles. Injections are performed \emph{in-context},
+at the compass head's own layer, so reported amplitudes reflect causal
+propagation through all subsequent blocks rather than readout proximity.
+Every compass produces a sinusoidal response whose amplitude scales linearly
+with $\alpha$ ($R^2 \ge 0.993$) and whose phase is stable to $\pm 3^\circ$
+across $\alpha \in \{1, 3, 10\}$. On Phi-3 we further identify a
+\emph{temporal unit} dial (month vs.\ hour, L24H17) and an \emph{entity
+type} dial (item vs.\ operation, L24H28) with the same recipe. We
+measure downstream bias impact on WinoGender ($720$ cases per model) and
+StereoSet (gender, race, profession), showing that a rank-$2$, single-head
+compass injection monotonically reduces stereotypical co-reference bias
+with language-model perplexity drift below $0.08$ at the working scale.
+Our work positions OV-SVD as an architecture-agnostic, weight-space
+primitive for discovering and editing low-dimensional causal features
+without training a probe.
+\end{abstract}

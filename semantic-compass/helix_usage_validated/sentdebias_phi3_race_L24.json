@@ -1,0 +1,10 @@
+{
+  "model": "microsoft/Phi-3-mini-4k-instruct",
+  "domain": "race",
+  "layer": 24,
+  "k": 1,
+  "subspace_singular_values": [
+    1026.4112548828125
+  ],
+  "n_items": 330
+}

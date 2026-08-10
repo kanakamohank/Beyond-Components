@@ -1,0 +1,10 @@
+Model: gpt2
+SentenceDebias: domain=race  layer=10  k=1
+Subspace singular values: ['668.50']
+
+cond         domain            SS      n
+----------------------------------------
+baseline     race           50.00    516
+baseline     overall        50.00    516
+sentdebias   race           49.61    516
+sentdebias   overall        49.61    516

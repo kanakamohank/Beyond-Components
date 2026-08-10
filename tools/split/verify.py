@@ -1,0 +1,118 @@
+#!/usr/bin/env python3
+"""Verify each split repo: syntax, intra-repo src.* imports, LaTeX figures."""
+import ast
+import re
+import sys
+from pathlib import Path
+
+ROOT = Path("/home/user/Beyond-Components")
+REPOS = [ROOT / "semantic-compass", ROOT / "arithmetic-circuit-discovery"]
+
+# Modules the ORIGINAL repo already fails to provide (pre-existing breakage).
+PREEXISTING_MISSING = {
+    "src.analysis.circuit_identification",
+    "src.analysis.geometric_interpreter",
+    "src.analysis.neuron_analyzer",
+    "src.data.arithmetic_data",
+    "src.models.arithmetic_pipeline",
+    "src.utils.helix_visualization",
+}
+
+failed = False
+
+for repo in REPOS:
+    print(f"\n{'=' * 64}\n{repo.name}\n{'=' * 64}")
+    pys = sorted(repo.rglob("*.py"))
+
+    # ---- 1. syntax ----
+    syntax_errors = []
+    trees = {}
+    for f in pys:
+        try:
+            trees[f] = ast.parse(f.read_text(errors="replace"), filename=str(f))
+        except SyntaxError as e:
+            syntax_errors.append(f"{f.relative_to(repo)}:{e.lineno}: {e.msg}")
+    print(f"syntax          : {len(pys) - len(syntax_errors)}/{len(pys)} parse clean")
+    for e in syntax_errors:
+        print("   SYNTAX", e)
+        failed = True
+
+    # ---- 2. intra-repo src.* imports ----
+    def module_present(mod: str) -> bool:
+        rel = mod.replace(".", "/")
+        return (repo / f"{rel}.py").exists() or (repo / rel / "__init__.py").exists()
+
+    missing, preexisting = set(), set()
+    for f, tree in trees.items():
+        for node in ast.walk(tree):
+            mods = []
+            if isinstance(node, ast.Import):
+                mods = [a.name for a in node.names]
+            elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
+                mods = [node.module]
+            for m in mods:
+                if not m.startswith("src"):
+                    continue
+                if module_present(m):
+                    continue
+                (preexisting if m in PREEXISTING_MISSING else missing).add(
+                    (m, str(f.relative_to(repo)))
+                )
+
+    if missing:
+        failed = True
+        print(f"src imports     : {len(missing)} UNRESOLVED (split-induced)")
+        for m, f in sorted(missing):
+            print(f"   MISSING {m}  <- {f}")
+    else:
+        print("src imports     : all resolve within this repo")
+    if preexisting:
+        print(f"                  ({len(preexisting)} pre-existing gaps, absent on main too)")
+        for m, f in sorted(preexisting):
+            print(f"   pre-existing  {m}  <- {f}")
+
+    # ---- 3. sibling experiments/ imports ----
+    exp_missing = set()
+    for f, tree in trees.items():
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
+                m = node.module
+                if m.startswith("experiments") and not module_present(m):
+                    exp_missing.add((m, str(f.relative_to(repo))))
+    if exp_missing:
+        failed = True
+        print(f"experiments imports: {len(exp_missing)} UNRESOLVED")
+        for m, f in sorted(exp_missing):
+            print(f"   MISSING {m}  <- {f}")
+    else:
+        print("experiments imp.: all resolve within this repo")
+
+    # ---- 4. LaTeX \includegraphics ----
+    GFX = re.compile(r"\\includegraphics(?:\[[^\]]*\])?\{([^}]+)\}")
+    EXTS = ["", ".pdf", ".png", ".jpg", ".jpeg", ".eps"]
+    tex_missing = []
+    n_refs = 0
+    for tex in sorted(repo.rglob("*.tex")):
+        base = tex.parent
+        # section files live in <paper>/sections/, graphics resolve from <paper>/
+        roots = [base, base.parent]
+        # honour \\graphicspath declared in the document root's main.tex
+        for docroot in (base, base.parent):
+            mt = docroot / "main.tex"
+            if mt.exists():
+                for gp in re.findall(r"\\graphicspath\{(.+?)\}\s*$",
+                                     mt.read_text(errors="replace"), re.M):
+                    for sub in re.findall(r"\{([^}]*)\}", gp):
+                        roots.append(docroot / sub)
+        for ref in GFX.findall(tex.read_text(errors="replace")):
+            n_refs += 1
+            if not any((r / (ref + e)).exists() for r in roots for e in EXTS):
+                tex_missing.append((str(tex.relative_to(repo)), ref))
+    if tex_missing:
+        print(f"latex figures   : {n_refs - len(tex_missing)}/{n_refs} resolve")
+        for t, ref in tex_missing:
+            print(f"   MISSING FIG  {ref}   <- {t}")
+    else:
+        print(f"latex figures   : {n_refs}/{n_refs} resolve")
+
+sys.exit(1 if failed else 0)

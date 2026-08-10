@@ -1,0 +1,60 @@
+/Users/mkanaka/Documents/GitHub/Beyond-Components/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct requires setting trust_remote_code=True
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct state dict requires setting trust_remote_code=True
+`torch_dtype` is deprecated! Use `dtype` instead!
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:`flash-attention` package not found, consider installing for better performance: No module named 'flash_attn'.
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:Current `flash-attention` does not support `window_size`. Either upgrade or use `attn_implementation='eager'`.
+=================================================================
+VALIDATED HELIX USAGE INVESTIGATION
+=================================================================
+Loading microsoft/Phi-3-mini-4k-instruct...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 25.51it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model microsoft/Phi-3-mini-4k-instruct into HookedTransformer
+  Model loaded: 32L, 32H, d=3072
+  Target: L24 H28, SVD dims (3, 7), resid L25, T=11.74
+  Sanity checks...
+  Sanity OK  (activation shape (1, 6, 3072))
+
+  Running --test causal-patch...
+
+===========================================================================
+CAUSAL COMPASS PATCH
+Target: L24 H28, SVD Dims (3, 7)
+===========================================================================
+
+  Prompt: 'The software company launched a new program'
+    baseline angle = 24.1°, in-plane radius = 13.555
+
+  Prompt: 'The championship was won by the rival teams'
+    baseline angle = 92.0°, in-plane radius = 10.645
+
+  Prompt: 'The explorers mapped out the uncharted territory'
+    baseline angle = 332.6°, in-plane radius = 10.679
+
+   delta     target   mean_shift    n
+  ----------------------------------------
+    -180          0      -0.1779    3
+    -180         90      -0.2489    3
+    -180        180      +0.1409    3
+    -180        270      +0.1306    3
+     -90          0      -0.0456    3
+     -90         90      -0.4520    3
+     -90        180      +0.0347    3
+     -90        270      +0.2346    3
+      +0          0      +0.0000    3
+      +0         90      +0.0000    3
+      +0        180      +0.0000    3
+      +0        270      +0.0000    3
+     +90          0      -0.0991    3
+     +90         90      +0.2357    3
+     +90        180      +0.1235    3
+     +90        270      -0.1024    3
+    +180          0      -0.1779    3
+    +180         90      -0.2489    3
+    +180        180      +0.1409    3
+    +180        270      +0.1306    3
+
+  Investigation completed successfully.

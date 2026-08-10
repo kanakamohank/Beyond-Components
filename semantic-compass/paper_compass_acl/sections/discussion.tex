@@ -1,0 +1,26 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{What the rank-2 reading buys.}
+Reading attention-head weights as 2D planes rather than as
+collections of independent singular directions exposes structure
+the single-direction view cannot. The Phi-3 temporal dial's
+four-way harmonic ($A_2/A_1 = 0.32$ at $\alpha = 10$ vs.\
+$\leq 0.06$ on the rank-2 two-way entity dial) is invisible to
+single-axis decoding. The storage--steering dissociation
+(\cref{tab:storage}) is recovered at the head level by reading
+the pair $(A_{\mathrm{slope}}, |\Delta_{\mathrm{patch}}|)$ jointly.
+The held-out routed CrowS-Pairs procedure with an $M = 0$
+off-switch supports graded categorical steering at low
+language-quality cost.
+
+\paragraph{Adjacent comparisons.}
+Three follow-ups would discipline the positive findings: DAS
+\citep{geiger2024das} on the same head (does a learned 2D rotation
+recover $(u_i, u_j)$?); an Engels-style helix probe
+\citep{engels2024not} on Phi-3 L24H17 (does the temporal dial
+occupy the same subspace as a probe-derived helix?); and a
+sparse-autoencoder decomposition
+\citep{cunningham2023sparse,templeton2024scaling} of the same head
+(do two SAE features align with the compass plane?). All three are
+natural extensions of the geometric reading we report.

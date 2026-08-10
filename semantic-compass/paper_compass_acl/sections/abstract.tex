@@ -1,0 +1,30 @@
+\begin{abstract}
+Singular directions of an attention head's $W_{OV}$ map carry
+interpretable signal individually
+\citep{elhage2021mathematical,millidge2022svd,ahmad2025beyond};
+we ask whether \emph{pairs} of these directions form a coherent
+two-dimensional causal structure. We define a \emph{semantic
+compass} as a plane $\mathrm{span}(u_i, u_j)$ on which
+(a) vocabulary projection yields antipodal categorical poles,
+(b) the residual injection
+$\alpha\sigma(\cos\theta\,u_i + \sin\theta\,u_j)$ at the head's
+own layer produces a sinusoidal logit response with stable phase
+across $\alpha$, and (c) the rotation cycle closes
+($2\pi$-cyclic decode).
+On Phi-3 Mini, the same recipe yields a four-way temporal dial
+(month / hour, with second-harmonic ratio $A_2/A_1 = 0.32$ at
+$\alpha = 10$) and an entity-type dial. Across four pretrained
+decoders (GPT-2 Small, Phi-3 Mini, Gemma-2-2B, Llama-3.2-3B) we find
+gender compasses with phase drift $\leq 3^\circ$.
+
+Phase stability and $2\pi$-cyclic decode are the substantive
+evidence; amplitude linearity follows partly from the linear
+injection. Controls calibrate scope: the permutation null rejects
+label-coincidence ($p < 0.001$), while the random-plane null
+locates gender in a distributed 2D subspace rather than on a unique
+axis ($p > 0.10$ on every head, including under family-wise
+correction). On held-out CrowS-Pairs, dev-selected multipliers
+land Phi-3 gender at test $|\mathrm{SS}-50| = 5.73$ ($M^* = 0.50$)
+and select $M^* = 0$ on near-neutral baselines (GPT-2 race, Gemma
+gender), giving an off-switch that fixed projector baselines lack.
+\end{abstract}

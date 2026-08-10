@@ -1,0 +1,80 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+data/data_main.zip
+data_main
+data_main.zip
+*_results/*
+# ...but the paper's figures must be tracked so paper/ compiles.
+!mathematical_toolkit_results/
+!mathematical_toolkit_results/paper_plots/
+!mathematical_toolkit_results/paper_plots/**
+*_models/*
+svd_logs/*
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Model cache
+cache_dir/
+svd_cache/*
+.sfdx/*
+# Logs and outputs
+logs/
+*.log
+wandb/
+
+# Data (keep README)
+data/*.csv
+data/*.pt
+data/*.json
+!data/README.md
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Large temporary files (but keep checkpoints)
+# *.pt  # Commented out - we want to track trained models
+# *.pth
+
+# Keep checkpoints directory tracked
+!checkpoints/
+!checkpoints/**/*.pt
+src/data/data_main/train_100k_ioi.csv
+
+# Checkpoints (too large for GitHub)
+checkpoints/
+*.pt
+*.pth

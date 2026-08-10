@@ -1,0 +1,16 @@
+condition,alpha,domain,ss,n,skipped
+baseline,0.0,race,50.0,516,0
+baseline,0.0,profession,61.627906976744185,172,0
+baseline,0.0,gender,48.47328244274809,262,0
+baseline,0.0,religion,60.0,105,0
+baseline,0.0,overall,52.51184834123223,1055,0
+routed_K4,0.75,race,50.3875968992248,516,0
+routed_K4,0.75,profession,59.883720930232556,172,0
+routed_K4,0.75,gender,40.0763358778626,262,0
+routed_K4,0.75,religion,58.095238095238095,105,0
+routed_K4,0.75,overall,50.14218009478673,1055,0
+routed_K4,1.5,race,53.68217054263566,516,0
+routed_K4,1.5,profession,57.55813953488372,172,0
+routed_K4,1.5,gender,35.11450381679389,262,0
+routed_K4,1.5,religion,55.23809523809524,105,0
+routed_K4,1.5,overall,49.85781990521327,1055,0

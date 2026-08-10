@@ -1,0 +1,12 @@
+Model: meta-llama/Llama-3.2-3B
+Ensemble: K=4  alphas=[20.0]
+Ensemble heads:
+   L22H12 SV(2,3) phi=+13.2  slope=0.461  passed=True
+   L22H14 SV(0,3) phi=+52.0  slope=0.446  passed=True
+   L26H23 SV(0,1) phi=+39.4  slope=0.452  passed=True
+   L26H21 SV(0,1) phi=-43.9  slope=0.396  passed=True
+
+cond                    alpha  MC1_acc      n   corr
+----------------------------------------------------
+baseline                 0.00    20.07    817    164
+ensemble_K4             20.00    27.05    817    221

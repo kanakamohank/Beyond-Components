@@ -1,0 +1,128 @@
+\section{Introduction}
+\label{sec:intro}
+
+A line of mechanistic-interpretability work establishes that
+individual singular directions of attention-head weights carry
+interpretable signal. \citet{elhage2021mathematical} formalise the
+OV decomposition $W_{OV} = W_V W_O$ that factors a head into its
+read- and write-side maps; \citet{millidge2022svd} show that
+singular directions of $W_{OV}$ and $W_{QK}$ frequently decode
+through $W_U$ to coherent vocabulary; \citet{ahmad2025beyond}
+extract sparse direction-level circuits via learnable masks over
+the singular values for the Gender Pronoun (GP), IOI, and
+Greater-Than tasks.
+
+Several phenomena that language models exhibit do not reduce to
+single-axis binary contrasts. Temporal units (\emph{month},
+\emph{hour}, \emph{year}) form a four-way categorical structure;
+gender-marking heads can split singular vs.\ plural and masculine
+vs.\ feminine in non-orthogonal ways
+\citep{engels2024not,park2024linearrep}; the same categorical axis
+can be \emph{written} at one head and \emph{steered} at another.
+We propose that reading attention-head weights as
+multi-dimensional geometric objects --- starting with 2D planes
+spanned by pairs of singular directions --- captures these
+phenomena directly. On such a plane an angle parameterises a
+continuous family of causal interventions, a radius parameterises
+magnitude, and the second harmonic separates two-way antipodal
+axes from four-way dials.
+
+\paragraph{The compass.}
+Given $W_{OV} = U \Sigma V^\top$ and writing $u_i := V^\top_{[i,:]}$,
+a \emph{semantic compass} is an ordered pair $(u_i, u_j)$ that passes
+three tests: (i) vocabulary decoding through $W_U$ assigns antipodal
+categorical content at the two poles; (ii) the residual injection
+$v(\theta, \alpha) = \alpha\sigma(\cos\theta\, u_i + \sin\theta\,
+u_j)$, applied at the head's own layer on the last token, produces a
+sinusoidal logit response whose phase is stable across $\alpha$;
+(iii) cycling $\theta$ from $0$ to $2\pi$ closes onto identical decode
+vocabulary, with the antipode disjoint. The recipe is probe-free and
+weight-localized.
+
+\paragraph{Why the geometry matters.}
+Reading singular directions individually is a one-dimensional view
+of a higher-dimensional object. Two phenomena in our data are
+invisible to that view and surface only once we treat the plane as
+the unit of analysis.
+
+\emph{Four-way categorical structure.} On the Phi-3 L24H17 plane,
+a four-token probe at $\theta \in \{0^\circ, 90^\circ, 180^\circ,
+270^\circ\}$ produces a strong second harmonic ($A_2/A_1 = 0.32$
+at $\alpha = 10$); the same probe on the Phi-3 L24H28 plane gives
+$A_2/A_1 \leq 0.06$. The first encodes a four-way temporal dial
+(month / hour / year / upon); the second carries two superposed
+two-way axes. Reading either plane's two singular directions one
+at a time gives the same vocabulary in both cases; the harmonic
+geometry distinguishes them.
+
+\emph{Storage versus steering as a quantitative dissociation.} The
+$\alpha$-sweep slope and the in-plane causal-patch magnitude
+dissociate across heads (\cref{tab:storage}). Phi-3 L24H10 has the
+largest in-plane signal but a small sweep slope; L28H1 has the
+reverse profile. The same gender axis sits at two distinct
+operating points in the same model.
+
+\paragraph{A near-causal plane evidenced across architectures.}
+Five independent tests on every primary head support the plane
+as a near-causal axis: a sinusoidal $\alpha$-sweep with phase
+drift $\leq 3^\circ$, $2\pi$-cyclic decode that closes onto
+antipodal vocabulary at $\theta = 0$ and $\theta = 2\pi$, a
+permutation null at $p < 0.001$, an in-plane causal-patch test
+that flips logits in the predicted direction, and a blind causal
+scan that rediscovers the same heads without consulting decode.
+The same five tests pass on GPT-2 Small, Phi-3 Mini, Gemma-2-2B,
+and Llama-3.2-3B --- two orders of magnitude in parameters and
+three distinct training pipelines. We stop short of
+``causal axis'' because the random-plane null returns
+$p > 0.10$, with random-plane mean signals clustering at
+$20$--$30$. We read this as gender being encoded over a
+distributed 2D subspace of the late-layer residual; the OV-SVD
+compass is a weight-readable coordinate system inside that
+subspace rather than its unique axis. Amplitude linearity in
+$\alpha$ ($R^2 \geq 0.99$) is consistent with the linear
+injection itself; phase stability is the non-trivial test that
+distinguishes a causal plane from a generic 2D direction.
+
+\paragraph{Downstream behaviour.}
+On held-out CrowS-Pairs (50/50 split, dev-selected multiplier
+$M^*$ scored on test), Phi-3 gender at $M^* = 0.50$ lands at
+test $|\mathrm{SS}-50| = 5.73$, against a dev-half baseline of
+$|\mathrm{SS}-50| = 8.78$ at $M = 0$. The procedure also admits
+$M^*=0$, dev-selected on $10$ of $16$ cells; on cells whose dev
+baseline is genuinely near $50$ this generalises to small test
+$|\mathrm{SS}-50|$ (GPT-2 race $0.00$, Gemma gender $0.38$, Llama
+race $2.71$, Llama gender $3.44$). Fixed-projector debiasing
+methods have no analogous null option.
+
+\paragraph{Contributions.}
+\begin{enumerate}
+\itemsep0pt
+\item \textbf{The compass primitive.} A probe-free 2D causal dial
+read from $W_{OV}$ by SVD, with a three-test calibration recipe
+(decode antipodes, phase-stable $\alpha$-sweep, $2\pi$-cyclic
+decode) and a five-test pre-registered falsification battery
+(\S\ref{sec:method}).
+\item \textbf{Cross-architecture replication on four model
+families.} Compasses with phase drift $\leq 3^\circ$ across
+$\alpha \in \{1, 3, 10\}$, permutation null $p < 0.001$, and
+$2\pi$-cyclic antipodal decode hold on GPT-2 Small (124M),
+Phi-3 Mini (3.8B), Gemma-2-2B (2.6B), and Llama-3.2-3B (3.2B) ---
+two orders of magnitude in parameters and three distinct training
+recipes (\S\ref{sec:results:gender},
+\cref{tab:gender,tab:battery}).
+\item \textbf{Geometric structure beyond rank-1.} A four-way
+temporal dial in Phi-3 L24H17 with second-harmonic
+$A_2/A_1 = 0.32$ at $\alpha = 10$ vs.\ $\leq 0.06$ on the rank-2
+entity dial (\S\ref{sec:results:harmonic}); a quantitative
+storage-vs-steering dissociation across heads
+(\S\ref{sec:results:storage}); and two distinct compasses on the
+same model's gender axis at near-orthogonal principal angles
+($86.4^\circ$, $89.0^\circ$ between Phi-3 L24H10 and L28H1,
+\S\ref{sec:results:phi3two}).
+\item \textbf{A held-out routed downstream procedure.}
+Per-domain head routing, SNR-calibrated $\alpha$, and dev-selected
+multiplier with $M = 0$ as a valid choice; the calibration recipe
+makes per-cell $\alpha$ comparable across models that differ by
+two orders of magnitude in singular-value scale
+(\S\ref{sec:downstream:crows}, \cref{tab:crows_holdout}).
+\end{enumerate}

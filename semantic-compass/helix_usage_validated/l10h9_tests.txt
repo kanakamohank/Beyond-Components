@@ -1,0 +1,36 @@
+======================================================================
+L10H9 vs L9H7: principal angles + decode + causal sweep
+======================================================================
+
+[1] Principal angles (write-subspace overlap)
+  L9H7(1,2) vs L10H9(0,3)  2D x 2D  angles=[ 36.0,  86.9]
+  L9H7 top-4 vs L10H9 top-4  4D x 4D  angles=[ 25.0,  29.6,  37.1,  65.9]
+  L9H7 top-4 sigma = [9.23, 8.87, 8.46, 7.69]
+  L10H9 top-4 sigma = [9.15, 7.87, 7.27, 6.8]
+  verdict: PARTIAL overlap (some shared axes)
+
+[2] L10H9 write-direction decode through W_U (top-30)
+  SV0 (sigma=9.148)
+    +v : His his He his His he He himself him HIS him he Himself HIM cipled beard Him HE itus incinn
+    -v : her she She herself she She Her hers SHE HER Her ova kaya Ms Ms spokeswoman woman goddess eva heroine
+  SV1 (sigma=7.869)
+    +v : her she herself She she She SHE haar Her ourselves HER ffen izabeth hers egu issance Her him itialized his
+    -v : their Their Their they They their They THEIR they themselves THEY theirs them them THEM Them selves apiece respectively necks
+  SV2 (sigma=7.271)
+    +v : She herself her she she hers She Her SHE himself his Her He his HER His he her He he
+    -v : Its Its its ITS itself imo it It HQ ciation its nutshell obb my oyer Magikarp ppelin your ocity atform
+  SV3 (sigma=6.802)
+    +v : Heard ours andowski CVE Kraken Commentary written Released Reviewer Achievement anonymity Rahman MacDonald Gleaming BG Printed david Written zilla helicop
+    -v : eteen your enture phan >( approximately ific inda ifi && Her yna cend ova cé about gal eteenth ris omed
+
+[3] Causal alpha-sweep: L10H9 SV(0,3) in-context
+  baseline LD: neutral=+1.188  masc=+3.875  fem=-3.271
+  alpha=  1.0  A= 1.782  phi=  +4.65 deg  argmax=  0.0  argmin=180.0
+  alpha=  3.0  A= 5.103  phi=  +4.92 deg  argmax=  0.0  argmin=180.0
+  alpha= 10.0  A=14.160  phi=  +4.68 deg  argmax=  0.0  argmin=190.0
+  phase drift across alpha = 0.27 deg
+
+  COMPARE (paper's L9H7 SV(1,2) under same harness)
+    alpha=  1.0  A= 1.668  phi=-179.66 deg
+    alpha=  3.0  A= 4.594  phi=-177.53 deg
+    alpha= 10.0  A=12.165  phi=-176.84 deg

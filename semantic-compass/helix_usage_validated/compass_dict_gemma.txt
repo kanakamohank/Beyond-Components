@@ -1,0 +1,28 @@
+Model: google/gemma-2-2b
+
+=== L21 H4 ===
+  decoded K=8/2304 axes  cum_var@K=0.355  (target=0.9, min=4, max=8)
+  SV0  sigma=2.354  cum_var=0.095
+    +v : him | 彼は | he | his | ihn | 彼が | 彼の | ньому | ihm | him | his | njego | él | himself | เขา
+    -v : she | her | she | She | herself | 그녀 | 彼女の | shes | 她 | hers | She | 彼女は | 彼女 | Она | její
+  SV1  sigma=2.067  cum_var=0.169
+    +v : him | she | he | his | onun | her | ihm | He | 彼の | "><? | }>{ | him | 彼が | ему | onu
+    -v : they | They | They | they | mereka | them | Mereka | Mereka | 他们 | THEY | họ | 彼らは | 他們 | THEY | ihnen
+  SV2  sigma=1.984  cum_var=0.236
+    +v : him | he | his | egli | 彼は | beliau | her | 彼が | she | He | 그는 | 彼の | 그는 | his | himself
+    -v : its | Its | Оно | Its | оно | its | 它 | которое | 它的 | яке | 它 | it | 它是 | 因为它 | nó
+  SV3  sigma=1.525  cum_var=0.276
+    +v : RectangleBorder | تضيفلها | ajiban | Normdatei | haraan | myſelf | JspWriter | you | saites | audiovisuel | cookieParser | tayo | nifer | ﻿ | raiſ
+    -v : she | him | his | her | he | their | they | Their | their | They | They | 彼は | his | ему | she
+  SV4  sigma=1.167  cum_var=0.299
+    +v : their | Their | Their | 彼らの | THEIR | 彼らは | their | leur | kanilang | Leurs | ScopeManager | theirs | оригіналу | 他们的 | leur
+    -v : ones | TagHelper | your | you | those | your | youre | those | yourself | yourself | ?") | ?') | you | Your | Those
+  SV5  sigma=1.136  cum_var=0.322
+    +v : vocês | Their | vuestro | endif | 彼らの | InitVars | TagMode | berdua | पया | Their | vuestra | letics | jsPsych | essoal | inoxydable
+    -v : its | Its | Its | 它們 | its | ones | 它们 | celles | suoi | Оно | lesquelles | ITS | 它的 | These | Elles
+  SV6  sigma=1.026  cum_var=0.340
+    +v : you | your | your | you | yourself | Your | youre | You | Your | yourselves | vous | YOU | YOUR | YOUR | You
+    -v : we | my | our | We | We | kami | нами | 我們 | meines | 我们 | 私たちは | ourselves | nous | we | me
+  SV7  sigma=0.931  cum_var=0.355
+    +v : elles | ellas | Elles | Elles | girls | ISupport | fjspx | sisters | 脚注の使い方 | +#+# | CreateTagHelper | Girls | Girls | &___ | Sisters
+    -v : suoi | its | quelli | /") | $") | ") | '") | ceux | ") | he | Its | :") | its | we | )

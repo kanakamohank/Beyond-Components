@@ -1,0 +1,36 @@
+Model: google/gemma-2-2b
+Routed ensemble: K=4 per domain  alphas=per-domain (calibrated): {'gender': 55.26473349230913, 'race': 81.35799208554863, 'profession': 29.726381606333852, 'religion': 31.188676465617817}
+Per-domain heads (best-probe within that domain):
+  gender: [FALLBACK]
+    L16H2  SV(1,2) phi=-77.2  slope=0.115  passed=True
+    L18H2  SV(0,1) phi=+95.0  slope=0.079  passed=False
+    L20H3  SV(2,3) phi=-111.1  slope=0.073  passed=False
+    L22H1  SV(0,3) phi=-71.9  slope=0.062  passed=False
+  race: [FALLBACK]
+    L24H5  SV(1,2) phi=+52.9  slope=0.091  passed=True
+    L20H2  SV(1,2) phi=-56.9  slope=0.089  passed=True
+    L25H2  SV(0,1) phi=+12.6  slope=0.080  passed=True
+    L18H2  SV(0,1) phi=-88.8  slope=0.078  passed=False
+  profession: [FALLBACK]
+    L21H4  SV(0,1) phi=-11.7  slope=0.359  passed=True
+    L20H5  SV(0,2) phi=-177.4  slope=0.158  passed=True
+    L16H2  SV(1,2) phi=-70.5  slope=0.094  passed=True
+    L19H4  SV(0,2) phi=-171.2  slope=0.073  passed=False
+  religion: [FALLBACK]
+    L14H3  SV(0,3) phi=-22.1  slope=0.035  passed=False
+    L14H2  SV(0,2) phi=+15.3  slope=0.032  passed=False
+    L16H4  SV(0,1) phi=+97.6  slope=0.029  passed=False
+    L 7H0  SV(0,1) phi=+124.0  slope=0.008  passed=False
+
+cond                    alpha domain            SS      n
+------------------------------------------------------------
+baseline                 0.00 race           56.01    516
+baseline                 0.00 profession     63.95    172
+baseline                 0.00 gender         51.15    262
+baseline                 0.00 religion       63.81    105
+baseline                 0.00 overall        56.87   1055
+routed_calib            81.36 race           31.98    516
+routed_calib            29.73 profession     61.63    172
+routed_calib            55.26 gender         32.44    262
+routed_calib            31.19 religion       60.00    105
+routed_calib            -1.00 overall        39.72   1055

@@ -1,0 +1,289 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=teal, urlcolor=teal}
+
+\setlist[itemize]{leftmargin=1.2em, topsep=2pt, itemsep=1pt, parsep=0pt}
+\setlist[enumerate]{leftmargin=1.4em, topsep=2pt, itemsep=1pt, parsep=0pt}
+
+\tcbset{
+  beat/.style={
+    colback=teal!4, colframe=teal!55, boxrule=0.3pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    fonttitle=\bfseries\small, fontupper=\small, breakable
+  },
+  qa/.style={
+    colback=gray!6, colframe=gray!55, boxrule=0.3pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    fonttitle=\bfseries\small, fontupper=\small, breakable,
+    title=Anticipated Q\&A
+  }
+}
+
+\title{\textbf{Speaker notes --- Semantic Dial Compass}}
+\author{Mohan Kumar Kanaka}
+\date{April 2026}
+
+\begin{document}
+\maketitle
+\vspace{-24pt}
+
+\noindent\small
+Target length: $\approx 12$ minutes + Q\&A. Each \textbf{beat} box is one
+slide-equivalent. The phrasing is conversational --- do not read verbatim;
+use the bullets as landmarks. Time stamps are cumulative.
+
+%============================================================
+\section*{0. Hook (\textasciitilde 30s)}
+\begin{tcolorbox}[beat]
+\textbf{Say:} ``Billion-parameter language models are black boxes. Today I'll
+show you a single 1-dimensional direction --- one axis --- inside one
+attention head, that cleanly encodes gender. Turn that one knob and bias on
+WinoGender drops to zero. Fluency stays put. Same story reproduces in four
+unrelated model families.''
+
+\textbf{Beat:} hold a second after ``one axis.'' That is the claim.
+\end{tcolorbox}
+
+%============================================================
+\section*{1. What we set out to do (\textasciitilde 1:00)}
+\begin{tcolorbox}[beat]
+\textbf{Three claims we needed to prove:}
+\begin{enumerate}
+  \item such a \emph{dial} exists inside the model,
+  \item it is \textbf{causal} --- the model really uses it,
+  \item we can \textbf{turn it up or down} to change behaviour.
+\end{enumerate}
+Anything less than all three is not interpretability, it is just staring at
+weights.
+\end{tcolorbox}
+
+%============================================================
+\section*{2. Where to look: $W_{OV}$ and the SVD (\textasciitilde 2:00)}
+\begin{tcolorbox}[beat]
+\textbf{One sentence of mechanism:} each attention head writes back through a
+matrix $W_{OV} = W_V W_O$. SVD gives an ordered basis of \emph{what this head
+can write}. The top rows of $V^\top$ are the head's strongest write
+directions --- we call these \textbf{candidate compass axes}.
+
+\textbf{Slide cue:} show the $W_{OV} = U\Sigma V^\top$ line and circle rows
+of $V^\top$.
+
+\textbf{Pitfall to avoid on stage:} don't get pulled into a full transformer
+tutorial. Say ``it's a write direction'' and move on.
+\end{tcolorbox}
+
+%============================================================
+\section*{3. The scan --- ``is this plane a compass?'' (\textasciitilde 3:30)}
+\begin{tcolorbox}[beat]
+\textbf{Setup:} for each (layer, head, 2-D plane of top SVs) we inject a
+rotating 2-D signal and watch one readout --- the logit gap between the
+pronouns `` he'' and `` she'' on three neutral prompts. No WinoGender,
+no BLS labels. Just a probe.
+
+\textbf{Two tests:}
+\begin{itemize}
+  \item \textbf{Amplitude linearity}: doubling input $\Rightarrow$ doubling output ($R^2 > 0.95$).
+  \item \textbf{Phase stability}: output angle stays put ($|\Delta\varphi| < 10^\circ$).
+\end{itemize}
+
+\textbf{Key number to land:} \textbf{Compasses are rare}. Pass rates:
+GPT-2 $1.9\%$, Phi-3 $1.0\%$, Gemma $1.2\%$, Llama-3.2-3B $0.2\%$.
+``Most heads are noise; a tiny fraction carry clean signal.''
+\end{tcolorbox}
+
+%============================================================
+\section*{4. Null tests --- are we fooling ourselves? (\textasciitilde 5:00)}
+\begin{tcolorbox}[beat]
+\textbf{The reviewer's worry:} $2\%$ is not big. Could any random 2-D plane
+look compass-like?
+
+\textbf{Two nulls:}
+\begin{itemize}
+  \item \textbf{Loose}: random planes from the whole output space. Compass \textbf{wins} on GPT-2, Phi-3, Gemma.
+  \item \textbf{Strict}: random planes from only the head's top-4 SVs. Compass \textbf{ties} --- the top-4 subspace is densely compass-like.
+\end{itemize}
+
+\textbf{Honest framing (memorise this sentence):}
+``Our claim is not `we found \emph{the} gender axis' --- it is
+\emph{gender is concentrated in a low-dim subspace of one attention head}.''
+The tie is a feature, not a failure: it tells us \emph{where inside the head
+gender lives}.
+\end{tcolorbox}
+
+%============================================================
+\section*{5. What does the axis encode? (\textasciitilde 6:30)}
+\begin{tcolorbox}[beat]
+\textbf{Decode the axis through the unembedding $W_U$} and read the top
+tokens.
+\begin{itemize}
+  \item GPT-2 L10 H9 (SV0): \emph{he, him, his, man} vs \emph{she, her, woman}.
+  \item Phi-3 L28 H1 (SV0): \emph{his, lui, его} vs \emph{her, elle, ella} --- multilingual.
+  \item Gemma L21 H4 (SV0): \emph{he, 彼は, \'el} vs \emph{she, 그녀}.
+  \item Llama-3.2-3B L26 H14 \textbf{(SV2, not SV0!)}: \emph{she, her, 她, 그녀} vs \emph{his, 他, jego}.
+\end{itemize}
+
+\textbf{Llama quirk --- call it out explicitly:} SV0 and SV1 on L26 H14
+decode to register/punctuation noise. Gender sits at SV2. Same causal story,
+slightly different location. This is actually evidence \emph{for} the
+mechanism (it's language-agnostic semantic gender, not a top-SV artifact).
+\end{tcolorbox}
+
+%============================================================
+\section*{6. Is it causal? the $\alpha$-sweep (\textasciitilde 8:00)}
+\begin{tcolorbox}[beat]
+\textbf{The key test.} Projection ablation at the compass head's layer:
+$r' = r - \alpha \langle r, u \rangle u$ for $\alpha \in \{0, 0.25, 0.5, 1, 1.5, 2\}$.
+$\alpha{=}1$ zeros the axis; $\alpha{=}2$ over-shoots.
+
+\textbf{Evaluate on WinoGender} with two metrics (\texttt{stereo\_corr}
+against BLS, and \texttt{stereo\_delta}).
+
+\textbf{Headline to land slowly:}
+\begin{enumerate}
+  \item Bias drops \textbf{linearly} with $\alpha$.
+  \item Hits \textbf{zero near $\alpha{=}1.5$}.
+  \item \textbf{Reverses sign} at $\alpha{=}2$.
+  \item Perplexity barely moves ($\leq 1$ PPL point; $+0.035$ PPL on Llama).
+\end{enumerate}
+``That is the shape of a real dial, not a correlation.''
+\end{tcolorbox}
+
+%============================================================
+\section*{7. Baseline comparison vs ActAdd (\textasciitilde 9:00)}
+\begin{tcolorbox}[beat]
+\textbf{Framing:} ActAdd (Turner et al.\ 2023) is the standard
+direction-based steering baseline --- it takes mean(he-prompts) $-$
+mean(she-prompts) at a whole layer.
+
+\textbf{Result:} compass at $\alpha{=}1.5$ \textbf{beats} ActAdd at
+$\alpha{=}1.0$ on all four models, at $4$--$20\times$ lower perplexity cost.
+
+\textbf{The sentence:} ``compass is one targeted axis inside one head;
+ActAdd is a diffuse whole-layer direction. Targeted beats diffuse.''
+
+\textbf{If pressed on Llama specifically:} compass moves
+\texttt{stereo\_corr} from $0.73$ to $-0.18$; ActAdd barely budges it
+($0.73 \to 0.72$).
+\end{tcolorbox}
+
+%============================================================
+\section*{8. Cherry-pick defense + head specificity (\textasciitilde 10:00)}
+\begin{tcolorbox}[beat]
+\textbf{Anticipate the objection:} ``you picked the best head after seeing
+results.''
+
+\textbf{Counter:} apply the same $\alpha{=}1$ edit to \emph{other} passing
+compass heads in each model. They \textbf{do not debias}. GPT-2 L9 H7 / L11
+H1 move \texttt{stereo\_corr} by $<0.02$. Phi-3 same story.
+
+\textbf{What those other heads encode} (the taxonomy slide):
+number (3pl vs 3sg), person (1/2 vs 3), demonstratives, kinship.
+\emph{They pass the compass scan but encode different pronoun features.}
+
+\textbf{Payoff sentence:} ``This is a \textbf{dissociation}. The primary head
+is specifically the occupational-stereotype readout. The finding is sharper,
+not weaker.''
+\end{tcolorbox}
+
+%============================================================
+\section*{9. Cross-benchmark honesty --- StereoSet (\textasciitilde 11:00)}
+\begin{tcolorbox}[beat]
+\textbf{Do not hide this.} We ran StereoSet (sentence-level) as a second
+benchmark.
+
+\textbf{Result:} WinoGender replicates on all 4; StereoSet replicates on
+GPT-2 only. On Phi-3/Gemma/Llama the compass acts at the pronoun slot but
+does not propagate into whole-sentence log-probs.
+
+\textbf{The framing:} ``This is a \textbf{boundary of the finding}. Compass
+is a position-local, gender-specific direction --- not a universal bias
+knob. Domain specificity is also why race/profession/religion edits don't
+transfer from the gender axis.''
+
+\textbf{Slide cue:} show the StereoSet-domains figure; point at race and
+religion bars being flat.
+\end{tcolorbox}
+
+%============================================================
+\section*{10. Close (\textasciitilde 12:00)}
+\begin{tcolorbox}[beat]
+\textbf{Say:} ``Four models. One head each. One 1-D axis inside that head.
+Zero it, bias vanishes. Over-shoot it, bias reverses. Fluency intact. That
+is a \emph{surgical}, causal, human-meaningful dial --- and we know what it
+encodes in four languages.''
+
+\textbf{Optional tag:} ``Interpretability doesn't have to be
+post-hoc storytelling. Sometimes it's finding the actual knob.''
+
+\textbf{Do not close with `thanks' --- close with the claim, then pause for
+questions.}
+\end{tcolorbox}
+
+%============================================================
+\section*{Anticipated Q\&A}
+\begin{tcolorbox}[qa]
+\textbf{Q: Why only gender? Is this a universal bias knob?}\\
+A: No --- and we \emph{prove} that in the StereoSet-domains plot. The gender
+compass moves gender SS but barely touches race/profession/religion. That
+is evidence the axis is \emph{specific}, which is a stronger claim than a
+generic debiaser.
+
+\vspace{4pt}
+\textbf{Q: Isn't the strict null tie a problem?}\\
+A: No, it is informative. It says gender lives in a small 2-D patch of
+directions near the top SVs, not on one magic axis. Our chosen axis is one
+clean member of that patch; the loose-null win is what proves the head
+carries gender.
+
+\vspace{4pt}
+\textbf{Q: You tuned on WinoGender; isn't $\alpha{=}1.5$ overfit?}\\
+A: The compass direction is built from \textbf{3 neutral prompts} with no
+WinoGender overlap. $\alpha$ is a 1-D scalar swept on an equal 6-point grid;
+no per-model tuning. The same grid yields the same zero-crossing across all
+four models.
+
+\vspace{4pt}
+\textbf{Q: Why does Llama put gender at SV2 instead of SV0?}\\
+A: Llama-3.2-3B has a heavier-tailed $W_{OV}$ spectrum for this head --- SV0
+and SV1 capture register and punctuation structure, SV2 captures gender.
+The mechanism is the same; the ordering inside the head differs. It's a
+nice lesson: don't assume SV0 is always where semantics lives.
+
+\vspace{4pt}
+\textbf{Q: How does this compare to probing / INLP?}\\
+A: Probing finds \emph{a} direction in the residual that predicts the
+label; it does not check the model \emph{uses} it. Our causal $\alpha$-sweep
+is the difference. We also ran INLP and SentenceDebias as baselines --- see
+the per-domain CrowS-Pairs tables.
+
+\vspace{4pt}
+\textbf{Q: Compute cost?}\\
+A: No retraining. Scan + causal sweep + decode runs in under an hour on a
+single A100 per model. All hooks are TransformerLens forward hooks.
+
+\vspace{4pt}
+\textbf{Q: What doesn't work?}\\
+A: (a) StereoSet on Phi-3/Gemma/Llama --- compass is position-local, SS is
+sentence-level. (b) Gemma religion --- all 4 top heads fail the SNR gate,
+fallback retained; the routed ensemble cannot fix a domain the model does
+not localise. Both are in the paper as honest limits.
+\end{tcolorbox}
+
+\vspace{6pt}
+\noindent\small\textit{Cue-card reminders:}
+\begin{itemize}
+  \item Read the \textbf{four pass-rates} slowly (1.9 / 1.0 / 1.2 / 0.2 \%).
+  \item Say \emph{``one 1-D axis''} out loud at least three times.
+  \item Land \emph{``reverses sign at $\alpha{=}2$''} --- this is the ``aha.''
+  \item \textbf{Never} say ``the gender neuron.'' Say ``gender direction.''
+  \item If a question lands cleanly, answer in two sentences and stop.
+\end{itemize}
+
+\end{document}

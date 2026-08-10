@@ -1,0 +1,125 @@
+\section{Method}
+\label{sec:method}
+
+\subsection{Compass plane}
+\label{sec:method:plane}
+
+For attention head $h$ at layer $\ell$ we form
+$W_{OV}^{(\ell,h)} = W_V^{(\ell,h)} W_O^{(\ell,h)}$ and compute its
+SVD $W_{OV} = U \Sigma V^\top$, indexed by $\sigma_1 \geq \sigma_2
+\geq \cdots \geq 0$. Following the convention in
+\S\ref{sec:background} we use rows of $V^\top$ as write-out
+directions and write $u_i := V^\top_{[i,:]}$ throughout. A
+\emph{compass plane} is an ordered pair
+$\mathcal{C}_{i,j} = \mathrm{span}(u_i, u_j)$ with $i \neq j$.
+
+\subsection{Causal $\alpha$-sweep}
+\label{sec:method:sweep}
+
+The compass test is a causal injection that varies an angle
+$\theta$ and a scale $\alpha$. \cref{alg:sweep} states the
+procedure; \cref{eq:alpha_sweep} gives the injection.
+
+\begin{equation}
+v(\theta, \alpha) =
+  \alpha\,\sigma_i\,\cos\theta\,u_i +
+  \alpha\,\sigma_j\,\sin\theta\,u_j.
+\label{eq:alpha_sweep}
+\end{equation}
+
+\begin{algorithm}[h]
+\small
+\caption{Causal $\alpha$-sweep on a compass plane.}
+\label{alg:sweep}
+\begin{algorithmic}[1]
+\Require model $M$, layer $\ell$, head $h$, dim pair $(i, j)$,
+probe tokens $(t_+, t_-)$, prompt set $\mathcal{P}$,
+angles $\Theta = \{0, \tfrac{2\pi}{36}, \dots\}$,
+scales $\mathcal{A} = \{1, 3, 10\}$
+\State $W_{OV} \gets W_V^{(\ell,h)} W_O^{(\ell,h)}$;
+$\;U \Sigma V^\top \gets \mathrm{SVD}(W_{OV})$
+\State $u_i, u_j \gets V^\top_{[i,:]}, V^\top_{[j,:]}$;
+$\;\sigma_i, \sigma_j \gets \Sigma_{ii}, \Sigma_{jj}$
+\For{$\alpha \in \mathcal{A}$, $\theta \in \Theta$, $p \in \mathcal{P}$}
+  \State Hook \texttt{blocks.}$\ell$\texttt{.hook\_resid\_pre}:
+         $\;r \gets r + v(\theta, \alpha)$ on the last token only
+  \State Forward pass; record
+         $\mathrm{LD}(\theta, \alpha; p) = \mathrm{logit}_{t_+} -
+          \mathrm{logit}_{t_-}$
+\EndFor
+\State Average $\mathrm{LD}$ over $\mathcal{P}$
+\State Fit $\mathrm{LD}(\theta) \approx \mu + A\cos(\theta - \phi)$
+       via first DFT bin
+\State \Return $(\mu, A, \phi)$ for each $\alpha$
+\end{algorithmic}
+\end{algorithm}
+
+We average each $\mathrm{LD}$ across three prompts per condition
+(neutral, $+$-context, $-$-context), so each $\alpha$-sweep produces
+a 36-point curve from which $(\mu, A, \phi)$ are read.
+
+\paragraph{The two pillars.}
+A causal compass passes both: amplitude linearity ($A(\alpha)
+\propto \alpha$, $R^2 \geq 0.95$ through the origin) and phase
+stability ($|\phi(\alpha_{\max}) - \phi(\alpha_{\min})| \leq 10^\circ$).
+Phase stability is the discriminating test: a generic 2D direction
+in the residual will show some amplitude under linear injection
+(the linearity pillar partly tracks the linear injection itself),
+but only a direction the head actually writes through produces a
+phase that is invariant to scale. We require both pillars together
+because the joint constraint is rare in random subspaces: random
+orthonormal pairs in our scans pass linearity routinely but rarely
+hold phase below $10^\circ$.
+
+\subsection{Falsification battery}
+\label{sec:method:battery}
+
+We complement \cref{eq:alpha_sweep} with five pre-specified tests
+(verdicts in parentheses; $\checkmark$ = signal preserved,
+$\times$ = signal killed as a falsification target):
+\textbf{decode-heads} ($\checkmark$): $W_U^\top u_i$ promotes
+readable categorical tokens at $\theta \in \{0, \pi/2, \pi,
+3\pi/2\}$;
+\textbf{cyclicity} ($\checkmark$): top-10 decode at $\theta = 0$
+matches $\theta = 2\pi$ and is Jaccard-disjoint from $\theta = \pi$;
+\textbf{permutation null} ($\times$): permuting $\pm$-context labels
+across prompts must kill the signal --- this rules out the
+artefactual reading that the sinusoidal response merely tracks the
+prompt set rather than the categorical contrast;
+\textbf{random-plane null} ($\times$): random orthonormal directions
+in $\mathbb{R}^{d_{\text{model}}}$ should remove the causal effect;
+\textbf{causal-patch} ($\checkmark$): rotating the residual's
+\emph{natural} in-plane projection by $\Delta \in \{\pm 90^\circ,
+\pm 180^\circ\}$ preserves magnitude and shifts logits in the
+predicted direction.
+
+The random-plane null is the most discriminating of the five in
+principle; \S\ref{sec:results:null} reports its outcome across the
+four-model panel and uses the result to scope the central claim.
+
+\subsection{Models and target heads}
+\label{sec:method:models}
+
+We use TransformerLens \citep{nanda2022transformerlens} with
+\texttt{HookedTransformer} on bfloat16. Targets:
+
+\begin{itemize}
+\itemsep0pt
+\item \textbf{GPT-2 Small} \citep{radford2019language}: L9H7 $(u_1, u_2)$
+(decode-discovered) and L10H9 $(u_0, u_3)$ (scan-discovered).
+\item \textbf{Phi-3 Mini} \citep{abdin2024phi3}: L24H10 $(u_0, u_1)$
+(storage-dominant); L28H1 $(u_0, u_3)$ (steering-dominant);
+L24H17 $(u_1, u_2)$ (temporal); L24H28 $(u_3, u_7)$ (entity).
+\item \textbf{Gemma-2-2B} \citep{team2024gemma}: L21H4 $(u_0, u_2)$.
+\item \textbf{Llama-3.2-3B} \citep{grattafiori2024llama3}:
+L26H14 $(u_2, u_3)$ (scan-discovered).
+\end{itemize}
+
+The blind-scan amplitude threshold is $A_{\text{slope}} \geq 0.20$
+for GPT-2, Phi-3, and Llama, and $0.08$ for Gemma. Gemma's residual
+is normalized more aggressively after pre-norm, so per-unit $\alpha$
+writes a smaller fraction of the residual; using the model-specific
+threshold recovers the same head as the unit-norm injection. The
+single-head story does not change at $A_{\text{slope}} = 0.20$
+either; the lower threshold widens the scan, it does not flip the
+identity of the discovered head.

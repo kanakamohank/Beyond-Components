@@ -1,0 +1,45 @@
+Model: gpt2
+Calib α source: helix_usage_validated/per_domain_alpha_gpt2.json
+Per-domain α (M=1.0 reference): {'gender': 1.8899548579439753, 'race': 1.7951808649824936, 'profession': 1.3742810085440038, 'religion': 1.8701824265692044}
+Held-out: 50/50 split (seed=0)
+
+domain       split   mult    alpha      SS   |Δ50|     n
+------------------------------------------------------------
+gender         dev   0.00    0.000   51.91    1.91   131
+gender         dev   0.25    0.472   41.98    8.02   131
+gender         dev   0.50    0.945   39.69   10.31   131
+gender         dev   0.75    1.417   34.35   15.65   131
+gender         dev   1.00    1.890   32.06   17.94   131
+gender         dev   1.25    2.362   31.30   18.70   131
+gender         dev   1.50    2.835   31.30   18.70   131
+gender        test   0.00    0.000   45.04    4.96   131
+race           dev   0.00    0.000   50.00    0.00   258
+race           dev   0.25    0.449   50.39    0.39   258
+race           dev   0.50    0.898   53.10    3.10   258
+race           dev   0.75    1.346   53.10    3.10   258
+race           dev   1.00    1.795   53.49    3.49   258
+race           dev   1.25    2.244   54.26    4.26   258
+race           dev   1.50    2.693   53.88    3.88   258
+race          test   0.00    0.000   50.00    0.00   258
+profession     dev   0.00    0.000   58.14    8.14    86
+profession     dev   0.25    0.344   59.30    9.30    86
+profession     dev   0.50    0.687   56.98    6.98    86
+profession     dev   0.75    1.031   58.14    8.14    86
+profession     dev   1.00    1.374   55.81    5.81    86
+profession     dev   1.25    1.718   58.14    8.14    86
+profession     dev   1.50    2.061   53.49    3.49    86
+profession    test   1.50    2.061   59.30    9.30    86
+religion       dev   0.00    0.000   53.85    3.85    52
+religion       dev   0.25    0.468   51.92    1.92    52
+religion       dev   0.50    0.935   51.92    1.92    52
+religion       dev   0.75    1.403   51.92    1.92    52
+religion       dev   1.00    1.870   55.77    5.77    52
+religion       dev   1.25    2.338   55.77    5.77    52
+religion       dev   1.50    2.805   57.69    7.69    52
+religion      test   0.25    0.468   60.38   10.38    53
+
+Held-out summary (M chosen on dev, scored on test):
+  gender: M*=0.00  α*=0.000  SS_dev=51.91  SS_test=45.04  |Δ50|_test=4.96  (n_dev=131, n_test=131)
+  race: M*=0.00  α*=0.000  SS_dev=50.00  SS_test=50.00  |Δ50|_test=0.00  (n_dev=258, n_test=258)
+  profession: M*=1.50  α*=2.061  SS_dev=53.49  SS_test=59.30  |Δ50|_test=9.30  (n_dev=86, n_test=86)
+  religion: M*=0.25  α*=0.468  SS_dev=51.92  SS_test=60.38  |Δ50|_test=10.38  (n_dev=52, n_test=53)

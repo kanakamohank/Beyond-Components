@@ -1,0 +1,10 @@
+Model: google/gemma-2-2b
+SentenceDebias: domain=race  layer=21  k=1
+Subspace singular values: ['1505.17']
+
+cond         domain            SS      n
+----------------------------------------
+baseline     race           56.01    516
+baseline     overall        56.01    516
+sentdebias   race           53.88    516
+sentdebias   overall        53.88    516

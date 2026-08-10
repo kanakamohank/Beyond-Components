@@ -1,0 +1,29 @@
+/Users/mkanaka/Documents/GitHub/Beyond-Components/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+`torch_dtype` is deprecated! Use `dtype` instead!
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+=================================================================
+VALIDATED HELIX USAGE INVESTIGATION
+=================================================================
+Loading gpt2-small...
+Loaded pretrained model gpt2-small into HookedTransformer
+  Model loaded: 12L, 12H, d=768
+  Target: L10 H2, SVD dims (2, 7), resid L10, T=99.0
+  Sanity checks...
+  Sanity OK  (activation shape (1, 4, 768))
+  OVERRIDE -> L9 H7 dims (1, 2)
+
+  Running --test decode-heads...
+
+===========================================================================
+COMPASS HEAD DECODES (Vt @ W_U)
+===========================================================================
+
+  [ L9 H7  dims (1,2) ]
+  σ[1]=8.869  σ[2]=8.459  ratio=1.048
+        0°: [' herself', ' her', 'She', ' she', 'Her', 'she', ' She', ' Her', ' SHE', ' HER']
+       90°: [' Its', ' its', 'Its', ' ITS', ' itself', 'its', ' it', ' It', 'ngth', 'it']
+      180°: ['His', 'his', ' his', ' His', 'He', ' He', ' he', ' himself', 'anus', '�']
+      270°: ['He', 'His', ' himself', ' his', ' herself', 'his', ' His', ' He', 'She', ' he']
+
+  Investigation completed successfully.

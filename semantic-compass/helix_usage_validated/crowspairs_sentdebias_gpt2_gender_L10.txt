@@ -1,0 +1,12 @@
+Model: gpt2
+SentenceDebias: domain=gender  layer=10  k=1
+Subspace singular values: ['650.15']
+
+cond         domain            SS      n
+----------------------------------------
+baseline     gender         48.47    262
+baseline     profession     61.63    172
+baseline     overall        53.69    434
+sentdebias   gender         43.89    262
+sentdebias   profession     52.33    172
+sentdebias   overall        47.24    434

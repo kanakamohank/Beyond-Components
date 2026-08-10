@@ -1,0 +1,20 @@
+\section{Introduction}
+\label{sec:intro}
+
+Language models can perform integer arithmetic~\citep{brown2020language,touvron2023llama}, yet the internal computational mechanisms remain poorly understood. Prior work on mechanistic interpretability has identified circuits for indirect object identification~\citep{wang2022interpretability} and modular arithmetic in trained transformers~\citep{nanda2023progress,zhong2024clock}, but the arithmetic circuits of \emph{pretrained} language models operating on natural-language-formatted problems have received comparatively little attention.
+
+We present a comprehensive mechanistic analysis of the \textbf{ones-digit addition circuit} across three pretrained architectures: Gemma~2B~\citep{team2024gemma}, Phi-3~Mini~\citep{abdin2024phi3}, and LLaMA~3.2-3B~\citep{dubey2024llama}. Our central finding is that these models encode digit identity in a \textbf{9-dimensional Fourier subspace} of the residual stream that corresponds exactly to the irreducible representations of $\mathbb{Z}/10\mathbb{Z}$---the cyclic group of integers modulo~10.
+
+\paragraph{Contributions.} We make five main contributions:
+
+\begin{enumerate}
+    \item \textbf{Fourier subspace characterization.} We show that the top-9 SVD directions of per-digit mean activations at computation layers form a perfect discrete Fourier basis of $\mathbb{Z}/10\mathbb{Z}$, with frequency purities of 72--99\% across three models (\S\ref{sec:fourier_basis}).
+
+    \item \textbf{Complete causal evidence.} We establish necessity via multi-layer Fourier knockout (accuracy drops to near-chance, 12--19\%), sufficiency via Fisher activation patching (9D transfers 83--100\% of digit information), and specificity via random controls (0\% effect at all dimensions). This constitutes a complete ``evidentiary triangle'' (\S\ref{sec:causal}).
+
+    \item \textbf{Progressive rotation.} We discover that models progressively rotate the Fourier subspace across layers to align with the unembedding matrix $W_U$, with alignment increasing from $\sim$30\% at computation layers to 100\% at readout layers (\S\ref{sec:rotation}).
+
+    \item \textbf{Architecture-specific CRT components.} Different models emphasize different frequencies of the Chinese Remainder Theorem (CRT) decomposition $\mathbb{Z}/10\mathbb{Z} \cong \mathbb{Z}/2\mathbb{Z} \times \mathbb{Z}/5\mathbb{Z}$: Gemma uses $k{=}5$ (parity), Phi-3 uses $k{=}2$ (mod-5), and LLaMA uses a balanced ordinal encoding (\S\ref{sec:crt}).
+
+    \item \textbf{Fourier phase rotation steering.} We demonstrate that rotating activations within the Fourier subspace can steer digit predictions with 70--88\% exact shift accuracy, and identify the encoding-readout gap as the bottleneck overcome by unembedding-informed steering (\S\ref{sec:steering}).
+\end{enumerate}

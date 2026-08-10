@@ -1,0 +1,42 @@
+/Users/mkanaka/Documents/GitHub/Beyond-Components/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+`torch_dtype` is deprecated! Use `dtype` instead!
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+=================================================================
+VALIDATED HELIX USAGE INVESTIGATION
+=================================================================
+Loading gpt2-small...
+Loaded pretrained model gpt2-small into HookedTransformer
+  Model loaded: 12L, 12H, d=768
+  Target: L10 H2, SVD dims (2, 7), resid L10, T=99.0
+  Sanity checks...
+  Sanity OK  (activation shape (1, 4, 768))
+  OVERRIDE -> L9 H7 dims (1, 2)
+
+  Running --test scan-planes...
+
+===========================================================================
+SCAN GOOD RANDOM PLANES
+Ref: L9 H7, SVD Dims (1, 2)  |  n_trials=2000, top_k=5
+===========================================================================
+  SVD-plane reference spread: 25.5°
+  Scanned 2000 random planes; top 5 spreads: ['120.8°', '120.1°', '116.8°', '116.1°', '115.9°']
+  rank 1: spread=120.8°  principal angles vs SVD=[ 85.3°, 89.0°]  INDEPENDENT
+  rank 2: spread=120.1°  principal angles vs SVD=[ 82.9°, 88.1°]  INDEPENDENT
+  rank 3: spread=116.8°  principal angles vs SVD=[ 86.3°, 88.2°]  INDEPENDENT
+  rank 4: spread=116.1°  principal angles vs SVD=[ 85.0°, 87.3°]  INDEPENDENT
+  rank 5: spread=115.9°  principal angles vs SVD=[ 86.1°, 87.8°]  INDEPENDENT
+
+  Decoding top random plane (spread 120.8°) — top-15 vocab per angle:
+        0°: ['lia', 'ema', 'LER', 'iate', 'MH', '%]', "'>", 'US', 'uph', '�']
+       90°: ['ULE', 'API', '¶', ' Internal', ' advis', 'Imm', 'GES', 'rite', 'arma', ' aloud']
+      180°: ['rawdownloadcloneembedreportprint', ' kindred', ' Werewolf', 'kun', ' embodiment', ' visions', ' Shed', ' Purg', ' GOD', 'mented']
+      270°: ['lled', 'efeated', 'ouf', 'akin', 'tainment', ' engulf', ' Samar', 'mouth', ' outfits', 'isable']
+
+  For reference — SVD plane decode at same angles:
+        0°: [' herself', ' her', 'She', ' she', 'Her', 'she', ' She', ' Her', ' SHE', ' HER']
+       90°: [' Its', ' its', 'Its', ' ITS', ' itself', 'its', ' it', ' It', 'ngth', 'it']
+      180°: ['His', 'his', ' his', ' His', 'He', ' He', ' he', ' himself', 'anus', '�']
+      270°: ['He', 'His', ' himself', ' his', ' herself', 'his', ' His', ' He', 'She', ' he']
+
+  Investigation completed successfully.

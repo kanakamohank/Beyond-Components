@@ -1,0 +1,251 @@
+/Users/mkanaka/Documents/GitHub/Beyond-Components/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+`torch_dtype` is deprecated! Use `dtype` instead!
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+Loading gpt2-small...
+Loaded pretrained model gpt2-small into HookedTransformer
+  Model loaded: 12L, 12H, d=768
+  Target: L10 H2, SVD dims (2, 7), resid L10, T=99.0
+  Sanity checks...
+  Sanity OK  (activation shape (1, 4, 768))
+
+=== CYCLICITY (top coherent GPT-2 heads) ===
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L10 H3, SVD Dims (1, 2)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: [' \xad', '‐', ' […]', '″', '————————', '"…', '…', '————————————————', '…..', '』']
+  Top-10 @ 180°: [' ``', ' �', ' --', '--', '.--', ')--', '�', ' ---', " ''", '``']
+  Top-10 @ 360°: [' \xad', '‐', ' […]', '″', '————————', '"…', '…', '————————————————', '…..', '』']
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L11 H2, SVD Dims (0, 1)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: ['���', ' Adelaide', '��', '����', ' �', ' Brisbane', '�', ' Calgary', ' Dynamo', '"""']
+  Top-10 @ 180°: ['gew', ' Gamb', ' vill', ' Garden', 'ebus', ' Greek', ' antiqu', 'Greek', ' Haw', ' Samar']
+  Top-10 @ 360°: ['���', ' Adelaide', '��', '����', ' �', ' Brisbane', '�', ' Calgary', ' Dynamo', '"""']
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L11 H9, SVD Dims (1, 2)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: [' revolutions', ' revolution', 'confirmed', ' inspir', ' ausp', ' coinc', ' decimal', ' sill', ' deton', ' prov']
+  Top-10 @ 180°: ['Reviewer', 'adapt', 'Adapt', 'alloc', 'memory', ' alloc', 'ンジ', ' hoard', ' task', ' allocate']
+  Top-10 @ 360°: [' revolutions', ' revolution', 'confirmed', ' inspir', ' ausp', ' coinc', ' decimal', ' sill', ' deton', ' prov']
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L11 H7, SVD Dims (0, 1)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: ['idia', 'wheel', 'ittal', ' booth', 'mination', 'haps', 'iences', 'ences', 'gyn', ' property']
+  Top-10 @ 180°: ['\\":', 'iasis', 'zees', 'akia', ' ourselves', ' Rica', 'eson', ' McKay', ' Mick', ' Criminal']
+  Top-10 @ 360°: ['idia', 'wheel', 'ittal', ' booth', 'mination', 'haps', 'iences', 'ences', 'gyn', ' property']
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L9 H7, SVD Dims (1, 2)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: [' herself', ' her', 'She', ' she', 'Her', 'she', ' She', ' Her', ' SHE', ' HER']
+  Top-10 @ 180°: ['His', 'his', ' his', ' His', 'He', ' He', ' he', ' himself', 'anus', '�']
+  Top-10 @ 360°: [' herself', ' her', 'She', ' she', 'Her', 'she', ' She', ' Her', ' SHE', ' HER']
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L9 H11, SVD Dims (1, 2)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: [' –', '".[', '".', '",', '!".', ' "…', ' (£', ' US', '"…', ' Nato']
+  Top-10 @ 180°: ['.--', ' ---', ".''", " ''", ',)', ",''", '---', ' ...', "''", 'Alert']
+  Top-10 @ 360°: [' –', '".[', '".', '",', '!".', ' "…', ' (£', ' US', '"…', ' Nato']
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L10 H4, SVD Dims (1, 2)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: [' ".', ')"', '"?', '.")', ';"', '").', '";', '".', '")', ' ."']
+  Top-10 @ 180°: [",'", " ',", "?'", "'),", "',", ".'", "!'", "','", "]'", "':"]
+  Top-10 @ 360°: [' ".', ')"', '"?', '.")', ';"', '").', '";', '".', '")', ' ."']
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L10 H9, SVD Dims (0, 1)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: ['His', 'his', 'He', ' his', ' His', ' he', ' He', ' himself', ' him', ' HIS']
+  Top-10 @ 180°: [' her', ' she', 'She', ' herself', 'she', ' She', 'Her', ' hers', ' SHE', ' HER']
+  Top-10 @ 360°: ['His', 'his', 'He', ' his', ' His', ' he', ' He', ' himself', ' him', ' HIS']
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L11 H1, SVD Dims (2, 7)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: [' kid', ' child', 'Parent', ' parent', 'Parents', ' youngster', 'parents', 'child', ' parents', 'Kids']
+  Top-10 @ 180°: ['women', ' ladies', 'Lady', ' women', ' lady', ' Lady', ' Women', ' Ladies', 'Women', 'Mrs']
+  Top-10 @ 360°: [' kid', ' child', 'Parent', ' parent', 'Parents', ' youngster', 'parents', 'child', ' parents', 'Kids']
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L11 H4, SVD Dims (2, 7)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: ['senal', '��', '��士', '�士', '���', 'ゼウス', '�', 'ActionCode', 'oreAndOnline', '�']
+  Top-10 @ 180°: [' M', ' R', ' B', ' 3', ' F', ' H', ',', ' (', ' 2', ' C']
+  Top-10 @ 360°: ['senal', '��', '��士', '�士', '���', 'ゼウス', '�', 'ActionCode', 'oreAndOnline', '�']
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L10 H5, SVD Dims (1, 2)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: [' would', 'would', ' Would', "'d", 'Anyone', 'Would', 'atom', 'redits', 'ケ', 'ebus']
+  Top-10 @ 180°: [' than', ' THEN', 'than', ' before', ' then', ' BEFORE', 'then', ' Than', 'before', ' Then']
+  Top-10 @ 360°: [' would', 'would', ' Would', "'d", 'Anyone', 'Would', 'atom', 'redits', 'ケ', 'ebus']
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L11 H11, SVD Dims (0, 1)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: [' trave', ' strugg', ' sugg', ' surpr', ' appre', ' somew', ' experien', ' Pengu', ' charact', ' disapp']
+  Top-10 @ 180°: ['��', '��', 'ikuman', ' exting', ' cumbers', ' councill', '��士', ' practition', 'reportprint', ' carbohyd']
+  Top-10 @ 360°: [' trave', ' strugg', ' sugg', ' surpr', ' appre', ' somew', ' experien', ' Pengu', ' charact', ' disapp']
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CYCLICITY SUMMARY — L24 compass heads
+===========================================================================
+  head                  J(0,360)  J(0,180)  verdict
+  L10H3(1,2)               1.000     0.000  CIRCLE: closed and with distinct antipodes
+  L11H2(0,1)               1.000     0.000  CIRCLE: closed and with distinct antipodes
+  L11H9(1,2)               1.000     0.000  CIRCLE: closed and with distinct antipodes
+  L11H7(0,1)               1.000     0.000  CIRCLE: closed and with distinct antipodes
+  L9H7(1,2)                1.000     0.000  CIRCLE: closed and with distinct antipodes
+  L9H11(1,2)               1.000     0.000  CIRCLE: closed and with distinct antipodes
+  L10H4(1,2)               1.000     0.000  CIRCLE: closed and with distinct antipodes
+  L10H9(0,1)               1.000     0.000  CIRCLE: closed and with distinct antipodes
+  L11H1(2,7)               1.000     0.000  CIRCLE: closed and with distinct antipodes
+  L11H4(2,7)               1.000     0.000  CIRCLE: closed and with distinct antipodes
+  L10H5(1,2)               1.000     0.000  CIRCLE: closed and with distinct antipodes
+  L11H11(0,1)              1.000     0.000  CIRCLE: closed and with distinct antipodes
+
+=== DECODE HEAD COMPASSES ===
+
+===========================================================================
+COMPASS HEAD DECODES (Vt @ W_U)
+===========================================================================
+
+  [ L10 H3  dims (1,2) ]
+  σ[1]=9.379  σ[2]=8.492  ratio=1.104
+        0°: [' ``', ' �', ' --', '--', '.--', ')--', '�', ' ---', " ''", '``']
+       90°: [' ``', '``', ' -', ' �', '--', '�', '!--', '"...', '..."', ' `']
+      180°: [' \xad', '‐', ' […]', '″', '————————', '"…', '…', '————————————————', '…..', '』']
+      270°: [' \xad', '‐', '\xad', ' —', '″', ' …', ' …"', '–', '′', '….']
+
+  [ L11 H2  dims (0,1) ]
+  σ[0]=18.925  σ[1]=17.838  ratio=1.061
+        0°: ['���', ' Adelaide', '��', '����', ' �', ' Brisbane', '�', ' Calgary', ' Dynamo', '"""']
+       90°: [' Boulder', 'Denver', ' Kurd', ' Pyth', ' Gran', ' CBI', ' Bradford', ' PKK', ' Denver', ' Nepal']
+      180°: ['gew', ' Gamb', ' vill', ' Garden', 'ebus', ' Greek', ' antiqu', 'Greek', ' Haw', ' Samar']
+      270°: [' IU', ' MC', ' Uganda', ' Filipino', 'Disney', 'Indiana', ' ANC', 'Ult', ' Ultron', ' Illinois']
+
+  [ L11 H9  dims (1,2) ]
+  σ[1]=14.602  σ[2]=14.263  ratio=1.024
+        0°: ['Reviewer', 'adapt', 'Adapt', 'alloc', 'memory', ' alloc', 'ンジ', ' hoard', ' task', ' allocate']
+       90°: [' Desire', ' habit', ' aversion', ' uncontroll', ' conscientious', ' possession', ' Able', ' attribution', ' suppressed', ' convictions']
+      180°: [' revolutions', ' revolution', 'confirmed', ' inspir', ' ausp', ' coinc', ' decimal', ' sill', ' deton', ' prov']
+      270°: ['Cooldown', ' validation', ' vacuum', 'Message', ' symbolism', ' reassuring', 'mess', 'notations', ' synerg', ' synergy']
+
+  [ L11 H7  dims (0,1) ]
+  σ[0]=16.052  σ[1]=14.437  ratio=1.112
+        0°: ['idia', 'wheel', 'ittal', ' booth', 'mination', 'haps', 'iences', 'ences', 'gyn', ' property']
+       90°: [' my', ' myself', 'my', ' me', ' My', 'My', ' mine', ' MY', ' I', 'I']
+      180°: ['\\":', 'iasis', 'zees', 'akia', ' ourselves', ' Rica', 'eson', ' McKay', ' Mick', ' Criminal']
+      270°: [' ourselves', ' our', ' ours', 'Our', ' we', ' us', ' Our', ' We', 'We', ' OUR']
+
+  [ L9 H7  dims (1,2) ]
+  σ[1]=8.869  σ[2]=8.459  ratio=1.048
+        0°: [' herself', ' her', 'She', ' she', 'Her', 'she', ' She', ' Her', ' SHE', ' HER']
+       90°: [' Its', ' its', 'Its', ' ITS', ' itself', 'its', ' it', ' It', 'ngth', 'it']
+      180°: ['His', 'his', ' his', ' His', 'He', ' He', ' he', ' himself', 'anus', '�']
+      270°: ['He', 'His', ' himself', ' his', ' herself', 'his', ' His', ' He', 'She', ' he']
+
+  [ L9 H11  dims (1,2) ]
+  σ[1]=8.490  σ[2]=7.919  ratio=1.072
+        0°: ['.--', ' ---', ".''", " ''", ',)', ",''", '---', ' ...', "''", 'Alert']
+       90°: [' ``', '``', "''.", " ''", ' �', '�', ' -', "''", '"...', "'';"]
+      180°: [' –', '".[', '".', '",', '!".', ' "…', ' (£', ' US', '"…', ' Nato']
+      270°: [' \xad', '–', '″', ' …"', '\xad', ' …', '‐', ' —', '′', ' 🙂']
+
+  [ L10 H4  dims (1,2) ]
+  σ[1]=7.544  σ[2]=6.965  ratio=1.083
+        0°: [' ".', ')"', '"?', '.")', ';"', '").', '";', '".', '")', ' ."']
+       90°: ['"),', '",', '!",', ' ",', '"},', '","', '"))', '"],', ')),', '?",']
+      180°: [",'", " ',", "?'", "'),", "',", ".'", "!'", "','", "]'", "':"]
+      270°: ['.\'"', ".'", '\'."', ')."', ']."', "?'", '!\'"', '.""', '.)', ".''."]
+
+  [ L10 H9  dims (0,1) ]
+  σ[0]=9.148  σ[1]=7.869  ratio=1.163
+        0°: ['His', 'his', 'He', ' his', ' His', ' he', ' He', ' himself', ' him', ' HIS']
+       90°: [' her', ' she', ' herself', 'She', 'she', ' She', ' SHE', 'haar', 'Her', ' ourselves']
+      180°: [' her', ' she', 'She', ' herself', 'she', ' She', 'Her', ' hers', ' SHE', ' HER']
+      270°: ['their', 'Their', ' Their', 'they', 'They', ' their', ' They', ' THEIR', ' they', ' themselves']
+
+  [ L11 H1  dims (2,7) ]
+  σ[2]=12.984  σ[7]=11.871  ratio=1.094
+        0°: [' kid', ' child', 'Parent', ' parent', 'Parents', ' youngster', 'parents', 'child', ' parents', 'Kids']
+       90°: ['cery', 'Bill', 'white', 'ports', ' Bill', ' executive', 'adan', ' Esk', 'bill', ' natives']
+      180°: ['women', ' ladies', 'Lady', ' women', ' lady', ' Lady', ' Women', ' Ladies', 'Women', 'Mrs']
+      270°: [' Her', 'Her', ' Leader', ' She', ' Him', ' Daughter', ' femin', ' HER', 'Leader', ' SHE']
+
+  [ L11 H4  dims (2,7) ]
+  σ[2]=15.881  σ[7]=10.033  ratio=1.583
+        0°: [' M', ' R', ' B', ' 3', ' F', ' H', ',', ' (', ' 2', ' C']
+       90°: ['Bs', ' ii', 'rue', 'ubi', 'ipeg', ' B', 'DragonMagazine', 'omore', 'atically', 'bp']
+      180°: ['senal', '��', '��士', '�士', '���', 'ゼウス', '�', 'ActionCode', 'oreAndOnline', '�']
+      270°: [' E', ' e', 'E', ' N', ' P', ' Courage', ' d', 'earances', 'respond', ' K']
+
+  [ L10 H5  dims (1,2) ]
+  σ[1]=10.098  σ[2]=9.745  ratio=1.036
+        0°: [' would', 'would', ' Would', "'d", 'Anyone', 'Would', 'atom', 'redits', 'ケ', 'ebus']
+       90°: ['should', ' should', ' SHALL', ' SHOULD', ' shalt', ' shouldn', 'Should', ' ought', 'must', 'shall']
+      180°: [' than', ' THEN', 'than', ' before', ' then', ' BEFORE', 'then', ' Than', 'before', ' Then']
+      270°: ["'?", ')?', '?', '?\'"', '"?', '!?', "?'", '?!"', '!?"', '?"']
+
+  [ L11 H11  dims (0,1) ]
+  σ[0]=62.343  σ[1]=28.072  ratio=2.221
+        0°: [' trave', ' strugg', ' sugg', ' surpr', ' appre', ' somew', ' experien', ' Pengu', ' charact', ' disapp']
+       90°: [' nodd', ' NX', 'yne', 'Low', 'Down', 'olesterol', ' Low', 'ublic', 'zee', ' LOW']
+      180°: ['��', '��', 'ikuman', ' exting', ' cumbers', ' councill', '��士', ' practition', 'reportprint', ' carbohyd']
+      270°: [' Glass', ' fuse', 'Glass', ' Plastic', '76561', ' foil', 'ngth', ' goggles', ' bubble', ' Bott']

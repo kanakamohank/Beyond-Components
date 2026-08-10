@@ -1,0 +1,24 @@
+======================================================================
+Phi-3 L28H1 vs L24H10: principal angles + decode
+======================================================================
+
+[1] Principal angles (write-subspace overlap)
+  L24H10(0,1) vs L28H1(0,3)  2D x 2D  angles=[ 86.4,  89.0]
+  L24H10 top-4 vs L28H1 top-4  4D x 4D  angles=[ 42.9,  48.4,  82.5,  88.9]
+  L24H10 top-4 sigma = [9.41, 7.7, 6.94, 6.6]
+  L28H1  top-4 sigma = [13.67, 10.04, 9.27, 7.61]
+  verdict: INDEPENDENT subspaces
+
+[2] L28H1 write-direction decode through W_U (top-20)
+  SV0 (sigma=13.670)
+    +v : his his himself lui him him he His его ánico seines seinem ático seine sein verso 他 ográ He seinen
+    -v : her she hers herself she elle She ella ela her She Her lei она Her шла её HER Elle sheet
+  SV1 (sigma=10.036)
+    +v : his him himself his him lui he ihm ihn seinem seines seinen seiner seine sein hers her His 他 she
+    -v : Their their loro leurs themselves Its onymes they leur anja ils they chsel They atica ând otimes ihre ена cken
+  SV2 (sigma=9.272)
+    +v : our ourselves Our our notre nous ours OUR we 我 us amos 우 We мы emos We we wir amo
+    -v : my my mys My My myself MY MY me MyClass mine Mys mine I leurs their mich Their engo став
+  SV3 (sigma=7.612)
+    +v : your Your yourself yours your Your selves ва typen gericht moz egin votre må 你 Ма embre quez unted reu
+    -v : my my myself mys My My MY our MY ourselves mine 我 notre MyClass our Our me I mine Mys

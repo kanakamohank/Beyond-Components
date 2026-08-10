@@ -1,0 +1,874 @@
+path	bucket	reason
+.gitignore	both	shared ignore rules
+ARITHMETIC_CIRCUIT_PLAN.md	arithmetic	the arithmetic cookbook
+CLAUDE.md	both	repo coding guidelines
+COMPASS_COOKBOOK.md	compass	the compass cookbook
+Diagnosing Fisher Patching.md	arithmetic	Fisher patching debug log
+FOURIER_PHASE_ROTATION_FINDINGS.md	arithmetic	Fourier phase-rotation findings
+MATHEMATICAL_TOOLKIT_PROPOSAL.md	arithmetic	toolkit proposal for arithmetic circuits
+README.md	drop	Beyond Components README; rewritten per repo
+Raw_log_from_IDE_console.txt	arithmetic	raw console log of arithmetic runs
+acl-style-files-master/README.md	compass	ACL style files for the compass ACL submission
+acl-style-files-master/acl.sty	compass	ACL style files for the compass ACL submission
+acl-style-files-master/acl_latex.tex	compass	ACL style files for the compass ACL submission
+acl-style-files-master/acl_lualatex.tex	compass	ACL style files for the compass ACL submission
+acl-style-files-master/acl_natbib.bst	compass	ACL style files for the compass ACL submission
+acl-style-files-master/anthology.bib.txt	compass	ACL style files for the compass ACL submission
+acl-style-files-master/custom.bib	compass	ACL style files for the compass ACL submission
+acl-style-files-master/formatting.md	compass	ACL style files for the compass ACL submission
+analysis_log_extracted.md	arithmetic	model analysis log
+claude_skills/read-arxiv-paper.md	both	repo tooling
+configs/arithmetic_gemma2b_circuit_constrained.yaml	arithmetic	arithmetic training config
+configs/arithmetic_phi3_circuit_constrained.yaml	arithmetic	arithmetic training config
+configs/arithmetic_phi3_config.yaml	arithmetic	arithmetic training config
+configs/arithmetic_pythia_config.yaml	arithmetic	arithmetic training config
+configs/gp_config.yaml	both	Gender Pronoun; compass Stage-1 + shared training
+configs/gt_config.yaml	drop	Beyond Components Greater-Than task
+configs/ioi_config.yaml	drop	Beyond Components IOI task
+data/README.md	both	shared dataset loader / docs
+data/__init__.py	both	shared dataset loader / docs
+data/data_loader.py	both	shared dataset loader / docs
+data/winogender_occupations_stats.tsv	compass	Winogender occupation stats
+experiment_history.jsonl	arithmetic	written by src/analysis/experiment_history.py
+experiment_layernorm_depth.py	arithmetic	layernorm-depth arithmetic experiment
+experiments/ablation/comprehensive_sigma_test.py	drop	Beyond Components sigma amplification
+experiments/ablation/intervention.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
+experiments/analyze_checkpoint.py	drop	Beyond Components mask-checkpoint inspector
+experiments/analyze_fourier_circuits.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
+experiments/analyze_head_domain_routing.py	compass	named in COMPASS_COOKBOOK.md
+experiments/analyze_sum_encoding.py	arithmetic	docstring: Phase 4c SVD sum-encoding (grokking theory)
+experiments/analyze_svd_directions.py	arithmetic	docstring: Phase 3 Fourier analysis of SVD directions
+experiments/arithmetic_bus_validation.py	arithmetic	dense-patch validation of the arithmetic bus
+experiments/arithmetic_circuit_discovery.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
+experiments/arithmetic_circuit_scan.py	arithmetic	v2 of the arithmetic layer scan
+experiments/arithmetic_circuit_scan_updated.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
+experiments/baseline_comparison.py	compass	docstring: baselines for the semantic compass
+experiments/bootstrap_ci.py	compass	named in COMPASS_COOKBOOK.md
+experiments/calibrate_per_domain_alpha.py	compass	named in COMPASS_COOKBOOK.md
+experiments/carry_stratification.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
+experiments/causal_digit_probing.py	arithmetic	docstring: causal probing of ones-digit encoding
+experiments/causal_validation.py	arithmetic	docstring: Phase 5 direction-level scalar swapping
+experiments/circuit_analysis.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
+experiments/circuit_synthesis.md	arithmetic	multi-model arithmetic circuit synthesis notes
+experiments/compass_causal_sweep.py	compass	named in COMPASS_COOKBOOK.md
+experiments/compass_dictionary.py	compass	named in COMPASS_COOKBOOK.md
+experiments/compass_dictionary_single.py	compass	named in COMPASS_COOKBOOK.md
+experiments/compass_scan.py	compass	named in COMPASS_COOKBOOK.md
+experiments/cp_tensor_decomposition.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
+experiments/crowspairs_eval.py	compass	named in COMPASS_COOKBOOK.md
+experiments/crowspairs_routed_eval.py	compass	named in COMPASS_COOKBOOK.md
+experiments/crt_sanity_check.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
+experiments/debias_method_comparison.py	compass	named in COMPASS_COOKBOOK.md
+experiments/diagnose_rotation_sign.py	arithmetic	docstring: Fourier phase-rotation sign diagnosis
+experiments/diagnose_unembed_direct.py	arithmetic	docstring: direct-answer unembed patching diagnosis
+experiments/eigenvector_dft.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
+experiments/evaluation/comprehensive_metrics_table.py	compass	named in COMPASS_COOKBOOK.md
+experiments/evaluation/generate_sigma_table.py	drop	Beyond Components sigma results table
+experiments/fisher_patching.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
+experiments/fisher_phase_shift.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
+experiments/flip_ratio_by_domain.py	compass	docstring: per-domain flip ratio over spotcheck CSVs
+experiments/fourier_decomposition.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
+experiments/fourier_head_attribution.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
+experiments/fourier_knockout.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
+experiments/fourier_phase_rotation.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
+experiments/fourier_umap.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
+experiments/fourway_probe.py	compass	named in COMPASS_COOKBOOK.md
+experiments/generalization_tests.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
+experiments/generate_missing_plots.py	compass	named in COMPASS_COOKBOOK.md
+experiments/generate_paper_plots.py	compass	named in COMPASS_COOKBOOK.md
+experiments/head_ablation_comparison.py	compass	named in COMPASS_COOKBOOK.md
+experiments/inlp_debias.py	compass	named in COMPASS_COOKBOOK.md
+experiments/introspect_compass_scale.py	compass	named in COMPASS_COOKBOOK.md
+experiments/l10h9_tests.py	compass	named in COMPASS_COOKBOOK.md
+experiments/make_paper_figures.py	compass	named in COMPASS_COOKBOOK.md
+experiments/mathematical_toolkit.py	arithmetic	docstring: toolkit for arithmetic circuit discovery
+experiments/modular_arithmetic.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
+experiments/multidigit_circuit.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
+experiments/multilayer_freq_ablation.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
+experiments/neuron_trig_analysis.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
+experiments/phase_rotation_statistics.py	arithmetic	docstring: stats for Fourier phase rotation
+experiments/phi3_arithmetic_scan_gemma_worked.py	arithmetic	arithmetic layer scan, gemma run
+experiments/phi3_arithmetic_scan_phi3_worked.py	arithmetic	arithmetic layer scan, phi3 run
+experiments/phi3_l28h1_tests.py	compass	named in COMPASS_COOKBOOK.md
+experiments/pick_appendix_examples.py	compass	named in COMPASS_COOKBOOK.md
+experiments/plot_eigenvector_dft.py	arithmetic	plots for eigenvector_dft.py (Step 2)
+experiments/probe_steering_v2.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
+experiments/qualitative_spotcheck.py	compass	named in COMPASS_COOKBOOK.md
+experiments/run_calib_queue.sh	compass	named in COMPASS_COOKBOOK.md
+experiments/run_fourier_discovery.py	arithmetic	docstring: Phase 1 Fourier discovery on arithmetic prompts
+experiments/run_gemma_parity.sh	compass	named in COMPASS_COOKBOOK.md
+experiments/run_llama_snr_sweep.sh	compass	named in COMPASS_COOKBOOK.md
+experiments/run_llama_suite.sh	compass	named in COMPASS_COOKBOOK.md
+experiments/run_multi_model_suite.py	arithmetic	docstring: multi-model mathematical-toolkit runner
+experiments/run_phi3_snr_sweep.sh	compass	named in COMPASS_COOKBOOK.md
+experiments/run_routed_queue.sh	compass	named in COMPASS_COOKBOOK.md
+experiments/run_stereoset_queue.sh	compass	named in COMPASS_COOKBOOK.md
+experiments/run_stereoset_queue_after_gemma.sh	compass	named in COMPASS_COOKBOOK.md
+experiments/run_transfer_queue.sh	compass	named in COMPASS_COOKBOOK.md
+experiments/scan_ci_summary.py	compass	named in COMPASS_COOKBOOK.md
+experiments/second_harmonic_fit.py	compass	named in COMPASS_COOKBOOK.md
+experiments/seed_variance_summary.py	compass	named in COMPASS_COOKBOOK.md
+experiments/sentence_debias.py	compass	named in COMPASS_COOKBOOK.md
+experiments/steering_demo.py	compass	named in COMPASS_COOKBOOK.md
+experiments/steering_improvements.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
+experiments/steering_residual_vector.py	arithmetic	residual steering on the arithmetic bus
+experiments/stereoset_ensemble_eval.py	compass	named in COMPASS_COOKBOOK.md
+experiments/stereoset_ensemble_eval_gemma.py	compass	per-model variant of stereoset_ensemble_eval.py
+experiments/stereoset_ensemble_eval_llama.py	compass	per-model variant of stereoset_ensemble_eval.py
+experiments/stereoset_ensemble_eval_phi3.py	compass	per-model variant of stereoset_ensemble_eval.py
+experiments/stereoset_eval.py	compass	named in COMPASS_COOKBOOK.md
+experiments/stereoset_probe_extract.py	compass	named in COMPASS_COOKBOOK.md
+experiments/stereoset_probe_extract_gemma.py	compass	named in COMPASS_COOKBOOK.md
+experiments/stereoset_probe_extract_llama.py	compass	named in COMPASS_COOKBOOK.md
+experiments/stereoset_probe_extract_phi3.py	compass	named in COMPASS_COOKBOOK.md
+experiments/stereoset_probe_scan.py	compass	named in COMPASS_COOKBOOK.md
+experiments/stereoset_probe_scan_gemma.py	compass	named in COMPASS_COOKBOOK.md
+experiments/stereoset_probe_scan_llama.py	compass	named in COMPASS_COOKBOOK.md
+experiments/stereoset_probe_scan_phi3.py	compass	named in COMPASS_COOKBOOK.md
+experiments/storage_steering_scatter.py	compass	docstring: storage-vs-steering for the 5 compass heads
+experiments/target_ss50_sweep.py	compass	named in COMPASS_COOKBOOK.md
+experiments/train.py	both	shared Stage-1 trainer; named in ARITHMETIC_CIRCUIT_PLAN.md, used by compass Stage-1
+experiments/truthfulqa_eval.py	compass	named in COMPASS_COOKBOOK.md
+experiments/validate_unembed_fix.py	arithmetic	validates compute_unembed_basis_direct_answer
+experiments/visualize_toolkit_results.py	arithmetic	plots for mathematical_toolkit.py
+experiments/winogender_eval.py	compass	named in COMPASS_COOKBOOK.md
+experiments/winogender_sweep.py	compass	named in COMPASS_COOKBOOK.md
+fourier_results/fourier_results_pythia-1.4b_20260405_182700.json	arithmetic	Fourier discovery outputs
+fourier_results/fourier_results_pythia-1.4b_20260405_185846.json	arithmetic	Fourier discovery outputs
+fourier_results/plots/pythia-1.4b_freq_histogram.png	arithmetic	Fourier discovery outputs
+fourier_results/plots/pythia-1.4b_head_grid.png	arithmetic	Fourier discovery outputs
+fourier_results/plots/pythia-1.4b_power_ratio_line.png	arithmetic	Fourier discovery outputs
+fourier_results/plots/pythia-1.4b_power_spectra.png	arithmetic	Fourier discovery outputs
+helix_cross_model_analysis.md	arithmetic	cross-model helix analysis
+helix_usage_validated/appendix_examples.csv	compass	compass experiment artifact
+helix_usage_validated/appendix_examples.md	compass	compass experiment artifact
+helix_usage_validated/baselines_gemma.txt	compass	compass experiment artifact
+helix_usage_validated/baselines_gpt2.txt	compass	compass experiment artifact
+helix_usage_validated/baselines_phi3.txt	compass	compass experiment artifact
+helix_usage_validated/bootstrap_ci_summary.csv	compass	compass experiment artifact
+helix_usage_validated/bootstrap_ci_summary.md	compass	compass experiment artifact
+helix_usage_validated/compass_dict_all.md	compass	compass experiment artifact
+helix_usage_validated/compass_dict_gemma.txt	compass	compass experiment artifact
+helix_usage_validated/compass_dict_gpt2.txt	compass	compass experiment artifact
+helix_usage_validated/compass_dict_llama32_3b.txt	compass	compass experiment artifact
+helix_usage_validated/compass_dict_phi3.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_gemma.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_gemma.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_gpt2.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_gpt2.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_inlp_gemma_gender_L21.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_inlp_gemma_gender_L21.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_inlp_gemma_race_L21.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_inlp_gemma_race_L21.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_inlp_gpt2_gender_L10.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_inlp_gpt2_gender_L10.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_inlp_gpt2_race_L10.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_inlp_gpt2_race_L10.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_inlp_llama_gender_L22.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_inlp_llama_gender_L22.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_inlp_llama_race_L22.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_inlp_llama_race_L22.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_inlp_phi3_gender_L24.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_inlp_phi3_gender_L24.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_inlp_phi3_race_L24.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_inlp_phi3_race_L24.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_llama.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_llama.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_phi3.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_phi3.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_gemma_calib.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_gemma_calib.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_gemma_calib_seed1.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_gemma_calib_seed1.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_gemma_calib_seed2.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_gemma_calib_seed2.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_gemma_calib_seed3.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_gemma_calib_seed3.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_gpt2.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_gpt2.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_gpt2_calib.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_gpt2_calib.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_llama.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_llama.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_llama_snr0.10.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_llama_snr0.10.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_llama_snr0.15.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_llama_snr0.15.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_llama_snr0.20.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_llama_snr0.20.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_phi3.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_phi3.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_phi3_calib_seed1.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_phi3_calib_seed1.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_phi3_calib_seed2.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_phi3_calib_seed2.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_phi3_calib_seed3.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_phi3_calib_seed3.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_phi3_snr0.07.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_phi3_snr0.07.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_phi3_snr0.08.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_phi3_snr0.08.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_phi3_snr0.10.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_routed_phi3_snr0.10.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_sentdebias_gemma_gender_L21.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_sentdebias_gemma_gender_L21.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_sentdebias_gemma_race_L21.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_sentdebias_gemma_race_L21.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_sentdebias_gpt2_gender_L10.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_sentdebias_gpt2_gender_L10.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_sentdebias_gpt2_race_L10.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_sentdebias_gpt2_race_L10.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_sentdebias_llama_gender_L22.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_sentdebias_llama_gender_L22.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_sentdebias_llama_race_L22.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_sentdebias_llama_race_L22.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_sentdebias_phi3_gender_L24.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_sentdebias_phi3_gender_L24.txt	compass	compass experiment artifact
+helix_usage_validated/crowspairs_sentdebias_phi3_race_L24.csv	compass	compass experiment artifact
+helix_usage_validated/crowspairs_sentdebias_phi3_race_L24.txt	compass	compass experiment artifact
+helix_usage_validated/debias_method_comparison.csv	compass	compass experiment artifact
+helix_usage_validated/debias_method_comparison.md	compass	compass experiment artifact
+helix_usage_validated/exp1_exp2_output.txt	compass	compass experiment artifact
+helix_usage_validated/exp2_corrected_output.txt	compass	compass experiment artifact
+helix_usage_validated/exp2_snr_output.txt	compass	compass experiment artifact
+helix_usage_validated/flip_ratio_by_domain.csv	compass	compass experiment artifact
+helix_usage_validated/flip_ratio_by_domain.md	compass	compass experiment artifact
+helix_usage_validated/gemma2b_ablation_output.txt	compass	compass experiment artifact
+helix_usage_validated/gemma2b_causal_patch.txt	compass	compass experiment artifact
+helix_usage_validated/gemma2b_compass_L21H4_output.txt	compass	compass experiment artifact
+helix_usage_validated/gemma2b_compass_causal.txt	compass	compass experiment artifact
+helix_usage_validated/gemma2b_compass_causal_curves.png	compass	compass experiment artifact
+helix_usage_validated/gemma2b_compass_causal_linearity.png	compass	compass experiment artifact
+helix_usage_validated/gemma2b_compass_causal_polar.png	compass	compass experiment artifact
+helix_usage_validated/gemma2b_compass_linguistic_output.txt	compass	compass experiment artifact
+helix_usage_validated/gemma2b_compass_numbers_output.txt	compass	compass experiment artifact
+helix_usage_validated/gemma2b_cyclicity.txt	compass	compass experiment artifact
+helix_usage_validated/gemma2b_decode_heads.txt	compass	compass experiment artifact
+helix_usage_validated/gemma2b_permutation.txt	compass	compass experiment artifact
+helix_usage_validated/gemma2b_principal_angles.txt	compass	compass experiment artifact
+helix_usage_validated/gemma2b_random_plane.txt	compass	compass experiment artifact
+helix_usage_validated/gemma2b_scan_planes.txt	compass	compass experiment artifact
+helix_usage_validated/gemma2b_self_test.txt	compass	compass experiment artifact
+helix_usage_validated/gemma2b_semantic_ablate.txt	compass	compass experiment artifact
+helix_usage_validated/gemma2b_sweep_output.txt	both	cross-model helix scan output (shared scanner)
+helix_usage_validated/gemma2b_trace_output.txt	both	cross-model helix scan output (shared scanner)
+helix_usage_validated/gemma7b_sweep_output.txt	both	cross-model helix scan output (shared scanner)
+helix_usage_validated/gemma7b_trace_output.txt	both	cross-model helix scan output (shared scanner)
+helix_usage_validated/gemma_incontext.txt	compass	compass experiment artifact
+helix_usage_validated/gemma_incontext_curves.png	compass	compass experiment artifact
+helix_usage_validated/gemma_incontext_linearity.png	compass	compass experiment artifact
+helix_usage_validated/gemma_incontext_polar.png	compass	compass experiment artifact
+helix_usage_validated/gemma_scan_gender_heatmap.png	compass	compass experiment artifact
+helix_usage_validated/gemma_scan_gender_nullfullov_heatmap.png	compass	compass experiment artifact
+helix_usage_validated/gemma_scan_gender_nullfullov_scan.txt	compass	compass experiment artifact
+helix_usage_validated/gemma_scan_gender_scan.txt	compass	compass experiment artifact
+helix_usage_validated/gemma_steer.txt	compass	compass experiment artifact
+helix_usage_validated/gemma_steer_a30.txt	compass	compass experiment artifact
+helix_usage_validated/gemma_steer_a50.txt	compass	compass experiment artifact
+helix_usage_validated/gpt2_ablation_output.txt	compass	compass experiment artifact
+helix_usage_validated/gpt2_causal_patch.txt	compass	compass experiment artifact
+helix_usage_validated/gpt2_compass_causal.txt	compass	compass experiment artifact
+helix_usage_validated/gpt2_compass_causal_curves.png	compass	compass experiment artifact
+helix_usage_validated/gpt2_compass_causal_linearity.png	compass	compass experiment artifact
+helix_usage_validated/gpt2_compass_causal_polar.png	compass	compass experiment artifact
+helix_usage_validated/gpt2_compass_decode.txt	compass	compass experiment artifact
+helix_usage_validated/gpt2_compass_sweep.txt	compass	compass experiment artifact
+helix_usage_validated/gpt2_cyclicity.txt	compass	compass experiment artifact
+helix_usage_validated/gpt2_decode_heads.txt	compass	compass experiment artifact
+helix_usage_validated/gpt2_fixed_v1.txt	compass	compass experiment artifact
+helix_usage_validated/gpt2_fixed_v1_curves.png	compass	compass experiment artifact
+helix_usage_validated/gpt2_fixed_v1_linearity.png	compass	compass experiment artifact
+helix_usage_validated/gpt2_fixed_v1_polar.png	compass	compass experiment artifact
+helix_usage_validated/gpt2_gp_patch.txt	compass	compass experiment artifact
+helix_usage_validated/gpt2_permutation.txt	compass	compass experiment artifact
+helix_usage_validated/gpt2_principal_angles.txt	compass	compass experiment artifact
+helix_usage_validated/gpt2_random_plane.txt	compass	compass experiment artifact
+helix_usage_validated/gpt2_ref_check.txt	compass	compass experiment artifact
+helix_usage_validated/gpt2_ref_check_curves.png	compass	compass experiment artifact
+helix_usage_validated/gpt2_ref_check_linearity.png	compass	compass experiment artifact
+helix_usage_validated/gpt2_ref_check_polar.png	compass	compass experiment artifact
+helix_usage_validated/gpt2_rotation_test.txt	compass	compass experiment artifact
+helix_usage_validated/gpt2_rotation_test_sv1sv3.txt	compass	compass experiment artifact
+helix_usage_validated/gpt2_scan_calib_heatmap.png	compass	compass experiment artifact
+helix_usage_validated/gpt2_scan_calib_scan.txt	compass	compass experiment artifact
+helix_usage_validated/gpt2_scan_gender_heatmap.png	compass	compass experiment artifact
+helix_usage_validated/gpt2_scan_gender_nullfullov_heatmap.png	compass	compass experiment artifact
+helix_usage_validated/gpt2_scan_gender_nullfullov_scan.txt	compass	compass experiment artifact
+helix_usage_validated/gpt2_scan_gender_scan.txt	compass	compass experiment artifact
+helix_usage_validated/gpt2_scan_planes.txt	compass	compass experiment artifact
+helix_usage_validated/gpt2_self_test.txt	compass	compass experiment artifact
+helix_usage_validated/gpt2_semantic_ablate.txt	compass	compass experiment artifact
+helix_usage_validated/gpt2_steer.txt	compass	compass experiment artifact
+helix_usage_validated/gpt2_steer_a20.txt	compass	compass experiment artifact
+helix_usage_validated/gpt2_sweep_output.txt	both	cross-model helix scan output (shared scanner)
+helix_usage_validated/gpt2_trace_output.txt	both	cross-model helix scan output (shared scanner)
+helix_usage_validated/gpt2medium_sweep_output.txt	both	cross-model helix scan output (shared scanner)
+helix_usage_validated/gpt2medium_trace_output.txt	both	cross-model helix scan output (shared scanner)
+helix_usage_validated/gptj6b_compass_output.txt	both	cross-model helix scan output (shared scanner)
+helix_usage_validated/gptj6b_sweep_output.txt	both	cross-model helix scan output (shared scanner)
+helix_usage_validated/gptneo125m_sweep_output.txt	both	cross-model helix scan output (shared scanner)
+helix_usage_validated/head_ablation_gemma.txt	compass	compass experiment artifact
+helix_usage_validated/head_ablation_gpt2.txt	compass	compass experiment artifact
+helix_usage_validated/head_ablation_gpt2_l10h9.txt	compass	compass experiment artifact
+helix_usage_validated/head_ablation_llama.txt	compass	compass experiment artifact
+helix_usage_validated/head_ablation_phi3.txt	compass	compass experiment artifact
+helix_usage_validated/head_ablation_phi3_l28h1.txt	compass	compass experiment artifact
+helix_usage_validated/head_domain_heatmap_gemma.png	compass	compass experiment artifact
+helix_usage_validated/head_domain_heatmap_gpt2.png	compass	compass experiment artifact
+helix_usage_validated/head_domain_heatmap_llama.png	compass	compass experiment artifact
+helix_usage_validated/head_domain_heatmap_phi3.png	compass	compass experiment artifact
+helix_usage_validated/head_domain_routing.md	compass	compass experiment artifact
+helix_usage_validated/inlp_gemma_gender_L21.json	compass	compass experiment artifact
+helix_usage_validated/inlp_gemma_race_L21.json	compass	compass experiment artifact
+helix_usage_validated/inlp_gpt2_gender_L10.json	compass	compass experiment artifact
+helix_usage_validated/inlp_gpt2_race_L10.json	compass	compass experiment artifact
+helix_usage_validated/inlp_llama_gender_L22.json	compass	compass experiment artifact
+helix_usage_validated/inlp_llama_race_L22.json	compass	compass experiment artifact
+helix_usage_validated/inlp_phi3_gender_L24.json	compass	compass experiment artifact
+helix_usage_validated/inlp_phi3_race_L24.json	compass	compass experiment artifact
+helix_usage_validated/l10h9_sv12_number.txt	compass	compass experiment artifact
+helix_usage_validated/l10h9_sv12_number_curves.png	compass	compass experiment artifact
+helix_usage_validated/l10h9_sv12_number_linearity.png	compass	compass experiment artifact
+helix_usage_validated/l10h9_sv12_number_polar.png	compass	compass experiment artifact
+helix_usage_validated/l10h9_tests.txt	compass	compass experiment artifact
+helix_usage_validated/l10h9_workshop_suite.txt	compass	compass experiment artifact
+helix_usage_validated/llama32_3b_compass_causal.txt	compass	compass experiment artifact
+helix_usage_validated/llama32_3b_compass_causal_curves.png	compass	compass experiment artifact
+helix_usage_validated/llama32_3b_compass_causal_linearity.png	compass	compass experiment artifact
+helix_usage_validated/llama32_3b_compass_causal_polar.png	compass	compass experiment artifact
+helix_usage_validated/llama32_3b_scan_gender_heatmap.png	compass	compass experiment artifact
+helix_usage_validated/llama32_3b_scan_gender_scan.txt	compass	compass experiment artifact
+helix_usage_validated/llama32_3b_top_head.json	compass	compass experiment artifact
+helix_usage_validated/llama_sanity_heatmap.png	compass	compass experiment artifact
+helix_usage_validated/llama_sanity_scan.txt	compass	compass experiment artifact
+helix_usage_validated/llama_scan_gender_heatmap.png	compass	compass experiment artifact
+helix_usage_validated/mlp_lens_L10H2_d1d7_mlp10.png	compass	compass experiment artifact
+helix_usage_validated/mlp_lens_L10H2_d1d7_mlp11.png	compass	compass experiment artifact
+helix_usage_validated/mlp_lens_L14H2_d3d8_mlp14.png	compass	compass experiment artifact
+helix_usage_validated/mlp_lens_L14H2_d3d8_mlp15.png	compass	compass experiment artifact
+helix_usage_validated/mlp_lens_L19H12_d3d5_mlp19.png	compass	compass experiment artifact
+helix_usage_validated/mlp_lens_L19H12_d3d5_mlp20.png	compass	compass experiment artifact
+helix_usage_validated/mlp_lens_L1H17_d3d9_mlp1.png	compass	compass experiment artifact
+helix_usage_validated/mlp_lens_L1H17_d3d9_mlp2.png	compass	compass experiment artifact
+helix_usage_validated/mlp_lens_L24H28_d0d9_mlp24.png	compass	compass experiment artifact
+helix_usage_validated/mlp_lens_L24H28_d0d9_mlp25.png	compass	compass experiment artifact
+helix_usage_validated/mlp_lens_L2H2_d4d7_mlp2.png	compass	compass experiment artifact
+helix_usage_validated/mlp_lens_L2H2_d4d7_mlp3.png	compass	compass experiment artifact
+helix_usage_validated/mlp_lens_L3H13_d2d4_mlp3.png	compass	compass experiment artifact
+helix_usage_validated/mlp_lens_L3H13_d2d4_mlp4.png	compass	compass experiment artifact
+helix_usage_validated/mlp_lens_L9H1_d1d5_mlp10.png	compass	compass experiment artifact
+helix_usage_validated/mlp_lens_L9H1_d1d5_mlp9.png	compass	compass experiment artifact
+helix_usage_validated/per_domain_alpha_gemma.json	compass	compass experiment artifact
+helix_usage_validated/per_domain_alpha_gpt2.json	compass	compass experiment artifact
+helix_usage_validated/per_domain_alpha_llama_snr0.10.json	compass	compass experiment artifact
+helix_usage_validated/per_domain_alpha_llama_snr0.15.json	compass	compass experiment artifact
+helix_usage_validated/per_domain_alpha_llama_snr0.20.json	compass	compass experiment artifact
+helix_usage_validated/per_domain_alpha_phi3_snr0.07.json	compass	compass experiment artifact
+helix_usage_validated/per_domain_alpha_phi3_snr0.08.json	compass	compass experiment artifact
+helix_usage_validated/per_domain_alpha_phi3_snr0.10.json	compass	compass experiment artifact
+helix_usage_validated/phi3_L24_head_survey.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_ablation_output.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_causal_patch.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_compass_causal.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_compass_causal_curves.png	compass	compass experiment artifact
+helix_usage_validated/phi3_compass_causal_linearity.png	compass	compass experiment artifact
+helix_usage_validated/phi3_compass_causal_polar.png	compass	compass experiment artifact
+helix_usage_validated/phi3_compass_output.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_cyclicity.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_cyclicity_all.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_decode_heads.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_entity_compass_causal.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_entity_compass_causal_curves.png	compass	compass experiment artifact
+helix_usage_validated/phi3_entity_compass_causal_linearity.png	compass	compass experiment artifact
+helix_usage_validated/phi3_entity_compass_causal_polar.png	compass	compass experiment artifact
+helix_usage_validated/phi3_entity_fourway.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_entity_incontext.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_entity_incontext_curves.png	compass	compass experiment artifact
+helix_usage_validated/phi3_entity_incontext_linearity.png	compass	compass experiment artifact
+helix_usage_validated/phi3_entity_incontext_polar.png	compass	compass experiment artifact
+helix_usage_validated/phi3_fixed_fp32.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_fixed_fp32_curves.png	compass	compass experiment artifact
+helix_usage_validated/phi3_fixed_fp32_linearity.png	compass	compass experiment artifact
+helix_usage_validated/phi3_fixed_fp32_polar.png	compass	compass experiment artifact
+helix_usage_validated/phi3_fixed_v1.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_fixed_v1_curves.png	compass	compass experiment artifact
+helix_usage_validated/phi3_fixed_v1_linearity.png	compass	compass experiment artifact
+helix_usage_validated/phi3_fixed_v1_polar.png	compass	compass experiment artifact
+helix_usage_validated/phi3_fixed_v2.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_fixed_v2_curves.png	compass	compass experiment artifact
+helix_usage_validated/phi3_fixed_v2_linearity.png	compass	compass experiment artifact
+helix_usage_validated/phi3_fixed_v2_polar.png	compass	compass experiment artifact
+helix_usage_validated/phi3_fixed_v3.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_fixed_v3_curves.png	compass	compass experiment artifact
+helix_usage_validated/phi3_fixed_v3_linearity.png	compass	compass experiment artifact
+helix_usage_validated/phi3_fixed_v3_polar.png	compass	compass experiment artifact
+helix_usage_validated/phi3_followups.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_head_survey_output.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_incontext.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_incontext_curves.png	compass	compass experiment artifact
+helix_usage_validated/phi3_incontext_linearity.png	compass	compass experiment artifact
+helix_usage_validated/phi3_incontext_polar.png	compass	compass experiment artifact
+helix_usage_validated/phi3_l24_expand.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_l28h1_causal.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_l28h1_causal_curves.png	compass	compass experiment artifact
+helix_usage_validated/phi3_l28h1_causal_linearity.png	compass	compass experiment artifact
+helix_usage_validated/phi3_l28h1_causal_polar.png	compass	compass experiment artifact
+helix_usage_validated/phi3_l28h1_tests.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_l28h1_workshop_suite.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_lastlayer_hack.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_lastlayer_hack_curves.png	compass	compass experiment artifact
+helix_usage_validated/phi3_lastlayer_hack_linearity.png	compass	compass experiment artifact
+helix_usage_validated/phi3_lastlayer_hack_polar.png	compass	compass experiment artifact
+helix_usage_validated/phi3_late_layer_compass.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_multi_head_compass.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_other_layer_cyclicity.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_paper_matched.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_paper_matched_curves.png	compass	compass experiment artifact
+helix_usage_validated/phi3_paper_matched_linearity.png	compass	compass experiment artifact
+helix_usage_validated/phi3_paper_matched_polar.png	compass	compass experiment artifact
+helix_usage_validated/phi3_permutation.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_permutation_v2.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_permutation_v3.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_principal_angles.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_random_plane.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_random_plane_v2.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_random_plane_v3.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_scan_gender_heatmap.png	compass	compass experiment artifact
+helix_usage_validated/phi3_scan_gender_l29_30_heatmap.png	compass	compass experiment artifact
+helix_usage_validated/phi3_scan_gender_l29_30_scan.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_scan_gender_nullfullov_heatmap.png	compass	compass experiment artifact
+helix_usage_validated/phi3_scan_gender_nullfullov_scan.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_scan_gender_scan.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_scan_planes.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_self_test.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_semantic_ablate.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_sweep_output.txt	both	cross-model helix scan output (shared scanner)
+helix_usage_validated/phi3_temporal_compass_causal.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_temporal_compass_causal_curves.png	compass	compass experiment artifact
+helix_usage_validated/phi3_temporal_compass_causal_linearity.png	compass	compass experiment artifact
+helix_usage_validated/phi3_temporal_compass_causal_polar.png	compass	compass experiment artifact
+helix_usage_validated/phi3_temporal_fourway.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_temporal_incontext.txt	compass	compass experiment artifact
+helix_usage_validated/phi3_temporal_incontext_curves.png	compass	compass experiment artifact
+helix_usage_validated/phi3_temporal_incontext_linearity.png	compass	compass experiment artifact
+helix_usage_validated/phi3_temporal_incontext_polar.png	compass	compass experiment artifact
+helix_usage_validated/phi3_trace_output.txt	both	cross-model helix scan output (shared scanner)
+helix_usage_validated/qualitative_spotcheck_gemma.csv	compass	compass experiment artifact
+helix_usage_validated/qualitative_spotcheck_gemma.md	compass	compass experiment artifact
+helix_usage_validated/qualitative_spotcheck_gpt2.csv	compass	compass experiment artifact
+helix_usage_validated/qualitative_spotcheck_gpt2.md	compass	compass experiment artifact
+helix_usage_validated/qualitative_spotcheck_llama.csv	compass	compass experiment artifact
+helix_usage_validated/qualitative_spotcheck_llama.md	compass	compass experiment artifact
+helix_usage_validated/qualitative_spotcheck_phi3.csv	compass	compass experiment artifact
+helix_usage_validated/qualitative_spotcheck_phi3.md	compass	compass experiment artifact
+helix_usage_validated/scan_pass_rate_ci.txt	compass	compass experiment artifact
+helix_usage_validated/second_harmonic_fit.txt	compass	compass experiment artifact
+helix_usage_validated/seed_variance_summary.csv	compass	compass experiment artifact
+helix_usage_validated/seed_variance_summary.md	compass	compass experiment artifact
+helix_usage_validated/sentdebias_gemma_gender_L21.json	compass	compass experiment artifact
+helix_usage_validated/sentdebias_gemma_race_L21.json	compass	compass experiment artifact
+helix_usage_validated/sentdebias_gpt2_gender_L10.json	compass	compass experiment artifact
+helix_usage_validated/sentdebias_gpt2_race_L10.json	compass	compass experiment artifact
+helix_usage_validated/sentdebias_llama_gender_L22.json	compass	compass experiment artifact
+helix_usage_validated/sentdebias_llama_race_L22.json	compass	compass experiment artifact
+helix_usage_validated/sentdebias_phi3_gender_L24.json	compass	compass experiment artifact
+helix_usage_validated/sentdebias_phi3_race_L24.json	compass	compass experiment artifact
+helix_usage_validated/steering_gemma.txt	compass	compass experiment artifact
+helix_usage_validated/steering_gemma_b10.txt	compass	compass experiment artifact
+helix_usage_validated/steering_gpt2.txt	compass	compass experiment artifact
+helix_usage_validated/steering_phi3.txt	compass	compass experiment artifact
+helix_usage_validated/steering_phi3_a20.txt	compass	compass experiment artifact
+helix_usage_validated/stereoset_ensemble_gemma.csv	compass	compass experiment artifact
+helix_usage_validated/stereoset_ensemble_gemma.txt	compass	compass experiment artifact
+helix_usage_validated/stereoset_ensemble_gpt2.csv	compass	compass experiment artifact
+helix_usage_validated/stereoset_ensemble_gpt2.txt	compass	compass experiment artifact
+helix_usage_validated/stereoset_ensemble_llama.csv	compass	compass experiment artifact
+helix_usage_validated/stereoset_ensemble_llama.txt	compass	compass experiment artifact
+helix_usage_validated/stereoset_ensemble_phi3.csv	compass	compass experiment artifact
+helix_usage_validated/stereoset_ensemble_phi3.txt	compass	compass experiment artifact
+helix_usage_validated/stereoset_ensemble_phi3_big_alpha.csv	compass	compass experiment artifact
+helix_usage_validated/stereoset_ensemble_phi3_big_alpha.txt	compass	compass experiment artifact
+helix_usage_validated/stereoset_gemma_l21h4.csv	compass	compass experiment artifact
+helix_usage_validated/stereoset_gemma_l21h4.txt	compass	compass experiment artifact
+helix_usage_validated/stereoset_gpt2_l10h9.csv	compass	compass experiment artifact
+helix_usage_validated/stereoset_gpt2_l10h9.txt	compass	compass experiment artifact
+helix_usage_validated/stereoset_llama32_3b_l26h14.csv	compass	compass experiment artifact
+helix_usage_validated/stereoset_llama32_3b_l26h14.txt	compass	compass experiment artifact
+helix_usage_validated/stereoset_llama_l26h14.csv	compass	compass experiment artifact
+helix_usage_validated/stereoset_phi3_l28h1.csv	compass	compass experiment artifact
+helix_usage_validated/stereoset_phi3_l28h1.txt	compass	compass experiment artifact
+helix_usage_validated/stereoset_probe_halfmatch.tsv	compass	compass experiment artifact
+helix_usage_validated/stereoset_probe_halfmatch_gemma.tsv	compass	compass experiment artifact
+helix_usage_validated/stereoset_probe_halfmatch_llama.tsv	compass	compass experiment artifact
+helix_usage_validated/stereoset_probe_halfmatch_phi3.tsv	compass	compass experiment artifact
+helix_usage_validated/stereoset_probe_pairs.tsv	compass	compass experiment artifact
+helix_usage_validated/stereoset_probe_pairs_gemma.tsv	compass	compass experiment artifact
+helix_usage_validated/stereoset_probe_pairs_llama.tsv	compass	compass experiment artifact
+helix_usage_validated/stereoset_probe_pairs_phi3.tsv	compass	compass experiment artifact
+helix_usage_validated/stereoset_scan_gemma.jsonl	compass	compass experiment artifact
+helix_usage_validated/stereoset_scan_gemma_summary.txt	compass	compass experiment artifact
+helix_usage_validated/stereoset_scan_gpt2.jsonl	compass	compass experiment artifact
+helix_usage_validated/stereoset_scan_gpt2_summary.txt	compass	compass experiment artifact
+helix_usage_validated/stereoset_scan_llama.jsonl	compass	compass experiment artifact
+helix_usage_validated/stereoset_scan_llama_summary.txt	compass	compass experiment artifact
+helix_usage_validated/stereoset_scan_phi3.jsonl	compass	compass experiment artifact
+helix_usage_validated/stereoset_scan_phi3_summary.txt	compass	compass experiment artifact
+helix_usage_validated/storage_steering_scatter.png	compass	compass experiment artifact
+helix_usage_validated/target_ss50_gemma.csv	compass	compass experiment artifact
+helix_usage_validated/target_ss50_gemma.txt	compass	compass experiment artifact
+helix_usage_validated/target_ss50_gemma_holdout.csv	compass	compass experiment artifact
+helix_usage_validated/target_ss50_gemma_holdout.txt	compass	compass experiment artifact
+helix_usage_validated/target_ss50_gpt2.csv	compass	compass experiment artifact
+helix_usage_validated/target_ss50_gpt2.txt	compass	compass experiment artifact
+helix_usage_validated/target_ss50_gpt2_holdout.csv	compass	compass experiment artifact
+helix_usage_validated/target_ss50_gpt2_holdout.txt	compass	compass experiment artifact
+helix_usage_validated/target_ss50_llama.csv	compass	compass experiment artifact
+helix_usage_validated/target_ss50_llama.txt	compass	compass experiment artifact
+helix_usage_validated/target_ss50_llama_holdout.csv	compass	compass experiment artifact
+helix_usage_validated/target_ss50_llama_holdout.txt	compass	compass experiment artifact
+helix_usage_validated/target_ss50_phi3.csv	compass	compass experiment artifact
+helix_usage_validated/target_ss50_phi3.txt	compass	compass experiment artifact
+helix_usage_validated/target_ss50_phi3_holdout.csv	compass	compass experiment artifact
+helix_usage_validated/target_ss50_phi3_holdout.txt	compass	compass experiment artifact
+helix_usage_validated/truthfulqa_gemma.csv	compass	compass experiment artifact
+helix_usage_validated/truthfulqa_gemma.txt	compass	compass experiment artifact
+helix_usage_validated/truthfulqa_gpt2.csv	compass	compass experiment artifact
+helix_usage_validated/truthfulqa_gpt2.txt	compass	compass experiment artifact
+helix_usage_validated/truthfulqa_llama.csv	compass	compass experiment artifact
+helix_usage_validated/truthfulqa_llama.txt	compass	compass experiment artifact
+helix_usage_validated/truthfulqa_phi3.csv	compass	compass experiment artifact
+helix_usage_validated/truthfulqa_phi3.txt	compass	compass experiment artifact
+helix_usage_validated/validated_results.json	compass	compass experiment artifact
+helix_usage_validated/vocab_projection_L1H17_d3d9.png	compass	compass experiment artifact
+helix_usage_validated/winogender_gemma_l21h4_alpha1.txt	compass	compass experiment artifact
+helix_usage_validated/winogender_gemma_sweep.csv	compass	compass experiment artifact
+helix_usage_validated/winogender_gemma_sweep.txt	compass	compass experiment artifact
+helix_usage_validated/winogender_gpt2_l10h9_alpha1.txt	compass	compass experiment artifact
+helix_usage_validated/winogender_gpt2_sweep.csv	compass	compass experiment artifact
+helix_usage_validated/winogender_gpt2_sweep.txt	compass	compass experiment artifact
+helix_usage_validated/winogender_llama_sweep.csv	compass	compass experiment artifact
+helix_usage_validated/winogender_llama_sweep.txt	compass	compass experiment artifact
+helix_usage_validated/winogender_phi3_l28h1_alpha1.txt	compass	compass experiment artifact
+helix_usage_validated/winogender_phi3_sweep.csv	compass	compass experiment artifact
+helix_usage_validated/winogender_phi3_sweep.txt	compass	compass experiment artifact
+helix_usage_validated/workshop_suite_results_gemma_l21h4.json	compass	compass experiment artifact
+helix_usage_validated/workshop_suite_results_gpt2_l9h7.json	compass	compass experiment artifact
+helix_usage_validated/workshop_suite_results_llama_l26h14.json	compass	compass experiment artifact
+helix_usage_validated/workshop_suite_results_phi3_l24h10.json	compass	compass experiment artifact
+helix_usage_validated/workshop_suite_results_phi3_l28h1.json	compass	compass experiment artifact
+images/EleutherAI_gpt-j-6B_L3H13_OV_sine_cosine_unpacking_L_H_dims_2_3.png	arithmetic	helix / Fourier / geometry figure
+images/EleutherAI_pythia-6.9b_L6H0_OV_sine_cosine_unpacking_L_H_dims_2_4.png	arithmetic	helix / Fourier / geometry figure
+images/HELIX_ANALYSIS_COMPLETE_REFERENCE.md	arithmetic	helix / Fourier / geometry figure
+images/Microsoft_Phi3_distance_matrices_layer_21.png	arithmetic	helix / Fourier / geometry figure
+images/Microsoft_Phi3_distance_matrices_layer_24.png	arithmetic	helix / Fourier / geometry figure
+images/Phi-3-mini-4k-instruct_scree_plot_layer_24.png	arithmetic	helix / Fourier / geometry figure
+images/arithmetic_clock_face_msphi copy.png	arithmetic	helix / Fourier / geometry figure
+images/arithmetic_clock_face_msphi.png	arithmetic	helix / Fourier / geometry figure
+images/dynamic_clock_face_gemma.png	arithmetic	helix / Fourier / geometry figure
+images/fft_spectrum_EleutherAI_gpt-j-6B_L3H13.png	arithmetic	helix / Fourier / geometry figure
+images/fft_spectrum_EleutherAI_pythia-6.9b_L6H0.png	arithmetic	helix / Fourier / geometry figure
+images/fft_spectrum_google_gemma-2-2b_L11H3_4bit_quant.png	arithmetic	helix / Fourier / geometry figure
+images/fft_spectrum_google_gemma-2-2b_L9H1.png	arithmetic	helix / Fourier / geometry figure
+images/fft_spectrum_google_gemma-7b_L14H2.png	arithmetic	helix / Fourier / geometry figure
+images/fft_spectrum_gpt-Neo-2.7B_L7H1.png	arithmetic	helix / Fourier / geometry figure
+images/fft_spectrum_gpt-neo-2.7B_L1H10.png	arithmetic	helix / Fourier / geometry figure
+images/fft_spectrum_gpt2-medium_L19H12.png	arithmetic	helix / Fourier / geometry figure
+images/fft_spectrum_gpt2-small_L10H2.png	arithmetic	helix / Fourier / geometry figure
+images/fft_spectrum_meta-llama_Llama-3.2-3B-Instruct_L1H17.png	arithmetic	helix / Fourier / geometry figure
+images/fft_spectrum_meta-llama_Llama-3.2-3B_L1H17.png	arithmetic	helix / Fourier / geometry figure
+images/fft_spectrum_microsoft_Phi-3-mini-4k-instruct_L24H28.png	arithmetic	helix / Fourier / geometry figure
+images/gemma-7b_distance_matrices_layer_21.png	arithmetic	helix / Fourier / geometry figure
+images/gemma-7b_scree_plot_layer_21.png	arithmetic	helix / Fourier / geometry figure
+images/gemma_7b_distance_matrices_layer_14.png	arithmetic	helix / Fourier / geometry figure
+images/geometry_EleutherAI_gpt-j-6B_L3H13_OV.png	arithmetic	helix / Fourier / geometry figure
+images/geometry_EleutherAI_pythia-6.9b_L6H0_OV.png	arithmetic	helix / Fourier / geometry figure
+images/geometry_google_gemma-2-2b_L11H3_OV_4bit_quant.png	arithmetic	helix / Fourier / geometry figure
+images/geometry_google_gemma-2-2b_L9H1_OV.png	arithmetic	helix / Fourier / geometry figure
+images/geometry_google_gemma-7b_L14H2_OV.png	arithmetic	helix / Fourier / geometry figure
+images/geometry_gpt-Neo-2.7B_L7H1_OV.png	arithmetic	helix / Fourier / geometry figure
+images/geometry_gpt-neo-2.7B_L1H10_OV_1_10.png	arithmetic	helix / Fourier / geometry figure
+images/geometry_gpt-neo-2.7B_L20H18_OV_10_100.png	arithmetic	helix / Fourier / geometry figure
+images/geometry_gpt-neo-2.7B_L20H18_OV_1_100.png	arithmetic	helix / Fourier / geometry figure
+images/geometry_gpt2-medium_L19H12_OV.png	arithmetic	helix / Fourier / geometry figure
+images/geometry_gpt2-small_L10H2_OV.png	arithmetic	helix / Fourier / geometry figure
+images/geometry_gpt2-small_L10H2_OV_10_100.png	arithmetic	helix / Fourier / geometry figure
+images/geometry_gpt2-small_L10H2_OV_1_100.png	arithmetic	helix / Fourier / geometry figure
+images/geometry_gpt2-small_L2H2_OV_1_10.png	arithmetic	helix / Fourier / geometry figure
+images/geometry_meta-llama_Llama-3.2-3B-Instruct_L1H17_OV.png	arithmetic	helix / Fourier / geometry figure
+images/geometry_meta-llama_Llama-3.2-3B_L1H17_OV.png	arithmetic	helix / Fourier / geometry figure
+images/geometry_microsoft_Phi-3-mini-4k-instruct_L24H28_OV.png	arithmetic	helix / Fourier / geometry figure
+images/google_gemma-2-2b_L11H3_OV_sine_cosine_unpacking_L_H_dims_0_7_4bit_quant.png	arithmetic	helix / Fourier / geometry figure
+images/google_gemma-2-2b_L9H1_OV_sine_cosine_unpacking_L_H_dims_1_2.png	arithmetic	helix / Fourier / geometry figure
+images/google_gemma-7b_L14H2_OV_sine_cosine_unpacking_L_H_dims_2_5.png	arithmetic	helix / Fourier / geometry figure
+images/gpt-Neo-2.7B_L7H1_OV_sine_cosine_unpacking_L_H_dims_0_3.png	arithmetic	helix / Fourier / geometry figure
+images/gpt2-medium_L19H12_OV_sine_cosine_unpacking_L_H_dims_3_4.png	arithmetic	helix / Fourier / geometry figure
+images/gpt2-small_L10H2_OV_sine_cosine_unpacking_L_H_dims_2_7.png	arithmetic	helix / Fourier / geometry figure
+images/grokking_EMBEDDING_helix_analysis.png	arithmetic	helix / Fourier / geometry figure
+images/grokking_direct_vs_reconstructed_2d_CORRECT.png	arithmetic	helix / Fourier / geometry figure
+images/grokking_helix_multidim.png	arithmetic	helix / Fourier / geometry figure
+images/helix_comparison_L0_L1_svd.png	arithmetic	helix / Fourier / geometry figure
+images/helix_gpt2-small_L10H2_OV_1.png	arithmetic	helix / Fourier / geometry figure
+images/intervention.png	drop	Beyond Components teaser figure
+images/meta-llama_Llama-3.2-3B-Instruct_L1H17_OV_sine_cosine_unpacking_L_H_dims_4_6.png	arithmetic	helix / Fourier / geometry figure
+images/meta-llama_Llama-3.2-3B_L1H17_OV_sine_cosine_unpacking_L_H_dims_2_6.png	arithmetic	helix / Fourier / geometry figure
+images/microsoft_Phi-3-mini-4k-instruct_L24H28_OV_sine_cosine_unpacking_L_H_dims_3_7.png	arithmetic	helix / Fourier / geometry figure
+images/paired_fft_gpt2-small_L10H2_dims2_7.png	arithmetic	helix / Fourier / geometry figure
+images/phase4_output_diagnostic_micosoft_Phi-3-mini-4k-instruct.png	arithmetic	helix / Fourier / geometry figure
+images/sine_cosine_waves_dims_0_3.png	arithmetic	helix / Fourier / geometry figure
+images/svd_pc_sweep_gemma.png	arithmetic	helix / Fourier / geometry figure
+images/svd_pc_sweep_msphi.png	arithmetic	helix / Fourier / geometry figure
+images/variance_explained_comparison.png	arithmetic	helix / Fourier / geometry figure
+investigate_helix_usage_validated.py	both	compass 9-test battery + cross-task helix investigation
+knowledge/A_Mechanistic_Interpretability_Analysis_of_Grokking.ipynb	arithmetic	research note, routed by topic
+knowledge/COMPREHENSIVE_PAPER_ANALYSIS.md	both	research note, routed by topic
+knowledge/beyond_components_deep_analysis.md	both	research note, routed by topic
+knowledge/comparison_modular_digit_vs_repo.md	arithmetic	research note, routed by topic
+knowledge/index.md	both	research note, routed by topic
+knowledge/relavant_papers.txt	both	research note, routed by topic
+knowledge/summary_arithmetic_circuits.md	arithmetic	research note, routed by topic
+knowledge/summary_arithmetic_reasoning.md	arithmetic	research note, routed by topic
+knowledge/summary_beyond_components.md	both	research note, routed by topic
+knowledge/summary_clock_pizza.md	arithmetic	research note, routed by topic
+knowledge/summary_fourier_features_addition.md	arithmetic	research note, routed by topic
+knowledge/summary_grokking_mechanistic.md	arithmetic	research note, routed by topic
+knowledge/summary_modular_digit_arithmetic.md	arithmetic	research note, routed by topic
+knowledge/summary_modular_polynomials.md	arithmetic	research note, routed by topic
+knowledge/summary_singular_vectors_features.md	both	research note, routed by topic
+knowledge/summary_toy_superposition.md	both	research note, routed by topic
+knowledge/summary_trigonometry_addition.md	arithmetic	research note, routed by topic
+memory/MEMORY.md	both	repo working notes
+memory/feedback_code_quality.md	both	repo working notes
+paper/Arithmetic_Circuit.pdf	arithmetic	arithmetic paper source
+paper/README.md	arithmetic	arithmetic paper source
+paper/main.aux	arithmetic	arithmetic paper source
+paper/main.bbl	arithmetic	arithmetic paper source
+paper/main.blg	arithmetic	arithmetic paper source
+paper/main.out	arithmetic	arithmetic paper source
+paper/main.tex	arithmetic	arithmetic paper source
+paper/references.bib	arithmetic	arithmetic paper source
+paper/sections/abstract.tex	arithmetic	arithmetic paper source
+paper/sections/appendix.tex	arithmetic	arithmetic paper source
+paper/sections/background.tex	arithmetic	arithmetic paper source
+paper/sections/discussion.tex	arithmetic	arithmetic paper source
+paper/sections/introduction.tex	arithmetic	arithmetic paper source
+paper/sections/methods.tex	arithmetic	arithmetic paper source
+paper/sections/results.tex	arithmetic	arithmetic paper source
+paper_compass/Mohan_Kanaka_2024901009_RSAI_KMS_Team_Semantic_Dial_Project.pdf	compass	compass paper source
+paper_compass/README.md	compass	compass paper source
+paper_compass/alpha_sweep_explained.aux	compass	compass paper source
+paper_compass/alpha_sweep_explained.out	compass	compass paper source
+paper_compass/alpha_sweep_explained.pdf	compass	compass paper source
+paper_compass/alpha_sweep_explained.tex	compass	compass paper source
+paper_compass/beyond_components_onepager.aux	compass	compass paper source
+paper_compass/beyond_components_onepager.out	compass	compass paper source
+paper_compass/beyond_components_onepager.pdf	compass	compass paper source
+paper_compass/beyond_components_onepager.tex	compass	compass paper source
+paper_compass/compass_experiment_suite.md	compass	compass paper source
+paper_compass/domain_heads.aux	compass	compass paper source
+paper_compass/domain_heads.pdf	compass	compass paper source
+paper_compass/domain_heads.tex	compass	compass paper source
+paper_compass/fancyhdr.sty	compass	compass paper source
+paper_compass/figures/fig_alpha_sweep.pdf	compass	compass paper source
+paper_compass/figures/fig_downstream_summary.pdf	compass	compass paper source
+paper_compass/figures/fig_head_specificity.pdf	compass	compass paper source
+paper_compass/figures/fig_scan_concentration.pdf	compass	compass paper source
+paper_compass/figures/fig_stereoset_domains.pdf	compass	compass paper source
+paper_compass/figures/gemma_curves.png	compass	compass paper source
+paper_compass/figures/gemma_linearity.png	compass	compass paper source
+paper_compass/figures/gemma_polar.png	compass	compass paper source
+paper_compass/figures/gpt2_curves.png	compass	compass paper source
+paper_compass/figures/gpt2_linearity.png	compass	compass paper source
+paper_compass/figures/gpt2_polar.png	compass	compass paper source
+paper_compass/figures/gpt2_scan_heatmap.png	compass	compass paper source
+paper_compass/figures/llama32_3b_scan_gender_heatmap.png	compass	compass paper source
+paper_compass/figures/phi3_curves.png	compass	compass paper source
+paper_compass/figures/phi3_entity_curves.png	compass	compass paper source
+paper_compass/figures/phi3_entity_linearity.png	compass	compass paper source
+paper_compass/figures/phi3_entity_polar.png	compass	compass paper source
+paper_compass/figures/phi3_l28h1_causal_curves.png	compass	compass paper source
+paper_compass/figures/phi3_l28h1_causal_linearity.png	compass	compass paper source
+paper_compass/figures/phi3_l28h1_causal_polar.png	compass	compass paper source
+paper_compass/figures/phi3_linearity.png	compass	compass paper source
+paper_compass/figures/phi3_polar.png	compass	compass paper source
+paper_compass/figures/phi3_temporal_curves.png	compass	compass paper source
+paper_compass/figures/phi3_temporal_linearity.png	compass	compass paper source
+paper_compass/figures/phi3_temporal_polar.png	compass	compass paper source
+paper_compass/iclr2026_conference.bst	compass	compass paper source
+paper_compass/iclr2026_conference.sty	compass	compass paper source
+paper_compass/main.aux	compass	compass paper source
+paper_compass/main.bbl	compass	compass paper source
+paper_compass/main.blg	compass	compass paper source
+paper_compass/main.out	compass	compass paper source
+paper_compass/main.pdf	compass	compass paper source
+paper_compass/main.tex	compass	compass paper source
+paper_compass/math_commands.tex	compass	compass paper source
+paper_compass/model_architecture_comparison.aux	compass	compass paper source
+paper_compass/model_architecture_comparison.out	compass	compass paper source
+paper_compass/model_architecture_comparison.pdf	compass	compass paper source
+paper_compass/model_architecture_comparison.tex	compass	compass paper source
+paper_compass/natbib.sty	compass	compass paper source
+paper_compass/poster.zip	compass	compass paper source
+paper_compass/references.bib	compass	compass paper source
+paper_compass/sections/abstract.tex	compass	compass paper source
+paper_compass/sections/appendix.tex	compass	compass paper source
+paper_compass/sections/background.tex	compass	compass paper source
+paper_compass/sections/discussion.tex	compass	compass paper source
+paper_compass/sections/downstream.tex	compass	compass paper source
+paper_compass/sections/introduction.tex	compass	compass paper source
+paper_compass/sections/methods.tex	compass	compass paper source
+paper_compass/sections/results.tex	compass	compass paper source
+paper_compass/speaker_notes.aux	compass	compass paper source
+paper_compass/speaker_notes.out	compass	compass paper source
+paper_compass/speaker_notes.pdf	compass	compass paper source
+paper_compass/speaker_notes.tex	compass	compass paper source
+paper_compass/story.aux	compass	compass paper source
+paper_compass/story.out	compass	compass paper source
+paper_compass/story.pdf	compass	compass paper source
+paper_compass/story.tex	compass	compass paper source
+paper_compass_acl/acl.sty	compass	compass paper source
+paper_compass_acl/acl_natbib.bst	compass	compass paper source
+paper_compass_acl/custom.bib	compass	compass paper source
+paper_compass_acl/figures/fig_alpha_sweep.pdf	compass	compass paper source
+paper_compass_acl/figures/fig_downstream_summary.pdf	compass	compass paper source
+paper_compass_acl/figures/fig_head_specificity.pdf	compass	compass paper source
+paper_compass_acl/figures/fig_scan_concentration.pdf	compass	compass paper source
+paper_compass_acl/figures/fig_stereoset_domains.pdf	compass	compass paper source
+paper_compass_acl/figures/gemma_curves.png	compass	compass paper source
+paper_compass_acl/figures/gemma_linearity.png	compass	compass paper source
+paper_compass_acl/figures/gemma_polar.png	compass	compass paper source
+paper_compass_acl/figures/gemma_scan_gender_heatmap.png	compass	compass paper source
+paper_compass_acl/figures/gpt2_curves.png	compass	compass paper source
+paper_compass_acl/figures/gpt2_linearity.png	compass	compass paper source
+paper_compass_acl/figures/gpt2_polar.png	compass	compass paper source
+paper_compass_acl/figures/gpt2_scan_heatmap.png	compass	compass paper source
+paper_compass_acl/figures/head_domain_heatmap_gemma.png	compass	compass paper source
+paper_compass_acl/figures/head_domain_heatmap_gpt2.png	compass	compass paper source
+paper_compass_acl/figures/head_domain_heatmap_llama.png	compass	compass paper source
+paper_compass_acl/figures/head_domain_heatmap_phi3.png	compass	compass paper source
+paper_compass_acl/figures/llama32_3b_compass_causal_curves.png	compass	compass paper source
+paper_compass_acl/figures/llama32_3b_compass_causal_linearity.png	compass	compass paper source
+paper_compass_acl/figures/llama32_3b_compass_causal_polar.png	compass	compass paper source
+paper_compass_acl/figures/llama32_3b_scan_gender_heatmap.png	compass	compass paper source
+paper_compass_acl/figures/phi3_curves.png	compass	compass paper source
+paper_compass_acl/figures/phi3_entity_curves.png	compass	compass paper source
+paper_compass_acl/figures/phi3_entity_linearity.png	compass	compass paper source
+paper_compass_acl/figures/phi3_entity_polar.png	compass	compass paper source
+paper_compass_acl/figures/phi3_l28h1_causal_curves.png	compass	compass paper source
+paper_compass_acl/figures/phi3_l28h1_causal_linearity.png	compass	compass paper source
+paper_compass_acl/figures/phi3_l28h1_causal_polar.png	compass	compass paper source
+paper_compass_acl/figures/phi3_linearity.png	compass	compass paper source
+paper_compass_acl/figures/phi3_polar.png	compass	compass paper source
+paper_compass_acl/figures/phi3_scan_gender_heatmap.png	compass	compass paper source
+paper_compass_acl/figures/phi3_temporal_curves.png	compass	compass paper source
+paper_compass_acl/figures/phi3_temporal_linearity.png	compass	compass paper source
+paper_compass_acl/figures/phi3_temporal_polar.png	compass	compass paper source
+paper_compass_acl/main.aux	compass	compass paper source
+paper_compass_acl/main.bbl	compass	compass paper source
+paper_compass_acl/main.blg	compass	compass paper source
+paper_compass_acl/main.out	compass	compass paper source
+paper_compass_acl/main.pdf	compass	compass paper source
+paper_compass_acl/main.tex	compass	compass paper source
+paper_compass_acl/sections/abstract.tex	compass	compass paper source
+paper_compass_acl/sections/appendix.tex	compass	compass paper source
+paper_compass_acl/sections/background.tex	compass	compass paper source
+paper_compass_acl/sections/discussion.tex	compass	compass paper source
+paper_compass_acl/sections/downstream.tex	compass	compass paper source
+paper_compass_acl/sections/ethics.tex	compass	compass paper source
+paper_compass_acl/sections/introduction.tex	compass	compass paper source
+paper_compass_acl/sections/limitations.tex	compass	compass paper source
+paper_compass_acl/sections/method.tex	compass	compass paper source
+paper_compass_acl/sections/results.tex	compass	compass paper source
+requirements.txt	both	shared dependency set
+run_ablation.py	arithmetic	wrapper for experiments/ablation/intervention.py, which ships to arithmetic
+run_geometric_pipeline.py	arithmetic	geometric arithmetic pipeline driver
+run_train.py	both	wrapper for experiments/train.py
+setup.py	both	package install script
+src/__init__.py	both	package root
+src/analysis/__init__.py	arithmetic	package root for Fourier analysis
+src/analysis/experiment_history.py	arithmetic	logs arithmetic experiment history
+src/analysis/fourier_discovery.py	arithmetic	ARITHMETIC_CIRCUIT_PLAN references
+src/analysis/fourier_plots.py	arithmetic	plots for fourier_discovery
+src/data/__init__.py	both	package root
+src/data/arithmetic_dataset.py	arithmetic	ARITHMETIC_CIRCUIT_PLAN references
+src/data/data_loader.py	both	GP/IOI/GT loaders; compass Stage-1 + arithmetic training
+src/models/__init__.py	both	package root
+src/models/evaluate_model.py	arithmetic	arithmetic model evaluation
+src/models/helix_circuit_discovery.py	arithmetic	helix circuit discovery
+src/models/masked_transformer_circuit.py	both	Stage-1 mask learning; cited by both cookbooks
+src/models/offline_svd_scanner.py	arithmetic	OV-SVD helix scanner
+src/models/online_svd_scanner.py	arithmetic	ARITHMETIC_CIRCUIT_PLAN references
+src/run_helix_analysis.py	arithmetic	helix analysis driver
+src/utils/__init__.py	both	package root
+src/utils/constants.py	both	project-wide constants
+src/utils/model_registry.py	arithmetic	used by tests/test_model_registry.py
+src/utils/utils.py	both	model loading, column helpers, seeding
+src/utils/visualization.py	both	mask heatmaps / training curves
+svd_logs/ioi_circuit_discovery_20260405_171552/metrics_history.json	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/mask_values_data.json	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/ov_average_mask_values.pdf	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/ov_average_mask_values.png	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/progression_full_sparsity.pdf	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/progression_full_sparsity.png	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/progression_relative_sparsity.pdf	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/progression_relative_sparsity.png	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/progression_train_accuracy.pdf	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/progression_train_accuracy.png	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/progression_train_kl.pdf	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/progression_train_kl.png	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/progression_train_loss.pdf	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/progression_train_loss.png	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/qk_average_mask_values.pdf	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/qk_average_mask_values.png	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/test_full_sparsity_vs_test_exact_match.pdf	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/test_full_sparsity_vs_test_exact_match.png	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/test_full_sparsity_vs_test_kl.pdf	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/test_full_sparsity_vs_test_kl.png	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/test_full_sparsity_vs_test_logit_diff.pdf	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/test_full_sparsity_vs_test_logit_diff.png	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/test_full_sparsity_vs_test_masked_acc.pdf	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/test_full_sparsity_vs_test_masked_acc.png	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/test_relative_sparsity_vs_test_exact_match.pdf	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/test_relative_sparsity_vs_test_exact_match.png	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/test_relative_sparsity_vs_test_kl.pdf	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/test_relative_sparsity_vs_test_kl.png	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/test_relative_sparsity_vs_test_logit_diff.pdf	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/test_relative_sparsity_vs_test_logit_diff.png	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/test_relative_sparsity_vs_test_masked_acc.pdf	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/test_relative_sparsity_vs_test_masked_acc.png	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/train_full_sparsity_vs_train_accuracy.pdf	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/train_full_sparsity_vs_train_accuracy.png	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/train_full_sparsity_vs_train_kl.pdf	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/train_full_sparsity_vs_train_kl.png	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/train_full_sparsity_vs_train_loss.pdf	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/train_full_sparsity_vs_train_loss.png	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/train_sparsity_vs_train_accuracy.pdf	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/train_sparsity_vs_train_accuracy.png	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/train_sparsity_vs_train_kl.pdf	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/train_sparsity_vs_train_kl.png	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/train_sparsity_vs_train_loss.pdf	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/train_sparsity_vs_train_loss.png	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/run_summary.json	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/sparsity_progression.json	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/visualizations/mlp_masked_singular_values.pdf	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/visualizations/mlp_masked_singular_values.png	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/visualizations/mlp_masks.pdf	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/visualizations/mlp_masks.png	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/visualizations/ov_masked_singular_values.pdf	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/visualizations/ov_masked_singular_values.png	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/visualizations/ov_masks.pdf	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/visualizations/ov_masks.png	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/visualizations/qk_masked_singular_values.pdf	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/visualizations/qk_masked_singular_values.png	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/visualizations/qk_masks.pdf	drop	Beyond Components IOI circuit-discovery run
+svd_logs/ioi_circuit_discovery_20260405_171552/visualizations/qk_masks.png	drop	Beyond Components IOI circuit-discovery run
+svd_stats_ov_helix_circuit.md	arithmetic	OV helix SVD stats
+tests/__init__.py	arithmetic	all tests target arithmetic/Fourier code
+tests/test_arithmetic_circuit_discovery.py	arithmetic	all tests target arithmetic/Fourier code
+tests/test_arithmetic_dataset.py	arithmetic	all tests target arithmetic/Fourier code
+tests/test_arithmetic_pipeline.py	arithmetic	all tests target arithmetic/Fourier code
+tests/test_arithmetic_training_integration.py	arithmetic	all tests target arithmetic/Fourier code
+tests/test_causal_validation.py	arithmetic	all tests target arithmetic/Fourier code
+tests/test_circuit_analysis.py	arithmetic	all tests target arithmetic/Fourier code
+tests/test_fourier_circuits.py	arithmetic	all tests target arithmetic/Fourier code
+tests/test_fourier_discovery.py	arithmetic	all tests target arithmetic/Fourier code
+tests/test_model_registry.py	arithmetic	all tests target arithmetic/Fourier code
