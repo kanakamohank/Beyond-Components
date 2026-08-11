@@ -74,3 +74,4 @@ src/data/data_main/train_100k_ioi.csv
 checkpoints/
 *.pt
 *.pth
+experiments_end_to_end.executed.ipynb
