@@ -125,7 +125,7 @@ from collections import Counter
 
 rows = [l.split("\t") for l in (ROOT / "SPLIT_MANIFEST.tsv").read_text().splitlines()[1:]]
 counts = Counter(b for _, b, _ in rows)
-NEW_FILES = {"README.md", "SPLIT_NOTES.md", "SPLIT_MANIFEST.tsv"}
+NEW_FILES = {"README.md", "SPLIT_NOTES.md", "SPLIT_MANIFEST.tsv", "notebooks/*.ipynb"}
 
 print(f"\n{'=' * 64}\ngit-tracking survival\n{'=' * 64}")
 for repo, bucket in ((ROOT / "semantic-compass", "compass"),

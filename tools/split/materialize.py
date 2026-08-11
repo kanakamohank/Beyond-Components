@@ -23,6 +23,13 @@ for d in TARGETS.values():
         shutil.rmtree(d)
 
 counts = {k: 0 for k in TARGETS}
+unclassified = [p for p, b, _ in rows if b not in {"compass", "arithmetic", "both", "drop"}]
+if unclassified:
+    raise SystemExit(
+        f"{len(unclassified)} file(s) unclassified; re-run build_manifest.py and add a rule:\n  "
+        + "\n  ".join(unclassified[:10])
+    )
+
 for path, bucket, _reason in rows:
     if bucket == "drop":
         continue

@@ -9,7 +9,12 @@ import ast, json, re, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-REPOS = [ROOT / "semantic-compass", ROOT / "arithmetic-circuit-discovery"]
+NOTEBOOKS = {
+    ROOT / "semantic-compass" / "notebooks" / "semantic_compass_experiments.ipynb":
+        ROOT / "semantic-compass",
+    ROOT / "arithmetic-circuit-discovery" / "notebooks" / "arithmetic_circuit_experiments.ipynb":
+        ROOT / "arithmetic-circuit-discovery",
+}
 CMD = re.compile(r"python (experiments/[\w/]+\.py|investigate_helix_usage_validated\.py)"
                  r"((?:[^\n#']|\\\n)*)")
 
@@ -31,34 +36,36 @@ def declared_flags(path: Path):
 
 
 def main() -> int:
-    nb = json.loads((ROOT / "experiments_end_to_end.ipynb").read_text())
-    src = "\n".join("".join(c["source"]) for c in nb["cells"])
-
-    problems = []
-    scripts = set()
-    for script, tail in set(CMD.findall(src)):
-        scripts.add(script)
-        repo = next((r for r in REPOS if (r / script).exists()), None)
-        if repo is None:
-            problems.append(f"MISSING SCRIPT   {script}")
+    problems, n_scripts = [], 0
+    for nb_path, repo in NOTEBOOKS.items():
+        if not nb_path.exists():
+            problems.append(f"MISSING NOTEBOOK {nb_path.relative_to(ROOT)}")
             continue
-        flags = declared_flags(repo / script)
-        if flags is None:
-            continue  # no argparse: nothing to check
-        unknown = sorted(set(re.findall(r"(--[\w-]+)", tail)) - flags)
-        if unknown:
-            problems.append(
-                f"UNKNOWN FLAG(S)  {repo.name}/{script}: {unknown}\n"
-                f"                 script declares: {sorted(flags)}"
-            )
+        nb = json.loads(nb_path.read_text())
+        src = "\n".join("".join(c["source"]) for c in nb["cells"])
+        for script, tail in set(CMD.findall(src)):
+            n_scripts += 1
+            # a notebook may only reference scripts in ITS OWN repo
+            if not (repo / script).exists():
+                problems.append(f"NOT IN {repo.name}: {script}  (referenced by {nb_path.name})")
+                continue
+            flags = declared_flags(repo / script)
+            if flags is None:
+                continue
+            unknown = sorted(set(re.findall(r"(--[\w-]+)", tail)) - flags)
+            if unknown:
+                problems.append(
+                    f"UNKNOWN FLAG(S)  {repo.name}/{script}: {unknown}\n"
+                    f"                 script declares: {sorted(flags)}"
+                )
 
-    print(f"notebook references {len(scripts)} scripts")
+    print(f"checked {len(NOTEBOOKS)} notebooks, {n_scripts} command references")
     if problems:
         print(f"\n{len(problems)} problem(s):\n")
         for p in problems:
             print("  " + p)
         return 1
-    print("all scripts exist and all flags validate against argparse")
+    print("every script exists in its own repo and every flag validates against argparse")
     return 0
 
 

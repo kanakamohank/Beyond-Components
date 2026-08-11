@@ -12,7 +12,7 @@ ROOT = Path("/home/user/Beyond-Components")
 
 # Products of the split itself are not inputs to it: skip the two generated
 # trees, the split tooling, and the manifest, so re-running stays idempotent.
-GENERATED = ("semantic-compass/", "arithmetic-circuit-discovery/", "tools/split/")
+GENERATED = ("semantic-compass/", "arithmetic-circuit-discovery/", "tools/")
 
 files = [
     f

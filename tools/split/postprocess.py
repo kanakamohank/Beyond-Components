@@ -160,4 +160,9 @@ edit(
     "ARITHMETIC_CIRCUIT_PLAN.md: scope note on the retired mask-learning route",
 )
 
+# 7. Per-paper experiment notebooks. Generated here rather than shipped as
+#    manifest rows because materialize.py rmtree's the target directories.
+import subprocess as _sp
+_sp.run([__import__("sys").executable, str(ROOT / "tools" / "build_notebooks.py")], check=True)
+
 print("done")
