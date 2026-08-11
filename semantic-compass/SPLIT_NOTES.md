@@ -2,8 +2,8 @@
 
 This repository was split out of the combined `Beyond-Components` research
 repository, which held three papers in one tree. This repository contains the
-**Semantic Compasses** paper and its implementation: 593 compass-specific
-files plus 43 shared files.
+**Semantic Compasses** paper and its implementation: 592 compass-specific
+files plus 29 shared files.
 
 The arithmetic half lives in `arithmetic-circuit-discovery`.
 
@@ -37,25 +37,21 @@ split repositories, so any classification can be audited from either side.
 
 | Bucket | Files | Meaning |
 |---|---:|---|
-| `compass` | 593 | Semantic Compasses only |
-| `arithmetic` | 173 | Fourier digit arithmetic only |
-| `both` | 43 | Genuinely shared — duplicated into both repositories |
-| `drop` | 64 | Beyond Components only — in neither repository |
+| `compass` | 592 | Semantic Compasses only |
+| `arithmetic` | 164 | Fourier digit arithmetic only |
+| `both` | 29 | Genuinely shared — duplicated into both repositories |
+| `drop` | 88 | Beyond Components only — in neither repository |
 | **total** | **873** | |
 
 Each repository additionally carries three files that exist in neither source
 nor manifest: its own `README.md`, this `SPLIT_NOTES.md`, and a copy of
-`SPLIT_MANIFEST.tsv`. So `git ls-files | wc -l` gives 639 for
-`semantic-compass` and 219 for `arithmetic-circuit-discovery`.
+`SPLIT_MANIFEST.tsv`. So `git ls-files | wc -l` gives 624 for
+`semantic-compass` and 196 for `arithmetic-circuit-discovery`.
 
 ### What is shared, and why
 
-43 files are duplicated rather than assigned to one side:
+29 files are duplicated rather than assigned to one side:
 
-- `src/models/masked_transformer_circuit.py`, `src/utils/`,
-  `src/data/data_loader.py`, `experiments/train.py`, `configs/gp_config.yaml` —
-  Stage-1 learnable-mask direction discovery. Inherited from Beyond Components;
-  both papers build on it.
 - `investigate_helix_usage_validated.py` — genuinely dual-purpose. It is the
   compass paper's nine-test falsification battery *and* the cross-task helix
   investigation used on the arithmetic side.
@@ -68,32 +64,71 @@ nor manifest: its own `README.md`, this `SPLIT_NOTES.md`, and a copy of
 - `knowledge/` literature summaries that both papers cite, plus
   `requirements.txt`, `setup.py`, `.gitignore`, `CLAUDE.md`.
 
-### What was left behind
+### What was left behind: Beyond Components
 
-64 files belong to **Beyond Components: Singular Vector-Based
+88 files belong to **Beyond Components: Singular Vector-Based
 Interpretability of Transformer Circuits** ([arXiv:2511.20273](https://arxiv.org/abs/2511.20273))
-and appear in neither repository: the original `README.md`, the Greater-Than
-task config, `svd_logs/` (a 42 MB IOI circuit-discovery run),
-`images/intervention.png`, `experiments/analyze_checkpoint.py`, and the
-sigma-amplification scripts (`experiments/ablation/comprehensive_sigma_test.py`,
-`experiments/evaluation/generate_sigma_table.py`).
+and appear in neither repository. Neither paper's pipeline uses that code:
 
-Some Beyond-Components-lineage files *were* kept, because an in-scope cookbook
-depends on them: the Stage-1 files listed above, plus
-`experiments/ablation/intervention.py` and `run_ablation.py` (arithmetic),
-`experiments/evaluation/comprehensive_metrics_table.py` (compass), and
-`configs/ioi_config.yaml` (named in the arithmetic plan's Phase 0).
+- **The compass** derives every direction at run time from the model's own
+  weights — `torch.linalg.svd(W_V @ W_O)` in `compass_causal_sweep.py:71-74`.
+  No learned masks, no training step, no checkpoints. An AST scan of the
+  compass tree found exactly one file importing Beyond Components code
+  (`experiments/train.py`, itself the Beyond Components trainer) plus two
+  `__init__.py` shims re-exporting it. Nothing in the pipeline reached them.
+- **The arithmetic paper's method** is the 15 numbered steps in Phases A-F of
+  `ARITHMETIC_CIRCUIT_PLAN.md`. None of them import Beyond Components code. It
+  survived only in a superseded branch that the plan itself files under
+  `SUPPLEMENTARY SCRIPTS — Not in Main Pipeline`, where S5 is titled
+  "(Old Pipeline)".
+
+So the dependency was dropped rather than carried or vendored. That also
+retires the CC BY-SA attribution obligation that shipping the source would
+carry — an obligation no README wording can remove, which is why the code had
+to go rather than the prose.
+
+Removed: the Beyond Components model (`masked_transformer_circuit.py`) and its
+helpers (`src/utils/{utils,visualization,constants}.py`, the IOI/GP/GT
+`data_loader.py`), its entry points (`experiments/train.py`, `run_train.py`,
+`experiments/ablation/intervention.py`, `run_ablation.py`,
+`experiments/evaluation/comprehensive_metrics_table.py`, which reads
+`checkpoints/{ioi,gt,gp}`), its task configs (`gp_config.yaml`,
+`ioi_config.yaml`, `gt_config.yaml`), the superseded arithmetic branch
+(`analyze_fourier_circuits.py`, `analyze_svd_directions.py`,
+`analyze_sum_encoding.py`, `causal_validation.py`, `run_fourier_discovery.py`,
+`helix_circuit_discovery.py`, `run_helix_analysis.py`), the original
+Beyond Components `README.md`, `svd_logs/` (a 42 MB IOI run),
+`images/intervention.png`, and the sigma-amplification scripts.
+
+Three test files and one test class went with them —
+`test_fourier_circuits.py` (22), `test_causal_validation.py` (17),
+`test_arithmetic_training_integration.py` (36) and `TestUtilsIntegration` (4),
+totalling 79. The suite goes 224 -> 145, and every removed test was asserting
+against removed Beyond Components code.
+
+All of it remains recoverable from the source repository's history.
 
 ### Divergence from the source files
 
-Copies are byte-identical to the source repository with exactly two exceptions,
-both applied by `tools/split/postprocess.py` so they stay auditable:
+Copies are byte-identical to the source repository except for the following,
+all applied by `tools/split/postprocess.py` so they stay auditable:
 
 - `semantic-compass/COMPASS_COOKBOOK.md` — the opening paragraph described the
   combined two-paper repo; it now points at the separate arithmetic repository.
 - `arithmetic-circuit-discovery/.gitignore` — the inherited `*_results/*` rule
   would have silently swallowed `fourier_results/` (tracked in the source repo)
   and the paper's figure directory. Both are now explicitly un-ignored.
+- `arithmetic-circuit-discovery/src/{,data/,utils/}__init__.py` — trimmed to
+  stop re-exporting the removed Beyond Components modules.
+- `arithmetic-circuit-discovery/tests/test_arithmetic_dataset.py` —
+  `TestUtilsIntegration` removed; it asserted against the removed column registry.
+- `arithmetic-circuit-discovery/ARITHMETIC_CIRCUIT_PLAN.md` — a scope note marks
+  the retired mask-learning sections as historical.
+- `semantic-compass/COMPASS_COOKBOOK.md` — the Stage-1 citation note replaced
+  with how directions are actually computed, and two rows dropped from the
+  paper-to-code table that pointed at removed scripts *and* at paper labels
+  (`tab:directions`, `tab:bc_full`, `app:bc_results`) present in neither
+  compass paper.
 
 Every other path is preserved verbatim, so path references inside the cookbooks
 and the LaTeX sources still resolve. Two caveats: references to generated
@@ -114,8 +149,9 @@ the split.
 | Intra-repo `src.*` / `experiments.*` imports | all resolve, no split-induced breakage |
 | Files survive `git add` | no manifest file swallowed by an inherited ignore rule |
 | Every referenced figure is committed or has a producer script | passes in both |
+| No Beyond Components import survives | zero matches in either repository |
 | LaTeX `\includegraphics` | compass 45/48 resolve; the 3 misses are `example-image-*` placeholders from the ACL template |
-| Test suite (arithmetic repo only) | 224 passed — identical to the same run on the source repository |
+| Test suite (arithmetic repo only) | 145 passed (224 minus the 79 Beyond Components tests removed with their code) |
 
 `semantic-compass` has no `tests/` directory: the source repo's entire test
 suite targets arithmetic and Fourier code, as `COMPASS_COOKBOOK.md` itself

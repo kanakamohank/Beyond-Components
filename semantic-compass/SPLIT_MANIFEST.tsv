@@ -22,22 +22,22 @@ configs/arithmetic_gemma2b_circuit_constrained.yaml	arithmetic	arithmetic traini
 configs/arithmetic_phi3_circuit_constrained.yaml	arithmetic	arithmetic training config
 configs/arithmetic_phi3_config.yaml	arithmetic	arithmetic training config
 configs/arithmetic_pythia_config.yaml	arithmetic	arithmetic training config
-configs/gp_config.yaml	both	Gender Pronoun; compass Stage-1 + shared training
+configs/gp_config.yaml	drop	Beyond Components: BC Gender Pronoun task config
 configs/gt_config.yaml	drop	Beyond Components Greater-Than task
-configs/ioi_config.yaml	arithmetic	BC-lineage but named in ARITHMETIC_CIRCUIT_PLAN.md Phase 0
+configs/ioi_config.yaml	drop	Beyond Components: BC IOI task config
 data/README.md	both	shared dataset loader / docs
-data/__init__.py	both	shared dataset loader / docs
-data/data_loader.py	both	shared dataset loader / docs
+data/__init__.py	drop	Beyond Components: re-exports the BC loaders
+data/data_loader.py	drop	Beyond Components: BC IOI/GP/GT loaders (duplicate)
 data/winogender_occupations_stats.tsv	compass	Winogender occupation stats
 experiment_history.jsonl	arithmetic	written by src/analysis/experiment_history.py
 experiment_layernorm_depth.py	arithmetic	layernorm-depth arithmetic experiment
 experiments/ablation/comprehensive_sigma_test.py	drop	Beyond Components sigma amplification
-experiments/ablation/intervention.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
+experiments/ablation/intervention.py	drop	Beyond Components: BC activation-swap intervention
 experiments/analyze_checkpoint.py	drop	Beyond Components mask-checkpoint inspector
-experiments/analyze_fourier_circuits.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
+experiments/analyze_fourier_circuits.py	drop	Beyond Components: old pipeline (plan S5), builds on the BC model
 experiments/analyze_head_domain_routing.py	compass	named in COMPASS_COOKBOOK.md
-experiments/analyze_sum_encoding.py	arithmetic	docstring: Phase 4c SVD sum-encoding (grokking theory)
-experiments/analyze_svd_directions.py	arithmetic	docstring: Phase 3 Fourier analysis of SVD directions
+experiments/analyze_sum_encoding.py	drop	Beyond Components: old pipeline Phase 4c, builds on the BC model
+experiments/analyze_svd_directions.py	drop	Beyond Components: old pipeline Phase 3, builds on the BC model
 experiments/arithmetic_bus_validation.py	arithmetic	dense-patch validation of the arithmetic bus
 experiments/arithmetic_circuit_discovery.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
 experiments/arithmetic_circuit_scan.py	arithmetic	v2 of the arithmetic layer scan
@@ -47,7 +47,7 @@ experiments/bootstrap_ci.py	compass	named in COMPASS_COOKBOOK.md
 experiments/calibrate_per_domain_alpha.py	compass	named in COMPASS_COOKBOOK.md
 experiments/carry_stratification.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
 experiments/causal_digit_probing.py	arithmetic	docstring: causal probing of ones-digit encoding
-experiments/causal_validation.py	arithmetic	docstring: Phase 5 direction-level scalar swapping
+experiments/causal_validation.py	drop	Beyond Components: old pipeline Phase 5, builds on the BC model
 experiments/circuit_analysis.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
 experiments/circuit_synthesis.md	arithmetic	multi-model arithmetic circuit synthesis notes
 experiments/compass_causal_sweep.py	compass	named in COMPASS_COOKBOOK.md
@@ -62,7 +62,7 @@ experiments/debias_method_comparison.py	compass	named in COMPASS_COOKBOOK.md
 experiments/diagnose_rotation_sign.py	arithmetic	docstring: Fourier phase-rotation sign diagnosis
 experiments/diagnose_unembed_direct.py	arithmetic	docstring: direct-answer unembed patching diagnosis
 experiments/eigenvector_dft.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
-experiments/evaluation/comprehensive_metrics_table.py	compass	named in COMPASS_COOKBOOK.md
+experiments/evaluation/comprehensive_metrics_table.py	drop	Beyond Components: BC results table (reads checkpoints/{ioi,gt,gp})
 experiments/evaluation/generate_sigma_table.py	drop	Beyond Components sigma results table
 experiments/fisher_patching.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
 experiments/fisher_phase_shift.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
@@ -95,7 +95,7 @@ experiments/plot_eigenvector_dft.py	arithmetic	plots for eigenvector_dft.py (Ste
 experiments/probe_steering_v2.py	arithmetic	named in ARITHMETIC_CIRCUIT_PLAN.md
 experiments/qualitative_spotcheck.py	compass	named in COMPASS_COOKBOOK.md
 experiments/run_calib_queue.sh	compass	named in COMPASS_COOKBOOK.md
-experiments/run_fourier_discovery.py	arithmetic	docstring: Phase 1 Fourier discovery on arithmetic prompts
+experiments/run_fourier_discovery.py	drop	Beyond Components: old pipeline Phase 1, builds on the BC model
 experiments/run_gemma_parity.sh	compass	named in COMPASS_COOKBOOK.md
 experiments/run_llama_snr_sweep.sh	compass	named in COMPASS_COOKBOOK.md
 experiments/run_llama_suite.sh	compass	named in COMPASS_COOKBOOK.md
@@ -127,7 +127,7 @@ experiments/stereoset_probe_scan_llama.py	compass	named in COMPASS_COOKBOOK.md
 experiments/stereoset_probe_scan_phi3.py	compass	named in COMPASS_COOKBOOK.md
 experiments/storage_steering_scatter.py	compass	docstring: storage-vs-steering for the 5 compass heads
 experiments/target_ss50_sweep.py	compass	named in COMPASS_COOKBOOK.md
-experiments/train.py	both	shared Stage-1 trainer; named in ARITHMETIC_CIRCUIT_PLAN.md, used by compass Stage-1
+experiments/train.py	drop	Beyond Components: BC mask-learning trainer
 experiments/truthfulqa_eval.py	compass	named in COMPASS_COOKBOOK.md
 experiments/validate_unembed_fix.py	arithmetic	validates compute_unembed_basis_direct_answer
 experiments/visualize_toolkit_results.py	arithmetic	plots for mathematical_toolkit.py
@@ -779,30 +779,30 @@ paper_compass_acl/sections/limitations.tex	compass	compass paper source
 paper_compass_acl/sections/method.tex	compass	compass paper source
 paper_compass_acl/sections/results.tex	compass	compass paper source
 requirements.txt	both	shared dependency set
-run_ablation.py	arithmetic	wrapper for experiments/ablation/intervention.py, which ships to arithmetic
+run_ablation.py	drop	Beyond Components: wrapper for the BC intervention
 run_geometric_pipeline.py	arithmetic	geometric arithmetic pipeline driver
-run_train.py	both	wrapper for experiments/train.py
+run_train.py	drop	Beyond Components: wrapper for the BC trainer
 setup.py	both	package install script
-src/__init__.py	both	package root
+src/__init__.py	arithmetic	package root; compass keeps no src/ tree after the BC removal
 src/analysis/__init__.py	arithmetic	package root for Fourier analysis
 src/analysis/experiment_history.py	arithmetic	logs arithmetic experiment history
 src/analysis/fourier_discovery.py	arithmetic	ARITHMETIC_CIRCUIT_PLAN references
 src/analysis/fourier_plots.py	arithmetic	plots for fourier_discovery
-src/data/__init__.py	both	package root
+src/data/__init__.py	arithmetic	package root; compass keeps no src/ tree after the BC removal
 src/data/arithmetic_dataset.py	arithmetic	ARITHMETIC_CIRCUIT_PLAN references
-src/data/data_loader.py	both	GP/IOI/GT loaders; compass Stage-1 + arithmetic training
-src/models/__init__.py	both	package root
+src/data/data_loader.py	drop	Beyond Components: BC IOI/GP/GT loaders
+src/models/__init__.py	arithmetic	package root; compass keeps no src/ tree after the BC removal
 src/models/evaluate_model.py	arithmetic	arithmetic model evaluation
-src/models/helix_circuit_discovery.py	arithmetic	helix circuit discovery
-src/models/masked_transformer_circuit.py	both	Stage-1 mask learning; cited by both cookbooks
+src/models/helix_circuit_discovery.py	drop	Beyond Components: old pipeline, builds on the BC model
+src/models/masked_transformer_circuit.py	drop	Beyond Components: BC core model (learnable masks over singular directions)
 src/models/offline_svd_scanner.py	arithmetic	OV-SVD helix scanner
 src/models/online_svd_scanner.py	arithmetic	ARITHMETIC_CIRCUIT_PLAN references
-src/run_helix_analysis.py	arithmetic	helix analysis driver
-src/utils/__init__.py	both	package root
-src/utils/constants.py	both	project-wide constants
+src/run_helix_analysis.py	drop	Beyond Components: driver for the old pipeline
+src/utils/__init__.py	arithmetic	package root; compass keeps no src/ tree after the BC removal
+src/utils/constants.py	drop	Beyond Components: BC constants
 src/utils/model_registry.py	arithmetic	used by tests/test_model_registry.py
-src/utils/utils.py	both	model loading, column helpers, seeding
-src/utils/visualization.py	both	mask heatmaps / training curves
+src/utils/utils.py	drop	Beyond Components: BC data-schema helpers (IOI/GP/GT column names)
+src/utils/visualization.py	drop	Beyond Components: BC mask heatmaps / training curves
 svd_logs/ioi_circuit_discovery_20260405_171552/metrics_history.json	drop	Beyond Components IOI circuit-discovery run
 svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/mask_values_data.json	drop	Beyond Components IOI circuit-discovery run
 svd_logs/ioi_circuit_discovery_20260405_171552/monitoring_plots/ov_average_mask_values.pdf	drop	Beyond Components IOI circuit-discovery run
@@ -866,9 +866,9 @@ tests/__init__.py	arithmetic	all tests target arithmetic/Fourier code
 tests/test_arithmetic_circuit_discovery.py	arithmetic	all tests target arithmetic/Fourier code
 tests/test_arithmetic_dataset.py	arithmetic	all tests target arithmetic/Fourier code
 tests/test_arithmetic_pipeline.py	arithmetic	all tests target arithmetic/Fourier code
-tests/test_arithmetic_training_integration.py	arithmetic	all tests target arithmetic/Fourier code
-tests/test_causal_validation.py	arithmetic	all tests target arithmetic/Fourier code
+tests/test_arithmetic_training_integration.py	drop	Beyond Components: tests the BC training pipeline
+tests/test_causal_validation.py	drop	Beyond Components: tests causal_validation.py
 tests/test_circuit_analysis.py	arithmetic	all tests target arithmetic/Fourier code
-tests/test_fourier_circuits.py	arithmetic	all tests target arithmetic/Fourier code
+tests/test_fourier_circuits.py	drop	Beyond Components: tests analyze_fourier_circuits.py
 tests/test_fourier_discovery.py	arithmetic	all tests target arithmetic/Fourier code
 tests/test_model_registry.py	arithmetic	all tests target arithmetic/Fourier code

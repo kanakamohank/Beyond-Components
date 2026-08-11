@@ -173,4 +173,39 @@ for repo in REPOS:
     else:
         print(f"{repo.name}: every referenced figure is committed or has a producer")
 
+
+# ---- 7. no Beyond Components code survives in either repo ----
+# Neither paper's pipeline uses it; shipping it would also re-incur the
+# CC BY-SA attribution obligation. Assert it stays gone.
+BC_MODULES = re.compile(
+    r"^\s*(?:from|import)\s+.*(?:masked_transformer_circuit"
+    r"|src\.utils\.(?:utils|visualization|constants)"
+    r"|src\.data\.data_loader)",
+    re.M,
+)
+BC_FILES = {
+    "masked_transformer_circuit.py", "train.py", "intervention.py",
+    "gp_config.yaml", "ioi_config.yaml", "gt_config.yaml",
+    "comprehensive_metrics_table.py",
+}
+print(f"\n{'=' * 64}\nBeyond Components removal\n{'=' * 64}")
+for repo in REPOS:
+    bad_imports = [
+        str(f.relative_to(repo)) for f in repo.rglob("*.py")
+        if BC_MODULES.search(f.read_text(errors="replace"))
+    ]
+    bad_files = [
+        str(f.relative_to(repo)) for f in repo.rglob("*")
+        if f.is_file() and f.name in BC_FILES
+    ]
+    if bad_imports or bad_files:
+        failed = True
+        print(f"{repo.name}: Beyond Components RESIDUE")
+        for x in bad_imports:
+            print(f"   IMPORT {x}")
+        for x in bad_files:
+            print(f"   FILE   {x}")
+    else:
+        print(f"{repo.name}: no Beyond Components imports or files")
+
 sys.exit(1 if failed else 0)

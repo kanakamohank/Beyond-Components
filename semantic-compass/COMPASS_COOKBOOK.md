@@ -15,12 +15,12 @@ The contract:
 - Known repo-state inconsistencies are documented in §10. They are
   flagged at the point of use.
 
-> **One-line citation note.** Stage-1 of the compass paper (learnable-mask
-> direction discovery on the Gender Pronoun task) is method and
-> infrastructure from **Beyond Components (Ahmad et al.)**. The compass
-> paper extends that line of work; it does not claim direction discovery
-> as its own. See `paper_compass/sections/results.tex` §3.1 (currently
-> needs a citation pass — flagged for the next paper revision).
+> **Note on direction discovery.** Compass planes are computed directly
+> from each head's OV matrix at run time (`torch.linalg.svd(W_V @ W_O)`,
+> see §2.1) — there is no training step and no learned mask. Earlier
+> revisions of this cookbook described a Stage-1 mask-learning stage
+> adapted from Beyond Components (Ahmad et al.); that code is not part of
+> this repository and no script here depends on it.
 
 ---
 
@@ -777,8 +777,6 @@ script that produces it and the artifact it lands in.
 
 | Paper label | Section | Producer script | Artifact |
 |---|---|---|---|
-| `tab:directions` | results §3.1 | `src/models/masked_transformer_circuit.py` (Beyond Components method) | (Stage-1 mask training output) |
-| `tab:bc_full` | appendix `app:bc_results` | Stage-1 sweep + `experiments/evaluation/comprehensive_metrics_table.py` | (Stage-1 GP eval) |
 | `tab:fem_calib` | appendix `app:fem_calib` | Stage-2 sweep on L10H9 fem-pole | (Stage-2 calibration log) |
 | `tab:gender` | results §`sec:gender` | `experiments/compass_causal_sweep.py` ×6 | `<prefix>.txt` per row |
 | `tab:nonpronoun` | results §`sec:other` | `compass_causal_sweep.py` (temporal, entity) | `phi3_{temporal,entity}_compass_causal.txt` |

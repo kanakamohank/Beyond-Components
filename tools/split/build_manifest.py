@@ -70,24 +70,64 @@ EXP_EXTRA = {
     "experiments/evaluation/generate_sigma_table.py": ("drop", "Beyond Components sigma results table"),
 }
 
+
+# --------------------------------------------------------- Beyond Components
+# Neither paper's pipeline uses this code. The compass derives its directions
+# with torch.linalg.svd on W_OV directly; the arithmetic paper's 15 main steps
+# import none of it. It survived only in scripts the arithmetic plan itself
+# files under "SUPPLEMENTARY SCRIPTS -- Not in Main Pipeline" (S5 is titled
+# "Old Pipeline"). Dropping it breaks the dependency on Beyond Components
+# entirely -- which also retires the CC BY-SA attribution obligation that
+# shipping its source would carry.
+BEYOND_COMPONENTS = {
+    # the BC model and its helpers
+    "src/models/masked_transformer_circuit.py": "BC core model (learnable masks over singular directions)",
+    "src/utils/utils.py": "BC data-schema helpers (IOI/GP/GT column names)",
+    "src/utils/visualization.py": "BC mask heatmaps / training curves",
+    "src/utils/constants.py": "BC constants",
+    "src/data/data_loader.py": "BC IOI/GP/GT loaders",
+    "data/data_loader.py": "BC IOI/GP/GT loaders (duplicate)",
+    "data/__init__.py": "re-exports the BC loaders",
+    # the BC training / intervention entry points
+    "experiments/train.py": "BC mask-learning trainer",
+    "run_train.py": "wrapper for the BC trainer",
+    "experiments/ablation/intervention.py": "BC activation-swap intervention",
+    "run_ablation.py": "wrapper for the BC intervention",
+    "experiments/evaluation/comprehensive_metrics_table.py": "BC results table (reads checkpoints/{ioi,gt,gp})",
+    "configs/gp_config.yaml": "BC Gender Pronoun task config",
+    "configs/ioi_config.yaml": "BC IOI task config",
+    # the superseded arithmetic branch built on the BC model
+    "experiments/analyze_fourier_circuits.py": "old pipeline (plan S5), builds on the BC model",
+    "experiments/analyze_svd_directions.py": "old pipeline Phase 3, builds on the BC model",
+    "experiments/analyze_sum_encoding.py": "old pipeline Phase 4c, builds on the BC model",
+    "experiments/causal_validation.py": "old pipeline Phase 5, builds on the BC model",
+    "experiments/run_fourier_discovery.py": "old pipeline Phase 1, builds on the BC model",
+    "src/models/helix_circuit_discovery.py": "old pipeline, builds on the BC model",
+    "src/run_helix_analysis.py": "driver for the old pipeline",
+    # tests of the above
+    "tests/test_fourier_circuits.py": "tests analyze_fourier_circuits.py",
+    "tests/test_causal_validation.py": "tests causal_validation.py",
+    "tests/test_arithmetic_training_integration.py": "tests the BC training pipeline",
+}
+
 # ------------------------------------------------------------------ src/ ruling
 SRC = {
-    "src/__init__.py": ("both", "package root"),
+    "src/__init__.py": ("arithmetic", "package root; compass keeps no src/ tree after the BC removal"),
     "src/analysis/__init__.py": ("arithmetic", "package root for Fourier analysis"),
     "src/analysis/experiment_history.py": ("arithmetic", "logs arithmetic experiment history"),
     "src/analysis/fourier_discovery.py": ("arithmetic", "ARITHMETIC_CIRCUIT_PLAN references"),
     "src/analysis/fourier_plots.py": ("arithmetic", "plots for fourier_discovery"),
-    "src/data/__init__.py": ("both", "package root"),
+    "src/data/__init__.py": ("arithmetic", "package root; compass keeps no src/ tree after the BC removal"),
     "src/data/arithmetic_dataset.py": ("arithmetic", "ARITHMETIC_CIRCUIT_PLAN references"),
     "src/data/data_loader.py": ("both", "GP/IOI/GT loaders; compass Stage-1 + arithmetic training"),
-    "src/models/__init__.py": ("both", "package root"),
+    "src/models/__init__.py": ("arithmetic", "package root; compass keeps no src/ tree after the BC removal"),
     "src/models/evaluate_model.py": ("arithmetic", "arithmetic model evaluation"),
     "src/models/helix_circuit_discovery.py": ("arithmetic", "helix circuit discovery"),
     "src/models/masked_transformer_circuit.py": ("both", "Stage-1 mask learning; cited by both cookbooks"),
     "src/models/offline_svd_scanner.py": ("arithmetic", "OV-SVD helix scanner"),
     "src/models/online_svd_scanner.py": ("arithmetic", "ARITHMETIC_CIRCUIT_PLAN references"),
     "src/run_helix_analysis.py": ("arithmetic", "helix analysis driver"),
-    "src/utils/__init__.py": ("both", "package root"),
+    "src/utils/__init__.py": ("arithmetic", "package root; compass keeps no src/ tree after the BC removal"),
     "src/utils/constants.py": ("both", "project-wide constants"),
     "src/utils/model_registry.py": ("arithmetic", "used by tests/test_model_registry.py"),
     "src/utils/utils.py": ("both", "model loading, column helpers, seeding"),
@@ -150,6 +190,8 @@ HELIX_SHARED = re.compile(r"_sweep_output|_trace_output")
 
 
 def classify(p: str):
+    if p in BEYOND_COMPONENTS:
+        return ("drop", f"Beyond Components: {BEYOND_COMPONENTS[p]}")
     if p in ROOT_FILES:
         return ROOT_FILES[p]
     if p in CONFIGS:

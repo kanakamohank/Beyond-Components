@@ -77,24 +77,28 @@ semantic-compass/
 ├── investigate_helix_usage_validated.py   # L3 — nine-test falsification battery
 ├── helix_usage_validated/         # all experiment artifacts (logs, plots, CSVs)
 │
-├── src/                           # shared Stage-1 direction-discovery code
-│   ├── models/masked_transformer_circuit.py
-│   ├── data/data_loader.py
-│   └── utils/
-├── configs/gp_config.yaml         # Gender Pronoun config for Stage-1
+├── data/                          # Winogender occupation statistics
 └── requirements.txt
 ```
 
-## On Stage 1 and prior work
+There is no `src/` package and no training step: every compass direction is
+computed directly from the model's weights at run time (see below), so the
+scripts in `experiments/` are self-contained.
 
-Stage-1 direction discovery — learnable masks over singular directions on the
-Gender Pronoun task — is method and infrastructure from **Beyond Components:
-Singular Vector-Based Interpretability of Transformer Circuits**
-(Ahmad, Joshi & Modi; [arXiv:2511.20273](https://arxiv.org/abs/2511.20273)).
-This work extends that line; it does not claim direction discovery as its own
-contribution. The relevant files (`src/models/masked_transformer_circuit.py`,
-`src/utils/`, `experiments/train.py`, `configs/gp_config.yaml`) are carried here
-so the pipeline runs end to end.
+## Where the directions come from
+
+The compass plane for a head `(L, H)` is two singular directions of its OV
+matrix, taken straight from the loaded model:
+
+```python
+W_VO = model.W_V[layer, head] @ model.W_O[layer, head]
+_U, S, Vt = torch.linalg.svd(W_VO, full_matrices=False)
+```
+
+That is the whole of direction discovery — a plain SVD of `W_OV`, no learned
+masks, no training, no checkpoints. Everything downstream is injection along
+`v(θ, α) = α·σ_i·cos(θ)·u_i + α·σ_j·sin(θ)·u_j` at `blocks.{L}.hook_resid_pre`
+and measurement of the resulting logit difference.
 
 ## Provenance
 

@@ -74,9 +74,9 @@ arithmetic-circuit-discovery/
 │   ├── analysis/fourier_discovery.py       # DFT power spectra, Fourier basis
 │   ├── data/arithmetic_dataset.py          # prompt generation
 │   ├── models/{online,offline}_svd_scanner.py
-│   └── models/helix_circuit_discovery.py
+│   └── utils/model_registry.py             # per-model layer/head specs
 │
-├── tests/                         # 224 passing unit tests
+├── tests/                         # unit tests for the pipeline
 ├── configs/arithmetic_*.yaml
 ├── images/                        # helix / FFT / geometry figures across models
 ├── fourier_results/               # recorded Fourier discovery outputs
@@ -102,8 +102,8 @@ pip install pytest
 pytest tests/ --ignore=tests/test_arithmetic_pipeline.py
 ```
 
-224 tests pass. `tests/test_arithmetic_pipeline.py` is excluded because it
-imports `src/models/arithmetic_pipeline.py`, which is absent — see below.
+`tests/test_arithmetic_pipeline.py` is excluded because it imports
+`src/models/arithmetic_pipeline.py`, which was never committed — see below.
 
 ## Known gaps
 
@@ -134,14 +134,19 @@ rendering.
 `.gitignore` has been adjusted so `mathematical_toolkit_results/paper_plots/`
 is trackable once those figures exist.
 
-**2. Seven referenced modules do not exist.** `ARITHMETIC_CIRCUIT_PLAN.md`
+**2. Six referenced modules do not exist.** `ARITHMETIC_CIRCUIT_PLAN.md`
 cites `src/models/arithmetic_pipeline.py`,
 `src/analysis/{circuit_identification,geometric_interpreter,neuron_analyzer}.py`,
-`src/data/arithmetic_data.py`, `src/utils/helix_visualization.py`, and
-`experiments/arithmetic_validation.py`. None were ever committed. Consequently
-`run_geometric_pipeline.py`, `src/run_helix_analysis.py`, and
+`src/data/arithmetic_data.py`, and `experiments/arithmetic_validation.py`. None
+were ever committed, so `run_geometric_pipeline.py` and
 `tests/test_arithmetic_pipeline.py` cannot run. This is unchanged from the
 source repository.
+
+**3. The plan documents a superseded pipeline that is no longer shipped.** The
+sections describing the old mask-learning route — Phases 1-5 and
+`SUPPLEMENTARY SCRIPTS` S5 ("Old Pipeline") — reference scripts that were
+removed with the Beyond Components dependency (see `SPLIT_NOTES.md`). The 15
+main steps in Phases A-F are unaffected and are the paper's actual method.
 
 ## Provenance
 

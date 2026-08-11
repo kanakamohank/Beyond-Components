@@ -1,5 +1,14 @@
 # Arithmetic Circuit Discovery — Execution Pipeline
 
+> **Scope note.** The paper's method is the 15 numbered steps in Phases A-F
+> below; those are complete and supported. This document also retains
+> sections describing an earlier mask-learning route — "What Already
+> Exists", "Phase 0", and `SUPPLEMENTARY SCRIPTS` S5 ("Old Pipeline") —
+> which was built on the Beyond Components `MaskedTransformerCircuit`.
+> That dependency has been removed and those scripts are no longer shipped,
+> so commands in those sections will not run. They are kept as a record of
+> how the work developed. See `SPLIT_NOTES.md`.
+
 ## Overview
 Complete pipeline for discovering and validating the Fourier arithmetic circuit in a new transformer language model. Covers encoding characterization, causal validation, component attribution, computation mechanism verification, and generalization testing.
 
