@@ -1,0 +1,12 @@
+Model: microsoft/Phi-3-mini-4k-instruct
+Ensemble: K=4  alphas=[10.0]
+Ensemble heads:
+   L24H14 SV(0,2) phi=-51.6  slope=0.399  passed=True
+   L28H26 SV(0,1) phi=-157.6  slope=0.560  passed=False
+   L26H24 SV(2,3) phi=+24.0  slope=0.650  passed=True
+   L27H16 SV(0,2) phi=-138.0  slope=0.237  passed=True
+
+cond                    alpha  MC1_acc      n   corr
+----------------------------------------------------
+baseline                 0.00    32.93    817    269
+ensemble_K4             10.00    29.87    817    244

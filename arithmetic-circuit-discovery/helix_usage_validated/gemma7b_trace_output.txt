@@ -1,0 +1,396 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+=================================================================
+VALIDATED HELIX USAGE INVESTIGATION
+=================================================================
+Loading google/gemma-7b...
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00, 70.48it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model google/gemma-7b into HookedTransformer
+  Model loaded: 28L, 16H, d=3072
+  Target: L14 H2, SVD dims (2, 5), resid L21, T=10.0
+  Sanity checks...
+  Sanity OK  (activation shape (1, 6, 3072))
+
+  Running SVD Dim-Pair Sweep + MLP Lens...
+
+=================================================================
+AUTOMATIC SVD DIM-PAIR SWEEP
+Layer 14, Head 2, top-10 dims, 36 angles
+=================================================================
+
+      Pair   σ ratio   %Nums   r(digits)   MaxLogit    Score
+  ────────────────────────────────────────────────────────────
+  ( 0, 1)     1.094    0.0%       0.267       0.79    0.612
+  ( 0, 2)     1.102    0.0%       0.015       0.78    0.108
+  ( 0, 3)     1.107    0.0%       0.516       0.77    1.109
+  ( 0, 4)     1.125    0.0%       0.367       0.79    0.814
+  ( 0, 5)     1.145    0.0%       0.354       0.79    0.786
+  ( 0, 6)     1.156    0.0%       0.424       0.77    0.924
+  ( 0, 7)     1.163    0.0%       0.354       0.78    0.785
+  ( 0, 8)     1.171    0.0%       0.748       0.79    1.575
+  ( 0, 9)     1.173    0.0%       0.390       0.77    0.857
+  ( 1, 2)     1.007    0.0%       0.142       0.27    0.311
+  ( 1, 3)     1.012    0.0%       0.630       0.20    1.279
+  ( 1, 4)     1.028    0.0%       0.480       0.24    0.983
+  ( 1, 5)     1.047    0.0%       0.343       0.24    0.711
+  ( 1, 6)     1.056    0.0%       0.510       0.21    1.042
+  ( 1, 7)     1.063    0.0%       0.353       0.20    0.725
+  ( 1, 8)     1.070    0.0%       0.717       0.23    1.457
+  ( 1, 9)     1.072    0.0%       0.414       0.19    0.848
+  ( 2, 3)     1.005    0.0%       0.425       0.20    0.869
+  ( 2, 4)     1.021    0.0%       0.458       0.23    0.938
+  ( 2, 5)     1.039    0.0%       0.420       0.24    0.863
+  ( 2, 6)     1.049    0.0%       0.415       0.21    0.851
+  ( 2, 7)     1.055    0.0%       0.406       0.19    0.832
+  ( 2, 8)     1.062    0.0%       0.744       0.20    1.509
+  ( 2, 9)     1.064    0.0%       0.414       0.20    0.848
+  ( 3, 4)     1.016    0.0%       0.090       0.16    0.196
+  ( 3, 5)     1.034    0.0%       0.422       0.24    0.868
+  ( 3, 6)     1.044    0.0%       0.222       0.17    0.460
+  ( 3, 7)     1.050    0.0%       0.497       0.14    1.008
+  ( 3, 8)     1.058    0.0%       0.817       0.16    1.650
+  ( 3, 9)     1.059    0.0%       0.366       0.15    0.746
+  ( 4, 5)     1.018    0.0%       0.560       0.22    1.143
+  ( 4, 6)     1.027    0.0%       0.011       0.16    0.039
+  ( 4, 7)     1.033    0.0%       0.454       0.18    0.927
+  ( 4, 8)     1.041    0.0%       0.672       0.22    1.365
+  ( 4, 9)     1.042    0.0%       0.290       0.16    0.596
+  ( 5, 6)     1.009    0.0%       0.495       0.22    1.013
+  ( 5, 7)     1.015    0.0%       0.075       0.23    0.174
+  ( 5, 8)     1.023    0.0%       0.000       0.22    0.023
+  ( 5, 9)     1.024    0.0%       0.610       0.22    1.242
+  ( 6, 7)     1.006    0.0%       0.542       0.16    1.099
+  ( 6, 8)     1.013    0.0%       0.789       0.18    1.595
+  ( 6, 9)     1.015    0.0%       0.335       0.17    0.687
+  ( 7, 8)     1.007    0.0%       0.076       0.17    0.170
+  ( 7, 9)     1.009    0.0%       0.604       0.17    1.226
+  ( 8, 9)     1.002    0.0%       0.651       0.15    1.318
+
+  =================================================================
+  TOP 5 DIM PAIRS BY COMPOSITE SCORE
+  =================================================================
+  #1  dims=(3,8)  score=1.650  %nums=0%  r=0.817  logit=0.16  σ=1.058
+       sample: ['.¹', '.¹', '.---', '.---', ',¹', ',¹']
+  #2  dims=(6,8)  score=1.595  %nums=0%  r=0.789  logit=0.18  σ=1.013
+       sample: ["$_['", "$_['", "$_['", "$_['", "$_['", "$_['"]
+  #3  dims=(0,8)  score=1.575  %nums=0%  r=0.748  logit=0.79  σ=1.171
+       sample: ['<bos>', '<bos>', '<bos>', '<bos>', '<bos>', '<bos>']
+  #4  dims=(2,8)  score=1.509  %nums=0%  r=0.744  logit=0.20  σ=1.062
+       sample: ['palet', 'palet', 'palet', 'palet', 'palet', 'palet']
+  #5  dims=(1,8)  score=1.457  %nums=0%  r=0.717  logit=0.23  σ=1.070
+       sample: ['diabe', 'diabe', 'diabe', 'diabe', 'melat', 'melat']
+
+  Running full projection on best pair (3, 8)...
+
+=================================================================
+SUBSPACE VOCABULARY PROJECTION
+Layer 14, Head 2, SVD dims (3, 8)
+=================================================================
+
+  SANITY CHECKS:
+    Sigma[3] = 0.1434
+    Sigma[8] = 0.1356
+    Ratio = 1.0575  (ideal = 1.0)
+    OK: Balanced singular values for clean rotation
+    W_U shape: (3072, 256000) (d_model=3072, vocab=256000)
+    Untied embeddings detected (cos=0.859)
+    Using W_E for reading lens, W_U for writing lens
+
+  SELF-CONSISTENCY CHECK: Number token ordering
+    READING (U cols):
+      Tokens 0-9 angles: [' +54.3', ' +56.5', ' +57.1', ' +56.2', ' +58.6', ' +55.5', ' +58.5', ' +58.0', ' +56.2', ' +55.3']
+      --> Angle-number correlation: 0.189
+      --> FAIL: No clear ordering (r=0.189)
+      This may indicate the helix encodes something other than digit magnitude
+    WRITING (Vt rows):
+      Tokens 0-9 angles: ['-155.4', '-154.2', '-162.5', '-163.1', '-158.4', '-157.9', '-162.0', '-164.4', '-167.9', '-167.8']
+      --> Angle-number correlation: 0.817
+      --> PARTIAL: Moderate ordering (r=0.817)
+
+    Angle  READING (input) top tokens                     WRITING (output) top tokens
+  ────────────────────────────────────────────────────────────────────────────────────────────────────
+     0.0°  ' apprehen'(+27.9)  ' inappro'(+26.4)  ' encomp'(+25.6)  '.¹'(+0.1)  '.---'(+0.1)  ';'(+0.1)
+    10.0°  ' apprehen'(+36.8)  ' encomp'(+35.1)  ' inappro'(+34.9)  '.¹'(+0.2)  '.---'(+0.1)  ',¹'(+0.1)
+    20.0°  ' apprehen'(+44.5)  ' inconce'(+43.9)  ' encomp'(+43.6)  '.---'(+0.2)  '.¹'(+0.2)  ',¹'(+0.2)
+    30.0°  ' inconce'(+51.8)  ' apprehen'(+51.0)  ' encomp'(+50.8)  '.---'(+0.2)  ',¹'(+0.2)  '.¹'(+0.2)
+    40.0°  ' inconce'(+58.1)  ' encomp'(+56.4)  ' exorbit'(+56.1)  ',¹'(+0.2)  '.---'(+0.2)  '.¹'(+0.2)
+    50.0°  ' inconce'(+62.7)  ' reluct'(+60.3)  ' encomp'(+60.3)  ',¹'(+0.2)  '.---'(+0.2)  '!:)'(+0.2)
+    60.0°  ' inconce'(+65.4)  ' reluct'(+62.8)  ' exorbit'(+62.6)  ',¹'(+0.2)  '.---'(+0.1)  '!:)'(+0.1)
+    70.0°  ' inconce'(+66.0)  ' reluct'(+63.3)  ' exorbit'(+63.1)  ',¹'(+0.1)  '!:)'(+0.1)  ' voetballer'(+0.1)
+    80.0°  ' inconce'(+64.7)  ' emphat'(+62.1)  ' reluct'(+61.9)  ' voetballer'(+0.1)  '!:)'(+0.1)  ',¹'(+0.1)
+    90.0°  ' inconce'(+61.4)  ' emphat'(+59.2)  ' reluct'(+58.7)  ' voetballer'(+0.1)  ' ***!'(+0.1)  'WRENCE'(+0.1)
+   100.0°  ' inconce'(+56.3)  ' emphat'(+54.6)  ' impra'(+53.8)  ' voetballer'(+0.1)  ' exorbit'(+0.1)  ' ***!'(+0.1)
+   110.0°  ' inconce'(+49.4)  ' emphat'(+48.2)  ' shenan'(+48.0)  ' voetballer'(+0.1)  ' exorbit'(+0.1)  ' vagu'(+0.1)
+   120.0°  ' inconce'(+41.0)  ' shenan'(+40.9)  ' emphat'(+40.5)  ' exorbit'(+0.1)  ' supposes'(+0.1)  ' voetballer'(+0.1)
+   130.0°  ' milf'(+33.5)  ' shenan'(+32.6)  ' stockholm'(+31.5)  ' supposes'(+0.1)  ' exorbit'(+0.1)  ' unspeak'(+0.1)
+   140.0°  ' milf'(+25.7)  ' hentai'(+23.9)  ' thut'(+23.4)  ' supposes'(+0.1)  ' unspeak'(+0.1)  ' resurre'(+0.1)
+   150.0°  ' milf'(+17.1)  ' thut'(+16.3)  ' hentai'(+15.7)  ' supposes'(+0.1)  ' unspeak'(+0.1)  ' encourag'(+0.1)
+   160.0°  ' desertcart'(+12.2)  ' الحره'(+12.0)  'AnchorStyles'(+11.1)  ' supposes'(+0.1)  'usleep'(+0.1)  ' unspeak'(+0.1)
+   170.0°  ' desertcart'(+10.9)  ' الحره'(+9.2)  'AnchorStyles'(+8.8)  'usleep'(+0.1)  ' dumbass'(+0.1)  'JoinTable'(+0.1)
+   180.0°  ' desertcart'(+9.2)  'JoinTable'(+6.7)  'AnchorStyles'(+6.3)  'usleep'(+0.1)  ' dumbass'(+0.1)  'JoinTable'(+0.1)
+   190.0°  ' desertcart'(+7.3)  'JoinTable'(+5.6)  'principalColumn'(+4.6)  'usleep'(+0.1)  ' dumbass'(+0.1)  'Fprintf'(+0.1)
+   200.0°  ' desertcart'(+5.1)  'JoinTable'(+4.4)  '<bos>'(+3.1)  'usleep'(+0.1)  ' dumbass'(+0.1)  'isnan'(+0.1)
+   210.0°  '<bos>'(+4.5)  'JoinTable'(+3.0)  ' desertcart'(+2.8)  'usleep'(+0.1)  'isnan'(+0.1)  ' dumbass'(+0.1)
+   220.0°  '<bos>'(+5.8)  'JoinTable'(+1.6)  ' desertcart'(+0.4)  'usleep'(+0.1)  '<bos>'(+0.1)  'bzero'(+0.1)
+   230.0°  '<bos>'(+6.9)  'JoinTable'(+0.1)  'WireFormatLite'(-0.2)  '<bos>'(+0.1)  'digitalWrite'(+0.1)  'bzero'(+0.1)
+   240.0°  '<bos>'(+7.8)  'WireFormatLite'(-0.7)  'WindowConstants'(-0.8)  '<bos>'(+0.1)  '("$.'(+0.1)  'digitalWrite'(+0.1)
+   250.0°  '<bos>'(+8.4)  'WindowConstants'(-0.8)  'WireFormatLite'(-1.2)  '<bos>'(+0.1)  '("$.'(+0.1)  'digitalWrite'(+0.1)
+   260.0°  '<bos>'(+8.8)  'WindowConstants'(-0.9)  'WireFormatLite'(-1.7)  '<bos>'(+0.1)  '("$.'(+0.1)  'MessageTagHelper'(+0.1)
+   270.0°  '<bos>'(+8.9)  'WindowConstants'(-0.9)  'WireFormatLite'(-2.1)  '<bos>'(+0.1)  '__":'(+0.1)  'MessageTagHelper'(+0.1)
+   280.0°  '<bos>'(+8.8)  'WindowConstants'(-0.9)  'maxlength'(-1.8)  '<bos>'(+0.1)  '__":'(+0.1)  'ghijkl'(+0.1)
+   290.0°  '<bos>'(+8.4)  'WindowConstants'(-0.9)  'maxlength'(-1.0)  '<bos>'(+0.1)  'ghijkl'(+0.1)  '__":'(+0.1)
+   300.0°  '<bos>'(+7.7)  'maxlength'(-0.2)  'новниш'(-0.5)  '<bos>'(+0.1)  'ghijkl'(+0.1)  '__":'(+0.1)
+   310.0°  '<bos>'(+6.8)  'writeField'(+1.0)  'новниш'(+0.8)  'ghijkl'(+0.1)  '<bos>'(+0.1)  '__":'(+0.1)
+   320.0°  '<bos>'(+5.7)  'xcd'(+3.0)  'uckoo'(+2.7)      'ghijkl'(+0.1)  'vician'(+0.1)  ' "..\..\..\'(+0.1)
+   330.0°  'uckoo'(+5.6)  '﻿/**'(+5.2)  'xcd'(+5.2)       'vician'(+0.1)  'ghijkl'(+0.1)  ' "..\..\..\'(+0.1)
+   340.0°  '﻿/**'(+9.4)  ' firebaseConfig'(+8.9)  ' actionTypes'(+8.7)  ' "..\..\..\'(+0.1)  'vician'(+0.1)  ';'(+0.1)
+   350.0°  ' apprehen'(+18.2)  ' inappro'(+17.1)  ' unlaw'(+16.8)  '.¹'(+0.1)  ';'(+0.1)  '.---'(+0.1)
+
+  =================================================================
+  ANALYSIS: Checking for structured token progression
+  =================================================================
+
+  READING lens:
+    Top-1 tokens that are numbers: 0/36 (0%)
+    --> No clear number structure (mostly non-numeric tokens)
+    Top-1 unique: ['apprehen', 'inconce', 'milf', 'desertcart', '<bos>', 'uckoo', '\ufeff/**']
+
+  WRITING lens:
+    Top-1 tokens that are numbers: 0/36 (0%)
+    --> No clear number structure (mostly non-numeric tokens)
+    Top-1 unique: ['.¹', '.---', ',¹', 'voetballer', 'exorbit', 'supposes', 'usleep', '<bos>', 'ghijkl', 'vician', '"..\\..\\..\\']
+
+  Plot saved: helix_usage_validated/vocab_projection_L14H2_d3d8.png
+
+  Running MLP lens with best dims (3, 8)...
+
+=================================================================
+MLP TRANSLATION LENS
+OV Head: L14 H2, SVD dims (3, 8)
+MLP Target: Layer 14
+=================================================================
+  Sigma[3] = 0.1434
+  Sigma[8] = 0.1356
+  Ratio = 1.0575
+  Gated MLP: W_gate [3072×24576] + W_in [3072×24576]
+  Total neurons: 49152 (gate: 0–24575, value: 24576–49151)
+
+    Angle  Top Neurons (idx: activation)
+  ────────────────────────────────────────────────────────────────────────────────
+     0.0°  gate:2208(+0.02)  gate:1118(+0.02)  gate:12397(+0.02)  gate:5695(+0.02)  gate:21488(+0.01)
+    10.0°  gate:2208(+0.02)  gate:1118(+0.02)  gate:5695(+0.02)  gate:12397(+0.02)  gate:3066(+0.01)
+    20.0°  gate:2208(+0.02)  gate:1118(+0.02)  gate:5695(+0.02)  gate:12397(+0.02)  gate:3066(+0.01)
+    30.0°  gate:2208(+0.02)  gate:1118(+0.02)  gate:5695(+0.02)  gate:12397(+0.01)  gate:3066(+0.01)
+    40.0°  gate:5695(+0.02)  gate:1118(+0.02)  gate:2208(+0.02)  gate:3066(+0.01)  gate:1736(+0.01)
+    50.0°  gate:5695(+0.01)  gate:1118(+0.01)  gate:2208(+0.01)  gate:1736(+0.01)  gate:3066(+0.01)
+    60.0°  gate:5695(+0.01)  gate:1736(+0.01)  gate:2916(+0.01)  gate:1118(+0.01)  gate:3066(+0.01)
+    70.0°  gate:2916(+0.01)  val:16738(+0.01)  gate:5695(+0.01)  gate:1736(+0.01)  gate:7545(+0.01)
+    80.0°  val:16738(+0.01)  gate:2916(+0.01)  gate:7545(+0.01)  val:23024(+0.01)  val:14466(+0.01)
+    90.0°  val:16738(+0.01)  gate:2916(+0.01)  gate:1041(+0.01)  gate:7545(+0.01)  val:23024(+0.01)
+   100.0°  val:16738(+0.01)  gate:1041(+0.01)  gate:2916(+0.01)  gate:7545(+0.01)  val:18255(+0.01)
+   110.0°  val:16738(+0.01)  gate:1041(+0.01)  gate:16870(+0.01)  gate:7545(+0.01)  gate:2916(+0.01)
+   120.0°  gate:1041(+0.01)  val:16738(+0.01)  gate:16870(+0.01)  gate:6946(+0.01)  gate:11559(+0.01)
+   130.0°  gate:1041(+0.01)  gate:16870(+0.01)  val:16738(+0.01)  gate:6946(+0.01)  gate:11400(+0.01)
+   140.0°  gate:1041(+0.02)  gate:16870(+0.01)  val:21455(+0.01)  val:16738(+0.01)  gate:6946(+0.01)
+   150.0°  gate:16870(+0.02)  gate:1041(+0.01)  val:21455(+0.01)  gate:11400(+0.01)  gate:6946(+0.01)
+   160.0°  val:21455(+0.02)  gate:16870(+0.02)  gate:1041(+0.01)  gate:11400(+0.01)  gate:1808(+0.01)
+   170.0°  val:21455(+0.02)  gate:16870(+0.02)  gate:1808(+0.01)  gate:1041(+0.01)  gate:11400(+0.01)
+   180.0°  val:21455(+0.02)  gate:16870(+0.01)  gate:1808(+0.01)  gate:8532(+0.01)  gate:11400(+0.01)
+   190.0°  val:21455(+0.02)  gate:1808(+0.01)  gate:8532(+0.01)  gate:16870(+0.01)  val:10027(+0.01)
+   200.0°  val:21455(+0.02)  gate:1808(+0.01)  gate:8532(+0.01)  gate:16870(+0.01)  gate:23261(+0.01)
+   210.0°  val:21455(+0.02)  gate:8532(+0.01)  gate:1808(+0.01)  gate:12478(+0.01)  gate:23261(+0.01)
+   220.0°  val:21455(+0.02)  gate:8532(+0.01)  gate:1808(+0.01)  gate:12478(+0.01)  gate:23261(+0.01)
+   230.0°  val:21455(+0.01)  gate:8532(+0.01)  gate:1808(+0.01)  gate:12478(+0.01)  gate:23261(+0.01)
+   240.0°  val:21455(+0.01)  gate:8532(+0.01)  gate:1808(+0.01)  gate:12478(+0.01)  val:20464(+0.01)
+   250.0°  gate:8532(+0.01)  val:21455(+0.01)  val:20464(+0.01)  gate:6281(+0.01)  val:4932(+0.01)
+   260.0°  gate:6281(+0.01)  gate:7172(+0.01)  gate:8532(+0.01)  gate:5048(+0.01)  val:10560(+0.01)
+   270.0°  gate:7172(+0.01)  gate:6281(+0.01)  gate:4068(+0.01)  val:12476(+0.01)  val:23663(+0.01)
+   280.0°  gate:4068(+0.01)  gate:21488(+0.01)  gate:7172(+0.01)  val:24353(+0.01)  val:23663(+0.01)
+   290.0°  gate:21488(+0.01)  gate:4068(+0.01)  gate:2208(+0.01)  val:24353(+0.01)  val:23663(+0.01)
+   300.0°  gate:2208(+0.01)  gate:21488(+0.01)  gate:4068(+0.01)  gate:1118(+0.01)  gate:12397(+0.01)
+   310.0°  gate:2208(+0.02)  gate:21488(+0.01)  gate:1118(+0.01)  gate:12397(+0.01)  gate:4068(+0.01)
+   320.0°  gate:2208(+0.02)  gate:1118(+0.02)  gate:21488(+0.02)  gate:12397(+0.02)  gate:4068(+0.01)
+   330.0°  gate:2208(+0.02)  gate:1118(+0.02)  gate:12397(+0.02)  gate:21488(+0.02)  gate:5695(+0.01)
+   340.0°  gate:2208(+0.02)  gate:1118(+0.02)  gate:12397(+0.02)  gate:21488(+0.02)  gate:5695(+0.01)
+   350.0°  gate:2208(+0.02)  gate:1118(+0.02)  gate:12397(+0.02)  gate:5695(+0.02)  gate:21488(+0.02)
+
+  =================================================================
+  ANALYSIS: Neurons with strongest angular selectivity
+  =================================================================
+
+  Top 20 angle-selective neurons (by activation range):
+    Neuron    Type    Range   Peak°    Min°   Max Act   Min Act
+  ─────────────────────────────────────────────────────────────────
+      2208    gate    0.046   350.0   170.0     0.023    -0.023
+      1118    gate    0.043     0.0   180.0     0.021    -0.021
+     46031   value    0.038   190.0    10.0     0.019    -0.019
+     12397    gate    0.036   350.0   170.0     0.018    -0.018
+      5695    gate    0.036    20.0   200.0     0.018    -0.018
+     21488    gate    0.032   330.0   150.0     0.016    -0.016
+     16870    gate    0.032   160.0   340.0     0.016    -0.016
+      1041    gate    0.030   140.0   320.0     0.015    -0.015
+      1808    gate    0.029   190.0    10.0     0.015    -0.015
+      8532    gate    0.029   200.0    20.0     0.014    -0.014
+     41314   value    0.028   110.0   290.0     0.014    -0.014
+      3066    gate    0.027    20.0   200.0     0.014    -0.014
+     17168    gate    0.026    10.0   190.0     0.013    -0.013
+      4068    gate    0.026   320.0   140.0     0.013    -0.013
+     11400    gate    0.025   160.0   340.0     0.013    -0.013
+     11359    gate    0.025    20.0   200.0     0.013    -0.013
+      1736    gate    0.025    30.0   210.0     0.013    -0.013
+     17300    gate    0.025   350.0   170.0     0.013    -0.013
+      5296    gate    0.025    10.0   190.0     0.012    -0.012
+     34603   value    0.024   180.0     0.0     0.012    -0.012
+
+  --> DIVERSE PEAK ANGLES detected among top neurons
+     Peaks at: ['350°', '0°', '190°', '350°', '20°', '330°', '160°', '140°', '190°', '200°']
+     This suggests the circle IS a geometric dial
+     with different neurons tuned to different angles
+
+  Activation range stats:
+    Top-10 mean range: 0.0352
+    Median range:      0.0030
+    Selectivity ratio: 11.9x
+
+  MLP lens plot saved: helix_usage_validated/mlp_lens_L14H2_d3d8_mlp14.png
+
+  Running MLP lens on next layer (15)...
+
+=================================================================
+MLP TRANSLATION LENS
+OV Head: L14 H2, SVD dims (3, 8)
+MLP Target: Layer 15
+=================================================================
+  Sigma[3] = 0.1434
+  Sigma[8] = 0.1356
+  Ratio = 1.0575
+  Gated MLP: W_gate [3072×24576] + W_in [3072×24576]
+  Total neurons: 49152 (gate: 0–24575, value: 24576–49151)
+
+    Angle  Top Neurons (idx: activation)
+  ────────────────────────────────────────────────────────────────────────────────
+     0.0°  gate:10257(+0.01)  gate:10568(+0.01)  gate:5046(+0.01)  val:13252(+0.01)  gate:14268(+0.01)
+    10.0°  gate:10257(+0.01)  gate:10568(+0.01)  gate:5046(+0.01)  gate:18790(+0.01)  val:13252(+0.01)
+    20.0°  gate:10568(+0.01)  gate:10257(+0.01)  gate:5046(+0.01)  gate:18790(+0.01)  gate:19562(+0.01)
+    30.0°  gate:10568(+0.01)  gate:19562(+0.01)  gate:5046(+0.01)  gate:18790(+0.01)  gate:2268(+0.01)
+    40.0°  gate:10568(+0.01)  gate:19562(+0.01)  gate:11670(+0.01)  gate:4772(+0.01)  gate:18790(+0.01)
+    50.0°  gate:19562(+0.01)  gate:10568(+0.01)  gate:11670(+0.01)  gate:1078(+0.01)  val:20167(+0.01)
+    60.0°  gate:7951(+0.01)  gate:1078(+0.01)  gate:19562(+0.01)  gate:24549(+0.01)  val:20167(+0.01)
+    70.0°  gate:7951(+0.01)  gate:1078(+0.01)  gate:24549(+0.01)  gate:5328(+0.01)  gate:3927(+0.01)
+    80.0°  gate:7951(+0.01)  gate:5328(+0.01)  gate:1078(+0.01)  gate:3927(+0.01)  gate:24549(+0.01)
+    90.0°  gate:7951(+0.01)  gate:5328(+0.01)  gate:3927(+0.01)  gate:24549(+0.01)  gate:1078(+0.01)
+   100.0°  gate:5328(+0.01)  gate:7951(+0.01)  gate:3927(+0.01)  val:17502(+0.01)  gate:24549(+0.01)
+   110.0°  gate:5328(+0.01)  gate:7951(+0.01)  gate:3927(+0.01)  val:17502(+0.01)  gate:7779(+0.01)
+   120.0°  gate:5328(+0.01)  gate:7951(+0.01)  gate:3927(+0.01)  val:17502(+0.01)  val:4961(+0.01)
+   130.0°  gate:5328(+0.01)  gate:7951(+0.01)  gate:3927(+0.01)  val:4961(+0.01)  val:17502(+0.01)
+   140.0°  gate:5328(+0.01)  val:4961(+0.01)  gate:12879(+0.01)  gate:3927(+0.01)  gate:7951(+0.01)
+   150.0°  val:4961(+0.01)  gate:12879(+0.01)  gate:5328(+0.01)  gate:11859(+0.01)  gate:23758(+0.01)
+   160.0°  val:4961(+0.01)  gate:12879(+0.01)  gate:23758(+0.01)  gate:11859(+0.01)  gate:5458(+0.01)
+   170.0°  gate:12879(+0.01)  val:4961(+0.01)  gate:23758(+0.01)  gate:11859(+0.01)  gate:22701(+0.01)
+   180.0°  gate:12879(+0.01)  gate:23758(+0.01)  val:4961(+0.01)  gate:22701(+0.01)  gate:11859(+0.01)
+   190.0°  gate:23758(+0.01)  gate:12879(+0.01)  val:4961(+0.01)  gate:22701(+0.01)  gate:11859(+0.01)
+   200.0°  gate:23758(+0.01)  gate:12879(+0.01)  gate:22701(+0.01)  val:2128(+0.01)  val:4961(+0.01)
+   210.0°  gate:23758(+0.01)  gate:22701(+0.01)  gate:12879(+0.01)  val:2128(+0.01)  val:14496(+0.01)
+   220.0°  gate:23758(+0.01)  gate:22701(+0.01)  val:2128(+0.01)  val:14496(+0.01)  gate:12879(+0.01)
+   230.0°  gate:23758(+0.01)  gate:22701(+0.01)  val:14496(+0.01)  val:2128(+0.01)  val:6692(+0.01)
+   240.0°  val:14496(+0.01)  gate:23758(+0.01)  gate:22701(+0.01)  val:2128(+0.01)  gate:6813(+0.01)
+   250.0°  val:14496(+0.01)  gate:15839(+0.01)  gate:6813(+0.01)  gate:1809(+0.01)  gate:10424(+0.01)
+   260.0°  gate:15839(+0.01)  gate:6813(+0.01)  gate:725(+0.01)  gate:22892(+0.01)  gate:1809(+0.01)
+   270.0°  gate:22892(+0.01)  gate:15839(+0.01)  gate:725(+0.01)  gate:14819(+0.01)  gate:20931(+0.01)
+   280.0°  gate:22892(+0.01)  gate:15839(+0.01)  gate:10257(+0.01)  gate:725(+0.01)  gate:20931(+0.01)
+   290.0°  gate:22892(+0.01)  gate:10257(+0.01)  gate:15839(+0.01)  val:23425(+0.01)  gate:725(+0.01)
+   300.0°  gate:10257(+0.01)  gate:22892(+0.01)  val:23425(+0.01)  gate:8761(+0.01)  gate:735(+0.01)
+   310.0°  gate:10257(+0.01)  gate:22892(+0.01)  gate:8761(+0.01)  gate:735(+0.01)  val:23425(+0.01)
+   320.0°  gate:10257(+0.02)  gate:22892(+0.01)  gate:8761(+0.01)  gate:735(+0.01)  val:13252(+0.01)
+   330.0°  gate:10257(+0.02)  gate:22892(+0.01)  gate:8761(+0.01)  val:13252(+0.01)  gate:5046(+0.01)
+   340.0°  gate:10257(+0.02)  gate:10568(+0.01)  gate:5046(+0.01)  val:13252(+0.01)  gate:22892(+0.01)
+   350.0°  gate:10257(+0.02)  gate:10568(+0.01)  gate:5046(+0.01)  val:13252(+0.01)  val:9882(+0.01)
+
+  =================================================================
+  ANALYSIS: Neurons with strongest angular selectivity
+  =================================================================
+
+  Top 20 angle-selective neurons (by activation range):
+    Neuron    Type    Range   Peak°    Min°   Max Act   Min Act
+  ─────────────────────────────────────────────────────────────────
+     10257    gate    0.032   340.0   160.0     0.016    -0.016
+      5328    gate    0.028   120.0   300.0     0.014    -0.014
+     23758    gate    0.028   190.0    10.0     0.014    -0.014
+     12879    gate    0.028   180.0     0.0     0.014    -0.014
+     29537   value    0.027   170.0   350.0     0.014    -0.014
+      7951    gate    0.026   100.0   280.0     0.013    -0.013
+     10568    gate    0.026    10.0   190.0     0.013    -0.013
+     22701    gate    0.025   190.0    10.0     0.013    -0.013
+     11859    gate    0.025   180.0     0.0     0.012    -0.012
+     22892    gate    0.025   310.0   130.0     0.012    -0.012
+      5046    gate    0.024     0.0   180.0     0.012    -0.012
+     26704   value    0.024   200.0    20.0     0.012    -0.012
+      3927    gate    0.023   120.0   300.0     0.012    -0.012
+     37828   value    0.023   350.0   170.0     0.011    -0.011
+      5458    gate    0.022   160.0   340.0     0.011    -0.011
+     34458   value    0.022   350.0   170.0     0.011    -0.011
+     18790    gate    0.022    10.0   190.0     0.011    -0.011
+      8761    gate    0.022   330.0   150.0     0.011    -0.011
+     14268    gate    0.021     0.0   180.0     0.011    -0.011
+      2678    gate    0.021   350.0   170.0     0.011    -0.011
+
+  --> DIVERSE PEAK ANGLES detected among top neurons
+     Peaks at: ['340°', '120°', '190°', '180°', '170°', '100°', '10°', '190°', '180°', '310°']
+     This suggests the circle IS a geometric dial
+     with different neurons tuned to different angles
+
+  Activation range stats:
+    Top-10 mean range: 0.0270
+    Median range:      0.0030
+    Selectivity ratio: 8.9x
+
+  MLP lens plot saved: helix_usage_validated/mlp_lens_L14H2_d3d8_mlp15.png
+
+  Running forward trace with sweep dims (3, 8)...
+
+======================================================================
+MLP NEURON FORWARD TRACE: W_out → W_U → Vocabulary
+OV Head: L14 H2, SVD dims (3, 8)
+MLP Target: Layer 14
+======================================================================
+  Gated MLP: W_gate [3072×24576] + W_in [3072×24576]
+
+  [SANITY CHECKS]
+    W_out shape: (24576, 3072) (Expected: [d_mlp, d_model])
+    W_U shape:   (3072, 256000) (Expected: [d_model, d_vocab])
+    -> Dimension match confirmed. Matrix multiplication is safe.
+
+  Neuron       |  Peak° | Top Output Tokens (W_out @ W_U)
+  --------------------------------------------------------------------------------
+  gate:2208    |   350° | 'enerbahçe'(+0.1), 'enerbah'(+0.1), 'liğini'(+0.1), 'latego'(+0.1), ' igenom'(+0.1), 'inguém'(+0.1)
+  gate:1118    |     0° | '<bos>'(+0.2), ' bds'(+0.2), ' kask'(+0.2), ' idr'(+0.2), ' Somal'(+0.1), ' Wikip'(+0.1)
+  val:21455    |   190° | ' dises'(+0.3), ' dispen'(+0.3), ' emphat'(+0.3), ' increa'(+0.3), ' abnorm'(+0.3), ' embra'(+0.3)
+  gate:12397   |   350° | '<bos>'(+0.5), 'ScopeManager'(+0.1), 'Personendaten'(+0.1), 'WebElementEntity'(+0.1), 'makeConstraints'(+0.1), 'hyrchwyd'(+0.1)
+  gate:5695    |    20° | ' dises'(+0.2), ' pessi'(+0.2), ' intermin'(+0.2), ' solidar'(+0.2), ' fonder'(+0.2), ' melat'(+0.2)
+  gate:21488   |   330° | ' unwarran'(+0.2), ' fufficient'(+0.2), ' Även'(+0.2), ' Ukuran'(+0.2), ' thut'(+0.2), ' ftill'(+0.2)
+  gate:16870   |   160° | ' abstrak'(+0.1), ' Thier'(+0.1), ' silikon'(+0.1), ' moza'(+0.1), ' spion'(+0.1), ' karton'(+0.1)
+  gate:1041    |   140° | ' indik'(+0.1), ' simbol'(+0.1), ' plafon'(+0.1), ' tâ'(+0.1), ' abstrak'(+0.1), ' sapi'(+0.1)
+  gate:1808    |   190° | ' dises'(+0.2), ' miniatur'(+0.2), ' suspic'(+0.2), ' abnorm'(+0.2), ' cyr'(+0.2), ' exorbit'(+0.2)
+  gate:8532    |   200° | 'lück'(+0.1), 'Читати'(+0.1), 'npos'(+0.1), '//-----'(+0.1), '//----'(+0.1), ' userManager'(+0.1)
+  val:16738    |   110° | ' moza'(+0.3), ' plafon'(+0.3), ' fré'(+0.3), ' palet'(+0.3), ' multicolore'(+0.2), ' ananas'(+0.2)
+  gate:3066    |    20° | '<bos>'(+0.2), ' quitted'(+0.1), ' endeavouring'(+0.1), ' endeavoured'(+0.1), ' miseries'(+0.1), 'apatalk'(+0.1)
+  gate:17168   |    10° | ' panasonic'(+0.1), ' intersper'(+0.1), ' oreo'(+0.1), ' shenan'(+0.1), ' arthur'(+0.1), ' Jusqu'(+0.1)
+  gate:4068    |   320° | '<bos>'(+0.2), ' Dě'(+0.1), ' Wię'(+0.1), ' Gdy'(+0.1), ' Gábor'(+0.1), ' Bardzo'(+0.1)
+  gate:11400   |   160° | ' magis'(+0.1), ' rebus'(+0.1), ' quæ'(+0.1), ' furt'(+0.1), ' fons'(+0.1), ' intit'(+0.1)
+  gate:11359   |    20° | 'WebElementEntity'(+0.1), ' fta'(+0.1), ' ftu'(+0.1), ' Abbé'(+0.1), ' desir'(+0.1), ' milf'(+0.1)
+  gate:1736    |    30° | ' affor'(+0.2), ' scrat'(+0.2), ' impra'(+0.2), ' suscep'(+0.2), ' reluct'(+0.2), ' guarante'(+0.2)
+  gate:17300   |   350° | ' viewWillAppear'(+0.1), 'CompoundButton'(+0.1), 'ulaski'(+0.1), '万美元'(+0.1), 'Források'(+0.1), 'WithMany'(+0.1)
+  gate:5296    |    10° | 'glDisable'(+0.1), 'glMatrixMode'(+0.1), 'glPushMatrix'(+0.1), '()?;'(+0.1), 'glTranslatef'(+0.1), ' translateY'(+0.1)
+  val:10027    |   180° | ' ProtoMessage'(+0.1), ' disambiguazione'(+0.1), 'MigrationBuilder'(+0.1), '<bos>'(+0.1), ' الرياضيه'(+0.1), 'LayoutStyle'(+0.1)
+
+  =================================================================
+  SUMMARY
+  =================================================================
+  Neurons traced: 20
+  Neurons with number tokens in top-6: 0/20 (0%)
+  --> NO number tokens found in neuron outputs
+      The MLP neurons may encode intermediate representations,
+      not direct vocabulary predictions
+
+  Investigation completed successfully.

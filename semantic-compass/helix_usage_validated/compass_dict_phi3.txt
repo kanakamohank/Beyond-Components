@@ -1,0 +1,136 @@
+Model: microsoft/Phi-3-mini-4k-instruct
+
+=== L28 H1 ===
+  decoded K=8/3072 axes  cum_var@K=0.281  (target=0.9, min=4, max=8)
+  SV0  sigma=13.670  cum_var=0.087
+    +v : his | his | himself | lui | him | him | he | His | его | ánico | seines | seinem | ático | seine | sein
+    -v : her | she | hers | herself | she | elle | She | ella | ela | her | She | Her | lei | она | Her
+  SV1  sigma=10.036  cum_var=0.134
+    +v : his | him | himself | his | him | lui | he | ihm | ihn | seinem | seines | seinen | seiner | seine | sein
+    -v : Their | their | loro | leurs | themselves | Its | onymes | they | leur | anja | ils | they | chsel | They | atica
+  SV2  sigma=9.273  cum_var=0.174
+    +v : our | ourselves | Our | our | notre | nous | ours | OUR | we | 我 | us | amos | 우 | We | мы
+    -v : my | my | mys | My | My | myself | MY | MY | me | MyClass | mine | Mys | mine | I | leurs
+  SV3  sigma=7.613  cum_var=0.201
+    +v : your | Your | yourself | yours | your | Your | selves | ва | typen | gericht | moz | egin | votre | må | 你
+    -v : my | my | myself | mys | My | My | MY | our | MY | ourselves | mine | 我 | notre | MyClass | our
+  SV4  sigma=7.332  cum_var=0.226
+    +v : Mr | Mr | Mrs | Monsieur | Dr | Dr | Prof | Professor | Miss | MR | Madame | MR | dr | Miss | dr
+    -v : iten | ible | Menu | quet | liches | succeed | mouth | pn | iken | ík | ulsion | egy | ply | Sep | då
+  SV5  sigma=7.061  cum_var=0.249
+    +v : their | Their | themselves | loro | leur | leurs | ihre | их | ihrer | ihrem | ihr | ihren | ih | they | they
+    -v : Mr | Mr | yourself | ones | your | my | myself | Mrs | oret | penas | your | Your | komm | dress | engo
+  SV6  sigma=6.006  cum_var=0.266
+    +v : Dr | Dr | dr | dr | Doctor | DR | drum | doctor | drums | DR | Professor | Prof | drink | anya | i
+    -v : your | your | Your | Your | yourself | votre | yours | selves | 你 | you | vous | you | ва | You | we
+  SV7  sigma=5.811  cum_var=0.281
+    +v : Dr | Dr | dr | dr | your | your | Your | Your | yourself | Doctor | DR | votre | doctor | 你 | Professor
+    -v : Mr | Mr | Mrs | mines | osen | мож | agt | ella | ^{- | jih | owy | � | (: | master | owan
+
+=== L27 H16 ===
+  decoded K=8/3072 axes  cum_var@K=0.273  (target=0.9, min=4, max=8)
+  SV0  sigma=11.207  cum_var=0.059
+    +v : him | lui | his | him | ihm | his | ihn | himself | he | Him | он | seines | ему | его | seinem
+    -v : they | they | They | They | Their | their | she | them | she | ella | шла | loro | elles | elle | ils
+  SV1  sigma=10.268  cum_var=0.108
+    +v : they | they | They | They | their | Their | loro | ihnen | them | leur | ils | их | leurs | они | Ils
+    -v : she | hers | she | her | ella | herself | She | ela | elle | She | you | она | lei | you | her
+  SV2  sigma=9.822  cum_var=0.153
+    +v : you | you | your | You | You | your | Your | yourself | vous | 你 | Your | yours | my | votre | myself
+    -v : she | she | hers | ella | her | She | elle | ela | She | herself | lei | она | him | ihr | her
+  SV3  sigma=8.667  cum_var=0.189
+    +v : you | you | You | You | yours | your | vous | your | Your | 你 | Your | yourself | votre | vous | thee
+    -v : me | my | us | myself | mine | my | mys | I | moi | 我 | we | mí | mine | mich | me
+  SV4  sigma=7.423  cum_var=0.214
+    +v : us | ourselves | we | our | nous | 我 | we | him | them | notre | We | him | our | мы | himself
+    -v : Its | its | its | it | It | It | ts | itself | it | suoi | 其 | suo | sua | seu | шло
+  SV5  sigma=7.227  cum_var=0.239
+    +v : ourselves | us | we | our | nous | Our | We | amos | we | We | notre | Us | emos | мы | our
+    -v : me | myself | my | I | mys | mine | my | mine | I | moi | ich | My | mich | My | я
+  SV6  sigma=6.424  cum_var=0.258
+    +v : ioni | arod | POS | endif | getElement | Wasser | Prof | ->_ | eren | Chris | ång | Thompson | erek | Geoff | Professor
+    -v : us | you | our | you | yours | nous | 我 | me | we | vous | its | your | your | Its | notre
+  SV7  sigma=5.583  cum_var=0.273
+    +v : him | me | you | us | you | ihm | lui | ihn | You | him | vous | thee | my | You | myself
+    -v : walt | oss | getMessage | utt | burgh | ğ | uropa | riz | tö | arp | lach | ovan | lette | elin | wi
+
+=== L24 H10 ===
+  decoded K=8/3072 axes  cum_var@K=0.360  (target=0.9, min=4, max=8)
+  SV0  sigma=9.415  cum_var=0.100
+    +v : their | they | Their | loro | they | They | They | leur | leurs | them | их | themselves | ihnen | ils | ihre
+    -v : Its | its | him | itself | suoi | its | його | jego | lui | ihm | его | suo | it | jeho | ihn
+  SV1  sigma=7.703  cum_var=0.167
+    +v : its | Its | its | itself | Their | their | it | loro | шло | sua | seu | they | suoi | seus | 其
+    -v : his | him | himself | his | ihn | him | he | 他 | ourselves | His | сен | sein | yourself | ствовал | lui
+  SV2  sigma=6.936  cum_var=0.222
+    +v : she | she | elle | шла | ella | ela | her | She | She | которой | iada | ńska | cala | her | érica
+    -v : him | his | his | lui | him | himself | ihm | ihn | he | его | seines | 他 | seine | seiner | seinem
+  SV3  sigma=6.598  cum_var=0.271
+    +v : illé | Your | órico | ático | ljen | inha | utat | uesto | clam | atif | которого | ĉ | ское | lês | your
+    -v : she | hers | her | she | herself | ella | She | elle | ela | She | her | lei | она | её | ihr
+  SV4  sigma=4.819  cum_var=0.297
+    +v : company | � | country | Company | haar | >[ | Company | company | Received | kra | au | '}[ | compagnie | }> | provin
+    -v : yours | your | your | yourself | 你 | suas | votre | sua | its | you | Your | suoi | elles | seus | lete
+  SV5  sigma=4.610  cum_var=0.321
+    +v : your | dessen | yours | Your | Your | your | hers | respective | she | votre | her | deren | you | yourself | vous
+    -v : my | myself | my | mys | olg | UG | ems | atre | своих | alth | idia | своего | tb | nth | ény
+  SV6  sigma=4.365  cum_var=0.343
+    +v : my | our | ourselves | my | Our | myself | notre | mys | ვ | 我 | our | engo | mine | ḏ | nous
+    -v : your | your | Your | Your | yours | yourself | votre | you | 你 | you | vous | You | You | ва | vous
+  SV7  sigma=3.935  cum_var=0.360
+    +v : my | them | ones | myself | my | mys | ones | its | Its | ell | lles | My | your | ellos | yourself
+    -v : together | ope | uset | andid | roe | us | ferrer | anu | ogether | ause | ood | oe | ović | ose | teen
+
+=== L26 H22 ===
+  decoded K=8/3072 axes  cum_var@K=0.259  (target=0.9, min=4, max=8)
+  SV0  sigma=9.434  cum_var=0.067
+    +v : 该 | dieses | this | this | 此 | This | This | ese | esa | questa | questo | diesem | it | demselben | этого
+    -v : these | These | estos | estas | them | diesen | questi | those | Those | эти | ces | ihnen | них | diese | ceux
+  SV1  sigma=7.569  cum_var=0.111
+    +v : him | ihn | he | him | celui | ce | ihm | lui | Ce | Dieser | boy | arlo | Este | Him | которого
+    -v : she | she | ella | She | Esta | questa | esta | ela | She | Cette | которой | она | elle | celle | этой
+  SV2  sigma=6.298  cum_var=0.141
+    +v : it | she | ce | she | uen | It | èg | CE | ella | She | edo | נ | ela | It | ensional
+    -v : this | this | these | dieser | dieses | diesen | diese | diesem | cette | This | questa | This | 这 | These | questo
+  SV3  sigma=6.216  cum_var=0.170
+    +v : these | she | this | diese | These | dieser | she | this | questa | him | estas | She | She | Dieser | diesen
+    -v : them | they | They | they | They | ihnen | ellos | ils | них | они | Ils | eux | theme | которых | elles
+  SV4  sigma=5.864  cum_var=0.196
+    +v : it | those | Those | these | It | ese | celui | It | quella | そ | These | 该 | esa | celle | Such
+    -v : ones | they | They | they | them | They | ones | this | this | ellos | This | This | ils | ihnen | him
+  SV5  sigma=5.772  cum_var=0.221
+    +v : this | this | it | dieses | This | This | questo | questa | esta | diesem | It | these | It | 这 | こ
+    -v : ese | esa | quella | That | That | him | thats | those | там | dort | 那 | Those | celui | quel | そ
+  SV6  sigma=5.021  cum_var=0.240
+    +v : him | ella | ihm | ihn | it | lui | él | she | those | she | elle | он | мало | ouse | ela
+    -v : Such | such | such | uch | такой | тако | та | så | ucha | uchs | подо | uche | uchte | uden | similar
+  SV7  sigma=4.975  cum_var=0.259
+    +v : those | Those | ose | ese | dieses | ceux | ient | ibm | ears | us | denen | вое | 那 | owe | сти
+    -v : him | she | ihn | him | lui | ihm | she | Such | such | such | She | ella | he | hers | elle
+
+=== L25 H24 ===
+  decoded K=8/3072 axes  cum_var@K=0.231  (target=0.9, min=4, max=8)
+  SV0  sigma=6.464  cum_var=0.043
+    +v : themselves | their | Their | leur | loro | leurs | ihre | ihren | ihrer | ihrem | их | ih | they | ihr | they
+    -v : yourself | ourselves | your | our | your | Your | yours | Your | votre | 你 | Our | notre | nous | our | 我
+  SV1  sigma=5.617  cum_var=0.075
+    +v : his | himself | his | him | him | seinem | he | His | 他 | yourself | seines | seinen | sein | seine | lui
+    -v : Its | its | itself | its | шло | my | шла | ts | iada | вало | її | тирова | 其 | овано | ńska
+  SV2  sigma=5.450  cum_var=0.106
+    +v : herself | yourself | her | your | your | selves | she | Your | hers | Your | she | elle | votre | ella | yours
+    -v : his | himself | his | seinem | seiner | seinen | seines | seine | lui | sein | His | him | him | he | его
+  SV3  sigma=5.417  cum_var=0.136
+    +v : ourselves | myself | herself | her | my | our | hers | she | mys | my | Our | notre | she | 我 | our
+    -v : your | your | Your | Your | yourself | selves | its | votre | Its | 你 | yours | itself | vous | you | you
+  SV4  sigma=5.173  cum_var=0.164
+    +v : yourself | ್ | my | rache | myself | your | vě | __. | mys | my | &\ | ](/ | Your | your | òria
+    -v : ; | ;" | ;` | ;</ | ; | .; | ;\ | %; | ; | _; | ;} | $; | ； | '; | ;">
+  SV5  sigma=4.931  cum_var=0.189
+    +v : myself | my | yourself | mys | ourselves | your | my | Your | your | ; | ;` | ; | our | Your | ;\
+    -v : herself | her | hers | she | she | his | ella | himself | elle | his | itself | suo | She | suoi | its
+  SV6  sigma=4.648  cum_var=0.211
+    +v : {}, | [], | %, | %, | '', | "", | _, | ?, | /, | !, | ], | $, | ..., | (), | },
+    -v : .") | ':' | (). | ']. | _. | '. | .: | . | . | ': | __. | '). | "]. | ": | 。
+  SV7  sigma=4.434  cum_var=0.231
+    +v : my | myself | my | mys | mine | My | My | mine | I | MY | MY | her | hers | his | MyClass
+    -v : ourselves | our | Our | notre | our | nous | we | OUR | ours | We | 우 | amos | 我 | emos | We

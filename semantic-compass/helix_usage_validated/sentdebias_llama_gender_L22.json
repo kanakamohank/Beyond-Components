@@ -1,0 +1,10 @@
+{
+  "model": "meta-llama/Llama-3.2-3B",
+  "domain": "gender",
+  "layer": 22,
+  "k": 1,
+  "subspace_singular_values": [
+    129.34353637695312
+  ],
+  "n_items": 552
+}

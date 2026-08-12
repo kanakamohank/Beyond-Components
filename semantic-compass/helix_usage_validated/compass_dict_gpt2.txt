@@ -1,0 +1,82 @@
+Model: gpt2
+
+=== L10 H9 ===
+  decoded K=8/768 axes  cum_var@K=0.344  (target=0.9, min=4, max=8)
+  SV0  sigma=9.145  cum_var=0.077
+    +v : His | his | He | his | His | he | He | himself | him | HIS | him | he | Himself | HIM | cipled
+    -v : her | she | She | herself | she | She | Her | hers | SHE | HER | Her | ova | kaya | Ms | Ms
+  SV1  sigma=7.866  cum_var=0.134
+    +v : her | she | herself | She | she | She | SHE | haar | Her | ourselves | HER | ffen | izabeth | hers | egu
+    -v : their | Their | Their | they | They | their | They | THEIR | they | themselves | THEY | theirs | them | them | THEM
+  SV2  sigma=7.269  cum_var=0.183
+    +v : She | herself | her | she | she | hers | She | Her | SHE | himself | Her | his | He | his | HER
+    -v : Its | Its | its | ITS | itself | imo | it | It | HQ | its | ciation | nutshell | obb | my | oyer
+  SV3  sigma=6.799  cum_var=0.225
+    +v : Heard | ours | andowski | CVE | Kraken | Commentary | written | Released | Reviewer | anonymity | Achievement | Rahman | MacDonald | Gleaming | Printed
+    -v : eteen | your | enture | phan | approximately | >( | ific | inda | ifi | && | Her | cend | yna | cé | ova
+  SV4  sigma=5.985  cum_var=0.258
+    +v : Its | Its | its | ITS | hers | itself | her | its | she | his | his | inventoryQuantity | She | it | herself
+    -v : ourselves | yourselves | Our | our | Our | We | we | We | us | we | respectively | Your | your | abling | laughter
+  SV5  sigma=5.843  cum_var=0.290
+    +v : your | yourself | your | Your | Your | YOUR | yours | you | Yourself | you | You | You | yourselves | YOU | YOU
+    -v : ourselves | our | ours | we | Our | We | us | We | Our | OUR | we | WE | our | selves | selves
+  SV6  sigma=5.491  cum_var=0.318
+    +v : my | myself | me | my | My | My | I | I | MY | mine | MY | YING | ilitating | umbing | ograp
+    -v : yourselves | their | THEIR | they | they | THEY | Their | They | their | served | hedon | ledged | bonded | theirs | >(
+  SV7  sigma=5.360  cum_var=0.344
+    +v : iating | distributing | icking | thening | noticing | producing | converting | inflicting | rejecting | activating | ocating | releasing | withdrawing | mitting | inducing
+    -v : rued | my | oled | igrated | idated | oided | myself | ursed | wered | Played | IED | My | bered | Rated | anked
+
+=== L9 H7 ===
+  decoded K=8/768 axes  cum_var@K=0.293  (target=0.9, min=4, max=8)
+  SV0  sigma=9.230  cum_var=0.052
+    +v : their | Their | Their | their | they | THEIR | They | themselves | They | they | THEY | theirs | them | THEM | them
+    -v : his | He | his | he | His | He | him | His | himself | he | HIS | him | HE | Him | HIM
+  SV1  sigma=8.866  cum_var=0.099
+    +v : herself | her | She | she | Her | she | She | Her | SHE | HER | hers | her | husband | husband | ova
+    -v : His | his | his | His | He | He | he | himself | anus | � | accuser | Lauder | HIS | selves | ワ
+  SV2  sigma=8.456  cum_var=0.142
+    +v : Its | its | Its | ITS | itself | its | it | It | ngth | it | tones | bright | arden | opa | oros
+    -v : He | His | himself | his | herself | his | His | He | She | he | him | hers | Himself | her | Her
+  SV3  sigma=7.693  cum_var=0.178
+    +v : humble | SIL | Silence | Low | Less | lesser | spared | Idle | Lazarus | lull | quiet | Altern | Minor | innoc | Small
+    -v : xon | ワン | warts | arching | major | istries | anos | VIDIA | atton | ospace | icone | avid | fman | vivo | erection
+  SV4  sigma=7.199  cum_var=0.209
+    +v : chance | laughter | improvis | Optional | invention | � | options | rez | breeze | GREEN | altern | � | pard | ports | Fun
+    -v : rigid | strict | areth | Serious | Rig | odan | entrenched | sting | Old | crim | alties | duty | metic | irm | reliance
+  SV5  sigma=6.982  cum_var=0.239
+    +v : Both | Both | Neither | Neither | neither | Either | both | Either | respectively | both | depending | latter | ZI | IAS | pauses
+    -v : others | Others | god | rodu | sequence | Nine | enegger | doi | qus | aila | grave | Morg | abroad | Nine | iod
+  SV6  sigma=6.736  cum_var=0.266
+    +v : smallest | iny | tiny | PsyNetMessage | simplicity | humble | Small | passively | sting | small | simple | Slow | small | modest | mundane
+    -v : ocious | Highly | azeera | itbart | iannopoulos | Sands | qus | Both | ++++++++++++++++ | raged | Awesome | urous | latter | cially | xus
+  SV7  sigma=6.577  cum_var=0.293
+    +v : assetsadobe | plain | wal | both | ============ | blogspot | oute | cow | athe | withdrawals | parted | Whites | exhaustion | Dism | 覚醒
+    -v : mented | ql | cious | Carter | chell | Castro | ische | earcher | Archdemon | SIGN | istered | Ley | illac | hler | lp
+
+=== L11 H1 ===
+  decoded K=8/768 axes  cum_var@K=0.241  (target=0.9, min=4, max=8)
+  SV0  sigma=18.265  cum_var=0.056
+    +v : adem | uman | resy | essen | apeake | illin | aku | xual | eker | GOODMAN | �� | masters | �� | endment | users
+    -v : widow | Scand | niece | Huma | daughter | estranged | Guarant | actress | Carrie | Pulitzer | agent | granddaughter | husband | Joyce | Tig
+  SV1  sigma=13.354  cum_var=0.086
+    +v : men | MEN | Guys | gentlemen | guys | Men | boys | Men | male | males | man | Boys | MSM | Male | Character
+    -v : Alicia | actress | Jenny | Nikki | Janet | Elizabeth | Donna | Denise | Jane | Michelle | Lisa | Alexandra | hers | Christina | Anna
+  SV2  sigma=12.989  cum_var=0.114
+    +v : kid | child | Parent | parent | Parents | youngster | parents | child | parents | Kids | Parent | Child | Dad | Parents | parent
+    -v : women | ladies | Lady | women | lady | Lady | Women | Ladies | Women | Mrs | HER | female | hers | woman | Her
+  SV3  sigma=12.715  cum_var=0.141
+    +v : wives | Women | women | women | Mother | wife | Women | mothers | wife | wives | husbands | spouses | mother | Mothers | childbirth
+    -v : student | student | Student | pupil | Student | boy | Students | Bieber | Justin | Teacher | Guy | Justin | students | pupils | Young
+  SV4  sigma=12.527  cum_var=0.168
+    +v : Male | riott | Persons | man | Edward | partner | Actor | Director | Elder | men | oft | orate | His | _> | mens
+    -v : Queen | Girl | girl | queen | Duchess | vana | girls | Queen | princess | girl | pageant | Girls | Princess | maiden | Girls
+  SV5  sigma=12.496  cum_var=0.194
+    +v : woman | Woman | woman | Goddess | pmwiki | Woman | Ms | Girl | Anita | Queen | Maria | girl | Lois | Administrator | girl
+    -v : brothers | brother | party | brother | parties | nephew | cipled | apers | Brother | Players | younger | cffff | 龍� | Friends | friends
+  SV6  sigma=11.893  cum_var=0.217
+    +v : Person | persons | Persons | stocks | person | chin | maxwell | coron | Person | Ascension | Gutenberg | person | Applicant | achable | chwitz
+    -v : boys | girls | mascul | guys | men | Men | sisters | Girls | Boys | masculinity | Guy | member | MEN | girls | bro
+  SV7  sigma=11.877  cum_var=0.241
+    +v : Her | Her | Leader | She | Him | Daughter | femin | HER | Leader | SHE | Actress | She | Girl | hers | Lady
+    -v : cery | Bill | white | ports | Bill | executive | adan | Esk | bill | steen | natives | porting | whites | white | OE

@@ -1,0 +1,41 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+=================================================================
+VALIDATED HELIX USAGE INVESTIGATION
+=================================================================
+Loading gpt2-small...
+Loaded pretrained model gpt2-small into HookedTransformer
+  Model loaded: 12L, 12H, d=768
+  Target: L10 H2, SVD dims (2, 7), resid L10, T=99.0
+  Sanity checks...
+  Sanity OK  (activation shape (1, 4, 768))
+
+  Running Causal MLP Neuron Ablation...
+
+======================================================================
+CAUSAL MLP ABLATION
+OV Head: L10 H2, SVD dims (2, 7)
+MLP Target: Layer 10 | Digits: 1
+======================================================================
+  Mapped 20 SVD targets to 20 physical MLP neurons (out of 3072 total)
+  Random control: 20 neurons
+  Generated 40 few-shot 1-digit addition prompts.
+
+  [1] Baseline (no ablation)...
+      Baseline: 17.5% (7/40)
+  [2] Targeted ablation (20 neurons)...
+      Ablated: 20.0% (8/40)
+  [3] Random control (20 neurons)...
+      Random: 17.5% (7/40)
+
+  ============================================================
+  RESULTS
+  ============================================================
+  Baseline:         17.5%
+  Targeted ablated: 20.0% (drop: -2.5%)
+  Random control:   17.5% (drop: +0.0%)
+  Specificity:      -2.5% (targeted - random)
+
+  ○ Circuit remained resilient or routed around the ablation
+
+  Investigation completed successfully.

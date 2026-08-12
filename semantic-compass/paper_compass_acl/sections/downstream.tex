@@ -1,0 +1,202 @@
+\section{Downstream behavior}
+\label{sec:downstream}
+
+We evaluate downstream behaviour on three benchmarks (WinoGender,
+single-head StereoSet, held-out routed CrowS-Pairs), framing
+compass rotation as a graded steering primitive with an
+off-switch. The reported movements are surface-metric shifts, in
+the sense of \citet{gonen2019lipstick}; whether they correspond to
+the model encoding gender less or to a redirection of the same
+signal is a question for a follow-up probe-recovery experiment.
+Movement magnitudes should be read against the benchmark
+annotation-noise floor reported by \citet{blodgett2021stereotyping}.
+
+\subsection{WinoGender}
+\label{sec:downstream:winogender}
+
+We sweep $\alpha \in \{0.25, 0.5, 1.0, 1.5, 2.0\}$ on Phi-3 L28H1 and
+report \emph{stereo corr}, the Pearson correlation between the
+model's per-occupation
+$\mathrm{logit}(\mathit{he}) - \mathrm{logit}(\mathit{she})$ and the
+BLS female-occupancy rate; lower is less stereotypical, $0$ is
+uncorrelated, negative is the opposite stereotype.
+
+\begin{table}[t]
+\centering
+\small
+\caption{WinoGender on Phi-3 Mini, L28H1 $(u_0, u_3)$. ppl $\Delta$:
+Wikitext-2 perplexity change.}
+\label{tab:winogender}
+\begin{tabular}{lccc}
+\toprule
+Condition & raw gap & stereo corr & ppl $\Delta$ \\
+\midrule
+baseline                & $1.151$ & $+0.638$ & $+0.000$ \\
+ActAdd $\alpha{=}1.0$   & $3.506$ & $+0.435$ & $+0.139$ \\
+compass $\alpha{=}0.25$ & $1.395$ & $+0.640$ & $+0.006$ \\
+compass $\alpha{=}0.50$ & $1.743$ & $+0.619$ & $+0.006$ \\
+compass $\alpha{=}1.00$ & $2.713$ & $+0.468$ & $+0.006$ \\
+compass $\alpha{=}1.50$ & $3.937$ & $-0.017$ & $+0.018$ \\
+compass $\alpha{=}2.00$ & $5.288$ & $-0.303$ & $+0.036$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The compass intervention drives stereo corr through zero into
+reverse-stereotypical territory at low perplexity cost
+($+0.018$ at $\alpha = 1.5$, vs.\ $+0.139$ for ActAdd at a
+comparable raw-gap shift). The reverse-stereotypical regime
+($\alpha \geq 1.5$) is bias of opposite sign, not less bias; the
+table shows the full sweep so the operating point is the user's
+choice, and we make no claim that any single $\alpha$ is the right
+one. A principled rule for picking $\alpha$ without a user-specified
+target is open.
+
+\subsection{StereoSet at single heads}
+\label{sec:downstream:stereoset}
+
+\Cref{tab:stereoset} reports StereoSet LMS / SS / ICAT on Phi-3
+L28H1. We report the result against ourselves: the single-head compass does not
+improve ICAT, and ActAdd outperforms compass on this benchmark.
+
+\begin{table}[t]
+\centering
+\small
+\caption{StereoSet on Phi-3 L28H1. ActAdd outperforms compass on
+gender ICAT at the same head. We attribute this to L28H1 being
+steering-dominant (\cref{tab:storage}): natural StereoSet inputs
+project weakly onto its plane, so a single-head injection moves
+write weakly. Multi-head routed intervention closes part of this gap
+on CrowS-Pairs (\S\ref{sec:downstream:crows}).}
+\label{tab:stereoset}
+\begin{tabular}{llccc}
+\toprule
+Cond.\ & Domain & LMS & SS & ICAT \\
+\midrule
+baseline & gender & $92.75$ & $73.33$ & $49.46$ \\
+compass $\alpha{=}1.0$ & gender & $92.94$ & $73.73$ & $48.84$ \\
+compass $\alpha{=}1.5$ & gender & $92.75$ & $73.73$ & $48.74$ \\
+ActAdd $\alpha{=}1.0$  & gender & $92.75$ & $69.80$ & $\mathbf{56.01}$ \\
+\midrule
+baseline & race   & $92.36$ & $61.64$ & $70.85$ \\
+compass $\alpha{=}1.0$ & race   & $92.41$ & $62.06$ & $70.13$ \\
+ActAdd $\alpha{=}1.0$  & race   & $92.57$ & $61.43$ & $71.40$ \\
+\midrule
+baseline & profession & $92.04$ & $67.65$ & $59.54$ \\
+compass $\alpha{=}1.0$ & profession & $91.60$ & $68.64$ & $57.45$ \\
+ActAdd $\alpha{=}1.0$  & profession & $91.73$ & $64.44$ & $\mathbf{65.23}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{CrowS-Pairs: held-out routed intervention}
+\label{sec:downstream:crows}
+
+For multi-domain CrowS-Pairs we use a routed ensemble: the top-4
+heads passing the multi-domain scan in each bias domain, each
+injected at SNR-calibrated $\alpha_d = \tau /
+\overline{\mathrm{snr}}_h$ with target $\tau$ chosen per model
+($0.20$ GPT-2, $0.08$ Phi-3 and Gemma, $0.10$ Llama).
+
+\paragraph{The held-out procedure.}
+We split CrowS-Pairs $50/50$ (seed 0) by domain. On the dev half we
+sweep a per-cell multiplier $M \in \{0, 0.25, 0.5, 0.75, 1.0, 1.25,
+1.5\}$ and pick $M^*$ minimizing $|\mathrm{SS} - 50|$ on the dev
+half. We then report $\mathrm{SS}$ on the test half. Including
+$M = 0$ in the sweep gives the procedure an off-switch when the
+baseline is already neutral.
+
+\begin{table*}[t]
+\centering
+\small
+\caption{Held-out routed CrowS-Pairs, dev-selected multiplier $M^*$
+scored on test half. SS $=50$ is unbiased; lower
+$|\Delta_{50}| = |\mathrm{SS} - 50|$ is closer to neutral.
+$M^* = 0$ entries: dev preferred no intervention. With $n = 131$ on
+gender, the per-cell $95\%$ CI on SS is roughly $\pm 8.5$ points;
+sub-point movements should not be over-read.}
+\label{tab:crows_holdout}
+\begin{tabular}{lcccc}
+\toprule
+& \multicolumn{2}{c}{Phi-3 Mini} &
+  \multicolumn{2}{c}{GPT-2 Small} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5}
+Domain & $M^*\;\;\mathrm{SS}_{\text{test}}\;\;|\Delta_{50}|$ & $n$ &
+$M^*\;\;\mathrm{SS}_{\text{test}}\;\;|\Delta_{50}|$ & $n$ \\
+\midrule
+gender     & $0.50\;\;\;44.27\;\;\;5.73$  & $131$ &
+             $0.00\;\;\;45.04\;\;\;4.96$  & $131$ \\
+race       & $0.00\;\;\;55.04\;\;\;5.04$  & $258$ &
+             $0.00\;\;\;50.00\;\;\;0.00$  & $258$ \\
+profession & $1.25\;\;\;60.47\;\;10.47$   & $86$ &
+             $1.50\;\;\;59.30\;\;\;9.30$  & $86$ \\
+religion   & $0.00\;\;\;64.15\;\;14.15$   & $53$ &
+             $0.25\;\;\;60.38\;\;10.38$   & $53$ \\
+\midrule
+& \multicolumn{2}{c}{Gemma-2-2B} &
+  \multicolumn{2}{c}{Llama-3.2-3B} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5}
+gender     & $0.00\;\;\;49.62\;\;\;0.38$  & $131$ &
+             $0.00\;\;\;53.44\;\;\;3.44$  & $131$ \\
+race       & $0.00\;\;\;58.91\;\;\;8.91$  & $258$ &
+             $0.00\;\;\;52.71\;\;\;2.71$  & $258$ \\
+profession & $0.00\;\;\;68.60\;\;18.60$   & $86$ &
+             $1.50\;\;\;54.65\;\;\;4.65$  & $86$ \\
+religion   & $1.25\;\;\;62.26\;\;12.26$   & $53$ &
+             $0.00\;\;\;81.13\;\;31.13$   & $53$ \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\paragraph{Three patterns.}
+
+\emph{(1) Where the baseline is neutral, the procedure picks
+$M^* = 0$.}
+GPT-2 race ($M^* = 0$, test SS $= 50.00$); Gemma gender (test
+$|\Delta_{50}| = 0.38$); Llama race ($2.71$); Llama gender
+($3.44$). Direction-based projector baselines do not have this
+property. Across the four-model panel $M^* = 0$ is selected on
+$10$ of $16$ cells, and on $5$ of those $10$ the test-half
+$|\Delta_{50}|$ is small ($<5$); on the other $5$ the dev sweep
+found no helpful multiplier and the test half remains biased
+(Phi-3 religion test $14.15$, Gemma profession $18.60$, Llama
+religion $31.13$). $M^*{=}0$ is therefore an off-switch in the
+former cases and a no-help signal in the latter.
+
+\emph{(2) Where the baseline is biased, the compass moves it
+modestly, and the natural between-split comparison is missing.}
+On Phi-3 gender, the dev half $|\Delta_{50}|$ improves from $8.78$
+at $M = 0$ to $0.38$ at $M^* = 0.50$; on the held-out test half the
+same $M^* = 0.50$ lands at $|\Delta_{50}| = 5.73$. The
+apples-to-apples comparison---test-half SS at $M = 0$ vs.\ test-half
+SS at $M^* = 0.50$---requires running the M=0 condition on the test
+half for cells where $M^* \neq 0$, which our experimental setup
+did not do. The strongest defensible reading of the gender row is
+therefore: the dev-selected $M^*$ generalizes onto the held-out half
+at a smaller-but-non-zero distance from neutral. On GPT-2 gender,
+$M^* = 0$ is selected because dev SS at $M = 0$ is already at
+$51.91$ (within $2$ points of neutral). Even the dev-side movement
+is well inside the \citeauthor{blodgett2021stereotyping}
+annotation-noise band; we report it as suggestive rather than as
+evidence of debiasing.
+
+\emph{(3) Profession and religion overshoot the dev target on the
+held-out side.}
+Phi-3 profession test SS $= 60.47$ vs.\ baseline $57.56$;
+Llama religion test SS $= 81.13$. These cells reveal genuine
+train/test instability in CrowS-Pairs at small $n$; with religion
+$n = 53$ the per-cell $95\%$ CI is roughly $\pm 13$ points, and
+$M^*$ chosen on a $26$-row dev half is unreliable. We report these
+cells to show the held-out procedure is not a guaranteed win.
+
+\paragraph{What the held-out evaluation supports.}
+The procedure --- per-domain head routing, SNR-calibrated $\alpha$,
+dev-selected multiplier with a $0$-option --- is a methodological
+improvement over fixed-projector baselines on three properties:
+(i) it admits an off-switch when the baseline is already neutral;
+(ii) it generalises across the dev/test split for the gender cell
+on Phi-3 and the neutral cells on GPT-2 race, Llama gender, and
+Gemma gender; (iii) it composes with per-domain calibration so
+race / profession / religion can be steered independently.
+Direction-based projector baselines on the same metric are in
+\cref{app:projector_baselines}.

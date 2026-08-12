@@ -1,0 +1,348 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+Some weights of the model checkpoint at EleutherAI/gpt-j-6B were not used when initializing GPTJForCausalLM: ['transformer.h.0.attn.bias', 'transformer.h.0.attn.masked_bias', 'transformer.h.1.attn.bias', 'transformer.h.1.attn.masked_bias', 'transformer.h.10.attn.bias', 'transformer.h.10.attn.masked_bias', 'transformer.h.11.attn.bias', 'transformer.h.11.attn.masked_bias', 'transformer.h.12.attn.bias', 'transformer.h.12.attn.masked_bias', 'transformer.h.13.attn.bias', 'transformer.h.13.attn.masked_bias', 'transformer.h.14.attn.bias', 'transformer.h.14.attn.masked_bias', 'transformer.h.15.attn.bias', 'transformer.h.15.attn.masked_bias', 'transformer.h.16.attn.bias', 'transformer.h.16.attn.masked_bias', 'transformer.h.17.attn.bias', 'transformer.h.17.attn.masked_bias', 'transformer.h.18.attn.bias', 'transformer.h.18.attn.masked_bias', 'transformer.h.19.attn.bias', 'transformer.h.19.attn.masked_bias', 'transformer.h.2.attn.bias', 'transformer.h.2.attn.masked_bias', 'transformer.h.20.attn.bias', 'transformer.h.20.attn.masked_bias', 'transformer.h.21.attn.bias', 'transformer.h.21.attn.masked_bias', 'transformer.h.22.attn.bias', 'transformer.h.22.attn.masked_bias', 'transformer.h.23.attn.bias', 'transformer.h.23.attn.masked_bias', 'transformer.h.24.attn.bias', 'transformer.h.24.attn.masked_bias', 'transformer.h.25.attn.bias', 'transformer.h.25.attn.masked_bias', 'transformer.h.26.attn.bias', 'transformer.h.26.attn.masked_bias', 'transformer.h.27.attn.bias', 'transformer.h.27.attn.masked_bias', 'transformer.h.3.attn.bias', 'transformer.h.3.attn.masked_bias', 'transformer.h.4.attn.bias', 'transformer.h.4.attn.masked_bias', 'transformer.h.5.attn.bias', 'transformer.h.5.attn.masked_bias', 'transformer.h.6.attn.bias', 'transformer.h.6.attn.masked_bias', 'transformer.h.7.attn.bias', 'transformer.h.7.attn.masked_bias', 'transformer.h.8.attn.bias', 'transformer.h.8.attn.masked_bias', 'transformer.h.9.attn.bias', 'transformer.h.9.attn.masked_bias']
+- This IS expected if you are initializing GPTJForCausalLM from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing GPTJForCausalLM from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+=================================================================
+VALIDATED HELIX USAGE INVESTIGATION
+=================================================================
+Loading EleutherAI/gpt-j-6B...
+Loaded pretrained model EleutherAI/gpt-j-6B into HookedTransformer
+  Model loaded: 28L, 16H, d=4096
+  Target: L3 H13, SVD dims (2, 3), resid L3, T=99.0
+  Sanity checks...
+  Sanity OK  (activation shape (1, 4, 4096))
+
+  Running SVD Dim-Pair Sweep + MLP Lens...
+
+=================================================================
+AUTOMATIC SVD DIM-PAIR SWEEP
+Layer 3, Head 13, top-10 dims, 36 angles
+=================================================================
+
+      Pair   σ ratio   %Nums   r(digits)   MaxLogit    Score
+  ────────────────────────────────────────────────────────────
+  ( 0, 1)     1.179    0.0%       0.429       0.39    0.897
+  ( 0, 2)     1.200    0.0%       0.866       0.39    1.771
+  ( 0, 3)     1.217    0.0%       0.762       0.39    1.564
+  ( 0, 4)     1.237    0.0%       0.847       0.39    1.733
+  ( 0, 5)     1.293    0.0%       0.694       0.39    1.426
+  ( 0, 6)     1.307    0.0%       0.704       0.39    1.446
+  ( 0, 7)     1.334    0.0%       0.721       0.39    1.480
+  ( 0, 8)     1.349    0.0%       0.737       0.39    1.513
+  ( 0, 9)     1.368    0.0%       0.646       0.39    1.331
+  ( 1, 2)     1.018    0.0%       0.285       0.22    0.591
+  ( 1, 3)     1.032    0.0%       0.227       0.25    0.478
+  ( 1, 4)     1.050    0.0%       0.806       0.22    1.635
+  ( 1, 5)     1.097    0.0%       0.553       0.22    1.129
+  ( 1, 6)     1.109    0.0%       0.850       0.23    1.722
+  ( 1, 7)     1.131    0.0%       0.383       0.23    0.788
+  ( 1, 8)     1.145    0.0%       0.015       0.28    0.059
+  ( 1, 9)     1.161    0.0%       0.960       0.23    1.942
+  ( 2, 3)     1.014    0.0%       0.128       0.21    0.278
+  ( 2, 4)     1.031    0.0%       0.967       0.20    1.953
+  ( 2, 5)     1.078    0.0%       0.231       0.20    0.482
+  ( 2, 6)     1.089    0.0%       0.074       0.20    0.169
+  ( 2, 7)     1.111    0.0%       0.107       0.18    0.232
+  ( 2, 8)     1.124    0.0%       0.904       0.21    1.828
+  ( 2, 9)     1.140    0.0%       0.865       0.22    1.752
+  ( 3, 4)     1.017    0.0%       0.797       0.22    1.616
+  ( 3, 5)     1.063    0.0%       0.899       0.21    1.819
+  ( 3, 6)     1.074    0.0%       0.264       0.23    0.550
+  ( 3, 7)     1.096    8.3%       0.449       0.23    1.171
+  ( 3, 8)     1.109    0.0%       0.140       0.22    0.301
+  ( 3, 9)     1.125    0.0%       0.589       0.20    1.199
+  ( 4, 5)     1.045    0.0%       0.915       0.21    1.850
+  ( 4, 6)     1.056    0.0%       0.827       0.20    1.674
+  ( 4, 7)     1.078    0.0%       0.785       0.20    1.589
+  ( 4, 8)     1.090    0.0%       0.822       0.21    1.665
+  ( 4, 9)     1.106    0.0%       0.873       0.20    1.766
+  ( 5, 6)     1.011    0.0%       0.665       0.22    1.352
+  ( 5, 7)     1.031    0.0%       0.739       0.19    1.498
+  ( 5, 8)     1.043    0.0%       0.643       0.21    1.307
+  ( 5, 9)     1.058    0.0%       0.451       0.20    0.923
+  ( 6, 7)     1.020    0.0%       0.426       0.19    0.872
+  ( 6, 8)     1.032    0.0%       0.699       0.23    1.422
+  ( 6, 9)     1.047    0.0%       0.700       0.20    1.420
+  ( 7, 8)     1.012    0.0%       0.792       0.20    1.604
+  ( 7, 9)     1.026    0.0%       0.649       0.21    1.319
+  ( 8, 9)     1.014    0.0%       0.769       0.22    1.560
+
+  =================================================================
+  TOP 5 DIM PAIRS BY COMPOSITE SCORE
+  =================================================================
+  #1  dims=(2,4)  score=1.953  %nums=0%  r=0.967  logit=0.20  σ=1.031
+       sample: ['replace', 'replace', 'replace', 'Heads', 'glide', 'glide']
+  #2  dims=(1,9)  score=1.942  %nums=0%  r=0.960  logit=0.23  σ=1.161
+       sample: ['Instead', 'Instead', 'Instead', 'Instead', 'Instead', 'instead']
+  #3  dims=(4,5)  score=1.850  %nums=0%  r=0.915  logit=0.21  σ=1.045
+       sample: ['depth', 'depth', 'chest', 'radius', 'batter', 'batter']
+  #4  dims=(2,8)  score=1.828  %nums=0%  r=0.904  logit=0.21  σ=1.124
+       sample: ['replace', 'replace', 'replace', 'replace', 'replace', 'replace']
+  #5  dims=(3,5)  score=1.819  %nums=0%  r=0.899  logit=0.21  σ=1.063
+       sample: ['ormon', 'subsequent', 'subsequent', 'subsequent', 'subsequent', 'oln']
+
+  Running full projection on best pair (2, 4)...
+
+=================================================================
+SUBSPACE VOCABULARY PROJECTION
+Layer 3, Head 13, SVD dims (2, 4)
+=================================================================
+
+  SANITY CHECKS:
+    Sigma[2] = 1.1891
+    Sigma[4] = 1.1533
+    Ratio = 1.0311  (ideal = 1.0)
+    OK: Balanced singular values for clean rotation
+    W_U shape: (4096, 50400) (d_model=4096, vocab=50400)
+    Untied embeddings detected (cos=0.001)
+    Using W_E for reading lens, W_U for writing lens
+
+  SELF-CONSISTENCY CHECK: Number token ordering
+    READING (U cols):
+      Tokens 0-9 angles: ['  +5.3', '  +5.6', '  -4.7', '  -6.2', ' -11.4', ' -12.7', ' -19.4', ' -13.7', ' -23.5', ' -23.5']
+      --> Angle-number correlation: 0.959
+      --> PASS: Strong linear ordering (r=0.959)
+    WRITING (Vt rows):
+      Tokens 0-9 angles: ['+107.5', ' +92.3', ' +61.4', ' +61.6', ' +24.6', ' +33.2', ' -22.2', ' -81.4', '-126.1', '-146.9']
+      --> Angle-number correlation: 0.967
+      --> PASS: Strong linear ordering (r=0.967)
+
+    Angle  READING (input) top tokens                     WRITING (output) top tokens
+  ────────────────────────────────────────────────────────────────────────────────────────────────────
+     0.0°  ' Cust'(+0.1)  'ë'(+0.1)  ' Framework'(+0.1)   ' replace'(+0.2)  ' replaced'(+0.2)  'fire'(+0.2)
+    10.0°  'ë'(+0.1)  ' Cust'(+0.1)  ' Framework'(+0.1)   ' replace'(+0.2)  ' replaced'(+0.2)  ' Heads'(+0.2)
+    20.0°  'ë'(+0.1)  'ptive'(+0.1)  ' Cust'(+0.1)        ' replace'(+0.2)  ' Heads'(+0.2)  'stein'(+0.2)
+    30.0°  'ptive'(+0.1)  ' mmol'(+0.1)  'parser'(+0.1)   ' Heads'(+0.2)  ' coff'(+0.2)  'roots'(+0.2)
+    40.0°  'ptive'(+0.1)  ' mmol'(+0.1)  'parser'(+0.1)   ' glide'(+0.2)  'roots'(+0.2)  ' rest'(+0.2)
+    50.0°  ' mmol'(+0.1)  'ptive'(+0.1)  ' misogyny'(+0.1)  ' glide'(+0.2)  ' rest'(+0.2)  'roots'(+0.2)
+    60.0°  ' mmol'(+0.1)  'ptive'(+0.1)  ' misogyny'(+0.1)  ' glide'(+0.2)  ' rest'(+0.2)  ' heads'(+0.2)
+    70.0°  ' mmol'(+0.1)  'ptive'(+0.1)  ' surname'(+0.1)  ' glide'(+0.2)  ' rest'(+0.2)  ' guide'(+0.2)
+    80.0°  ' mmol'(+0.1)  'ptive'(+0.1)  ' surname'(+0.1)  ' guide'(+0.2)  ' depth'(+0.2)  ' studies'(+0.2)
+    90.0°  ' mmol'(+0.1)  'ptive'(+0.1)  ' speaks'(+0.1)  ' depth'(+0.2)  ' studies'(+0.2)  ' guide'(+0.2)
+   100.0°  ' mmol'(+0.1)  ' speaks'(+0.1)  ' transformations'(+0.1)  ' depth'(+0.2)  ' studies'(+0.2)  ' guide'(+0.2)
+   110.0°  ' mmol'(+0.0)  ' speaks'(+0.0)  ' Vers'(+0.0)  ' depth'(+0.2)  ' studies'(+0.2)  'ipedia'(+0.2)
+   120.0°  ' arguing'(+0.0)  ' Vers'(+0.0)  ' speaks'(+0.0)  ' depth'(+0.2)  ' sizing'(+0.2)  ' studies'(+0.2)
+   130.0°  ' arguing'(+0.0)  ' Vers'(+0.0)  'speak'(+0.0)  ' depth'(+0.2)  ' sizing'(+0.2)  ' pairing'(+0.2)
+   140.0°  ' arguing'(+0.0)  ' Vers'(+0.0)  ' accuses'(+0.0)  ' pairing'(+0.2)  ' sizing'(+0.2)  ' depth'(+0.2)
+   150.0°  ' arguing'(+0.0)  ' �'(+0.0)  ' accuses'(+0.0)  ' pairing'(+0.2)  ' sizing'(+0.2)  'dig'(+0.2)
+   160.0°  ' arguing'(+0.0)  ' �'(+0.0)  ' accuses'(+0.0)  ' pairing'(+0.2)  ' entry'(+0.2)  ' plotting'(+0.2)
+   170.0°  ' �'(+0.0)  ' SAY'(+0.0)  ' arguing'(+0.0)     ' pairing'(+0.2)  ' plotting'(+0.2)  ' entry'(+0.2)
+   180.0°  ' SAY'(+0.0)  ' �'(+0.0)  'phil'(+0.0)         ' Entry'(+0.2)  ' offline'(+0.2)  ' plotting'(+0.2)
+   190.0°  ' SAY'(+0.0)  ' �'(+0.0)  ' Dal'(+0.0)         ' Entry'(+0.2)  ' offline'(+0.2)  'ixt'(+0.2)
+   200.0°  ' SAY'(+0.0)  ' Dal'(+0.0)  ' Clarence'(+0.0)  ' itch'(+0.2)  'ixt'(+0.2)  'sic'(+0.2)
+   210.0°  ' SAY'(+0.0)  ' Clarence'(+0.0)  ' Dal'(+0.0)  ' itch'(+0.2)  'ixt'(+0.2)  'sic'(+0.2)
+   220.0°  ' SAY'(+0.0)  ' Clarence'(+0.0)  ' Gra'(+0.0)  ' Guarant'(+0.2)  ' unden'(+0.2)  ' itch'(+0.2)
+   230.0°  ' Gra'(+0.0)  ' SAY'(+0.0)  ' Kn'(+0.0)        ' Guarant'(+0.2)  ' unden'(+0.2)  ' intolerable'(+0.2)
+   240.0°  ' Gra'(+0.0)  ' Kn'(+0.0)  'Kn'(+0.0)          ' Guarant'(+0.2)  ' unden'(+0.2)  ' harming'(+0.2)
+   250.0°  ' Gra'(+0.1)  ' Luck'(+0.0)  'Kn'(+0.0)        ' unden'(+0.2)  ' Guarant'(+0.2)  ' harming'(+0.2)
+   260.0°  ' Gra'(+0.1)  ' Luck'(+0.1)  'Kn'(+0.1)        ' Measures'(+0.2)  ' harming'(+0.2)  ' repaired'(+0.2)
+   270.0°  ' Gra'(+0.1)  ' Luck'(+0.1)  'hedral'(+0.1)    ' Measures'(+0.2)  ' harming'(+0.2)  ' destroying'(+0.2)
+   280.0°  'hedral'(+0.1)  ' byte'(+0.1)  ' Luck'(+0.1)   ' Measures'(+0.2)  ' destroying'(+0.2)  ' harming'(+0.2)
+   290.0°  ' recy'(+0.1)  ' byte'(+0.1)  ' proc'(+0.1)    ' Measures'(+0.2)  ' destroying'(+0.2)  ' tainted'(+0.2)
+   300.0°  ' recy'(+0.1)  ' administr'(+0.1)  ' emb'(+0.1)  ' Measures'(+0.2)  ' destroying'(+0.2)  ' tainted'(+0.2)
+   310.0°  ' recy'(+0.1)  ' administr'(+0.1)  '4000'(+0.1)  ' replacement'(+0.2)  ' fatalities'(+0.2)  ' Measures'(+0.2)
+   320.0°  ' prest'(+0.1)  '4000'(+0.1)  ' administr'(+0.1)  ' replacement'(+0.2)  ' fatalities'(+0.2)  '�'(+0.2)
+   330.0°  ' prest'(+0.1)  ' Prest'(+0.1)  '4000'(+0.1)   ' replacement'(+0.2)  ' fatalities'(+0.2)  '�'(+0.2)
+   340.0°  ' prest'(+0.1)  ' Prest'(+0.1)  '�'(+0.1)      ' fatalities'(+0.2)  ' replacement'(+0.2)  ' replaced'(+0.2)
+   350.0°  ' prest'(+0.1)  ' Cust'(+0.1)  ' digit'(+0.1)  ' replace'(+0.2)  ' replaced'(+0.2)  'fire'(+0.2)
+
+  =================================================================
+  ANALYSIS: Checking for structured token progression
+  =================================================================
+
+  READING lens:
+    Top-1 tokens that are numbers: 0/36 (0%)
+    --> No clear number structure (mostly non-numeric tokens)
+    Top-1 unique: ['Cust', 'ë', 'ptive', 'mmol', 'arguing', '�', 'SAY', 'Gra', 'hedral', 'recy', 'prest']
+
+  WRITING lens:
+    Top-1 tokens that are numbers: 0/36 (0%)
+    --> No clear number structure (mostly non-numeric tokens)
+    Top-1 unique: ['replace', 'Heads', 'glide', 'guide', 'depth', 'pairing', 'Entry', 'itch', 'Guarant', 'unden', 'Measures', 'replacement', 'fatalities']
+
+  Plot saved: helix_usage_validated/vocab_projection_L3H13_d2d4.png
+
+  Running MLP lens with best dims (2, 4)...
+
+=================================================================
+MLP TRANSLATION LENS
+OV Head: L3 H13, SVD dims (2, 4)
+MLP Target: Layer 3
+=================================================================
+  Sigma[2] = 1.1891
+  Sigma[4] = 1.1533
+  Ratio = 1.0311
+  Standard MLP: W_in [4096×16384]
+
+    Angle  Top Neurons (idx: activation)
+  ────────────────────────────────────────────────────────────────────────────────
+     0.0°  N7456(+0.09)  N8463(+0.07)  N14754(+0.06)  N6016(+0.06)  N152(+0.06)
+    10.0°  N7456(+0.07)  N8463(+0.07)  N14754(+0.06)  N6016(+0.06)  N3708(+0.06)
+    20.0°  N8463(+0.07)  N14754(+0.06)  N6016(+0.06)  N6526(+0.06)  N3708(+0.05)
+    30.0°  N8463(+0.06)  N14167(+0.06)  N3923(+0.06)  N2586(+0.06)  N2968(+0.06)
+    40.0°  N16122(+0.06)  N8184(+0.06)  N5662(+0.06)  N3923(+0.06)  N14167(+0.06)
+    50.0°  N8184(+0.08)  N751(+0.07)  N16122(+0.07)  N5662(+0.07)  N15176(+0.06)
+    60.0°  N8184(+0.09)  N751(+0.09)  N16122(+0.07)  N15176(+0.07)  N15842(+0.07)
+    70.0°  N751(+0.10)  N8184(+0.10)  N15176(+0.08)  N6237(+0.08)  N16122(+0.08)
+    80.0°  N751(+0.11)  N8184(+0.11)  N6237(+0.08)  N6668(+0.08)  N15842(+0.08)
+    90.0°  N751(+0.12)  N8184(+0.11)  N6237(+0.09)  N6668(+0.09)  N7274(+0.08)
+   100.0°  N751(+0.12)  N8184(+0.11)  N6668(+0.09)  N6237(+0.09)  N15535(+0.09)
+   110.0°  N751(+0.12)  N8184(+0.11)  N15535(+0.09)  N1812(+0.09)  N6668(+0.09)
+   120.0°  N751(+0.11)  N8184(+0.10)  N15535(+0.10)  N1812(+0.10)  N6668(+0.09)
+   130.0°  N751(+0.11)  N15535(+0.10)  N1812(+0.10)  N8184(+0.09)  N6822(+0.08)
+   140.0°  N15535(+0.10)  N751(+0.10)  N1812(+0.10)  N6822(+0.09)  N8184(+0.08)
+   150.0°  N15535(+0.10)  N1812(+0.09)  N6822(+0.08)  N751(+0.08)  N4959(+0.08)
+   160.0°  N15535(+0.09)  N1812(+0.08)  N6822(+0.08)  N4959(+0.07)  N15133(+0.07)
+   170.0°  N15535(+0.08)  N1812(+0.07)  N6822(+0.07)  N4959(+0.07)  N15133(+0.07)
+   180.0°  N15535(+0.07)  N1559(+0.06)  N16251(+0.06)  N6822(+0.06)  N1812(+0.06)
+   190.0°  N16251(+0.07)  N14706(+0.07)  N1559(+0.06)  N5910(+0.06)  N13796(+0.06)
+   200.0°  N16251(+0.07)  N5910(+0.07)  N14706(+0.07)  N1559(+0.06)  N13796(+0.06)
+   210.0°  N16251(+0.07)  N5910(+0.07)  N14706(+0.07)  N13796(+0.06)  N1559(+0.06)
+   220.0°  N8196(+0.07)  N5910(+0.07)  N16251(+0.07)  N14706(+0.07)  N10629(+0.06)
+   230.0°  N8196(+0.09)  N11158(+0.07)  N10629(+0.07)  N14885(+0.07)  N815(+0.07)
+   240.0°  N8196(+0.10)  N11158(+0.08)  N14885(+0.08)  N815(+0.07)  N5549(+0.07)
+   250.0°  N8196(+0.10)  N14885(+0.09)  N11158(+0.09)  N5549(+0.08)  N815(+0.08)
+   260.0°  N8196(+0.11)  N14885(+0.10)  N11158(+0.09)  N12651(+0.09)  N5549(+0.08)
+   270.0°  N8196(+0.11)  N14885(+0.10)  N7456(+0.09)  N11158(+0.09)  N12651(+0.09)
+   280.0°  N7456(+0.11)  N8196(+0.11)  N14885(+0.10)  N12651(+0.09)  N1657(+0.09)
+   290.0°  N7456(+0.12)  N8196(+0.10)  N14885(+0.10)  N11321(+0.09)  N1657(+0.09)
+   300.0°  N7456(+0.12)  N14885(+0.09)  N11321(+0.09)  N152(+0.09)  N1657(+0.09)
+   310.0°  N7456(+0.13)  N152(+0.09)  N11321(+0.09)  N1657(+0.09)  N4262(+0.09)
+   320.0°  N7456(+0.12)  N152(+0.09)  N11321(+0.08)  N12996(+0.08)  N4262(+0.08)
+   330.0°  N7456(+0.12)  N152(+0.09)  N12996(+0.08)  N4262(+0.08)  N11321(+0.08)
+   340.0°  N7456(+0.11)  N152(+0.08)  N12996(+0.07)  N4262(+0.07)  N11321(+0.07)
+   350.0°  N7456(+0.10)  N152(+0.07)  N12996(+0.07)  N6016(+0.06)  N14754(+0.06)
+
+  =================================================================
+  ANALYSIS: Neurons with strongest angular selectivity
+  =================================================================
+
+  Top 20 angle-selective neurons (by activation range):
+    Neuron    Type    Range   Peak°    Min°   Max Act   Min Act
+  ─────────────────────────────────────────────────────────────────
+      7456     std    0.252   310.0   130.0     0.126    -0.126
+       751     std    0.240   100.0   280.0     0.120    -0.120
+      8184     std    0.222   100.0   280.0     0.111    -0.111
+      8196     std    0.215   270.0    90.0     0.108    -0.108
+     15535     std    0.207   130.0   310.0     0.103    -0.103
+     14885     std    0.202   280.0   100.0     0.101    -0.101
+      1812     std    0.194   130.0   310.0     0.097    -0.097
+       152     std    0.186   310.0   130.0     0.093    -0.093
+     11321     std    0.185   300.0   120.0     0.092    -0.092
+      1657     std    0.184   290.0   110.0     0.092    -0.092
+     12651     std    0.182   280.0   100.0     0.091    -0.091
+     11158     std    0.181   270.0    90.0     0.090    -0.090
+      6668     std    0.181   110.0   290.0     0.090    -0.090
+      6237     std    0.179   100.0   280.0     0.089    -0.089
+       373     std    0.177   300.0   120.0     0.089    -0.089
+      4262     std    0.176   300.0   120.0     0.088    -0.088
+      5549     std    0.171   270.0    90.0     0.086    -0.086
+     12996     std    0.171   310.0   130.0     0.085    -0.085
+      6822     std    0.170   140.0   320.0     0.085    -0.085
+      7274     std    0.170   110.0   290.0     0.085    -0.085
+
+  --> DIVERSE PEAK ANGLES detected among top neurons
+     Peaks at: ['310°', '100°', '100°', '270°', '130°', '280°', '130°', '310°', '300°', '290°']
+     This suggests the circle IS a geometric dial
+     with different neurons tuned to different angles
+
+  Activation range stats:
+    Top-10 mean range: 0.2086
+    Median range:      0.0406
+    Selectivity ratio: 5.1x
+
+  MLP lens plot saved: helix_usage_validated/mlp_lens_L3H13_d2d4_mlp3.png
+
+  Running MLP lens on next layer (4)...
+
+=================================================================
+MLP TRANSLATION LENS
+OV Head: L3 H13, SVD dims (2, 4)
+MLP Target: Layer 4
+=================================================================
+  Sigma[2] = 1.1891
+  Sigma[4] = 1.1533
+  Ratio = 1.0311
+  Standard MLP: W_in [4096×16384]
+
+    Angle  Top Neurons (idx: activation)
+  ────────────────────────────────────────────────────────────────────────────────
+     0.0°  N6072(+0.36)  N15615(+0.26)  N9575(+0.23)  N14163(+0.22)  N5434(+0.22)
+    10.0°  N6072(+0.37)  N15615(+0.26)  N9575(+0.24)  N13354(+0.24)  N14163(+0.23)
+    20.0°  N6072(+0.36)  N13354(+0.26)  N15615(+0.25)  N9575(+0.24)  N14163(+0.23)
+    30.0°  N6072(+0.34)  N13354(+0.27)  N15615(+0.24)  N9575(+0.23)  N14163(+0.23)
+    40.0°  N6072(+0.32)  N13354(+0.28)  N14163(+0.22)  N9575(+0.22)  N15615(+0.21)
+    50.0°  N6072(+0.28)  N13354(+0.28)  N643(+0.23)  N14163(+0.20)  N9575(+0.20)
+    60.0°  N13354(+0.26)  N643(+0.25)  N6072(+0.23)  N15683(+0.18)  N14163(+0.18)
+    70.0°  N643(+0.26)  N13354(+0.25)  N15683(+0.18)  N6072(+0.18)  N8204(+0.15)
+    80.0°  N643(+0.26)  N13354(+0.22)  N15683(+0.18)  N8204(+0.16)  N8319(+0.15)
+    90.0°  N643(+0.26)  N13354(+0.19)  N15683(+0.17)  N8204(+0.16)  N5827(+0.16)
+   100.0°  N643(+0.25)  N15659(+0.16)  N5827(+0.16)  N8204(+0.16)  N15683(+0.15)
+   110.0°  N643(+0.23)  N15659(+0.18)  N5827(+0.15)  N8204(+0.15)  N8319(+0.14)
+   120.0°  N643(+0.20)  N15659(+0.19)  N1921(+0.14)  N5827(+0.14)  N1644(+0.14)
+   130.0°  N15659(+0.19)  N643(+0.17)  N5061(+0.17)  N8024(+0.15)  N1921(+0.14)
+   140.0°  N5061(+0.21)  N15659(+0.19)  N6190(+0.18)  N6343(+0.17)  N8024(+0.17)
+   150.0°  N5061(+0.24)  N6190(+0.21)  N6343(+0.20)  N15659(+0.19)  N8024(+0.19)
+   160.0°  N5061(+0.26)  N6190(+0.24)  N6343(+0.23)  N8024(+0.20)  N15516(+0.20)
+   170.0°  N5061(+0.28)  N6190(+0.26)  N6343(+0.26)  N7746(+0.22)  N15516(+0.22)
+   180.0°  N5061(+0.29)  N6190(+0.28)  N6343(+0.27)  N7746(+0.24)  N15516(+0.23)
+   190.0°  N5061(+0.28)  N6190(+0.28)  N6343(+0.28)  N7746(+0.24)  N15516(+0.24)
+   200.0°  N6190(+0.28)  N5061(+0.27)  N6343(+0.27)  N7746(+0.25)  N15516(+0.24)
+   210.0°  N6190(+0.26)  N6343(+0.26)  N5061(+0.26)  N7746(+0.24)  N15516(+0.23)
+   220.0°  N6190(+0.24)  N6343(+0.24)  N5061(+0.23)  N7746(+0.23)  N15516(+0.21)
+   230.0°  N6343(+0.22)  N6190(+0.22)  N7746(+0.21)  N15440(+0.20)  N5061(+0.20)
+   240.0°  N6343(+0.19)  N7746(+0.18)  N6190(+0.18)  N15440(+0.18)  N15516(+0.17)
+   250.0°  N12910(+0.15)  N15440(+0.15)  N7746(+0.15)  N6343(+0.15)  N1253(+0.15)
+   260.0°  N12910(+0.16)  N1253(+0.15)  N823(+0.15)  N1500(+0.14)  N8836(+0.13)
+   270.0°  N823(+0.16)  N12910(+0.15)  N1253(+0.15)  N1500(+0.14)  N13716(+0.13)
+   280.0°  N823(+0.16)  N13716(+0.15)  N12910(+0.15)  N1253(+0.14)  N4329(+0.14)
+   290.0°  N823(+0.16)  N13716(+0.16)  N4329(+0.14)  N12185(+0.14)  N5672(+0.14)
+   300.0°  N823(+0.16)  N13716(+0.16)  N5672(+0.14)  N4329(+0.14)  N14038(+0.14)
+   310.0°  N6072(+0.19)  N13716(+0.16)  N823(+0.15)  N7208(+0.15)  N15615(+0.15)
+   320.0°  N6072(+0.24)  N15615(+0.19)  N7208(+0.18)  N14038(+0.15)  N13716(+0.15)
+   330.0°  N6072(+0.28)  N15615(+0.21)  N7208(+0.20)  N5434(+0.17)  N9575(+0.17)
+   340.0°  N6072(+0.32)  N15615(+0.24)  N7208(+0.21)  N9575(+0.20)  N5434(+0.19)
+   350.0°  N6072(+0.35)  N15615(+0.25)  N9575(+0.22)  N7208(+0.22)  N5434(+0.21)
+
+  =================================================================
+  ANALYSIS: Neurons with strongest angular selectivity
+  =================================================================
+
+  Top 20 angle-selective neurons (by activation range):
+    Neuron    Type    Range   Peak°    Min°   Max Act   Min Act
+  ─────────────────────────────────────────────────────────────────
+      6072     std    0.734    10.0   190.0     0.367    -0.367
+      5061     std    0.572   180.0     0.0     0.286    -0.286
+      6190     std    0.562   190.0    10.0     0.281    -0.281
+     13354     std    0.556    40.0   220.0     0.278    -0.278
+      6343     std    0.551   190.0    10.0     0.275    -0.275
+       643     std    0.529    80.0   260.0     0.264    -0.264
+     15615     std    0.520     0.0   180.0     0.260    -0.260
+      7746     std    0.493   200.0    20.0     0.247    -0.247
+      9575     std    0.479    20.0   200.0     0.240    -0.240
+     15516     std    0.474   190.0    10.0     0.237    -0.237
+     14163     std    0.465    20.0   200.0     0.233    -0.233
+     15440     std    0.445   200.0    20.0     0.222    -0.222
+     15679     std    0.445    20.0   200.0     0.222    -0.222
+      5434     std    0.439    10.0   190.0     0.220    -0.220
+      7208     std    0.432     0.0   180.0     0.216    -0.216
+      4564     std    0.428    10.0   190.0     0.214    -0.214
+      6225     std    0.413   200.0    20.0     0.207    -0.207
+     14543     std    0.409    10.0   190.0     0.205    -0.205
+      8024     std    0.409   170.0   350.0     0.204    -0.204
+     16131     std    0.408   190.0    10.0     0.204    -0.204
+
+  --> DIVERSE PEAK ANGLES detected among top neurons
+     Peaks at: ['10°', '180°', '190°', '40°', '190°', '80°', '0°', '200°', '20°', '190°']
+     This suggests the circle IS a geometric dial
+     with different neurons tuned to different angles
+
+  Activation range stats:
+    Top-10 mean range: 0.5470
+    Median range:      0.0549
+    Selectivity ratio: 10.0x
+
+  MLP lens plot saved: helix_usage_validated/mlp_lens_L3H13_d2d4_mlp4.png
+
+  Investigation completed successfully.

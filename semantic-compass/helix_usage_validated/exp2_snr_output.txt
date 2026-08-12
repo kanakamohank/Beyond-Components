@@ -1,0 +1,43 @@
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct requires setting trust_remote_code=True
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct state dict requires setting trust_remote_code=True
+`torch_dtype` is deprecated! Use `dtype` instead!
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:`flash-attention` package not found, consider installing for better performance: No module named 'flash_attn'.
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:Current `flash-attention` does not support `window_size`. Either upgrade or use `attn_implementation='eager'`.
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  4.81it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  6.57it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  6.22it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model microsoft/Phi-3-mini-4k-instruct into HookedTransformer
+Layer | Between-Spread | Mean Within-Std | SNR (Btwn/Within) | Verdict
+--------------------------------------------------------------------------------
+L 0   |     89.7°       |     34.2°         |   2.63x           | ✦  MED SNR
+L 1   |     77.6°       |     43.9°         |   1.77x           | ✦  MED SNR
+L 2   |     66.0°       |     42.3°         |   1.56x           | ✦  MED SNR
+L 3   |     73.6°       |     46.7°         |   1.58x           | ✦  MED SNR
+L 4   |     81.6°       |     41.5°         |   1.97x           | ✦  MED SNR
+L 5   |     61.2°       |     40.8°         |   1.50x           | ✦  MED SNR
+L 6   |     50.3°       |     25.7°         |   1.96x           | ✦  MED SNR
+L 7   |     57.6°       |     21.6°         |   2.67x           | ✦  MED SNR
+L 8   |    111.5°       |     34.4°         |   3.24x           | 🔥 HIGH SNR
+L 9   |     61.8°       |     27.3°         |   2.27x           | ✦  MED SNR
+L10   |    112.0°       |     40.8°         |   2.75x           | ✦  MED SNR
+L11   |     91.4°       |     36.4°         |   2.51x           | ✦  MED SNR
+L12   |     94.3°       |     29.6°         |   3.19x           | 🔥 HIGH SNR
+L13   |     90.8°       |     30.5°         |   2.97x           | ✦  MED SNR
+L14   |     56.0°       |     33.8°         |   1.66x           | ✦  MED SNR
+L15   |     72.9°       |     35.1°         |   2.08x           | ✦  MED SNR
+L16   |     79.9°       |     24.9°         |   3.21x           | 🔥 HIGH SNR
+L17   |     83.8°       |     27.7°         |   3.02x           | 🔥 HIGH SNR
+L18   |     61.8°       |     26.1°         |   2.37x           | ✦  MED SNR
+L19   |     47.1°       |     30.3°         |   1.55x           | ✦  MED SNR
+L20   |     37.4°       |     20.6°         |   1.82x           | ✦  MED SNR
+L21   |     44.5°       |     24.7°         |   1.80x           | ✦  MED SNR
+L22   |     37.1°       |     18.5°         |   2.01x           | ✦  MED SNR
+L23   |     41.6°       |     17.3°         |   2.41x           | ✦  MED SNR
+L24   |     40.0°       |     14.3°         |   2.79x           | ✦  MED SNR ◀ COMPASS
+L25   |     36.2°       |     17.0°         |   2.13x           | ✦  MED SNR
+L26   |     37.1°       |     16.4°         |   2.25x           | ✦  MED SNR
+L27   |     37.2°       |     15.9°         |   2.34x           | ✦  MED SNR
+L28   |     34.9°       |     14.2°         |   2.46x           | ✦  MED SNR
+L29   |     30.4°       |     13.8°         |   2.20x           | ✦  MED SNR
+L30   |     31.6°       |     13.7°         |   2.31x           | ✦  MED SNR
+L31   |     27.1°       |     15.0°         |   1.81x           | ✦  MED SNR

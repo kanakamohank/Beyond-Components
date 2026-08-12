@@ -1,0 +1,12 @@
+Model: google/gemma-2-2b
+SentenceDebias: domain=gender  layer=21  k=1
+Subspace singular values: ['1434.01']
+
+cond         domain            SS      n
+----------------------------------------
+baseline     gender         51.15    262
+baseline     profession     63.95    172
+baseline     overall        56.22    434
+sentdebias   gender         54.20    262
+sentdebias   profession     62.79    172
+sentdebias   overall        57.60    434

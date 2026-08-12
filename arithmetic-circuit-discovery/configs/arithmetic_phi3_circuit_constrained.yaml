@@ -1,0 +1,110 @@
+# ==========================================================================
+# Circuit-Constrained Arithmetic Mask Learning — Phi-3-Mini-4K-Instruct
+# ==========================================================================
+# Uses circuit knowledge from Experiments 1-5 to constrain mask training
+# to only the identified arithmetic circuit components:
+#   - Routing head: L1 (H19 copies operand A → '=' position)
+#   - Compute MLPs: L19-L27 (distributed arithmetic computation)
+#   - Output MLP: L31 (numeric → token conversion)
+# All other layers are frozen at mask=1.0 (pass-through).
+#
+# Model: microsoft/Phi-3-mini-4k-instruct (32L / 32H / d=3072)
+# ==========================================================================
+
+experiment_name: arithmetic_circuit_constrained_phi3
+seed: 42
+use_wandb: false
+
+# ---------- Model ----------
+model:
+  key: "phi-3-mini"
+  name: "microsoft/Phi-3-mini-4k-instruct"
+  pretrained_cache_dir: "~/.cache/huggingface/hub"
+  dtype: "float16"
+
+# ---------- Data ----------
+data_type: "arithmetic"
+max_pad_length: 16
+
+arithmetic:
+  # 2500 pairs (50x50), answers 0-98 (all single-token).
+  # Rich carry/no-carry variation, matches circuit analysis experiments.
+  operand_range_start: 0
+  operand_range_end: 50
+  operation: "add"
+  prompt_template: "{a} + {b} = "
+
+# ---------- Training ----------
+training:
+  batch_size: 8
+  num_epochs: 1
+  device: null
+  # 30 batches × 15 iters × ~21s/iter ≈ 2.6 hours
+  max_batches: 30
+
+  # Match paper's LR (2e-2) for adequate step sizes
+  learning_rate: 2.0e-2
+  weight_decay: 0.0
+  # 2e-3: 10× paper value — forces sharper pruning to eliminate
+  # redundant distributed computation and reveal minimal circuit
+  l1_weight: 2.0e-3
+  temperature: 1.0
+  # CRITICAL: Use hybrid logit_diff + KL instead of pure KL divergence.
+  # Pure KL preserves full output distribution → biases toward output-formatting (L31).
+  # Logit diff focuses gradients on math-computation layers (L18-L27).
+  # Hybrid (70% logit_diff + 30% KL) keeps math focus while preserving some
+  # output distribution structure as a safety measure.
+  loss_type: logit_diff_kl
+  logit_diff_alpha: 0.7       # 70% logit_diff, 30% KL
+  logit_diff_clamp: 20.0      # Prevent unbounded logit diff optimization
+  # Adaptive L1 disabled — fixed l1_weight=1.95e-4 matches paper
+  adaptive_l1: false
+
+  eval_interval: 50
+  patience: 5
+  min_lr: 1e-6
+  lr_factor: 0.5
+  early_stopping: true
+  save_checkpoints: true
+
+  kl_opt: 0.15
+  l1_opt: 5000
+  validation_interval: 30
+  # Limit validation batches (20 batches × ~13s ≈ 4 min vs 313 × 13s ≈ 68 min)
+  max_val_batches: 20
+
+# ---------- SVD Masking ----------
+# Skip QK for RoPE models — cached attention patterns used instead.
+train_masks: ["OV", "MLP_in", "MLP_out"]
+
+masking:
+  # Start near pass-through: optimizer must actively prune directions
+  mask_init_value: 1.0
+  cache_svd: true
+  warmup_steps: 0
+  # 15 iters: logit_diff stabilizes by iter 10, diminishing returns after
+  max_iterations_per_batch: 15
+  sparsity_threshold: 1.0e-3
+
+# ---------- Circuit Constraints ----------
+# From Experiments 1-5 (circuit_synthesis.md).
+# ROUTING ZONE (attention): Don't pre-constrain to just L1H19.
+# Let the optimizer search the broader zone and find the minimal sufficient
+# subset — this defeats the "Hydra" redundancy problem where backup heads
+# route around ablated paths. L0-L5 covers early routing, L8-L15 covers
+# the crossover zone where operand info moves to answer position.
+# COMPUTE ZONE (MLPs): L18-L27 compute + L31 output.
+# All other layers frozen at mask=1.0 (pass-through, no gradient).
+circuit_constraints:
+  trainable_attention_layers: [0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15]
+  trainable_mlp_layers: [18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 31]
+
+# ---------- Logging ----------
+log_dir: "logs"
+
+# ---------- Visualization ----------
+visualization:
+  plot_interval: 100
+  log_gradients: false
+  save_visualizations: true
+  visualization_dir: "visualizations"

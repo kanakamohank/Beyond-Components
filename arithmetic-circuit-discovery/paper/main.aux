@@ -1,0 +1,130 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{brown2020language,touvron2023llama}
+\citation{wang2022interpretability}
+\citation{nanda2023progress,zhong2024clock}
+\citation{team2024gemma}
+\citation{abdin2024phi3}
+\citation{dubey2024llama}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\newlabel{sec:intro}{{1}{1}{Introduction}{section.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{Contributions.}{1}{section*.1}\protected@file@percent }
+\citation{nanda2023progress}
+\citation{zhong2024clock}
+\citation{vig2020investigating,meng2022locating,geiger2024finding}
+\citation{nanda2022transformerlens}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Background and Related Work}{2}{section.2}\protected@file@percent }
+\newlabel{sec:background}{{2}{2}{Background and Related Work}{section.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Mechanistic interpretability of arithmetic.}{2}{section*.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Activation patching and causal methods.}{2}{section*.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Fourier analysis on finite groups.}{2}{section*.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Chinese Remainder Theorem.}{2}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Methods}{2}{section.3}\protected@file@percent }
+\newlabel{sec:methods}{{3}{2}{Methods}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Models and Setup}{2}{subsection.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Problem generation.}{2}{section*.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Layer identification.}{2}{section*.7}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Key layers identified by full-patch transfer scan. \emph  {Computation} = first layer with ${>}50\%$ transfer; \emph  {Readout} = first layer with 100\% transfer.}}{3}{table.caption.8}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{tab:layers}{{1}{3}{Key layers identified by full-patch transfer scan. \emph {Computation} = first layer with ${>}50\%$ transfer; \emph {Readout} = first layer with 100\% transfer}{table.caption.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Fourier Basis Extraction}{3}{subsection.3.2}\protected@file@percent }
+\newlabel{sec:method_fourier}{{3.2}{3}{Fourier Basis Extraction}{subsection.3.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Hybrid SVD+DFT basis.}{3}{section*.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Frequency purity.}{3}{section*.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Causal Methods}{3}{subsection.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Full activation patching.}{3}{section*.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Subspace-restricted patching.}{3}{section*.12}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Fisher subspace.}{3}{section*.13}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Fourier knockout.}{3}{section*.14}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Fourier Phase Rotation}{3}{subsection.3.4}\protected@file@percent }
+\newlabel{sec:method_rotation}{{3.4}{3}{Fourier Phase Rotation}{subsection.3.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces \textbf  {SVD directions of per-digit mean activations are discrete Fourier modes.} Each panel shows one SVD direction's loadings on digits 0--9 (bars) overlaid with the best-fit DFT sinusoid (curve). Frequency assignment and purity shown above each panel. Left: Gemma~2B at L19. Right: Phi-3~Mini at L26. All directions achieve ${>}70\%$ purity, with most ${>}85\%$.}}{4}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:eigenvector}{{1}{4}{\textbf {SVD directions of per-digit mean activations are discrete Fourier modes.} Each panel shows one SVD direction's loadings on digits 0--9 (bars) overlaid with the best-fit DFT sinusoid (curve). Frequency assignment and purity shown above each panel. Left: Gemma~2B at L19. Right: Phi-3~Mini at L26. All directions achieve ${>}70\%$ purity, with most ${>}85\%$}{figure.caption.15}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Results}{4}{section.4}\protected@file@percent }
+\newlabel{sec:results}{{4}{4}{Results}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}The 9D Fourier Subspace}{4}{subsection.4.1}\protected@file@percent }
+\newlabel{sec:fourier_basis}{{4.1}{4}{The 9D Fourier Subspace}{subsection.4.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{CP tensor decomposition confirms trig identity structure.}{4}{section*.17}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Frequency purity of SVD directions at computation layers.}}{5}{table.caption.16}\protected@file@percent }
+\newlabel{tab:purity}{{2}{5}{Frequency purity of SVD directions at computation layers}{table.caption.16}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces \textbf  {Causal ablation results.} (a)~Per-frequency multi-layer ablation on Gemma~2B: $k{=}5$ (parity) is non-causal at both early and late layer ranges, while $k{=}1$ and $k{=}2$ each cause ${\sim }40\%$ damage at late layers. (b)~Cumulative ablation ordered by $\sigma ^2$ at L19--L25: a sharp cliff at 5D. (c)~Cross-model Fourier knockout: multi-layer ablation drops all models to $\leq $19\%, while random 9D ablation has zero effect.}}{5}{figure.caption.18}\protected@file@percent }
+\newlabel{fig:ablation}{{2}{5}{\textbf {Causal ablation results.} (a)~Per-frequency multi-layer ablation on Gemma~2B: $k{=}5$ (parity) is non-causal at both early and late layer ranges, while $k{=}1$ and $k{=}2$ each cause ${\sim }40\%$ damage at late layers. (b)~Cumulative ablation ordered by $\sigma ^2$ at L19--L25: a sharp cliff at 5D. (c)~Cross-model Fourier knockout: multi-layer ablation drops all models to $\leq $19\%, while random 9D ablation has zero effect}{figure.caption.18}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Causal Necessity and Sufficiency}{5}{subsection.4.2}\protected@file@percent }
+\newlabel{sec:causal}{{4.2}{5}{Causal Necessity and Sufficiency}{subsection.4.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Necessity: Fourier knockout.}{5}{section*.19}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Sufficiency: Fisher activation patching.}{5}{section*.21}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{The $k{=}5$ paradox.}{5}{section*.23}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Progressive Rotation into Readout Position}{5}{subsection.4.3}\protected@file@percent }
+\newlabel{sec:rotation}{{4.3}{5}{Progressive Rotation into Readout Position}{subsection.4.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Fourier knockout results. Multi-layer ablation covers all layers from computation to readout. Chance $\approx $ 10\%.}}{6}{table.caption.20}\protected@file@percent }
+\newlabel{tab:knockout}{{3}{6}{Fourier knockout results. Multi-layer ablation covers all layers from computation to readout. Chance $\approx $ 10\%}{table.caption.20}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Fisher activation patching transfer at readout layers (\% of full-patch transfer).}}{6}{table.caption.22}\protected@file@percent }
+\newlabel{tab:fisher}{{4}{6}{Fisher activation patching transfer at readout layers (\% of full-patch transfer)}{table.caption.22}{}}
+\@writefile{toc}{\contentsline {paragraph}{Dissociation between Fisher and unembed alignment.}{6}{section*.26}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Architecture-Specific CRT Components}{6}{subsection.4.4}\protected@file@percent }
+\newlabel{sec:crt}{{4.4}{6}{Architecture-Specific CRT Components}{subsection.4.4}{}}
+\@writefile{toc}{\contentsline {paragraph}{Per-neuron frequency tuning.}{6}{section*.28}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Energy explosion.}{6}{section*.30}\protected@file@percent }
+\citation{nanda2023progress}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces \textbf  {Arithmetic information emerges at sharp phase transitions.} (a)~Absolute layer indices show model-specific transition points: L18 for Gemma, L16 for LLaMA, L21 for Phi-3. (b)~Normalized depth reveals transitions occur at similar relative positions ($\sim $0.55--0.70 depth).}}{7}{figure.caption.24}\protected@file@percent }
+\newlabel{fig:layer_scan}{{3}{7}{\textbf {Arithmetic information emerges at sharp phase transitions.} (a)~Absolute layer indices show model-specific transition points: L18 for Gemma, L16 for LLaMA, L21 for Phi-3. (b)~Normalized depth reveals transitions occur at similar relative positions ($\sim $0.55--0.70 depth)}{figure.caption.24}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Progressive rotation: unembed-aligned 9D patching transfer across layers (LLaMA 3.2-3B).}}{7}{table.caption.25}\protected@file@percent }
+\newlabel{tab:progressive}{{5}{7}{Progressive rotation: unembed-aligned 9D patching transfer across layers (LLaMA 3.2-3B)}{table.caption.25}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Fourier Phase Rotation Steering}{7}{subsection.4.5}\protected@file@percent }
+\newlabel{sec:steering}{{4.5}{7}{Fourier Phase Rotation Steering}{subsection.4.5}{}}
+\@writefile{toc}{\contentsline {paragraph}{Baseline coherent rotation.}{7}{section*.32}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{The encoding-readout gap.}{7}{section*.33}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{$W_U$-informed steering bridges the gap.}{7}{section*.34}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Readout layers are immune.}{7}{section*.36}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces \textbf  {Fourier energy spectrum across layers.} Gemma (left) shows a dramatic $k{=}5$ (parity) spike at L18--L19, while Phi-3 (right) shows a $k{=}2$ (mod-5) surge at L24--L26. Both converge to ordinal ($k{=}1$ dominant) at readout.}}{8}{figure.caption.27}\protected@file@percent }
+\newlabel{fig:heatmap}{{4}{8}{\textbf {Fourier energy spectrum across layers.} Gemma (left) shows a dramatic $k{=}5$ (parity) spike at L18--L19, while Phi-3 (right) shows a $k{=}2$ (mod-5) surge at L24--L26. Both converge to ordinal ($k{=}1$ dominant) at readout}{figure.caption.27}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Steering exact digit shift rates (\%) with different methods. Best scale factor $N$ shown.}}{8}{table.caption.35}\protected@file@percent }
+\newlabel{tab:steering}{{6}{8}{Steering exact digit shift rates (\%) with different methods. Best scale factor $N$ shown}{table.caption.35}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Discussion}{8}{section.5}\protected@file@percent }
+\newlabel{sec:discussion}{{5}{8}{Discussion}{section.5}{}}
+\@writefile{toc}{\contentsline {paragraph}{Fourier structure as a universal arithmetic primitive.}{8}{section*.37}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{The $k{=}5$ paradox and epiphenomenal encoding.}{8}{section*.38}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Progressive rotation as a computational mechanism.}{8}{section*.39}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces \textbf  {Per-neuron and per-dimension Fourier frequency tuning} at computation layers. Top: MLP neurons with ${>}50\%$ purity. Bottom: residual stream dimensions. All models show $k{=}1$ (ordinal) as the most common tuning, with model-specific secondary peaks.}}{9}{figure.caption.29}\protected@file@percent }
+\newlabel{fig:neuron_tuning}{{5}{9}{\textbf {Per-neuron and per-dimension Fourier frequency tuning} at computation layers. Top: MLP neurons with ${>}50\%$ purity. Bottom: residual stream dimensions. All models show $k{=}1$ (ordinal) as the most common tuning, with model-specific secondary peaks}{figure.caption.29}{}}
+\@writefile{toc}{\contentsline {paragraph}{Architecture-specific CRT strategies.}{9}{section*.40}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Steering and the encoding-readout gap.}{9}{section*.41}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Limitations.}{9}{section*.42}\protected@file@percent }
+\bibstyle{plainnat}
+\bibdata{references}
+\bibcite{abdin2024phi3}{{1}{2024}{{Abdin et~al.}}{{Abdin, Jacobs, Awan, Aneja, Awadallah, Awadalla, Bach, Bahree, Bakhtiari, Beber, et~al.}}}
+\bibcite{brown2020language}{{2}{2020}{{Brown et~al.}}{{Brown, Mann, Ryder, Subbiah, Kaplan, Dhariwal, Neelakantan, Shyam, Sastry, Askell, et~al.}}}
+\bibcite{dubey2024llama}{{3}{2024}{{Dubey et~al.}}{{Dubey, Jauhri, Pandey, Kadian, Al-Dahle, Letman, Mathur, Schelten, Yang, Fan, et~al.}}}
+\bibcite{geiger2024finding}{{4}{2024}{{Geiger et~al.}}{{Geiger, Wu, Lu, Rozner, Kreiss, Icard, Goodman, and Potts}}}
+\bibcite{meng2022locating}{{5}{2022}{{Meng et~al.}}{{Meng, Bau, Andonian, and Belinkov}}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces \textbf  {Energy explosion} at computation layers. Total Fourier energy (log scale) and high-purity neuron count both spike at computation onset.}}{10}{figure.caption.31}\protected@file@percent }
+\newlabel{fig:energy}{{6}{10}{\textbf {Energy explosion} at computation layers. Total Fourier energy (log scale) and high-purity neuron count both spike at computation onset}{figure.caption.31}{}}
+\@writefile{toc}{\contentsline {paragraph}{Future work.}{10}{section*.43}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusion}{10}{section.6}\protected@file@percent }
+\bibcite{nanda2022transformerlens}{{6}{2022}{{Nanda and Bloom}}{{}}}
+\bibcite{nanda2023progress}{{7}{2023}{{Nanda et~al.}}{{Nanda, Chan, Lieberum, Smith, and Steinhardt}}}
+\bibcite{team2024gemma}{{8}{2024}{{Team et~al.}}{{Team, Mesnard, Hardin, Dadashi, Bhupatiraju, Pathak, Sifre, Rivi{\`e}re, Kale, Love, et~al.}}}
+\bibcite{touvron2023llama}{{9}{2023}{{Touvron et~al.}}{{Touvron, Lavril, Izacard, Martinet, Lachaux, Lacroix, Rozi{\`e}re, Goyal, Hambro, Azhar, et~al.}}}
+\bibcite{vig2020investigating}{{10}{2020}{{Vig et~al.}}{{Vig, Gehrmann, Belinkov, Qian, Nevo, Singer, and Shieber}}}
+\bibcite{wang2022interpretability}{{11}{2022}{{Wang et~al.}}{{Wang, Variengien, Conmy, Shlegeris, and Steinhardt}}}
+\bibcite{zhong2024clock}{{12}{2024}{{Zhong et~al.}}{{Zhong, Liu, Tegmark, and Andreas}}}
+\@writefile{toc}{\contentsline {section}{\numberline {A}MPS Gradient Artifact}{12}{appendix.A}\protected@file@percent }
+\newlabel{app:mps}{{A}{12}{MPS Gradient Artifact}{appendix.A}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {B}Component Attribution}{12}{appendix.B}\protected@file@percent }
+\newlabel{app:attribution}{{B}{12}{Component Attribution}{appendix.B}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Component attribution summary. DLA = Fourier-projected direct logit attribution (\% of total Fourier energy). Damage = accuracy drop from single-component mean ablation.}}{12}{table.caption.45}\protected@file@percent }
+\newlabel{tab:attribution}{{7}{12}{Component attribution summary. DLA = Fourier-projected direct logit attribution (\% of total Fourier energy). Damage = accuracy drop from single-component mean ablation}{table.caption.45}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {C}Head Attribution Frequency Breakdown}{12}{appendix.C}\protected@file@percent }
+\newlabel{app:freq_breakdown}{{C}{12}{Head Attribution Frequency Breakdown}{appendix.C}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {D}Fourier Phase Rotation Details}{12}{appendix.D}\protected@file@percent }
+\newlabel{app:rotation_details}{{D}{12}{Fourier Phase Rotation Details}{appendix.D}{}}
+\@writefile{toc}{\contentsline {paragraph}{Forward/backward asymmetry.}{12}{section*.46}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Readout layer immunity.}{13}{section*.47}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Elliptical correction.}{13}{section*.48}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {E}Cumulative Ablation Data}{13}{appendix.E}\protected@file@percent }
+\newlabel{app:ablation_data}{{E}{13}{Cumulative Ablation Data}{appendix.E}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Cumulative multi-layer frequency ablation on Gemma~2B. Frequencies added in order of decreasing $\sigma ^2$ at L19. L13--L19 = early computation; L19--L25 = late computation+readout.}}{13}{table.caption.49}\protected@file@percent }
+\newlabel{tab:cumulative}{{8}{13}{Cumulative multi-layer frequency ablation on Gemma~2B. Frequencies added in order of decreasing $\sigma ^2$ at L19. L13--L19 = early computation; L19--L25 = late computation+readout}{table.caption.49}{}}
+\gdef \@abspage@last{13}

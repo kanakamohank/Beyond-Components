@@ -1,0 +1,19 @@
+Model: microsoft/Phi-3-mini-4k-instruct
+Compass: L28 H1 SV0  sigma=13.670
+Alphas: [1.0, 1.5]   ActAdd α=1.0
+Domains: ['gender', 'race', 'profession']
+
+cond     domain       alpha     LMS      SS    ICAT     n
+------------------------------------------------------------
+baseline gender        0.00   92.75   73.33   49.46   255
+baseline race          0.00   92.36   61.64   70.85   962
+baseline profession    0.00   92.04   67.65   59.54   810
+compass  gender        1.00   92.94   73.73   48.84   255
+compass  race          1.00   92.41   62.06   70.13   962
+compass  profession    1.00   91.60   68.64   57.45   810
+compass  gender        1.50   92.75   73.73   48.74   255
+compass  race          1.50   92.52   61.85   70.59   962
+compass  profession    1.50   91.54   68.52   57.64   810
+actadd   gender        1.00   92.75   69.80   56.01   255
+actadd   race          1.00   92.57   61.43   71.40   962
+actadd   profession    1.00   91.73   64.44   65.23   810

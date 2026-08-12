@@ -1,0 +1,44 @@
+StereoSet multi-probe scan summary (GPT-2 Small)
+Probes total: 720
+Planes scanned (causal): 47 / 864
+(plane,probe) tests: 225
+Scan rows: 225
+Thresholds: R2>=0.95  dphi<=10.0  slope>=0.2
+Alphas: [3.0, 10.0]  angles: 12  decode_topk: 500
+
+Top 30 (L,H) by total passes across probes:
+    L   H  gender    race  profes  religi   TOTAL
+    9   7       6       6      30       0      42
+   10   9       0       0      18       0      18
+   11   1       6       3       9       0      18
+    7   6       0       0       3       0       3
+    9   2       0       0       0       3       3
+   10   1       0       3       0       0       3
+
+Total distinct heads with >=1 pass: 6
+Total distinct probes with >=1 pass: 23/720
+
+Top 60 probes by how many planes they pass in:
+  profession                   his / her                 6
+  profession                    he / she                 6
+  profession                   him / her                 6
+  profession                   her / his                 6
+  profession                    He / She                 6
+  profession                   she / he                  6
+  profession               algebra / english             3
+  religion               terrorist / charitable          3
+  gender                     small / large               3
+  race                        loud / quiet               3
+  profession                 quiet / loud                3
+  profession                  poor / wealthy             3
+  profession            aggressive / passive             3
+  race                        poor / wealthy             3
+  profession               violent / gentle              3
+  gender                   violent / gentle              3
+  race                        cold / poor                3
+  gender                      girl / boy                 3
+  profession                   man / woman               3
+  profession                 woman / man                 3
+  gender                       boy / girl                3
+  profession                dancer / male                3
+  race                         man / girl                3

@@ -1,0 +1,55 @@
+/Users/mkanaka/Documents/GitHub/Beyond-Components/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+`torch_dtype` is deprecated! Use `dtype` instead!
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+=================================================================
+VALIDATED HELIX USAGE INVESTIGATION
+=================================================================
+Loading gpt2-small...
+Loaded pretrained model gpt2-small into HookedTransformer
+  Model loaded: 12L, 12H, d=768
+  Target: L10 H2, SVD dims (2, 7), resid L10, T=99.0
+  Sanity checks...
+  Sanity OK  (activation shape (1, 4, 768))
+  OVERRIDE -> L9 H7 dims (1, 2)
+
+  Running --test causal-patch...
+
+===========================================================================
+CAUSAL COMPASS PATCH
+Target: L9 H7, SVD Dims (1, 2)
+===========================================================================
+
+  Prompt: 'The software company launched a new program'
+    baseline angle = 101.4°, in-plane radius = 4.562
+
+  Prompt: 'The championship was won by the rival teams'
+    baseline angle = 267.1°, in-plane radius = 3.717
+
+  Prompt: 'The explorers mapped out the uncharted territory'
+    baseline angle = 95.6°, in-plane radius = 6.045
+
+   delta     target   mean_shift    n
+  ----------------------------------------
+    -180          0      +0.0651    3
+    -180         90      +0.0625    3
+    -180        180      +0.0524    3
+    -180        270      -0.0022    3
+     -90          0      +0.0417    3
+     -90         90      +0.0365    3
+     -90        180      +0.0380    3
+     -90        270      +0.0076    3
+      +0          0      +0.0000    3
+      +0         90      +0.0000    3
+      +0        180      +0.0000    3
+      +0        270      +0.0000    3
+     +90          0      +0.0286    3
+     +90         90      +0.0278    3
+     +90        180      +0.0105    3
+     +90        270      -0.0069    3
+    +180          0      +0.0651    3
+    +180         90      +0.0625    3
+    +180        180      +0.0524    3
+    +180        270      -0.0022    3
+
+  Investigation completed successfully.

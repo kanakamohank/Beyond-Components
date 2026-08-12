@@ -1,0 +1,11 @@
+Model: google/gemma-2-2b
+Compass: L21 H4 SV0  sigma=2.354
+alphas: actadd=1.0  compass=1.0
+WinoGender rows: 720
+Baseline PPL (wikitext-2, n_chunks=16): 93.408
+
+condition   raw_gap  stereo_corr      ppl  ppl_delta     n
+------------------------------------------------------------
+baseline      1.159        0.611   93.408     +0.000   720
+actadd        0.926        0.501   94.485     +1.076   720
+compass       0.969        0.179   93.798     +0.390   720

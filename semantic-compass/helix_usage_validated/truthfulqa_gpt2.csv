@@ -1,0 +1,3 @@
+condition,alpha,mc1_acc,n,correct,skipped
+baseline,0.0,24.357405140758875,817,199,0
+ensemble_K4,1.5,25.091799265605875,817,205,0

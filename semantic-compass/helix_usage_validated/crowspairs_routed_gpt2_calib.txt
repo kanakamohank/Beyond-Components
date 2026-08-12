@@ -1,0 +1,34 @@
+Model: gpt2
+Routed ensemble: K=4 per domain  alphas=per-domain (calibrated): {'gender': 1.8899548579439753, 'race': 1.7951808649824936, 'profession': 1.3742810085440038, 'religion': 1.8701824265692044}
+Per-domain heads (best-probe within that domain):
+  gender: [FALLBACK]
+    L 9H7  SV(1,3) phi=+100.2  slope=0.368  passed=True
+    L11H1  SV(1,2) phi=-130.0  slope=0.705  passed=True
+    L 8H8  SV(0,3) phi=+119.7  slope=0.197  passed=False
+    L 7H5  SV(0,3) phi=-141.5  slope=0.092  passed=False
+  race: [FALLBACK]
+    L 9H7  SV(1,3) phi=-79.0  slope=0.470  passed=True
+    L10H1  SV(1,2) phi=-115.5  slope=0.403  passed=True
+    L11H1  SV(1,3) phi=+19.1  slope=0.655  passed=True
+    L 8H10 SV(2,3) phi=+122.9  slope=0.229  passed=False
+  profession:
+    L 9H7  SV(1,3) phi=+101.0  slope=0.470  passed=True
+    L10H9  SV(0,3) phi=+4.9  slope=1.484  passed=True
+    L11H1  SV(1,3) phi=-27.8  slope=0.819  passed=True
+    L 7H6  SV(1,2) phi=-3.7  slope=0.973  passed=True
+  religion: [FALLBACK]
+    L 9H2  SV(1,3) phi=-32.4  slope=0.459  passed=True
+    L 7H5  SV(0,1) phi=+76.9  slope=0.120  passed=False
+
+cond                    alpha domain            SS      n
+------------------------------------------------------------
+baseline                 0.00 race           50.00    516
+baseline                 0.00 profession     61.63    172
+baseline                 0.00 gender         48.47    262
+baseline                 0.00 religion       60.00    105
+baseline                 0.00 overall        52.51   1055
+routed_calib             1.80 race           53.29    516
+routed_calib             1.37 profession     57.56    172
+routed_calib             1.89 gender         33.59    262
+routed_calib             1.87 religion       57.14    105
+routed_calib            -1.00 overall        49.48   1055

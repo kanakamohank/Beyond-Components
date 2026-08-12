@@ -1,0 +1,19 @@
+Model: google/gemma-2-2b
+Compass: L21 H4 SV0  sigma=2.354
+Alphas: [1.0, 1.5]   ActAdd α=1.0
+Domains: ['gender', 'race', 'profession']
+
+cond     domain       alpha     LMS      SS    ICAT     n
+------------------------------------------------------------
+baseline gender        0.00   90.00   74.90   45.18   255
+baseline race          0.00   91.53   62.16   69.26   962
+baseline profession    0.00   90.37   65.93   61.59   810
+compass  gender        1.00   90.20   75.69   43.86   255
+compass  race          1.00   91.58   62.06   69.49   962
+compass  profession    1.00   90.43   66.05   61.40   810
+compass  gender        1.50   90.39   75.29   44.66   255
+compass  race          1.50   91.42   62.27   69.00   962
+compass  profession    1.50   90.56   64.94   63.50   810
+actadd   gender        1.00   90.39   74.12   46.79   255
+actadd   race          1.00   91.27   62.06   69.26   962
+actadd   profession    1.00   90.12   65.43   62.31   810

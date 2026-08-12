@@ -1,0 +1,21 @@
+Model: gpt2   L9H7 SV1,2
+Mode=inject  alpha=20.0  boost=1.0
+theta_plus=185.0 ( he)  theta_minus=5.0 ( she)
+
+idx ctx  base_top1      steered_top1     base_LD  steer_LD sign_flip? top_flip?
+--------------------------------------------------------------------------------------
+  0 masc he             she               +3.875    -0.125       YES      YES
+  1 masc he             he                +3.062    +0.625        no       no
+  2 masc he             he                +4.688    +1.125        no       no
+  3 masc ,              ,                 +4.438    +0.625        no       no
+  4 masc ,              ,                 +1.062    -0.312       YES       no
+  0 fem  she            she               -3.500    -1.938        no       no
+  1 fem  she            she               -1.938    -0.625        no       no
+  2 fem  she            she               -4.375    -1.125        no       no
+  3 fem  ,              ,                 -3.375    +0.500       YES       no
+  4 fem  ,              ,                 -1.812    +0.875       YES       no
+
+SIGN-FLIP (LD crosses 0): 2/5 masc->fem   2/5 fem->masc   TOTAL 4/10
+TOP-1 FLIP (argmax switches): 1/5 masc->fem   0/5 fem->masc   TOTAL 1/10
+masc avg LD: base=+3.425  steered=+0.388  delta=-3.037
+fem avg LD: base=-3.000  steered=-0.463  delta=+2.538

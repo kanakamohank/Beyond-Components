@@ -1,0 +1,82 @@
+Model: meta-llama/Llama-3.2-3B
+
+=== L26 H14 ===
+  decoded K=8/3072 axes  cum_var@K=0.526  (target=0.9, min=4, max=8)
+  SV0  sigma=2.867  cum_var=0.274
+    +v : elon | ocate | rosse | oldown | alles | atrix | ための | voke | rire | .NewRequest | agle | ertas | ruary | cade | .Raycast
+    -v : unb | nev | eph | enth | or | un | mus | Version | Version | hw | ($( | Nev | drunk | uni | alternatively
+  SV1  sigma=1.478  cum_var=0.347
+    +v : iese | elay | roups | apture | htub | recess | сяч | ronic | люч | vation | itulo | ropolis | anova | rosse | isodes
+    -v : 903 | */ | auto | wk | 913 | uri | BCM | RDD | 401 | &_ | Rug | \F | کن | bc | 923
+  SV2  sigma=1.143  cum_var=0.391
+    +v : she | her | herself | hers | she | .She | 她 | 她的 | She | 。她 | She | ，她 | 彼女 | 그녀의 | her
+    -v : his | 他 | his | himself | he | 他的 | him | jego | 、彼 | jeho | его | його | ему | him | ，他
+  SV3  sigma=0.972  cum_var=0.422
+    +v : his | himself | him | his | he | 他的 | 他 | him | 。他 | —he | ，他 | 그는 | ему | 他 | его
+    -v : عمال | &apos | فس | šlo | 它们 | ": | ovalo | « | " | Their | « | \' | "s | "}} | 
+  SV4  sigma=0.961  cum_var=0.453
+    +v : '' | `` | */ | -‐ | */ | „ | )*/ | */ | */ | """ | */ | ``( | .*/ | ‐ | ;*/
+    -v : himself | his | him | his | he | 他 | him | 他的 | 。他 | —he | 그는 | ，他 | 他 | ему | lui
+  SV5  sigma=0.909  cum_var=0.480
+    +v : `` | ``( | .version | lik | incom | “I | -version | cach | ][ | thr | */ | versions | “We | tog | these
+    -v : istle | eya | alma | subpackage | marvin | qrt | arith | 老 | psilon | ActionTypes | "\ | -China | callee | readcrumb | }\\
+  SV6  sigma=0.844  cum_var=0.504
+    +v : ‘ | “ | ’’ | ’s | ’S | ’ | ’ | ’ | ’ | ,’’ | ’m | ’, | ’é | ’re | “[
+    -v : …" | "' | " | ' | 's | 'd | 'll | 't | " | 've | 'n | 're | 'clock | … | 'm
+  SV7  sigma=0.801  cum_var=0.526
+    +v :  | � |  | '\x85' |  | « |  |  |  | (« | « |  | 「 | ``` | ``
+    -v : ﻿ | ﻿ | – | ‘ | – | ’, | ​​ | ​ | ‘ | ’ | '\u202f' | ​​​ | ’. | ​ | ’.
+
+=== L20 H13 ===
+  decoded K=8/3072 axes  cum_var@K=0.313  (target=0.9, min=4, max=8)
+  SV0  sigma=1.008  cum_var=0.070
+    +v : his | himself | his | 他的 | His | HIS | His | 그의 | zijn | seinem | sein | Himself | 。他 | 、彼 | seiner
+    -v : her | herself | haar | její | its | 她的 | Its | Its | её | she | ее | 她 | її | hers | 그녀의
+  SV1  sigma=0.995  cum_var=0.138
+    +v : their | Their | themselves | their | Their | THEIR | leur | leurs | их | loro | jejich | 她们 | ihren | ihre | їх
+    -v : its | Its | Its | its | itself | оно | jego | ITS | jeho | его | ITS | 它 | його | उसक | 其
+  SV2  sigma=0.894  cum_var=0.193
+    +v : its | their | Their | Their | Its | their | Its | THEIR | its | themselves | их | theirs | loro | jejich | leurs
+    -v : her | herself | hers | she | /her | himself | his | 她 | 她的 | 。她 | her | 그녀의 | .She | his | ，她
+  SV3  sigma=0.691  cum_var=0.226
+    +v : her | its | herself | his | její | Its | hers | Its | его | ее | 她的 | её | jeho | its | її
+    -v : your | your | yourself | Your | 你的 | Your | YOUR | myself | YOUR | votre | ваш | Yourself | yourselves | ourselves | 您的
+  SV4  sigma=0.623  cum_var=0.253
+    +v : from | from | ooter | from | by | ates | từ | by | să | Shepard | rides | 立て | Gott | ounded | 近
+    -v : kepada | 到 | unto | 到 | zum | إلى | zur | đến | 到了 | aos | dazu | إليه | tới | ToFile | 到的
+  SV5  sigma=0.560  cum_var=0.275
+    +v : your | your | Your | yourself | Your | YOUR | yourselves | 你的 | YOUR | Yourself | -your | ваш | votre | 您的 | yours
+    -v : our | my | myself | ourselves | 我的 | abych | unseren | our | unserer | OUR | 我们的 | nuestro | Our | unserem | Our
+  SV6  sigma=0.529  cum_var=0.294
+    +v : from | FROM | from | dari | from | From | -from | från | .from | _from | From | khỏi | から | từ | FROM
+    -v : onto | with | with | With | WITH | _with | onto | with | với | WITH | With | swith | avec | on | upon
+  SV7  sigma=0.522  cum_var=0.313
+    +v : with | with | avec | with | With | WITH | dengan | _with | với | With | avec | swith | WITH | .with | "With
+    -v : upon | Against | against | Upon | Against | against | onto | on | Upon | upon | عليه | على | sobre | auf | на
+
+=== L16 H20 ===
+  decoded K=8/3072 axes  cum_var@K=0.253  (target=0.9, min=4, max=8)
+  SV0  sigma=0.700  cum_var=0.049
+    +v : Their | Their | their | their | THEIR | theirs | loro | they | их | 他们 | leurs | They | 它们 | its | They
+    -v : his | himself | his | him | 他的 | 他 | he | 。他 | ему | 그는 | ，他 | him | 그가 | His | —he
+  SV1  sigma=0.659  cum_var=0.093
+    +v : Its | its | Its | its | 它 | оно | ，它 | itself | nó | it | воно | jej | její | ее | її
+    -v : They | they | their | they | loro | They | 他们 | Their | their | Their | THEY | theirs | THEIR | 他們 | ihnen
+  SV2  sigma=0.608  cum_var=0.131
+    +v : its | Its | Its | jeho | его | оно | jego | his | its | 他的 | his | його | 它 | 他 | seiner
+    -v : herself | she | her | 。她 | .She | hers | 그녀는 | she | 她 | ela | ella | She | She | ，她 | 她的
+  SV3  sigma=0.569  cum_var=0.163
+    +v : yourselves | yourself | ikler | ourselves | šlo | ของค | ınıza | оно | 妻 | Ğ | eniz | шло | entai | ويت | imiz
+    -v : her | she | 她 | herself | 她的 | hers | she | 彼女 | ，她 | 。她 | haar | 그녀의 | její | .She | ее
+  SV4  sigma=0.501  cum_var=0.188
+    +v : them | 它们 | its | Them | Its | them | they | Its | They | ellas | “They | THEM | "They | They | Them
+    -v : imax | WP | organisations | Heavy | aths | nable | vehicles | tolerant | ép | Marco | rases | ennes | Maid | vehicles | uv
+  SV5  sigma=0.477  cum_var=0.211
+    +v : ittle | Muss | belt | /archive | chan | rog | 欲 | antan | prob | Neh | odom | au | adem | Hol | bud
+    -v : 它们 | ihrer | onus | Spo | them | portion | Borough | chúng | none | arden | LM | ousel | isbury | cil | Quarter
+  SV6  sigma=0.465  cum_var=0.233
+    +v : your | 你的 | свои | свою | your | hal | alls | своей | deine | faction | orsk | Ihre | yourself | Ty | ifu
+    -v : she | she | herself | .She | 她 | ，她 | 。她 | hers | She | elle | her | they | them | она | /she
+  SV7  sigma=0.445  cum_var=0.253
+    +v : patients | pacientes | upil | clients | clients | client | 学生 | meu | paciente | atures | patient | pupil | candidates | customers | youngsters
+    -v : herself | she | her | 她 | Nack | /her | � | she | 彼女 | producer | grandparents | её | organisers | classical | producer

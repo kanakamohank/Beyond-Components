@@ -1,0 +1,76 @@
+/Users/mkanaka/Documents/GitHub/Beyond-Components/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct requires setting trust_remote_code=True
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct state dict requires setting trust_remote_code=True
+`torch_dtype` is deprecated! Use `dtype` instead!
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:`flash-attention` package not found, consider installing for better performance: No module named 'flash_attn'.
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:Current `flash-attention` does not support `window_size`. Either upgrade or use `attn_implementation='eager'`.
+=================================================================
+VALIDATED HELIX USAGE INVESTIGATION
+=================================================================
+Loading microsoft/Phi-3-mini-4k-instruct...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 26.65it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model microsoft/Phi-3-mini-4k-instruct into HookedTransformer
+  Model loaded: 32L, 32H, d=3072
+  Target: L24 H28, SVD dims (3, 7), resid L25, T=11.74
+  Sanity checks...
+  Sanity OK  (activation shape (1, 6, 3072))
+
+  Running --test cyclicity-all...
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L24 H28, SVD Dims (3, 7)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: ['operations', 'operation', 'experiments', 'program', 'process', 'life', 'programme', 'analysis', 'operation', 'programma']
+  Top-10 @ 180°: ['tokens', 'atoms', 'items', 'objects', 'materials', 'cells', 'nodes', 'particles', 'pieces', 'keywords']
+  Top-10 @ 360°: ['operations', 'operation', 'experiments', 'program', 'process', 'life', 'programme', 'analysis', 'operation', 'programma']
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L24 H15, SVD Dims (0, 1)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: ['�', 'ná', 'ʰ', '▶', 'дви', 'ws', 'threads', '̥', 'со', '<s>']
+  Top-10 @ 180°: ['today', 'December', 'January', 'today', 'November', 'February', 'September', 'yesterday', 'October', 'July']
+  Top-10 @ 360°: ['�', 'ná', 'ʰ', '▶', 'дви', 'ws', 'threads', '̥', 'со', '<s>']
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L24 H17, SVD Dims (1, 2)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: ['hour', 'hour', 'hours', 'tom', 'yesterday', 'evening', 'afternoon', 'Years', 'morning', 'Day']
+  Top-10 @ 180°: ['month', 'Month', 'month', 'Month', 'months', 'mois', 'meses', 'February', 'January', 'December']
+  Top-10 @ 360°: ['hour', 'hour', 'hours', 'tom', 'yesterday', 'evening', 'afternoon', 'Years', 'morning', 'Day']
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L24 H3, SVD Dims (1, 2)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: ['sea', 'sail', 'boat', 'ships', 'boats', 'Sea', 'marine', 'ocean', 'ship', 'naval']
+  Top-10 @ 180°: ['草', 'schrift', 'тал', 'oux', 'runs', 'bach', 'icana', 'AX', 'AME', 'rural']
+  Top-10 @ 360°: ['sea', 'sail', 'boat', 'ships', 'boats', 'Sea', 'marine', 'ocean', 'ship', 'naval']
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CYCLICITY SUMMARY — L24 compass heads
+===========================================================================
+  head                  J(0,360)  J(0,180)  verdict
+  L24H28(3,7)              1.000     0.000  CIRCLE: closed and with distinct antipodes
+  L24H15(0,1)              1.000     0.000  CIRCLE: closed and with distinct antipodes
+  L24H17(1,2)              1.000     0.000  CIRCLE: closed and with distinct antipodes
+  L24H3(1,2)               1.000     0.000  CIRCLE: closed and with distinct antipodes
+
+  Investigation completed successfully.

@@ -1,0 +1,108 @@
+\documentclass[11pt]{article}
+\usepackage[landscape,margin=0.6in]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{caption}
+\usepackage{amssymb}
+\usepackage{multirow}
+
+\renewcommand{\arraystretch}{1.25}
+\setlength{\tabcolsep}{8pt}
+
+\newcommand{\pass}{\textcolor{teal!70!black}{$\checkmark$}}
+\newcommand{\fail}{\textcolor{red!60!black}{$\times$}}
+\newcommand{\hd}[3]{L#1\,H#2\,#3}
+
+\title{\textbf{Per-domain compass heads}\\\large
+  top-4 heads per bias domain, across four model families}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\vspace{-32pt}
+
+\noindent\small
+Source: \texttt{helix\_usage\_validated/per\_domain\_alpha\_\{gpt2,phi3,gemma,llama\}.json}.
+For every (model, domain) we list the top-4 passing heads used by the routed ensemble,
+ordered by calibrated contribution. \pass{} = head passed the SNR gate at the
+calibrated $\alpha$; \fail{} = retained fallback (SNR under target). $\alpha$ is
+the per-domain scale that hits the target SNR.
+
+\vspace{8pt}
+\begin{center}
+\begin{tabular}{@{}l|l|l|l|l@{}}
+\toprule
+\textbf{Model} & \textbf{Gender} & \textbf{Race} & \textbf{Profession} & \textbf{Religion} \\
+\midrule
+\multirow{2}{*}{\textbf{GPT-2}}
+  & \hd{9}{7}{\pass}, \hd{11}{1}{\pass}
+  & \hd{9}{7}{\pass}, \hd{10}{1}{\pass}
+  & \hd{9}{7}{\pass}, \hd{10}{9}{\pass}
+  & \hd{9}{2}{\pass}, \hd{7}{5}{\fail} \\
+  & \hd{8}{8}{\fail}, \hd{7}{5}{\fail}
+  & \hd{11}{1}{\pass}, \hd{8}{10}{\fail}
+  & \hd{11}{1}{\pass}, \hd{7}{6}{\pass}
+  &  \\
+  & $\alpha{=}1.89$ & $\alpha{=}1.80$ & $\alpha{=}1.37$ & $\alpha{=}1.87$ \\
+\midrule
+\multirow{2}{*}{\textbf{Phi-3-mini}}
+  & \hd{24}{14}{\pass}, \hd{28}{26}{\pass}
+  & \hd{24}{14}{\pass}, \hd{27}{6}{\pass}
+  & \hd{24}{14}{\pass}, \hd{28}{1}{\pass}
+  & \hd{28}{26}{\pass}, \hd{24}{14}{\pass} \\
+  & \hd{30}{4}{\pass}, \hd{26}{22}{\pass}
+  & \hd{28}{26}{\fail}, \hd{26}{24}{\pass}
+  & \hd{26}{24}{\pass}, \hd{27}{16}{\pass}
+  & \hd{29}{9}{\pass}, \hd{30}{6}{\fail} \\
+  & $\alpha{=}6.38$ & $\alpha{=}6.44$ & $\alpha{=}4.75$ & $\alpha{=}6.67$ \\
+\midrule
+\multirow{2}{*}{\textbf{Gemma-2-2B}}
+  & \hd{16}{2}{\pass}, \hd{18}{2}{\fail}
+  & \hd{20}{2}{\pass}, \hd{24}{5}{\pass}
+  & \hd{20}{5}{\pass}, \hd{21}{4}{\pass}
+  & \hd{14}{3}{\fail}, \hd{14}{2}{\fail} \\
+  & \hd{20}{3}{\fail}, \hd{22}{1}{\fail}
+  & \hd{25}{2}{\pass}, \hd{18}{2}{\fail}
+  & \hd{16}{2}{\pass}, \hd{19}{4}{\fail}
+  & \hd{16}{4}{\fail}, \hd{7}{0}{\fail} \\
+  & $\alpha{=}55.26$ & $\alpha{=}81.36$ & $\alpha{=}29.73$ & $\alpha{=}31.19$ \\
+\midrule
+\multirow{2}{*}{\textbf{Llama-3.2-3B}}
+  & \hd{22}{12}{\pass}, \hd{22}{14}{\pass}
+  & \hd{22}{12}{\pass}, \hd{22}{14}{\pass}
+  & \hd{22}{12}{\pass}, \hd{22}{14}{\pass}
+  & \hd{22}{12}{\pass}, \hd{26}{20}{\fail} \\
+  & \hd{26}{23}{\pass}, \hd{23}{20}{\pass}
+  & \hd{26}{21}{\pass}, \hd{26}{23}{\pass}
+  & \hd{26}{14}{\pass}, \hd{20}{13}{\pass}
+  & \hd{23}{14}{\fail}, \hd{22}{13}{\fail} \\
+  & $\alpha{=}6.08$ & $\alpha{=}5.34$ & $\alpha{=}5.17$ & $\alpha{=}6.99$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{10pt}
+\noindent\small\textbf{Reading guide.}
+Each cell lists the 4 heads (layer$\cdot$head) the routed ensemble uses for that
+(model, domain) pair, in rank order. The bottom row per model is the scalar
+$\alpha$ the per-domain calibrator selected to hit the target SNR
+(Gemma alphas are large because its residual-stream norms are substantially
+bigger than the other models'). Heads that recur across domains (e.g.\
+GPT-2 L9~H7; Phi-3 L24~H14; Llama L22~H12, L22~H14) are the \emph{multi-domain}
+heads; heads that appear in a single column are \emph{domain-specific}. This is
+the source of the routing analysis in \texttt{head\_domain\_routing.md}:
+GPT-2 and Gemma are \emph{specialized} (spec index $\geq 0.80$), Phi-3 and
+Llama are \emph{mixed} (spec index $\approx 0.50$, which is why both per-domain
+routing and per-domain $\alpha$ help those two).
+
+\vspace{6pt}
+\noindent\small\textbf{Note on Gemma religion.} None of the four top heads
+Gemma routes for religion pass the SNR gate --- the fallback is retained with
+a high $\alpha$. This is consistent with Gemma's specialization profile
+(single dominant gender head at L21~H4) and explains the weaker StereoSet
+religion effect observed for Gemma.
+
+\end{document}

@@ -1,0 +1,238 @@
+\documentclass[11pt]{article}
+\usepackage[a3paper,landscape,margin=0.7in]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable, skins}
+\usepackage{caption}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=teal, urlcolor=teal}
+
+\setlist[itemize]{leftmargin=1.1em, topsep=1pt, itemsep=1pt, parsep=0pt}
+
+\renewcommand{\arraystretch}{1.22}
+\setlength{\tabcolsep}{6pt}
+
+\definecolor{gpt2c}{HTML}{1F6FEB}
+\definecolor{phi3c}{HTML}{B5197C}
+\definecolor{gemmac}{HTML}{0F9D58}
+\definecolor{llamac}{HTML}{D6840B}
+
+\tcbset{
+  modelbox/.style={
+    enhanced, colback=white, boxrule=0.4pt, arc=2pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    fonttitle=\bfseries\small, fontupper=\footnotesize, breakable,
+    fontlower=\footnotesize
+  },
+  keybox/.style={
+    colback=teal!4, colframe=teal!55, boxrule=0.3pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    fonttitle=\bfseries, fontupper=\small, breakable
+  }
+}
+
+\title{\vspace{-20pt}\textbf{Model architecture comparison --- Semantic Dial Compass project}\\[2pt]
+\normalsize\normalfont How the four model families differ, and how those differences showed up in our experiments.}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\vspace{-36pt}
+
+%============================================================
+% TABLE 1: ARCHITECTURE SPEC SHEET
+%============================================================
+\begin{center}
+\small
+\begin{tabular}{@{}l|cccc@{}}
+\toprule
+ & \textbf{\textcolor{gpt2c}{GPT-2 small}} & \textbf{\textcolor{phi3c}{Phi-3-mini-4k}} & \textbf{\textcolor{gemmac}{Gemma-2-2B}} & \textbf{\textcolor{llamac}{Llama-3.2-3B}} \\
+\midrule
+Release year & 2019 & 2024 & 2024 & 2024 \\
+Parameters & 124 M & 3.8 B & 2.6 B & 3.2 B \\
+Tokenizer & BPE (50257) & tiktoken cl100k-ish (32064) & SentencePiece (256000) & tiktoken (128256) \\
+Layers ($L$) & 12 & 32 & 26 & 28 \\
+Attention heads / layer & 12 (MHA) & 32 (MHA) & 8 Q / 4 KV (GQA) & 24 Q / 8 KV (GQA) \\
+$d_\text{model}$ & 768 & 3072 & 2304 & 3072 \\
+$d_\text{head}$ & 64 & 96 & 256 & 128 \\
+Positional encoding & Learned abs. & RoPE & RoPE & RoPE \\
+Attention pattern & full causal & full causal & \textbf{sliding window} + full, alternating & full causal \\
+Activation / FFN & GELU & SwiGLU & GeGLU & SwiGLU \\
+Norm type & LayerNorm (post) & RMSNorm (pre) & RMSNorm (pre) & RMSNorm (pre) \\
+Tied embeddings & yes & no & yes (logit softcap) & no \\
+Training data era & WebText (2019) & Phi-3 synthetic + filtered web (2024) & Gemma-2 corpus (2024) & Llama-3 corpus (2024) \\
+Instruct tuned & no & \textbf{yes} & base & base \\
+Total attention heads & 144 & 1024 & 208 & 672 \\
+\midrule
+\textbf{Primary compass head} & \textbf{L10 H9 SV0} & \textbf{L28 H1 SV0} & \textbf{L21 H4 SV0} & \textbf{L26 H14 SV2} \\
+Scanned planes (top-4 SVs) & 864 & 1344$^{\dagger}$ & 240$^{\dagger}$ & 4032 \\
+Planes passing both tests & 16 ($1.9\%$) & 14 ($1.0\%$) & 3 ($1.2\%$) & 9 ($0.2\%$) \\
+Heads that debias WinoGender & 1 & 1 & 1 & 1 \\
+Calibrated $\alpha$ (gender) & $1.89$ & $6.38$ & $55.26$ & $6.08$ \\
+PPL $\Delta$ at best $\alpha$ & $<1.0$ & $+0.1$ & $+2.0$ (at $\alpha{=}2$) & $+0.035$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace{-2pt}
+\noindent\footnotesize$^{\dagger}$Scan restricted to a mid-to-late layer window and head subset selected from a coarser first pass; full enumeration is $L \times H \times \binom{4}{2}$.
+
+\vspace{10pt}
+
+%============================================================
+% ROW: PER-MODEL IMPACT BOXES
+%============================================================
+\noindent
+\begin{minipage}[t]{0.245\linewidth}
+\begin{tcolorbox}[modelbox, colframe=gpt2c, title={\textcolor{gpt2c}{GPT-2 small} --- the baseline}]
+\textbf{Why it works well as a canary.} Small, fully open, learned absolute
+position, post-LN. The scan budget (864 planes) is trivial; you can enumerate
+everything in minutes on CPU.
+
+\textbf{Impact on results.}
+\begin{itemize}
+    \item Cleanest $\alpha$-sweep: monotone linear, zero near $\alpha{=}1.5$, PPL barely moves.
+    \item StereoSet \emph{does} transfer --- this is the only model where the gender axis propagates to sentence-level SS.
+    \item Smallest $d_\text{model}$ $\Rightarrow$ smallest residual norm $\Rightarrow$ smallest $\alpha$ (1.89). $\alpha$ is a calibration scalar, not a claim about signal strength.
+\end{itemize}
+
+\textbf{Caveat.} Old training data; gendered-occupation bias is large ($\approx 0.60$ \texttt{stereo\_corr}). Easier target than modern models, so it flatters the method.
+\end{tcolorbox}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.245\linewidth}
+\begin{tcolorbox}[modelbox, colframe=phi3c, title={\textcolor{phi3c}{Phi-3-mini} --- the multilingual payoff}]
+\textbf{Why it's interesting.} Instruct-tuned on heavy synthetic data. RoPE
++ pre-RMSNorm. Deep (32L) with $1024$ total heads, so scan budget explodes;
+we filtered to late layers.
+
+\textbf{Impact on results.}
+\begin{itemize}
+    \item Compass axis decodes to \textbf{multilingual gender}: \emph{lui, его, elle, ella, 他, 她, 그녀}. Architecture has no multilingual-specific mechanism; this is a pure feature-geometry effect.
+    \item Largest \emph{taxonomy} of pronoun compasses (5 passing heads in the dictionary), because many MHA heads specialise in different pronoun features (number, person, demonstrative).
+    \item StereoSet does \emph{not} transfer --- instruct tuning shifts sentence-level scoring, and the compass remains position-local.
+\end{itemize}
+
+\textbf{Caveat.} Filtered / instruction-heavy pretraining changes what probing looks like; watch for prompt-style leakage in ActAdd.
+\end{tcolorbox}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.245\linewidth}
+\begin{tcolorbox}[modelbox, colframe=gemmac, title={\textcolor{gemmac}{Gemma-2-2B} --- the specialised one}]
+\textbf{Why it's different.} \textbf{GQA} (8 Q, 4 KV), \textbf{sliding-window attention alternating with full}, \textbf{logit softcap}, large $d_\text{head}=256$. Much larger residual norms than the others.
+
+\textbf{Impact on results.}
+\begin{itemize}
+    \item \textbf{$\alpha$ is huge} ($55$--$81$ across domains) --- a direct consequence of residual-norm scale, not a weaker compass.
+    \item Head-domain routing is \emph{specialised} (spec index $= 1.00$): one head (L21 H4) carries most of gender. Good for surgical edits.
+    \item \textbf{Religion fails} --- 0 of 4 top heads pass the SNR gate; fallback retained. Consistent with the specialisation profile: if the concept isn't localised, routing can't invent a head.
+    \item Sliding-window attention may be why only 3 planes pass out of 240 scanned: short-range context dilutes the pronoun signal.
+\end{itemize}
+\end{tcolorbox}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.245\linewidth}
+\begin{tcolorbox}[modelbox, colframe=llamac, title={\textcolor{llamac}{Llama-3.2-3B} --- the compositional one}]
+\textbf{Why it stresses the method.} GQA (24 Q, 8 KV) means 672 query heads
+share only 8 KV groups; features smear across many query heads writing into
+fewer KV slots. Heavy-tailed $W_{OV}$ spectra.
+
+\textbf{Impact on results.}
+\begin{itemize}
+    \item Compass rate is $\sim 5\times$ rarer ($0.22\%$) than the others --- the compositional / less axis-aligned regime.
+    \item \textbf{Gender axis sits at SV2, not SV0.} SV0/SV1 of L26 H14 decode to register / punctuation noise. Same causal sweep, different ordering inside the head. $c_8 = 0.53$ cumulative variance --- heavier tail than GPT-2 / Phi-3 / Gemma ($0.23$--$0.36$).
+    \item \textbf{Cleanest intervention by PPL}: $+0.035$ at $\alpha{=}1.5$. Surgical edits survive GQA smearing because the axis is defined in residual-stream coordinates, not head-output coordinates.
+    \item Per-domain routing is \emph{mixed} (spec index $\approx 0.47$): many heads share each domain $\Rightarrow$ per-domain $\alpha$ and per-domain head selection both help.
+\end{itemize}
+\end{tcolorbox}
+\end{minipage}
+
+\vspace{10pt}
+
+%============================================================
+% CROSS-CUTTING ANALYSIS: ARCH DIFF -> EXPERIMENTAL IMPACT
+%============================================================
+\begin{tcolorbox}[keybox, title=How each architectural difference propagated into the experiment pipeline]
+\small
+\begin{center}
+\begin{tabular}{@{}p{4.5cm}|p{9cm}|p{8cm}|p{6.5cm}@{}}
+\toprule
+\textbf{Architectural choice} & \textbf{Mechanical consequence} & \textbf{Visible in our pipeline as} & \textbf{Mitigation we used} \\
+\midrule
+\textbf{MHA vs GQA} (GPT-2 / Phi-3 are MHA; Gemma / Llama are GQA) &
+GQA: many query heads sharing K/V means features are distributed across query heads; fewer ``pure'' axis-aligned heads. &
+Llama's $0.2\%$ pass rate (vs $1\text{--}2\%$ for MHA models); gender axis at SV2 for Llama. &
+Extend scan to top-8 SVs; decode every SV axis, not just SV0 (this is what the taxonomy table shows). \\
+\midrule
+\textbf{Positional encoding} (learned-abs vs RoPE) &
+RoPE mixes position into Q/K multiplicatively at every attention op; position is not in residual. &
+Compass axis decoded from $W_U$ gives pronoun tokens only --- no position leakage. Phase stability test (scan criterion iii) is unaffected. &
+None needed; compass is a residual-stream direction, RoPE is orthogonal. \\
+\midrule
+\textbf{Sliding-window attention} (Gemma only) &
+Alternating local/global layers mean the pronoun signal must re-enter a global layer to reach the compass head. &
+Gemma's scan planes are few (240) and the passing head is in a global layer (L21). Religion fails --- the concept is not localised at a single global layer. &
+Keep the routed-ensemble top-$K=4$ heads per domain; if none pass, retain fallback (observed for Gemma religion). \\
+\midrule
+\textbf{$d_\text{model}$ scale} (768 $\to$ 3072) &
+Residual norm grows roughly linearly in $d_\text{model}$. SNR $ = \Vert \alpha \sigma u \Vert / \Vert r \Vert$ also scales. &
+Calibrated $\alpha$ varies from $1.89$ (GPT-2) to $55.26$ (Gemma). The \emph{relative} edit is similar. &
+\texttt{calibrate\_per\_domain\_alpha.py} solves $\alpha$ so mean SNR hits target budget; keeps cross-model comparisons fair. \\
+\midrule
+\textbf{Instruct vs base} (Phi-3 is instruct; others are base) &
+Instruct tuning re-shapes sentence-level log-prob distribution; token-level logits at pronoun positions are preserved. &
+WinoGender (token-level) transfers; StereoSet (sentence-level) does not for Phi-3 / Gemma / Llama. &
+Report both; treat StereoSet non-transfer as an honest boundary, not a bug. \\
+\midrule
+\textbf{$W_{OV}$ spectrum} (GPT-2 light tail; Llama heavy tail) &
+Heavy-tailed head spectrum $\Rightarrow$ top-SV directions capture register, not semantics. &
+Llama gender lives on SV2 of L26 H14; $c_8 = 0.53$ vs $\le 0.36$ for the other models. &
+Decode 4--8 SVs per head; select the axis by decoded-token semantics, not by rank. \\
+\midrule
+\textbf{Tokenizer vocabulary} (50k BPE vs 128k--256k SentencePiece) &
+Pronouns (\texttt{"he"}, \texttt{"she"}) may appear once or many times (capitalised / leading-space variants). &
+Affects $\ell = W_U u$ decoding --- we aggregate across casing variants. Phi-3 / Gemma also show cross-lingual pronoun tokens on the same axis. &
+Token normalisation in the dictionary reader; cross-lingual evidence treated as a \emph{feature}, not a confound. \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{tcolorbox}
+
+\vspace{6pt}
+
+%============================================================
+% BOTTOM LINE
+%============================================================
+\noindent
+\begin{minipage}[t]{0.49\linewidth}
+\begin{tcolorbox}[keybox, title=What replicates across all four]
+\begin{itemize}
+    \item \textbf{Existence}: exactly one head per model carries a clean gender direction that debias WinoGender.
+    \item \textbf{Causality}: monotone linear drop in bias as $\alpha$ increases; sign flip at $\alpha{=}2.0$.
+    \item \textbf{Surgicality}: PPL cost is small (under $1$ point in all four; $+0.035$ on Llama).
+    \item \textbf{Targeted beats diffuse}: compass Pareto-dominates ActAdd in every model at $4$--$20\times$ lower PPL cost.
+    \item \textbf{Dissociation}: other passing compass heads encode number / person / demonstratives, not gender --- cherry-pick defence survives.
+\end{itemize}
+\end{tcolorbox}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.49\linewidth}
+\begin{tcolorbox}[keybox, title=What varies --- and why the architecture explains it]
+\begin{itemize}
+    \item \textbf{Compass rarity}: MHA models pass $1\text{--}2\%$ of planes; GQA Llama passes $0.2\%$. GQA smears features across query heads.
+    \item \textbf{SV location}: light-tail spectra (GPT-2, Phi-3, Gemma) put gender on SV0; heavy-tail (Llama) hides it under register noise on SV0/SV1, gender lives at SV2.
+    \item \textbf{Domain specialisation}: Gemma (sliding window + GQA) is \emph{specialised}; Phi-3 / Llama are \emph{mixed}. Phi-3's many MHA heads $\Rightarrow$ richer pronoun-feature taxonomy.
+    \item \textbf{StereoSet transfer}: only GPT-2 replicates at sentence-level. Instruct tuning + larger $d_\text{model}$ decouple token-level and sentence-level bias.
+    \item \textbf{Religion failure}: only in Gemma --- the specialisation profile has no single head localising religion; routing cannot invent one.
+\end{itemize}
+\end{tcolorbox}
+\end{minipage}
+
+\end{document}

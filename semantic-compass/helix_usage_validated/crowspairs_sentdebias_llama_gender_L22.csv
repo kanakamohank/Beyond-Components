@@ -1,0 +1,7 @@
+condition,domain,ss,n,skipped
+baseline,gender,54.19847328244275,262,0
+baseline,profession,66.86046511627907,172,0
+baseline,overall,59.21658986175115,434,0
+sentdebias,gender,51.52671755725191,262,0
+sentdebias,profession,66.86046511627907,172,0
+sentdebias,overall,57.6036866359447,434,0

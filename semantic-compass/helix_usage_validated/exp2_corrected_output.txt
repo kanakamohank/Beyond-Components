@@ -1,0 +1,142 @@
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct requires setting trust_remote_code=True
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct state dict requires setting trust_remote_code=True
+`torch_dtype` is deprecated! Use `dtype` instead!
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:`flash-attention` package not found, consider installing for better performance: No module named 'flash_attn'.
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:Current `flash-attention` does not support `window_size`. Either upgrade or use `attn_implementation='eager'`.
+
+[0] Loading microsoft/Phi-3-mini-4k-instruct on mps...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  4.66it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  6.45it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  6.10it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model microsoft/Phi-3-mini-4k-instruct into HookedTransformer
+
+===========================================================================
+EXPERIMENT 1: LayerNorm Angle Preservation Test
+Claim: Angles survive LayerNorm; magnitudes don't.
+Target: L24 H28, SVD Dims (3, 7)
+===========================================================================
+
+  Category     Token        | Pre-LN°   Post-LN°   Δ Angle  | Mag Pre   Mag Post  Mag Ratio
+  -----------------------------------------------------------------------------------------------
+  Operations   program      |   24.1°    24.1°     0.00°   |  13.555    2.571   0.1897x
+  Operations   experiments  |   13.4°    13.4°     0.00°   |  12.307    2.245   0.1824x
+  Operations   operations   |   18.8°    18.8°     0.00°   |  15.144    2.701   0.1783x
+  Operations   program      |   21.7°    21.7°     0.00°   |  17.055    3.214   0.1885x
+  Operations   operations   |   28.3°    28.3°     0.00°   |  10.513    1.950   0.1855x
+  Teams        teams        |   92.0°    92.0°     0.00°   |  10.645    2.136   0.2006x
+  Teams        team         |   66.4°    66.4°     0.00°   |   7.143    1.430   0.2002x
+  Teams        groups       |   46.0°    46.0°     0.00°   |   4.832    0.875   0.1810x
+  Teams        teams        |   66.6°    66.6°     0.00°   |   8.682    1.631   0.1878x
+  Teams        groups       |   46.0°    46.0°     0.00°   |   8.847    1.583   0.1789x
+  Tools        tools        |   73.1°    73.1°     0.00°   |   5.653    1.155   0.2043x
+  Tools        tools        |   45.7°    45.7°     0.00°   |  10.353    1.926   0.1860x
+  Tools        tokens       |   70.8°    70.8°     0.00°   |   3.972    0.781   0.1966x
+  Tools        tools        |   84.1°    84.1°     0.00°   |   5.480    1.086   0.1981x
+  Tools        tools        |   34.9°    34.9°     0.00°   |   9.193    1.863   0.2027x
+  Geography    territory    |  332.5°   332.5°     0.00°   |  10.630    2.043   0.1922x
+  Geography    areas        |  318.1°   318.1°     0.00°   |   9.009    1.678   0.1863x
+  Geography    regions      |  329.2°   329.2°     0.00°   |   7.758    1.527   0.1968x
+  Geography    territory    |  315.8°   315.8°     0.00°   |   5.623    1.070   0.1902x
+  Geography    areas        |  318.9°   318.9°     0.00°   |   9.515    1.839   0.1933x
+
+  ===========================================================================
+  EXPERIMENT 1 SUMMARY
+  ===========================================================================
+  Angle deltas:    mean=0.00°, max=0.00°, std=0.00°
+  Magnitude ratios: mean=0.1910x, std=0.0077
+
+  Normalization type: RMSPre
+  NOTE: RMSPre is pure scalar scaling → angles are EXACTLY preserved (mathematical identity)
+        Standard LayerNorm (with mean subtraction) would show approximate, not exact, preservation.
+        The architecture CHOICE of RMSNorm guarantees angle invariance.
+
+  --> CONFIRMED: Normalization preserves angles (mean Δ=0.00°)
+      Magnitudes change by 0.1910x on average
+      Angles are the ONLY information surviving normalization in this subspace
+
+===========================================================================
+EXPERIMENT 2 (CORRECTED): Full Depth Profile
+Fixed projection: L24 H28 SVD dims (3, 7)
+Metric: Fisher discriminability (between-class / within-class variance)
+Baseline: random category shuffle (same tokens, scrambled labels)
+===========================================================================
+
+  Running 20 prompts (5/category), all 32 layers...
+
+  Layer  | Fisher   | Baseline   | Ratio   | Btwn-Std   | Within-Std  | Verdict
+  -------------------------------------------------------------------------------------
+  L0    |   9.91 |     1.48   |  6.71x |   129.4°   |    33.4°     | 🔥 STRONG (>>baseline)
+  L1    |   3.06 |     0.33   |  9.40x |    79.9°   |    40.3°     | 🔥 STRONG (>>baseline)
+  L2    |   4.06 |     0.58   |  7.02x |    79.8°   |    39.1°     | 🔥 STRONG (>>baseline)
+  L3    |   1.72 |     0.34   |  5.05x |    73.4°   |    45.6°     | 🔥 STRONG (>>baseline)
+  L4    |   1.39 |     0.25   |  5.46x |    52.4°   |    36.1°     | 🔥 STRONG (>>baseline)
+  L5    |   1.43 |     0.27   |  5.24x |    65.5°   |    48.3°     | 🔥 STRONG (>>baseline)
+  L6    |   3.81 |     0.25   | 15.36x |    52.6°   |    24.3°     | 🔥 STRONG (>>baseline)
+  L7    |   5.68 |     0.32   | 17.97x |    62.2°   |    18.8°     | 🔥 STRONG (>>baseline)
+  L8    |   4.07 |     0.38   | 10.73x |    65.9°   |    25.6°     | 🔥 STRONG (>>baseline)
+  L9    |   8.33 |     0.35   | 23.66x |    66.8°   |    22.1°     | 🔥 STRONG (>>baseline)
+  L10   |   4.71 |     0.45   | 10.49x |    66.4°   |    25.3°     | 🔥 STRONG (>>baseline)
+  L11   |   2.88 |     0.30   |  9.73x |    61.5°   |    31.9°     | 🔥 STRONG (>>baseline)
+  L12   |   3.53 |     0.27   | 12.93x |    61.6°   |    30.2°     | 🔥 STRONG (>>baseline)
+  L13   |   4.78 |     0.31   | 15.18x |    62.1°   |    26.4°     | 🔥 STRONG (>>baseline)
+  L14   |   5.12 |     0.28   | 18.19x |    63.6°   |    25.7°     | 🔥 STRONG (>>baseline)
+  L15   |   5.23 |     0.24   | 21.98x |    58.4°   |    24.0°     | 🔥 STRONG (>>baseline)
+  L16   |   4.32 |     0.24   | 18.17x |    51.8°   |    20.6°     | 🔥 STRONG (>>baseline)
+  L17   |   1.75 |     0.24   |  7.27x |    42.8°   |    23.4°     | 🔥 STRONG (>>baseline)
+  L18   |   6.63 |     0.23   | 29.06x |    44.8°   |    14.9°     | 🔥 STRONG (>>baseline)
+  L19   |   8.13 |     0.24   | 34.42x |    47.1°   |    14.5°     | 🔥 STRONG (>>baseline)
+  L20   |   6.34 |     0.27   | 23.19x |    41.0°   |    14.4°     | 🔥 STRONG (>>baseline)
+  L21   |   8.43 |     0.25   | 33.46x |    48.0°   |    14.1°     | 🔥 STRONG (>>baseline)
+  L22   |   6.65 |     0.20   | 33.38x |    39.2°   |    12.9°     | 🔥 STRONG (>>baseline)
+  L23   |   8.59 |     0.22   | 39.53x |    44.5°   |    13.2°     | 🔥 STRONG (>>baseline)
+  L24   |   9.99 |     0.23   | 43.47x |    41.9°   |    11.8°     | 🔥 STRONG (>>baseline) ◀
+  L25   |   6.41 |     0.22   | 29.44x |    38.5°   |    13.5°     | 🔥 STRONG (>>baseline)
+  L26   |   6.08 |     0.20   | 29.64x |    40.3°   |    14.8°     | 🔥 STRONG (>>baseline)
+  L27   |   6.15 |     0.21   | 28.78x |    38.5°   |    13.7°     | 🔥 STRONG (>>baseline)
+  L28   |   5.91 |     0.22   | 26.73x |    38.8°   |    15.0°     | 🔥 STRONG (>>baseline)
+  L29   |   4.45 |     0.20   | 22.16x |    35.7°   |    15.8°     | 🔥 STRONG (>>baseline)
+  L30   |   3.54 |     0.22   | 16.35x |    35.4°   |    17.4°     | 🔥 STRONG (>>baseline)
+  L31   |   2.98 |     0.20   | 14.64x |    31.4°   |    17.2°     | 🔥 STRONG (>>baseline)
+
+  ===========================================================================
+  EXPERIMENT 2 SUMMARY
+  ===========================================================================
+  Peak discriminability (vs baseline): L24 (ratio=43.47x)
+  Compass layer: L24
+  Compass Fisher=9.99, baseline=0.23, ratio=43.47x
+
+  Depth profile (Fisher ratio over random baseline):
+  L 0 | ██████                                    6.71x
+  L 1 | ████████                                  9.40x
+  L 2 | ██████                                    7.02x
+  L 3 | ████                                      5.05x
+  L 4 | █████                                     5.46x
+  L 5 | ████                                      5.24x
+  L 6 | ██████████████                           15.36x
+  L 7 | ████████████████                         17.97x
+  L 8 | █████████                                10.73x
+  L 9 | █████████████████████                    23.66x
+  L10 | █████████                                10.49x
+  L11 | ████████                                  9.73x
+  L12 | ███████████                              12.93x
+  L13 | █████████████                            15.18x
+  L14 | ████████████████                         18.19x
+  L15 | ████████████████████                     21.98x
+  L16 | ████████████████                         18.17x
+  L17 | ██████                                    7.27x
+  L18 | ██████████████████████████               29.06x
+  L19 | ███████████████████████████████          34.42x
+  L20 | █████████████████████                    23.19x
+  L21 | ██████████████████████████████           33.46x
+  L22 | ██████████████████████████████           33.38x
+  L23 | ████████████████████████████████████     39.53x
+  L24 | ████████████████████████████████████████ 43.47x ◀
+  L25 | ███████████████████████████              29.44x
+  L26 | ███████████████████████████              29.64x
+  L27 | ██████████████████████████               28.78x
+  L28 | ████████████████████████                 26.73x
+  L29 | ████████████████████                     22.16x
+  L30 | ███████████████                          16.35x
+  L31 | █████████████                            14.64x
+
+  Investigation completed successfully.

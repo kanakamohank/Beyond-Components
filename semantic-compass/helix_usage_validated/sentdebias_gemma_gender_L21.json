@@ -1,0 +1,10 @@
+{
+  "model": "google/gemma-2-2b",
+  "domain": "gender",
+  "layer": 21,
+  "k": 1,
+  "subspace_singular_values": [
+    1434.010986328125
+  ],
+  "n_items": 552
+}

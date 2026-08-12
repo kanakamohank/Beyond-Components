@@ -1,0 +1,10 @@
+{
+  "model": "microsoft/Phi-3-mini-4k-instruct",
+  "domain": "gender",
+  "layer": 24,
+  "k": 1,
+  "subspace_singular_values": [
+    994.3577270507812
+  ],
+  "n_items": 552
+}

@@ -1,0 +1,105 @@
+StereoSet multi-probe scan summary (microsoft/Phi-3-mini-4k-instruct)
+Probes total: 239
+Planes scanned (causal): 787 / 6144
+(plane,probe) tests: 2493
+Scan rows: 2493
+Thresholds: R2>=0.95  dphi<=10.0  slope>=0.2
+Alphas: [3.0, 10.0]  angles: 12  decode_topk: 500
+
+Top 30 (L,H) by total passes across probes:
+    L   H  gender    race  profes  religi   TOTAL
+   24  14      14      37      32       3      86
+   28  26      11      10       3       4      28
+   26  24       3       8      13       0      24
+   27  16       4       0      13       0      17
+   28   1       0       0      17       0      17
+   27   6       0      10       6       0      16
+   29  15       6       0      10       0      16
+   21   9       0       3      12       0      15
+   26  22       6       0       9       0      15
+   30   4      10       0       3       0      13
+   29  14       0       0       9       0       9
+   25  24       0       0       8       0       8
+   28   9       0       8       0       0       8
+   24   2       1       3       3       0       7
+   31  10       3       0       3       0       6
+   28  29       0       0       5       0       5
+   31   5       0       1       4       0       5
+   26   4       0       4       0       0       4
+   20   4       0       3       0       0       3
+   20  20       3       0       0       0       3
+   21   7       0       0       3       0       3
+   23  14       2       0       1       0       3
+   24  10       0       0       3       0       3
+   25  19       3       0       0       0       3
+   27   4       0       0       3       0       3
+   28  28       0       0       3       0       3
+   29   9       0       0       0       3       3
+   29  18       0       0       3       0       3
+   31  21       0       3       0       0       3
+   22  14       2       0       0       0       2
+
+Total distinct heads with >=1 pass: 33
+Total distinct probes with >=1 pass: 80/239
+
+Top 60 probes by how many planes they pass in:
+  profession                    he / she                 16
+  profession                   she / he                  16
+  profession                   his / her                 13
+  profession                   her / his                 13
+  profession                   him / her                 10
+  race                       short / strong              10
+  gender                     small / large               10
+  gender                 beautiful / weak                8
+  gender                      girl / boy                 8
+  gender                       boy / girl                8
+  race                         man / girl                7
+  profession                  fast / small               6
+  profession               violent / gentle              6
+  gender                   violent / gentle              6
+  profession                  tall / short               6
+  race                        tall / short               6
+  profession                  film / music               6
+  gender                   protect / attack              5
+  race                        poor / beautiful           5
+  race                     serious / silly               5
+  profession                    He / She                 5
+  race                         hot / cold                5
+  gender                     short / long                5
+  profession                 state / nation              5
+  gender                    stupid / elegant             4
+  profession                 quick / slow                4
+  gender                      slow / quick               4
+  race                       brown / white               4
+  religion                    long / brief               4
+  race                     eastern / western             3
+  gender                     alone / together            3
+  profession                 lower / higher              3
+  profession                   man / woman               3
+  profession                 woman / man                 3
+  race                   dangerous / clean               3
+  profession               violent / educated            3
+  race                   dangerous / friendly            3
+  race                        loud / quiet               3
+  profession                 quiet / loud                3
+  religion                   dirty / beautiful           3
+  race                   beautiful / calm                3
+  race                   beautiful / dirty               3
+  profession               careful / stupid              3
+  profession                 smart / stupid              3
+  profession                  good / stupid              3
+  race                      stupid / smart               3
+  race                        poor / interesting         3
+  profession                stupid / smart               3
+  profession             beautiful / ugly                3
+  profession               helpful / useless             3
+  race                   beautiful / ugly                3
+  race                    conflict / beautiful           3
+  profession                strong / old                 3
+  race                       black / white               3
+  profession                 black / white               3
+  profession                 white / black               3
+  race                       white / black               3
+  race                        cold / dry                 3
+  profession                 James / Samuel              3
+  religion                 unknown / kind                3

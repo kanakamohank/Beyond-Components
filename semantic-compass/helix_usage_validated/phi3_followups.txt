@@ -1,0 +1,50 @@
+/Users/mkanaka/Documents/GitHub/Beyond-Components/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct requires setting trust_remote_code=True
+WARNING:root:Loading model microsoft/Phi-3-mini-4k-instruct state dict requires setting trust_remote_code=True
+`torch_dtype` is deprecated! Use `dtype` instead!
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:`flash-attention` package not found, consider installing for better performance: No module named 'flash_attn'.
+WARNING:transformers_modules.microsoft.Phi_hyphen_3_hyphen_mini_hyphen_4k_hyphen_instruct.f39ac1d28e925b323eae81227eaba4464caced4e.modeling_phi3:Current `flash-attention` does not support `window_size`. Either upgrade or use `attn_implementation='eager'`.
+Loading microsoft/Phi-3-mini-4k-instruct...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 26.75it/s]
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+WARNING:root:You are not using LayerNorm, so the writing weights can't be centered! Skipping
+Loaded pretrained model microsoft/Phi-3-mini-4k-instruct into HookedTransformer
+  Model loaded: 32L, 32H, d=3072
+  Target: L24 H28, SVD dims (3, 7), resid L25, T=11.74
+  Sanity checks...
+  Sanity OK  (activation shape (1, 6, 3072))
+
+===========================================================================
+DECODE COHERENCE SWEEP (36 angles, top_k=50)
+===========================================================================
+  head                  mean_top1  mean_margin    mean_ent     min_ent
+  L0H8(2,4)                 0.011        0.002       3.912       3.912
+  L0H8(4,8)                 0.009        0.002       3.912       3.912
+  L1H29(0,5)                0.032        0.005       3.912       3.912
+  L4H7(0,5)                 0.240        0.036       3.912       3.912
+  L12H10(3,7)               0.714        0.135       3.911       3.910
+  L16H21(6,9)               0.659        0.137       3.911       3.909
+  L24H28(3,7)               2.001        0.516       3.888       3.861
+
+  Lower entropy + higher margin = more focused decode at that angle.
+  Random planes typically produce mean_entropy near log(50)=3.912.
+
+===========================================================================
+DOWNSTREAM-PATCH TUNED LENS
+Carrier: 'The following concept is'  |  radius_scale=1.0
+===========================================================================
+
+  [ L12 H10  dims (3,7) ]
+    carrier angle=181.3°  carrier radius=0.220  inject radius=1.000
+        0°: ['a', 'based', 'cru', 'derived', 'inspired', 'to', 'drawn', 'related', 'not', 'presented']
+       90°: ['a', 'based', 'cru', 'derived', 'inspired', 'to', 'drawn', 'not', 'related', 'presented']
+      180°: ['a', 'based', 'cru', 'derived', 'inspired', 'to', 'drawn', 'not', 'related', 'presented']
+      270°: ['a', 'based', 'cru', 'derived', 'inspired', 'to', 'drawn', 'not', 'related', 'an']
+
+  [ L16 H21  dims (6,9) ]
+    carrier angle=348.9°  carrier radius=0.851  inject radius=1.000
+        0°: ['a', 'based', 'cru', 'derived', 'inspired', 'to', 'drawn', 'not', 'related', 'an']
+       90°: ['a', 'based', 'cru', 'derived', 'inspired', 'to', 'drawn', 'not', 'related', 'presented']
+      180°: ['a', 'based', 'cru', 'derived', 'inspired', 'to', 'drawn', 'not', 'related', 'an']
+      270°: ['a', 'based', 'cru', 'derived', 'inspired', 'to', 'drawn', 'not', 'related', 'essential']

@@ -1,0 +1,10 @@
+{
+  "model": "meta-llama/Llama-3.2-3B",
+  "domain": "race",
+  "layer": 22,
+  "k": 1,
+  "subspace_singular_values": [
+    131.7294464111328
+  ],
+  "n_items": 330
+}

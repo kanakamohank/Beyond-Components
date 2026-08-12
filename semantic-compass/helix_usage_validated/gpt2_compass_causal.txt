@@ -1,0 +1,123 @@
+/Users/mkanaka/Documents/GitHub/Beyond-Components/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/mkanaka/Documents/GitHub/Beyond-Components/.venv/lib/python3.9/site-packages/transformer_lens/HookedTransformerConfig.py:343: UserWarning: MPS backend may produce silently incorrect results (PyTorch 2.8.0). Set TRANSFORMERLENS_ALLOW_MPS=1 to suppress this warning. See: https://github.com/TransformerLensOrg/TransformerLens/issues/1178
+  utils.warn_if_mps(self.device)
+`torch_dtype` is deprecated! Use `dtype` instead!
+/tmp/gpt2_compass_causal.py:31: UserWarning: The operator 'aten::linalg_svd' is not currently supported on the MPS backend and will fall back to run on the CPU. This may have performance implications. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/aten/src/ATen/mps/MPSFallback.mm:15.)
+  U, S, Vt = torch.linalg.svd(W_VO, full_matrices=False)
+Loaded pretrained model gpt2-small into HookedTransformer
+L9H7 plane (SV1, SV2):
+  sigma_1=8.866  sigma_2=8.456
+
+BASELINE logit(he - she):
+  neutral prompts: +0.550
+  masc prompts:    +2.911
+  fem  prompts:    -3.070
+
+======================================================================
+INJECTION SWEEP at alpha = 1.0
+======================================================================
+    deg |   neutral      masc       fem
+  ----- | --------- --------- ---------
+    0.0 |    -0.633    +1.673    -4.309
+   15.0 |    -0.617    +1.689    -4.291
+   30.0 |    -0.522    +1.788    -4.189
+   45.0 |    -0.353    +1.963    -4.012
+   60.0 |    -0.124    +2.203    -3.771
+   75.0 |    +0.151    +2.490    -3.482
+   90.0 |    +0.454    +2.806    -3.165
+  105.0 |    +0.763    +3.130    -2.841
+  120.0 |    +1.057    +3.438    -2.532
+  135.0 |    +1.318    +3.710    -2.260
+  150.0 |    +1.526    +3.928    -2.043
+  165.0 |    +1.667    +4.077    -1.895
+  180.0 |    +1.733    +4.147    -1.828
+  195.0 |    +1.718    +4.132    -1.845
+  210.0 |    +1.623    +4.034    -1.946
+  225.0 |    +1.455    +3.859    -2.123
+  240.0 |    +1.225    +3.620    -2.365
+  255.0 |    +0.950    +3.332    -2.656
+  270.0 |    +0.646    +3.015    -2.974
+  285.0 |    +0.336    +2.690    -3.299
+  300.0 |    +0.041    +2.381    -3.608
+  315.0 |    -0.219    +2.108    -3.879
+  330.0 |    -0.427    +1.890    -4.096
+  345.0 |    -0.568    +1.742    -4.242
+
+  NEUTRAL curve fit: mean=+0.550  amp=1.187  phase=-175.3
+  argmin at   0.0 deg (predicted 0 deg, she-quadrant)
+  argmax at 180.0 deg (predicted 180 deg, he-quadrant)
+  masc swing: [+1.673, +4.147]  range=2.47
+  fem  swing: [-4.309, -1.828]  range=2.48
+
+======================================================================
+INJECTION SWEEP at alpha = 3.0
+======================================================================
+    deg |   neutral      masc       fem
+  ----- | --------- --------- ---------
+    0.0 |    -2.991    -0.800    -6.769
+   15.0 |    -2.941    -0.750    -6.713
+   30.0 |    -2.654    -0.452    -6.409
+   45.0 |    -2.150    +0.074    -5.879
+   60.0 |    -1.464    +0.792    -5.159
+   75.0 |    -0.641    +1.653    -4.296
+   90.0 |    +0.263    +2.597    -3.349
+  105.0 |    +1.187    +3.563    -2.382
+  120.0 |    +2.068    +4.484    -1.458
+  135.0 |    +2.847    +5.300    -0.642
+  150.0 |    +3.471    +5.953    +0.012
+  165.0 |    +3.898    +6.401    +0.457
+  180.0 |    +4.097    +6.611    +0.663
+  195.0 |    +4.054    +6.570    +0.614
+  210.0 |    +3.773    +6.278    +0.314
+  225.0 |    +3.270    +5.756    -0.219
+  240.0 |    +2.580    +5.038    -0.947
+  255.0 |    +1.751    +4.173    -1.820
+  270.0 |    +0.840    +3.221    -2.778
+  285.0 |    -0.091    +2.247    -3.753
+  300.0 |    -0.977    +1.319    -4.680
+  315.0 |    -1.757    +0.500    -5.493
+  330.0 |    -2.379    -0.154    -6.139
+  345.0 |    -2.799    -0.597    -6.574
+
+  NEUTRAL curve fit: mean=+0.552  amp=3.556  phase=-175.3
+  argmin at   0.0 deg (predicted 0 deg, she-quadrant)
+  argmax at 180.0 deg (predicted 180 deg, he-quadrant)
+  masc swing: [-0.800, +6.611]  range=7.41
+  fem  swing: [-6.769, +0.663]  range=7.43
+
+======================================================================
+INJECTION SWEEP at alpha = 10.0
+======================================================================
+    deg |   neutral      masc       fem
+  ----- | --------- --------- ---------
+    0.0 |   -11.072    -9.316   -15.097
+   15.0 |   -10.884    -9.123   -14.885
+   30.0 |    -9.925    -8.119   -13.879
+   45.0 |    -8.265    -6.379   -12.151
+   60.0 |    -6.017    -4.023    -9.813
+   75.0 |    -3.331    -1.211    -7.015
+   90.0 |    -0.383    +1.870    -3.940
+  105.0 |    +2.632    +5.017    -0.786
+  120.0 |    +5.515    +8.020    +2.239
+  135.0 |    +8.073   +10.684    +4.930
+  150.0 |   +10.135   +12.830    +7.104
+  165.0 |   +11.558   +14.313    +8.604
+  180.0 |   +12.241   +15.031    +9.321
+  195.0 |   +12.130   +14.926    +9.194
+  210.0 |   +11.223   +13.998    +8.222
+  225.0 |    +9.577   +12.299    +6.465
+  240.0 |    +7.299    +9.940    +4.046
+  255.0 |    +4.548    +7.081    +1.135
+  270.0 |    +1.518    +3.921    -2.055
+  285.0 |    -1.575    +0.685    -5.295
+  300.0 |    -4.510    -2.394    -8.352
+  315.0 |    -7.081    -5.099   -11.015
+  330.0 |    -9.113    -7.241   -13.107
+  345.0 |   -10.471    -8.677   -14.495
+
+  NEUTRAL curve fit: mean=+0.576  amp=11.700  phase=-175.3
+  argmin at   0.0 deg (predicted 0 deg, she-quadrant)
+  argmax at 180.0 deg (predicted 180 deg, he-quadrant)
+  masc swing: [-9.316, +15.031]  range=24.35
+  fem  swing: [-15.097, +9.321]  range=24.42

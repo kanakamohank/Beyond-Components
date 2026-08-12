@@ -1,0 +1,33 @@
+The compass primitive is dual-use: the same rank-2 rotation that
+moves WinoGender stereo correlation toward zero, applied at the
+opposite pole, moves it the other way. The intervention is also
+asymmetric (\cref{tab:storage}): on GPT-2, masculine-coded
+directions steer more strongly than feminine-coded ones, so a
+practitioner applying the same $\alpha$ symmetrically will overshoot
+in one direction and undershoot in the other.
+
+\paragraph{Restricted scope.}
+Downstream evaluation uses public benchmarks (Gender Pronoun,
+WinoGender, intra-sentence StereoSet, CrowS-Pairs). These do not
+generalise to deployment-style settings (long-form generation, RLHF
+reward modelling, agentic systems); surface SS movement is a weak
+indicator of deployed model behaviour. Practitioners using the
+compass for fairness purposes should run the
+\citet{gonen2019lipstick} probe-recovery diagnostic before
+reporting any debiasing outcome.
+
+\paragraph{Binary framing.}
+The compass ``gender'' axis we measure is operationalised through
+binary English pronouns. Deployment to systems serving non-binary
+users, or to non-English language settings, requires
+within-population evaluation that we do not provide.
+
+\paragraph{Release.}
+We release scan logs, calibration JSONs, per-head battery results,
+and pinned commit hashes sufficient to reproduce every number in
+\cref{tab:gender,tab:battery,tab:holm,tab:storage,tab:scan,tab:winogender,tab:stereoset,tab:crows_holdout}.
+We do not release pre-computed steering tensors. The
+$(\text{model}, \text{layer}, \text{head}, \mathrm{SV}\text{-pair})$
+tuples in \cref{tab:gender} are sufficient to reconstruct the
+intervention from public weights; the methodology is in the paper
+rather than gated on an artefact.

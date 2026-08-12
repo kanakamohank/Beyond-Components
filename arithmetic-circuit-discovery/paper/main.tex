@@ -1,0 +1,52 @@
+\documentclass{article}
+
+% Try NeurIPS style; fall back to basic formatting if not available
+\IfFileExists{neurips_2024.sty}{
+  \usepackage[final]{neurips_2024}
+}{
+  \usepackage[margin=1in]{geometry}
+  \usepackage{natbib}
+}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{multirow}
+\usepackage{wrapfig}
+
+\graphicspath{{../mathematical_toolkit_results/paper_plots/}}
+
+\title{The Fourier Basis of Digit Arithmetic:\\Mechanistic Interpretability of Addition Circuits in Language Models}
+
+\author{
+  Author Names \\
+  Affiliation \\
+  \texttt{email@institution.edu}
+}
+
+\begin{document}
+\maketitle
+
+\input{sections/abstract}
+\input{sections/introduction}
+\input{sections/background}
+\input{sections/methods}
+\input{sections/results}
+\input{sections/discussion}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\newpage
+\input{sections/appendix}
+
+\end{document}

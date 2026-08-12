@@ -1,0 +1,112 @@
+/Users/mkanaka/Documents/GitHub/Beyond-Components/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+`torch_dtype` is deprecated! Use `dtype` instead!
+WARNING:root:With reduced precision, it is advised to use `from_pretrained_no_processing` instead of `from_pretrained`.
+=================================================================
+VALIDATED HELIX USAGE INVESTIGATION
+=================================================================
+Loading gpt2...
+Loaded pretrained model gpt2 into HookedTransformer
+  Model loaded: 12L, 12H, d=768
+  Target: L6 H0, SVD dims (0, 1), resid L6, T=10.0
+  Sanity checks...
+  Sanity OK  (activation shape (1, 4, 768))
+  OVERRIDE -> L10 H9 dims (0, 3)
+
+  Running --test all-must-have...
+
+###########################################################################
+WORKSHOP-PAPER TEST SUITE
+Model: gpt2  Device: mps
+###########################################################################
+
+===========================================================================
+COMPASS RANDOM-PLANE BASELINE
+Target: L10 H9, SVD Dims (0, 3)  |  N_trials=1000
+===========================================================================
+  Observed spread (SVD plane dims 0,3): 1.2°
+  Random-plane spread: mean=26.4°  std=21.7°  max=135.8°
+  Empirical p-value (spread >= observed): 0.9980  (n_trials=1000)
+  --> NULL: consistent with a random 2D plane
+
+===========================================================================
+COMPASS PERMUTATION TEST
+Target: L10 H9, SVD Dims (0, 3)  |  N_perms=2000
+===========================================================================
+  Observed spread (true labels): 1.2°
+  Permuted spread: mean=0.4°  std=0.2°  max=1.0°
+  Empirical p-value: 0.0000  (n_permutations=2000)
+  --> STRONG: labels carry real angular signal
+
+===========================================================================
+PRINCIPAL ANGLES BETWEEN COMPASS SUBSPACES
+Heads: [(10, 9, 0, 3)]
+===========================================================================
+
+===========================================================================
+CYCLICITY CHECK (arc vs. closed dial)
+Target: L10 H9, SVD Dims (0, 3)  |  top_k=30
+===========================================================================
+  Top-10 @   0°: ['His', 'his', 'He', ' his', ' His', ' he', ' He', ' himself', ' him', ' HIS']
+  Top-10 @ 180°: [' her', ' she', 'She', ' herself', 'she', ' She', 'Her', ' hers', ' SHE', ' HER']
+  Top-10 @ 360°: ['His', 'his', 'He', ' his', ' His', ' he', ' He', ' himself', ' him', ' HIS']
+  Jaccard(  0°, 360°) = 1.000   (expect ≈1 for a real circle)
+  Jaccard(  0°, 180°) = 0.000   (expect ≈0 for antipodal distinctness)
+  --> CIRCLE: closed and with distinct antipodes
+
+===========================================================================
+CAUSAL COMPASS PATCH
+Target: L10 H9, SVD Dims (0, 3)
+===========================================================================
+
+  Prompt: 'The software company launched a new program'
+    baseline angle = 93.9°, in-plane radius = 10.459
+
+  Prompt: 'The championship was won by the rival teams'
+    baseline angle = 96.9°, in-plane radius = 11.895
+
+  Prompt: 'The explorers mapped out the uncharted territory'
+    baseline angle = 94.2°, in-plane radius = 14.342
+
+   delta     target   mean_shift    n
+  ----------------------------------------
+    -180          0      +0.1736    3
+    -180         90      -0.1302    3
+    -180        180      +0.0796    3
+    -180        270      +0.1363    3
+     -90          0      +0.0851    3
+     -90         90      +0.0139    3
+     -90        180      +0.0165    3
+     -90        270      +0.1085    3
+      +0          0      +0.0000    3
+      +0         90      +0.0000    3
+      +0        180      +0.0000    3
+      +0        270      +0.0000    3
+     +90          0      +0.1493    3
+     +90         90      -0.0799    3
+     +90        180      +0.0765    3
+     +90        270      +0.0664    3
+    +180          0      +0.1736    3
+    +180         90      -0.1302    3
+    +180        180      +0.0796    3
+    +180        270      +0.1363    3
+
+===========================================================================
+SEMANTIC-TASK MLP ABLATION
+OV: L10 H9 dims (0,3); MLP layer 10
+===========================================================================
+  Target 20 / Random 20 of 3072 (gated=False)
+  [1] Baseline...
+    Baseline: 16.7% (2/12)
+  [2] Targeted ablation...
+    Ablated: 16.7% (2/12)
+  [3] Random control...
+    Random: 16.7% (2/12)
+
+  Baseline=16.7%  Ablated=16.7%  Random=16.7%
+  Targeted drop=+0.0%  Random drop=+0.0%  Specificity=+0.0%
+  --> resilient
+
+  Saved workshop suite results to helix_usage_validated/workshop_suite_results.json
+
+  Investigation completed successfully.

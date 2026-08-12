@@ -1,0 +1,25 @@
+Model: google/gemma-2-2b
+Ensemble: K=4  alphas=[5.0, 10.0]
+Ensemble heads:
+   L20H5  SV(0,2) phi=+2.6  slope=0.158  passed=True
+   L21H4  SV(0,1) phi=-11.7  slope=0.359  passed=True
+   L16H2  SV(1,2) phi=-77.2  slope=0.115  passed=True
+   L20H2  SV(1,2) phi=-56.9  slope=0.089  passed=True
+
+cond                    alpha domain            SS      n  skip
+------------------------------------------------------------
+baseline                 0.00 race           56.01    516     0
+baseline                 0.00 profession     63.95    172     0
+baseline                 0.00 gender         51.15    262     0
+baseline                 0.00 religion       63.81    105     0
+baseline                 0.00 overall        56.87   1055     0
+ensemble_K4              5.00 race           54.07    516     0
+ensemble_K4              5.00 profession     63.95    172     0
+ensemble_K4              5.00 gender         54.96    262     0
+ensemble_K4              5.00 religion       64.76    105     0
+ensemble_K4              5.00 overall        56.97   1055     0
+ensemble_K4             10.00 race           51.36    516     0
+ensemble_K4             10.00 profession     62.21    172     0
+ensemble_K4             10.00 gender         58.40    262     0
+ensemble_K4             10.00 religion       64.76    105     0
+ensemble_K4             10.00 overall        56.21   1055     0
